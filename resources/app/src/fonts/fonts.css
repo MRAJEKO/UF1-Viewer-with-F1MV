@@ -1,0 +1,19 @@
+@font-face {
+    font-family: "SFBold";
+    src: url("SF-Pro-Display-Bold.otf") format("opentype");
+}
+
+@font-face {
+    font-family: "F1Bold";
+    src: url("Formula1-Bold_web_0.ttf") format("truetype");
+}
+
+@font-face {
+    font-family: "F1Regular";
+    src: url("Formula1-Regular_web_0.ttf") format("truetype");
+}
+
+@font-face {
+    font-family: "F1Wide";
+    src: url("Formula1-Wide.ttf") format("truetype");
+}

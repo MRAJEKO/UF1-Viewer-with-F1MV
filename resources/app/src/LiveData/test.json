@@ -1,0 +1,53 @@
+{
+  "Withheld": false,
+  "Lines": [
+    {
+      "Position": "1",
+      "ShowPosition": true,
+      "RacingNumber": "1",
+      "Tla": "VER",
+      "BroadcastName": "M VERSTAPPEN",
+      "FullName": "Max VERSTAPPEN",
+      "Team": "Red Bull Racing",
+      "TeamColour": "1e5bc6",
+      "LapTime": "1:53.149",
+      "LapState": 64,
+      "DiffToAhead": "LAP 44",
+      "DiffToLeader": "LAP 44",
+      "OverallFastest": false,
+      "PersonalFastest": false
+    },
+    {
+      "Position": "2",
+      "ShowPosition": true,
+      "RacingNumber": "11",
+      "Tla": "PER",
+      "BroadcastName": "S PEREZ",
+      "FullName": "Sergio PEREZ",
+      "Team": "Red Bull Racing",
+      "TeamColour": "1e5bc6",
+      "LapTime": "1:52.843",
+      "LapState": 64,
+      "DiffToAhead": "+17.841",
+      "DiffToLeader": "+17.841",
+      "OverallFastest": false,
+      "PersonalFastest": false
+    },
+    {
+      "Position": "3",
+      "ShowPosition": true,
+      "RacingNumber": "55",
+      "Tla": "SAI",
+      "BroadcastName": "C SAINZ",
+      "FullName": "Carlos SAINZ",
+      "Team": "Ferrari",
+      "TeamColour": "ed1c24",
+      "LapTime": "1:52.605",
+      "LapState": 64,
+      "DiffToAhead": "+9.045",
+      "DiffToLeader": "+26.886",
+      "OverallFastest": false,
+      "PersonalFastest": false
+    }
+  ]
+}

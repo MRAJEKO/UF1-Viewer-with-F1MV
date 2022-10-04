@@ -1,0 +1,28 @@
+.data_header span {
+  padding: 10px;
+  color: white;
+}
+
+.data_header {
+  margin-bottom: 10px;
+  margin-top: 20px;
+}
+
+.data_line {
+  font-size: 14px;
+  height: 30px;
+  padding: 6px;
+}
+
+.data_fastest {
+  font-size: 16px;
+  height: 30px;
+  padding: 4px;
+  border-top: 1px solid white;
+  border-bottom: 1px solid white;
+}
+
+.data {
+  margin-right: 20px;
+  margin-left: 20px;
+}
