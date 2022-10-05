@@ -1,3 +1,5 @@
+
+
 from ast import Mult
 from ensurepip import version
 import json
@@ -9,11 +11,12 @@ import shutil
 import subprocess
 
 os.system('cls')
+print(os.getcwd())
 
-outputDir = "C:/Users/Aiden/OneDrive/F1/UF1/MVF1 Releases/"
-MultiViewer = "C:/Users/Aiden/OneDrive/F1/UF1/MultiViewer for F1"
+outputDir = "MVF1 Releases"
+MultiViewer = "MultiViewer for F1"
 
-package = open(MultiViewer + "/resources/app/package.json")
+package = open(MultiViewer + "\\resources\\app\\package.json")
 currentVersion = "v" + json.load(package)["version"]
 latest = requests.get("https://releases.f1mv.com/releases/latest").json()
 package.close()
