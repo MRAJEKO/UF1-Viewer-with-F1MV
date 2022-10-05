@@ -1,3 +1,3 @@
-C:/Users/Aiden/AppData/Local/Microsoft/WindowsApps/python3.10.exe c:/Users/Aiden/OneDrive/F1/UF1/"MV auto updater"/mvAutoUpdater.py
-START C:\Users\Aiden\OneDrive\F1\UF1\"MultiViewer for F1"\"MultiViewer for F1.exe"
-exit
+C:/Users/Aiden/AppData/Local/Microsoft/WindowsApps/python3.10.exe C:\"UF1 Viewer with F1MV"\resources\app\src\MultiViewer\mvAutoUpdater.py
+START C:\"UF1 Viewer with F1MV"\resources\app\src\MultiViewer\"MultiViewer for F1"\"MultiViewer for F1.exe"
+EXIT

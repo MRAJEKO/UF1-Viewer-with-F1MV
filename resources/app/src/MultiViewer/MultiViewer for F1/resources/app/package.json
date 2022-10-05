@@ -1,0 +1,34 @@
+{
+  "name": "f1multiviewer",
+  "productName": "MultiViewer for F1",
+  "version": "1.8.4",
+  "description": "F1TV Multi-Screen Viewer for macOS, Windows and Linux",
+  "main": ".webpack/main",
+  "author": {
+    "name": "MultiViewer for F1",
+    "email": "app@f1mv.com"
+  },
+  "scripts": {
+    "start": "electron-forge start",
+    "package": "NODE_ENV=production electron-forge package",
+    "make": "NODE_ENV=production electron-forge make",
+    "make:all": "yarn make:mac && yarn make:win && yarn make:linux",
+    "make:mac": "NODE_ENV=production electron-forge make --platform darwin --arch universal",
+    "make:win": "NODE_ENV=production electron-forge make --platform win32 --arch x64",
+    "make:linux": "NODE_ENV=production electron-forge make --platform linux --arch x64",
+    "publish": "NODE_ENV=production electron-forge publish",
+    "publish:all": "yarn publish:mac && yarn publish:win && yarn publish:linux",
+    "publish:win": "NODE_ENV=production electron-forge publish --platform win32 --arch x64",
+    "publish:mac": "NODE_ENV=production electron-forge publish --platform darwin --arch universal",
+    "publish:linux": "NODE_ENV=production electron-forge publish --platform linux --arch x64",
+    "sign": "python -m castlabs_evs.vmp sign-pkg out/F1\\ MultiViewer-darwin-arm64 && python -m castlabs_evs.vmp sign-pkg out/F1\\ MultiViewer-darwin-x64 && python -m castlabs_evs.vmp sign-pkg out/F1\\ MultiViewer-win32-x64",
+    "lint": "eslint --ext .ts,.tsx .",
+    "postinstall": "python3 -m pip install --upgrade castlabs-evs && python3 -m castlabs_evs.vmp sign-pkg node_modules/electron/dist"
+  },
+  "keywords": [],
+  "license": "UNLICENSED",
+  "devDependencies": {},
+  "dependencies": {},
+  "optionalDependencies": {},
+  "peerDependencies": {}
+}

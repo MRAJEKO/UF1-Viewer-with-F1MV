@@ -5,6 +5,7 @@ function multiViewer() {
     const path = require("path");
     const location = path.join(__dirname, "../");
     let executablePath = "C:\\WINDOWS\\system32\\cmd.exe";
+    console.log(location);
 
     spawn(executablePath, ["/c", "start", location + "MultiViewer/MV.cmd"], {
         detached: true,
