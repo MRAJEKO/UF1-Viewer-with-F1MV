@@ -13,10 +13,14 @@ import subprocess
 os.system('cls')
 print(os.getcwd())
 
-outputDir = "MVF1 Releases"
-MultiViewer = "MultiViewer for F1"
+# cd to ./src
+os.chdir("./src/MultiViewer")
+print(os.getcwd())
 
-package = open(MultiViewer + "\\resources\\app\\package.json")
+outputDir = "./MVF1 Releases/"
+MultiViewer = "./MultiViewer for F1"
+
+package = open(MultiViewer + "/resources/app/package.json")
 currentVersion = "v" + json.load(package)["version"]
 latest = requests.get("https://releases.f1mv.com/releases/latest").json()
 package.close()
@@ -26,6 +30,7 @@ latestId = str(latest["assets"][0]["id"])
 
 
 if currentVersion != latestVersion:
+    print("New version available!")
     def extractZip(src, dest):
         with zipfile.ZipFile(src, 'r') as zip_ref:
             zip_ref.extractall(dest)
@@ -47,7 +52,7 @@ if currentVersion != latestVersion:
 
             os.remove(outputDir + filename)
             print("Renaming folder")
-            os.rename(outputDir + "MultiViewer for F1-win32-x64",outputDir + latestVersion)
+            os.rename(outputDir + "MultiViewer for F1-win32-x64", outputDir + latestVersion)
             break
     print("File had downloaded")
 
@@ -70,8 +75,5 @@ else:
     print("Running MultiViewer")
     sleep(1)
 
-
-# for file in folder:
-#     filedata = open(file, 'rb').read()
-#     newLocation = newpath
-#     newFile = open(f'{newLocation}/{file}', 'wb').write(filedata)
+# Run MultiViewer
+subprocess.Popen(MultiViewer + "/MultiViewer for F1.exe")

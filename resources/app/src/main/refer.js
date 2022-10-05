@@ -2,13 +2,20 @@ const { spawn, exec } = require("child_process");
 
 // Function called when the user clicks the button
 function multiViewer() {
-    const path = require("path");
-    const location = path.join(__dirname, "../");
-    let executablePath = "C:\\WINDOWS\\system32\\cmd.exe";
-    console.log(location);
+    console.log("Opening MultiViewer");
 
-    spawn(executablePath, ["/c", "start", location + "MultiViewer/MV.cmd"], {
-        detached: true,
+    var updater = spawn("python", ["./src/MultiViewer/mvAutoUpdater.py"]);
+
+
+    // Used for debugging, can be removed
+    updater.stdout.on("data", function (data) {
+        console.log(data.toString());
+    });
+    updater.stderr.on("data", function (data) {
+        console.log(data.toString());
+    });
+    updater.on("exit", function (code) {
+        console.log("MultiViewer updater exited with code " + code.toString());
     });
 }
 
