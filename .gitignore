@@ -1,2 +1,4 @@
 *.exe
 package-lock.json
+**/MultiViewer for F1/
+**/MVF1 Releases/
