@@ -1,0 +1,27 @@
+* {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+div {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vw;
+    width: 100vw;
+}
+
+img {
+    /* position: absolute; */
+    margin: 2px;
+    width: calc(100vw - 8px);
+    transition-delay: 2s;
+    transition: 5s all ease;
+}
+
+div:hover {
+    -webkit-app-region: drag;
+    border: 2px solid gray;
+    border-radius: 10px;
+}
