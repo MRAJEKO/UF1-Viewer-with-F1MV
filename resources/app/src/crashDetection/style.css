@@ -1,0 +1,17 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+
+h1 {
+    font-family: "F1Bold", Arial, Helvetica, sans-serif;
+}
+
+p {
+    font-family: "F1Regular", Arial, Helvetica, sans-serif;
+}
+
+body {
+    background-color: gray;
+    -webkit-app-region: drag;
+}
