@@ -134,7 +134,7 @@ function flagDisplay() {
 
 function trackTime() {
     window.open(
-        "../tracktime/index.html",
+        "../TrackTime/index.html",
         "_blank",
         "height=100px,width=400px,transparent=true,frame=false,resizable=true,hasShadow=false,nodeIntegration=no"
     );
