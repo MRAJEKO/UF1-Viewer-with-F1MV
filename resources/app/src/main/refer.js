@@ -126,7 +126,7 @@ function launchMVF1() {
 
 function flagDisplay() {
     window.open(
-        "../FlagDisplay/fd.html",
+        "../flagdisplay/index.html",
         "_blank",
         "top=500,left=200,frame=false,nodeIntegration=no"
     );
@@ -134,9 +134,9 @@ function flagDisplay() {
 
 function trackTime() {
     window.open(
-        "../TrackTime/index.html",
+        "../tracktime/index.html",
         "_blank",
-        "height=100px,width=400px,transparent=true,frame=false,resizable=true,hasShadow=false"
+        "height=100px,width=400px,transparent=true,frame=false,resizable=true,hasShadow=false,nodeIntegration=no"
     );
 }
 
