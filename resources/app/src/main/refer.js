@@ -126,7 +126,7 @@ function launchMVF1() {
 
 function flagDisplay() {
     window.open(
-        "../FlagDisplay/fd.html",
+        "../flagdisplay/index.html",
         "_blank",
         "top=500,left=200,frame=false,nodeIntegration=no"
     );
@@ -134,9 +134,17 @@ function flagDisplay() {
 
 function trackTime() {
     window.open(
-        "../TrackTime/tt.html",
+        "../tracktime/index.html",
         "_blank",
-        "height=100px,width=400px,transparent=true,frame=false,resizable=true,hasShadow=false,webPreferences={devTools=false},top=0,left=200,nodeIntegration=no"
+        "height=100px,width=400px,transparent=true,frame=false,resizable=true,hasShadow=false,nodeIntegration=no"
+    );
+}
+
+function compass() {
+    window.open(
+        "../compass/index.html",
+        "_blank",
+        "height=100px,width=100px,transparent=true,frame=false,resizable=true,hasShadow=false"
     );
 }
 
