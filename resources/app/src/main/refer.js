@@ -152,7 +152,7 @@ function singleRCM() {
     var left = (window.screen.width - 1000) / 2;
     console.log(left);
     window.open(
-        "../SingleRCM/index.html",
+        "../singlercm/index.html",
         "_blank",
         "top=0,left=" +
             left +
