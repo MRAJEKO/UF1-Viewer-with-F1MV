@@ -159,3 +159,11 @@ function singleRCM() {
             ",alwaysOnTop=true,width=1000px,height=100px,frame=false,transparent=true,resizable=false,hasShadow=false,webPreferences={devTools=false}"
     );
 }
+
+function trackInfo() {
+    window.open(
+        "../trackinfo/index.html",
+        "_blank",
+        "height=100px,width=100px,transparent=true,frame=false,resizable=true,hasShadow=false"
+    );
+}
