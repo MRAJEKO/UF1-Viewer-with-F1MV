@@ -11,12 +11,13 @@ body {
 
 #main-info {
     display: flex;
-    gap: 10px;
+    gap: 30px;
+    text-align: center;
 }
 
 h1 {
     font-family: "F1Bold", Arial, Helvetica, sans-serif;
-    font-size: 15px;
+    font-size: 18px;
     text-align: center;
 }
 
@@ -29,6 +30,68 @@ h1 {
 
 p {
     font-family: "F1Regular", Arial, Helvetica, sans-serif;
-    font-size: 13px;
+    font-size: 15px;
     text-align: center;
+}
+
+#container {
+    display: flex;
+    gap: 30px;
+}
+
+#statuses {
+    display: grid;
+    grid-template-columns: 130px auto;
+}
+
+#statuses h1 {
+    padding: 4px;
+    margin: 2px;
+}
+
+#statuses p {
+    padding: 4px;
+    margin: 2px;
+    border-radius: 10px;
+    width: 130px;
+    background-size: cover;
+}
+
+.green {
+    background-color: rgb(0, 175, 0) !important;
+    color: white;
+}
+
+.yellow {
+    background-color: rgb(255, 230, 0) !important;
+    color: black;
+}
+
+.orange {
+    background-color: rgb(255, 123, 0) !important;
+    color: white;
+}
+
+.red {
+    background-color: rgb(209, 0, 0);
+}
+
+.slippery {
+    background-image: url(images/red_yellow_flag.png);
+    color: black;
+}
+
+.pink {
+    background-color: pink;
+    color: black;
+}
+
+.blue {
+    background-color: blue;
+    color: white;
+}
+
+.light-blue {
+    background-color: lightblue;
+    color: black;
 }

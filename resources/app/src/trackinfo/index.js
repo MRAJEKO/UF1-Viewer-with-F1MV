@@ -19,5 +19,8 @@ let circuit = JSON.parse(
 
 let trackSectors = circuit.marshalSectors;
 for (i in trackSectors) {
-    console.log(trackSectors[i].number);
+    let container = document.getElementById("statuses");
+    let text = `<h1>Sector ${+i + 1}</h1>
+        <p class="green" id="trackSector${+i + 1}">Status</p>`;
+    container.innerHTML += text;
 }
