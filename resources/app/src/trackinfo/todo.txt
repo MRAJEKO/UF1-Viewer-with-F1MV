@@ -1,0 +1,15 @@
+Session (onschedule, delayed, suspended)
+
+Race timer
+Session timer
+
+Padding material (Blue, Pink)
+Drs status (Enabled, disabled)
+Manditory tyres (Wets, Inters)
+Pit entry status (open, closed)
+Pit exit status (open, closed)
+Race percentage possible to be completed (0% - 100%)
+
+All track sector statusses (slippery, yellow, double yellow, green, red)
+
+Information (Corner number, Marshal lights, Marshal sectors, lap distance, lap record, DRS zones)

@@ -164,6 +164,6 @@ function trackInfo() {
     window.open(
         "../trackinfo/index.html",
         "_blank",
-        "height=100px,width=100px,transparent=true,frame=false,resizable=true,hasShadow=false"
+        "height=100px,width=1000px,transparent=true,frame=false,resizable=true,hasShadow=false"
     );
 }

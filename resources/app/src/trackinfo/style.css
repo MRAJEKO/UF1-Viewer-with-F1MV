@@ -1,4 +1,34 @@
 * {
     margin: 0;
     padding: 0;
+    color: white;
+}
+
+body {
+    background-color: gray;
+    -webkit-app-region: drag;
+}
+
+#main-info {
+    display: flex;
+    gap: 10px;
+}
+
+h1 {
+    font-family: "F1Bold", Arial, Helvetica, sans-serif;
+    font-size: 15px;
+    text-align: center;
+}
+
+.line {
+    margin: 5px 0px;
+    height: 1px;
+    width: 100%;
+    background-color: white;
+}
+
+p {
+    font-family: "F1Regular", Arial, Helvetica, sans-serif;
+    font-size: 13px;
+    text-align: center;
 }
