@@ -32,6 +32,9 @@ p {
     font-family: "F1Regular", Arial, Helvetica, sans-serif;
     font-size: 15px;
     text-align: center;
+    padding: 4px;
+    margin: 2px;
+    border-radius: 10px;
 }
 
 #container {
@@ -57,6 +60,11 @@ p {
     background-size: cover;
 }
 
+.hidden {
+    display: none !important;
+}
+
+/* Colors and backgrounds */
 .green {
     background-color: rgb(0, 175, 0) !important;
     color: white;
@@ -73,7 +81,7 @@ p {
 }
 
 .red {
-    background-color: rgb(209, 0, 0);
+    background-color: rgb(209, 0, 0) !important;
 }
 
 .slippery {
@@ -82,12 +90,12 @@ p {
 }
 
 .pink {
-    background-color: pink;
+    background-color: pink !important;
     color: black;
 }
 
 .blue {
-    background-color: blue;
+    background-color: blue !important;
     color: white;
 }
 
