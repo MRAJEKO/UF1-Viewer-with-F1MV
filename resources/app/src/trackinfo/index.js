@@ -80,6 +80,7 @@ function getMainHTML() {
     pitEntry = document.querySelector("#pit-entry p");
     pitExit = document.querySelector("#pit-exit p");
     currentProgress = document.querySelector("#percentage p");
+    fullTrackStatus = document.querySelector("#sector-info #head p");
 }
 
 function setSession() {
