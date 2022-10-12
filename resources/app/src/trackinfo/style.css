@@ -95,11 +95,16 @@ p {
 }
 
 .blue {
-    background-color: blue !important;
+    background-color: rgb(0, 0, 199) !important;
     color: white;
 }
 
 .light-blue {
-    background-color: lightblue;
+    background-color: rgb(53, 201, 251);
+    color: black;
+}
+
+.white {
+    background-color: white;
     color: black;
 }
