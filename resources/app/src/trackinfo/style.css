@@ -2,6 +2,7 @@
     margin: 0;
     padding: 0;
     color: white;
+    transition: 0.5s all ease;
 }
 
 body {

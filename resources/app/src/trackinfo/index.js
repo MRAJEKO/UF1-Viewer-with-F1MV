@@ -48,6 +48,9 @@ let drsZoneNumber;
 let sessionStartStatus;
 let fullTrackStatus;
 let oldTrackStatus;
+let gripConditions;
+let grip = "NORMAL";
+let color = "green";
 
 let sessionInfo;
 let RCMs;
@@ -106,6 +109,7 @@ function getMainHTML() {
     pitExit = document.querySelector("#pit-exit p");
     currentProgress = document.querySelector("#percentage p");
     fullTrackStatus = document.querySelector("#sector-info #head p");
+    gripConditions = document.querySelector("#grip p");
 }
 
 function setSession() {
@@ -192,7 +196,6 @@ function setManTyres(message) {
 function forRaceControlMessages() {
     for (i in RCMs.Messages) {
         let message = RCMs.Messages[i];
-
         if (pastMessages.includes(JSON.stringify(message))) {
         } else {
             pastMessages += JSON.stringify(message);
@@ -202,6 +205,7 @@ function forRaceControlMessages() {
             setTrackSectors(message);
             setPitEntry(message);
             setPitExit(message);
+            setGrip(message);
         }
     }
 }
@@ -233,10 +237,6 @@ function setDRS() {
     }
 }
 
-function setTimers() {}
-
-function addDrsZones() {}
-
 function setPitEntry(message) {
     if (message.SubCategory == "PitEntry") {
         if (pastMessages.includes(JSON.stringify(message))) {
@@ -262,8 +262,6 @@ function setPitExit(message) {
         }
     }
 }
-
-function setProgress() {}
 
 function setTrackStatus() {
     let status;
@@ -348,6 +346,29 @@ function setTrackSectors(message) {
 
 apiRequests();
 console.log(RCMs);
+
+function setGrip(message) {
+    console.log(message.SubCategory);
+
+    if (message.SubCategory == "LowGripConditions") {
+        console.log("LOW");
+        grip = "LOW";
+        color = "orange";
+    }
+
+    if (message.SubCategory == "NormalGripConditions") {
+        grip = "NORMAL";
+        color = "green";
+    }
+    gripConditions.innerHTML = grip;
+    gripConditions.className = color;
+}
+
+function setTimers() {}
+
+function addDrsZones() {}
+
+function setProgress() {}
 
 let count = 0;
 async function run() {
