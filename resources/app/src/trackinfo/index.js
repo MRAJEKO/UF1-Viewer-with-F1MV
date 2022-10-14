@@ -9,6 +9,23 @@ function httpGet(theUrl) {
     return xmlHttpReq.responseText;
 }
 
+let transparent = false;
+function toggleBackground() {
+    if (transparent) {
+        document.getElementById("background").className = "";
+        transparent = false;
+    } else {
+        document.getElementById("background").className = "transparent";
+        transparent = true;
+    }
+}
+
+document.addEventListener("keydown", (event) => {
+    if (event.key == "Escape") {
+        toggleBackground();
+    }
+});
+
 let api;
 let sessionStatus;
 let lapCount;
@@ -28,11 +45,14 @@ let backgroundColor;
 let pastMessages = [];
 let drsEnabled = true;
 let drsZoneNumber;
+let sessionStartStatus;
+let fullTrackStatus;
+let oldTrackStatus;
 
 let sessionInfo;
 let RCMs;
 let laps;
-let sessionStartStatus;
+let trackStatus;
 
 function apiRequests() {
     if (sessionInfo == undefined) {
@@ -48,6 +68,9 @@ function apiRequests() {
             httpGet("http://localhost:10101/api/v1/live-timing/LapCount")
         );
     }
+    trackStatus = JSON.parse(
+        httpGet("http://localhost:10101/api/v1/live-timing/TrackStatus")
+    );
     sessionStartStatus = JSON.parse(
         httpGet("http://localhost:10101/api/v1/live-timing/SessionStatus")
     );
@@ -123,7 +146,10 @@ function setSession() {
 }
 
 function setHeadPadding(message) {
-    if (message.Category == "Other") {
+    if (
+        message.Category == "Other" &&
+        message.Message.includes("HEAD PADDING MATERIAL")
+    ) {
         let color;
         if (message.Message.includes("BLUE")) {
             color = "BLUE";
@@ -138,26 +164,29 @@ function setHeadPadding(message) {
             color = "UNKNOWN";
             backgroundColor = "white";
         }
-        headPadding.innerHTML = color + " MATERIAL";
+        headPadding.innerHTML = color;
         headPadding.className = backgroundColor;
-        headPaddingMaterial = true;
     }
 }
 
 function setManTyres(message) {
     let tyres;
-    if (message.Message.includes("USE OF WET WEATHER")) {
-        tyres = "INTERMEDIATES";
-        backgroundColor = "green";
-    } else if (message.Message.includes("EXTREME TIRES" || "EXTREME TYRES")) {
-        tyres = "FULL WETS";
-        backgroundColor = "blue";
-    } else {
-        tyres = "NONE";
-        backgroundColor = "white";
+    if (message.Message.includes("TYRES" || "TIRES")) {
+        if (message.Message.includes("USE OF WET WEATHER")) {
+            tyres = "INTERMEDIATES";
+            backgroundColor = "green";
+        } else if (
+            message.Message.includes("EXTREME TIRES" || "EXTREME TYRES")
+        ) {
+            tyres = "FULL WETS";
+            backgroundColor = "blue";
+        } else {
+            tyres = "NONE";
+            backgroundColor = "white";
+        }
+        manTyres.innerHTML = tyres;
+        manTyres.className = backgroundColor;
     }
-    manTyres.innerHTML = tyres;
-    manTyres.className = backgroundColor;
 }
 
 function forRaceControlMessages() {
@@ -171,19 +200,17 @@ function forRaceControlMessages() {
             setManTyres(message);
             getDRS(message);
             setTrackSectors(message);
+            setPitEntry(message);
+            setPitExit(message);
         }
     }
 }
 
 function getDRS(message) {
     if (message.Category == "Drs") {
-        if (pastMessages.includes(JSON.stringify(message))) {
-        } else {
-            pastMessage += JSON.stringify(message);
-            if (message.Message.includes("ENABLED")) {
-                drsEnabled = true;
-            } else drsEnabled = false;
-        }
+        if (message.Message.includes("ENABLED")) {
+            drsEnabled = true;
+        } else drsEnabled = false;
     }
 }
 
@@ -210,42 +237,117 @@ function setTimers() {}
 
 function addDrsZones() {}
 
-function setPitEntry() {}
+function setPitEntry(message) {
+    if (message.SubCategory == "PitEntry") {
+        if (pastMessages.includes(JSON.stringify(message))) {
+        } else {
+            pastMessage += JSON.stringify(message);
+            if (message.Message.includes("ENABLED")) {
+                drsEnabled = true;
+            } else drsEnabled = false;
+        }
+    }
+}
 
-function setPitExit() {}
+function setPitExit(message) {
+    if (message.SubCategory == "PitExit") {
+        if (message.Flag == "OPEN") {
+            console.log("Open");
+            pitExit.innerHTML = "OPEN";
+            pitExit.className = "green";
+        }
+        if (message.Flag == "CLOSED") {
+            pitExit.innerHTML = "CLOSED";
+            pitExit.className = "red";
+        }
+    }
+}
 
 function setProgress() {}
 
-function setTrackStatus() {}
+function setTrackStatus() {
+    let status;
+    let color;
+    let topColor = "white";
+    let lines = document.querySelectorAll(".line");
+    let heads = document.querySelectorAll("h1");
+    switch (+trackStatus.Status) {
+        case 1:
+            status = "TRACK CLEAR";
+            color = "green";
+            break;
+        case 2:
+            status = "YELLOW FLAG";
+            color = "yellow";
+            topColor = "black";
+            break;
+        case 4:
+            status = "SAFETY CAR";
+            color = "orange";
+            topColor = "black";
+            break;
+        case 5:
+            status = "RED FLAG";
+            color = "red";
+            break;
+        case 6:
+            status = "VIRTUAL SAFETY CAR";
+            color = "orange";
+            topColor = "black";
+            break;
+        case 7:
+            status = "VIRTUAL SAFETY CAR ENDING";
+            color = "orange";
+            topColor = "black";
+            break;
+    }
+    if (oldTrackStatus != +trackStatus.Status) {
+        fullTrackStatus.innerHTML = status;
+        fullTrackStatus.className = color;
+        for (i in lines) {
+            lines[i].className = "line " + topColor + "-background";
+        }
+        for (i in heads) {
+            heads[i].className = topColor + "-text";
+        }
+        oldTrackStatus = +trackStatus.Status;
+    }
+}
+
+// {"Status":"1","Message":"AllClear"}
+// {"Status":"2","Message":"Yellow"}
+// {Status: "3", Message: ""}
+// {Status: "4", Message: "SCDeployed"}
+// {"Status":"5","Message":"Red"}
+// {"Status":"6","Message":"VSCDeployed"}
+// {"Status":"7","Message":"VSCEnding"}
 
 function setTrackSectors(message) {
-    console.log(message);
     if (message.OriginalCategory == "Flag") {
         if (/\d/.test(message.Message)) {
             let sectorNumber = +message.Message.match(/\d+/)[0];
-            console.log(sectorNumber);
             let flag = "CLEAR";
-            let trackStatus = document.querySelector(
+            let trackSector = document.querySelector(
                 `#trackSector${sectorNumber}`
             );
             if (message.Flag == "YELLOW") {
-                trackStatus.innerHTML = "YELLOW";
-                trackStatus.className = "yellow";
+                trackSector.innerHTML = "YELLOW";
+                trackSector.className = "yellow";
             }
             if (message.Flag == "DOUBLE YELLOW") {
-                trackStatus.innerHTML = "DOUBLE YELLOW";
-                trackStatus.className = "orange";
+                trackSector.innerHTML = "DOUBLE YELLOW";
+                trackSector.className = "orange";
             }
-            console.log(message.Message);
             if (message.Flag == "CLEAR") {
-                trackStatus.innerHTML = "CLEAR";
-                trackStatus.className = "green";
+                trackSector.innerHTML = "CLEAR";
+                trackSector.className = "green";
             }
         }
     }
 }
 
 apiRequests();
+console.log(RCMs);
 
 let count = 0;
 async function run() {
@@ -256,6 +358,7 @@ async function run() {
         setSession();
         forRaceControlMessages();
         setDRS();
+        setTrackStatus();
         console.log(count++);
         await sleep(500);
     }

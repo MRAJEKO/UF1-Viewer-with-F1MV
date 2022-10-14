@@ -11,8 +11,12 @@ body {
 
 #main-info {
     display: flex;
-    gap: 1vw;
+    gap: 0.7vw;
     text-align: center;
+}
+
+#main-info div {
+    min-width: fit-content;
 }
 
 h1 {
@@ -39,6 +43,7 @@ p {
     padding: 4px;
     margin: 2px;
     border-radius: 10px;
+    border: 0.5px solid black;
 }
 
 #container {
@@ -64,10 +69,15 @@ p {
     border-radius: 10px;
     width: 12vw;
     background-size: cover;
+    border: 0.5px solid black;
 }
 
 .hidden {
     display: none !important;
+}
+
+.transparent {
+    background: transparent !important;
 }
 
 /* Colors and backgrounds */
@@ -113,4 +123,12 @@ p {
 .white {
     background-color: white;
     color: black;
+}
+
+.black-background {
+    background-color: black !important;
+}
+
+.black-text {
+    color: black !important;
 }
