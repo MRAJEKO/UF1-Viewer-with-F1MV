@@ -51,11 +51,14 @@ let oldTrackStatus;
 let gripConditions;
 let grip = "NORMAL";
 let color = "green";
+let extraPolating = false;
+let progress = false;
 
 let sessionInfo;
 let RCMs;
 let laps;
 let trackStatus;
+let TopThree;
 
 function apiRequests() {
     if (sessionInfo == undefined) {
@@ -76,6 +79,10 @@ function apiRequests() {
     );
     sessionStartStatus = JSON.parse(
         httpGet("http://localhost:10101/api/v1/live-timing/SessionStatus")
+    );
+
+    TopThree = JSON.parse(
+        httpGet("http://localhost:10101/api/v1/live-timing/TopThree")
     );
 }
 
@@ -193,23 +200,6 @@ function setManTyres(message) {
     }
 }
 
-function forRaceControlMessages() {
-    for (i in RCMs.Messages) {
-        let message = RCMs.Messages[i];
-        if (pastMessages.includes(JSON.stringify(message))) {
-        } else {
-            pastMessages += JSON.stringify(message);
-            setHeadPadding(message);
-            setManTyres(message);
-            getDRS(message);
-            setTrackSectors(message);
-            setPitEntry(message);
-            setPitExit(message);
-            setGrip(message);
-        }
-    }
-}
-
 function getDRS(message) {
     if (message.Category == "Drs") {
         if (message.Message.includes("ENABLED")) {
@@ -252,7 +242,6 @@ function setPitEntry(message) {
 function setPitExit(message) {
     if (message.SubCategory == "PitExit") {
         if (message.Flag == "OPEN") {
-            console.log("Open");
             pitExit.innerHTML = "OPEN";
             pitExit.className = "green";
         }
@@ -344,14 +333,8 @@ function setTrackSectors(message) {
     }
 }
 
-apiRequests();
-console.log(RCMs);
-
 function setGrip(message) {
-    console.log(message.SubCategory);
-
     if (message.SubCategory == "LowGripConditions") {
-        console.log("LOW");
         grip = "LOW";
         color = "orange";
     }
@@ -364,14 +347,62 @@ function setGrip(message) {
     gripConditions.className = color;
 }
 
+function setProgress() {
+    if (extraPolating == true || progress == false) {
+        let color = "green";
+        let timer = "00:44:55";
+        let currentLapPercentage;
+        let maxLapPercentage = "100%";
+        let timerSeconds =
+            +timer.split(":")[0] * 60 * 60 +
+            +timer.split(":")[1] * 60 +
+            +timer.split(":")[2];
+        if (sessionInfo.Type == "Race") {
+            let currentLap = laps.CurrentLap;
+            let totalLaps = laps.TotalLaps;
+            let lastLapP1 = TopThree.Lines[0].LapTime;
+            let lastLapMinutes = +lastLapP1.split(":")[0];
+            let lastLapSeconds = +lastLapP1.split(":")[1] + lastLapMinutes * 60;
+            let lapsRemaining = totalLaps - currentLap;
+            let maxLaps = timerSeconds / lastLapSeconds;
+            console.log("Timer seconds: " + timerSeconds);
+            console.log("Last lap seconds: " + lastLapSeconds);
+            console.log("Maximal laps: " + maxLaps);
+            console.log("Laps Remaining: " + lapsRemaining);
+            if (maxLaps > lapsRemaining) {
+                console.log("100%");
+            } else {
+                let totalMaxLaps = maxLaps + currentLap;
+                currentLapPercentage =
+                    Math.round(
+                        ((currentLap - totalLaps) / totalLaps) * 100 + 100
+                    ) + "%";
+                maxLapPercentage =
+                    Math.round(
+                        ((totalMaxLaps - totalLaps) / totalLaps) * 100 + 100
+                    ) + "%";
+                console.log(currentLapPercentage + "/" + maxLapPercentage);
+                if (maxLapPercentage >= "75%") {
+                    color = "orange";
+                } else {
+                    color = "red";
+                }
+            }
+        }
+        currentProgress.innerHTML =
+            currentLapPercentage + " - " + maxLapPercentage;
+        currentProgress.className = color;
+        progress = true;
+    }
+}
+
 function setTimers() {}
 
 function addDrsZones() {}
 
-function setProgress() {}
-
 let count = 0;
 async function run() {
+    apiRequests();
     getMainHTML();
     addTrackSectors();
     while (true) {
@@ -380,8 +411,26 @@ async function run() {
         forRaceControlMessages();
         setDRS();
         setTrackStatus();
+        setProgress();
         console.log(count++);
         await sleep(500);
+    }
+}
+
+function forRaceControlMessages() {
+    for (i in RCMs.Messages) {
+        let message = RCMs.Messages[i];
+        if (pastMessages.includes(JSON.stringify(message))) {
+        } else {
+            pastMessages += JSON.stringify(message);
+            setHeadPadding(message);
+            setManTyres(message);
+            getDRS(message);
+            setTrackSectors(message);
+            setPitEntry(message);
+            setPitExit(message);
+            setGrip(message);
+        }
     }
 }
 
