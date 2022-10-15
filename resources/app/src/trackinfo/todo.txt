@@ -1,9 +1,13 @@
 Race timer
 Session timer
-Qualifying timer
+Qualifying timers (Q timer and full session (1 hour))
 
 Lap percentage completed (How far the leader is through the lap (Race only))
 Session percentage Qualifying
+    Full session progress (1 hour)
+    Q progress (18/15/12 minutes)
+    Total Q progress (Q1/Q3)
 Lap percentage and count add one when finished after 3 hours elapsed
 
 Information (Corner number, Marshal lights, Marshal sectors, lap distance, lap record, DRS zones)
+
