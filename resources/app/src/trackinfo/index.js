@@ -363,7 +363,7 @@ function setGrip(message) {
 
 function setProgress() {
     let color = "green";
-    let timer = "01:00:00";
+    let timer = "00:00:00";
     let sessionDuration;
     let currentSessionPercentage;
     let maxSessionPercentage;
@@ -371,6 +371,12 @@ function setProgress() {
         +timer.split(":")[0] * 60 * 60 +
         +timer.split(":")[1] * 60 +
         +timer.split(":")[2];
+    sessionDuration = new Date(
+        new Date(sessionInfo.EndDate).getTime() -
+            new Date(sessionInfo.StartDate).getTime()
+    ).toLocaleTimeString("en-GB", {
+        timeZone: "UTC",
+    });
     if (debug === true) {
         console.log("Session type: " + sessionInfo.Type);
     }
@@ -414,6 +420,14 @@ function setProgress() {
             let lapCounter = "Lap: " + currentLap + "/" + totalLaps;
             lapCount.className = color;
             lapCount.innerHTML = lapCounter;
+            if (currentSessionPercentage == "100%" && timerSeconds != "0") {
+                currentSessionPercentage = "99%";
+            }
+            if (currentSessionPercentage == "100%" && timerSeconds == "0") {
+                currentProgress.innerHTML = "COMPLETED";
+                currentProgress.className = "white";
+                return;
+            }
         } else {
             let totalMaxLaps = maxLaps + currentLap;
             currentSessionPercentage =
@@ -423,7 +437,6 @@ function setProgress() {
                 Math.round(
                     ((totalMaxLaps - totalLaps) / totalLaps) * 100 + 100
                 ) + "%";
-            console.log(currentSessionPercentage + "/" + maxSessionPercentage);
             if (maxSessionPercentage >= "75%") {
                 color = "orange";
             } else {
@@ -433,12 +446,37 @@ function setProgress() {
                 "Lap: " + currentLap + "/" + (Math.floor(totalMaxLaps) + 1);
             lapCount.className = color;
             lapCount.innerHTML = lapCounter;
+            if (debug === true) {
+                console.log("Session: " + currentSessionPercentage);
+                console.log("Session max: " + maxSessionPercentage);
+                console.log("Timerseconds: " + timerSeconds);
+                console.log("Current lap: " + currentLap);
+                console.log("Max lap: " + maxLaps);
+            }
+            if (
+                currentSessionPercentage == maxSessionPercentage &&
+                (timerSeconds != "0" || currentLap != maxLaps)
+            ) {
+                currentSessionPercentage =
+                    +currentSessionPercentage.slice(0, -1) - 1 + "%";
+            }
+            if (
+                currentSessionPercentage == maxSessionPercentage &&
+                timerSeconds == "0" &&
+                currentLap == maxLaps
+            ) {
+                currentProgress.innerHTML = "COMPLETED";
+                currentProgress.className = "white";
+                return;
+            }
         }
     } else if (sessionInfo.Type == "Qualifying") {
-        sessionDuration = "01:00:00";
+        maxSessionPercentage = "100%";
         console.log("Qualifying");
     } else {
-        sessionDuration = "01:00:00";
+        if (debug === true) {
+            console.log(sessionDuration);
+        }
         maxSessionPercentage = "100%";
         let sessionDurationSeconds =
             +sessionDuration.split(":")[0] * 60 * 60 +
@@ -456,7 +494,11 @@ function setProgress() {
             ) + "%";
         if (currentSessionPercentage == "100%" && timerSeconds != "0") {
             currentSessionPercentage = "99%";
-            color = "white";
+        }
+        if (currentSessionPercentage == "100%" && timerSeconds == "0") {
+            currentProgress.innerHTML = "COMPLETED";
+            currentProgress.className = "white";
+            return;
         }
     }
     currentProgress.innerHTML =
@@ -485,6 +527,7 @@ function setTimers() {
     );
 
     if (debug === true) {
+        console.log("Now: " + now);
         console.log("UTC Offset: " + sessionInfo.GmtOffset);
         console.log("UTC Offset ms: " + offsetMs);
         console.log(systemTime);
