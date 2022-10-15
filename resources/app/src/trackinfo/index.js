@@ -1,3 +1,5 @@
+const debug = true;
+
 const sleep = (milliseconds) => {
     return new Promise((resolve) => setTimeout(resolve, milliseconds));
 };
@@ -49,16 +51,17 @@ let sessionStartStatus;
 let fullTrackStatus;
 let oldTrackStatus;
 let gripConditions;
+let trackTimeElement;
 let grip = "NORMAL";
 let color = "green";
-let extraPolating = false;
-let progress = false;
+let redFlag = false;
 
 let sessionInfo;
 let RCMs;
 let laps;
 let trackStatus;
-let TopThree;
+let timingData;
+let extraPolatedClock;
 
 function apiRequests() {
     if (sessionInfo == undefined) {
@@ -81,8 +84,12 @@ function apiRequests() {
         httpGet("http://localhost:10101/api/v1/live-timing/SessionStatus")
     );
 
-    TopThree = JSON.parse(
-        httpGet("http://localhost:10101/api/v1/live-timing/TopThree")
+    timingData = JSON.parse(
+        httpGet("http://localhost:10101/api/v1/live-timing/TimingData")
+    );
+
+    extraPolatedClock = JSON.parse(
+        httpGet("http://localhost:10101/api/v1/live-timing/ExtrapolatedClock")
     );
 }
 
@@ -105,7 +112,7 @@ function addTrackSectors() {
 
 function getMainHTML() {
     statusContainer = document.getElementById("statuses");
-    sessionStatus = document.querySelector("#session-status");
+    sessionStatus = document.querySelector("#session p");
     lapCount = document.querySelector("#lap-count");
     raceTimer = document.querySelector("#timer1");
     sessionTimer = document.querySelector("#timer2");
@@ -114,9 +121,10 @@ function getMainHTML() {
     manTyres = document.querySelector("#tyres p");
     pitEntry = document.querySelector("#pit-entry p");
     pitExit = document.querySelector("#pit-exit p");
-    currentProgress = document.querySelector("#percentage p");
+    currentProgress = document.querySelector("#percentage-count");
     fullTrackStatus = document.querySelector("#sector-info #head p");
     gripConditions = document.querySelector("#grip p");
+    trackTimeElement = document.querySelector("#track-time");
 }
 
 function setSession() {
@@ -143,17 +151,9 @@ function setSession() {
             }
         }
     }
-    let sessionType = sessionInfo.Type;
-    if (sessionType == "Race") {
-        let lapCounter = "Lap: " + laps.CurrentLap + "/" + laps.TotalLaps;
-        sessionStatus.innerHTML = status;
-        sessionStatus.className = backgroundColor;
-        lapCount.className = "";
-        lapCount.innerHTML = lapCounter;
-    } else {
-        sessionStatus.innerHTML = status;
-        sessionStatus.className = backgroundColor;
-    }
+
+    sessionStatus.innerHTML = status;
+    sessionStatus.className = backgroundColor;
 }
 
 function setHeadPadding(message) {
@@ -262,6 +262,10 @@ function setTrackStatus() {
         case 1:
             status = "TRACK CLEAR";
             color = "green";
+            if (redFlag == true) {
+                pitExit.innerHTML = "OPEN";
+                pitExit.className = "green";
+            }
             break;
         case 2:
             status = "YELLOW FLAG";
@@ -276,6 +280,9 @@ function setTrackStatus() {
         case 5:
             status = "RED FLAG";
             color = "red";
+            pitExit.innerHTML = "CLOSED";
+            pitExit.className = "red";
+            redFlag = true;
             break;
         case 6:
             status = "VIRTUAL SAFETY CAR";
@@ -331,6 +338,13 @@ function setTrackSectors(message) {
             }
         }
     }
+    if (message.SubCategory == "TrackSurfaceSlippery") {
+        let sectorNumber = +message.Message.match(/\d+/)[0];
+        let flag = "CLEAR";
+        let trackSector = document.querySelector(`#trackSector${sectorNumber}`);
+        trackSector.innerHTML = "SLIPPERY";
+        trackSector.className = "slippery";
+    }
 }
 
 function setGrip(message) {
@@ -348,55 +362,139 @@ function setGrip(message) {
 }
 
 function setProgress() {
-    if (extraPolating == true || progress == false) {
-        let color = "green";
-        let timer = "00:44:55";
-        let currentLapPercentage;
-        let maxLapPercentage = "100%";
-        let timerSeconds =
-            +timer.split(":")[0] * 60 * 60 +
-            +timer.split(":")[1] * 60 +
-            +timer.split(":")[2];
-        if (sessionInfo.Type == "Race") {
-            let currentLap = laps.CurrentLap;
-            let totalLaps = laps.TotalLaps;
-            let lastLapP1 = TopThree.Lines[0].LapTime;
-            let lastLapMinutes = +lastLapP1.split(":")[0];
-            let lastLapSeconds = +lastLapP1.split(":")[1] + lastLapMinutes * 60;
-            let lapsRemaining = totalLaps - currentLap;
-            let maxLaps = timerSeconds / lastLapSeconds;
-            console.log("Timer seconds: " + timerSeconds);
-            console.log("Last lap seconds: " + lastLapSeconds);
-            console.log("Maximal laps: " + maxLaps);
-            console.log("Laps Remaining: " + lapsRemaining);
-            if (maxLaps > lapsRemaining) {
-                console.log("100%");
-            } else {
-                let totalMaxLaps = maxLaps + currentLap;
-                currentLapPercentage =
-                    Math.round(
-                        ((currentLap - totalLaps) / totalLaps) * 100 + 100
-                    ) + "%";
-                maxLapPercentage =
-                    Math.round(
-                        ((totalMaxLaps - totalLaps) / totalLaps) * 100 + 100
-                    ) + "%";
-                console.log(currentLapPercentage + "/" + maxLapPercentage);
-                if (maxLapPercentage >= "75%") {
-                    color = "orange";
+    let color = "green";
+    let timer = "01:00:00";
+    let sessionDuration;
+    let currentSessionPercentage;
+    let maxSessionPercentage;
+    let timerSeconds =
+        +timer.split(":")[0] * 60 * 60 +
+        +timer.split(":")[1] * 60 +
+        +timer.split(":")[2];
+    if (debug === true) {
+        console.log("Session type: " + sessionInfo.Type);
+    }
+    if (sessionInfo.Type == "Race") {
+        let currentLap = laps.CurrentLap;
+        let totalLaps = laps.TotalLaps;
+        let bestLapP1;
+        for (i in timingData.Lines) {
+            if (debug === true) {
+                console.log(timingData.Lines[i].Position);
+            }
+            if (timingData.Lines[i].Position == "1") {
+                if (debug === true) {
+                    console.log(timingData.Lines[i].BestLapTime.Value);
+                }
+                if (timingData.Lines[i].BestLapTime.Value === "") {
+                    bestLapP1 = "00:01";
                 } else {
-                    color = "red";
+                    bestLapP1 = timingData.Lines[i].BestLapTime.Value;
                 }
             }
         }
-        currentProgress.innerHTML =
-            currentLapPercentage + " - " + maxLapPercentage;
-        currentProgress.className = color;
-        progress = true;
+        let bestLapMinutes = +bestLapP1.split(":")[0];
+        let bestLapSeconds = +bestLapP1.split(":")[1] + bestLapMinutes * 60;
+        let lapsRemaining = totalLaps - currentLap;
+        let maxLaps = timerSeconds / bestLapSeconds;
+        if (debug === true) {
+            console.log(bestLapP1);
+            console.log(bestLapSeconds);
+            console.log("Timer seconds: " + timerSeconds);
+            console.log("Last lap seconds: " + bestLapSeconds);
+            console.log("Maximal laps: " + maxLaps);
+            console.log("Laps Remaining: " + lapsRemaining);
+        }
+        if (maxLaps > lapsRemaining) {
+            currentSessionPercentage =
+                Math.round(((currentLap - totalLaps) / totalLaps) * 100 + 100) +
+                "%";
+            maxSessionPercentage = "100%";
+            color = "green";
+            let lapCounter = "Lap: " + currentLap + "/" + totalLaps;
+            lapCount.className = color;
+            lapCount.innerHTML = lapCounter;
+        } else {
+            let totalMaxLaps = maxLaps + currentLap;
+            currentSessionPercentage =
+                Math.round(((currentLap - totalLaps) / totalLaps) * 100 + 100) +
+                "%";
+            maxSessionPercentage =
+                Math.round(
+                    ((totalMaxLaps - totalLaps) / totalLaps) * 100 + 100
+                ) + "%";
+            console.log(currentSessionPercentage + "/" + maxSessionPercentage);
+            if (maxSessionPercentage >= "75%") {
+                color = "orange";
+            } else {
+                color = "red";
+            }
+            let lapCounter =
+                "Lap: " + currentLap + "/" + (Math.floor(totalMaxLaps) + 1);
+            lapCount.className = color;
+            lapCount.innerHTML = lapCounter;
+        }
+    } else if (sessionInfo.Type == "Qualifying") {
+        sessionDuration = "01:00:00";
+        console.log("Qualifying");
+    } else {
+        sessionDuration = "01:00:00";
+        maxSessionPercentage = "100%";
+        let sessionDurationSeconds =
+            +sessionDuration.split(":")[0] * 60 * 60 +
+            +sessionDuration.split(":")[1] * 60 +
+            +sessionDuration.split(":")[2];
+        console.log(sessionDurationSeconds);
+        console.log(timerSeconds);
+        currentSessionPercentage =
+            Math.round(
+                100 -
+                    ((timerSeconds - sessionDurationSeconds) /
+                        sessionDurationSeconds) *
+                        100 -
+                    100
+            ) + "%";
+        if (currentSessionPercentage == "100%" && timerSeconds != "0") {
+            currentSessionPercentage = "99%";
+            color = "white";
+        }
     }
+    currentProgress.innerHTML =
+        currentSessionPercentage + " - " + maxSessionPercentage;
+    currentProgress.className = color;
 }
 
-function setTimers() {}
+function setTimers() {
+    const clockData = JSON.parse(
+        httpGet("http://localhost:10101/api/v2/live-timing/clock")
+    );
+    let systemTime = clockData.systemTime;
+    let trackTime = clockData.trackTime;
+    let now = Date.now();
+    let trackTimeLiveMs = (now -= systemTime -= trackTime);
+    let offsetMs =
+        (+sessionInfo.GmtOffset.split(":")[0] * 60 * 60 +
+            +sessionInfo.GmtOffset.split(":")[1] * 60 +
+            +sessionInfo.GmtOffset.split(":")[2]) *
+        1000;
+    let trackTimeLive = new Date(trackTimeLiveMs + offsetMs).toLocaleTimeString(
+        "en-GB",
+        {
+            timeZone: "UTC",
+        }
+    );
+
+    if (debug === true) {
+        console.log("UTC Offset: " + sessionInfo.GmtOffset);
+        console.log("UTC Offset ms: " + offsetMs);
+        console.log(systemTime);
+        console.log(trackTime);
+        console.log(trackTimeLiveMs);
+        console.log(trackTimeLive);
+    }
+    trackTimeElement.innerHTML = trackTimeLive;
+    trackTimeElement.className = "green";
+}
 
 function addDrsZones() {}
 
@@ -412,7 +510,10 @@ async function run() {
         setDRS();
         setTrackStatus();
         setProgress();
-        console.log(count++);
+        setTimers();
+        if (debug === true) {
+            console.log(count++);
+        }
         await sleep(500);
     }
 }
