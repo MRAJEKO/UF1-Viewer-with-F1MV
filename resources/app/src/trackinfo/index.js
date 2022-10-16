@@ -28,7 +28,25 @@ document.addEventListener("keydown", (event) => {
     }
 });
 
+// Empty global variables
 let api;
+let maxProgress;
+let statusContainer;
+let delayed;
+let headPaddingMaterial;
+let backgroundColor;
+let drsZoneNumber;
+let sessionStartStatus;
+let oldTrackStatus;
+
+// Set global variables
+let drsEnabled = true;
+let pastMessages = [];
+let grip = "NORMAL";
+let color = "green";
+let redFlag = false;
+
+// Global HTML elements
 let sessionStatus;
 let lapCount;
 let raceTimer;
@@ -39,24 +57,13 @@ let manTyres;
 let pitEntry;
 let pitExit;
 let currentProgress;
-let maxProgress;
-let statusContainer;
-let delayed;
-let headPaddingMaterial;
-let backgroundColor;
-let pastMessages = [];
-let drsEnabled = true;
-let drsZoneNumber;
-let sessionStartStatus;
 let fullTrackStatus;
-let oldTrackStatus;
 let gripConditions;
 let trackTimeElement;
 let qProgressElement;
-let grip = "NORMAL";
-let color = "green";
-let redFlag = false;
+let totalQProgressElement;
 
+// API requests
 let sessionInfo;
 let RCMs;
 let laps;
@@ -64,6 +71,7 @@ let trackStatus;
 let timingData;
 let extraPolatedClock;
 
+// Requesting the information needed from the api
 function apiRequests() {
     if (sessionInfo == undefined) {
         sessionInfo = JSON.parse(
@@ -94,6 +102,7 @@ function apiRequests() {
     );
 }
 
+// Adding a list of all the track sectors from a track to the screen
 function addTrackSectors() {
     let circuitKey = sessionInfo.Meeting.Circuit.Key;
 
@@ -111,6 +120,7 @@ function addTrackSectors() {
     }
 }
 
+// Get all the HTML elements where information needs to be set
 function getMainHTML() {
     statusContainer = document.getElementById("statuses");
     sessionStatus = document.querySelector("#session-status");
@@ -127,8 +137,10 @@ function getMainHTML() {
     gripConditions = document.querySelector("#grip p");
     trackTimeElement = document.querySelector("#track-time");
     qProgressElement = document.querySelector("#q-progress");
+    totalQProgressElement = document.querySelector("#total-q-progress");
 }
 
+// Set the status from the session
 function setSession() {
     let status = sessionStartStatus.Status;
     if (status == "Aborted") {
@@ -158,6 +170,7 @@ function setSession() {
     sessionStatus.className = backgroundColor;
 }
 
+// Set the color of head padding needed to be used for the session
 function setHeadPadding(message) {
     if (
         message.Category == "Other" &&
@@ -182,6 +195,7 @@ function setHeadPadding(message) {
     }
 }
 
+// Set the manditory tires needed to be used for the session
 function setManTyres(message) {
     let tyres;
     if (message.Message.includes("TYRES" || "TIRES")) {
@@ -202,6 +216,7 @@ function setManTyres(message) {
     }
 }
 
+// Get the current DRS status (excluding different zones)
 function getDRS(message) {
     if (message.Category == "Drs") {
         if (message.Message.includes("ENABLED")) {
@@ -219,6 +234,7 @@ function getDRS(message) {
 //     }
 // }
 
+// Setting the DRS status to the information screen
 function setDRS() {
     if (drsEnabled) {
         drs.innerHTML = "ENABLED";
@@ -229,6 +245,7 @@ function setDRS() {
     }
 }
 
+// Setting the pit entry status to the information screen
 function setPitEntry(message) {
     if (message.SubCategory == "PitEntry") {
         if (pastMessages.includes(JSON.stringify(message))) {
@@ -241,6 +258,7 @@ function setPitEntry(message) {
     }
 }
 
+// Setting the pit exit status to the information screen
 function setPitExit(message) {
     if (message.SubCategory == "PitExit") {
         if (message.Flag == "OPEN") {
@@ -254,6 +272,7 @@ function setPitExit(message) {
     }
 }
 
+// Setting the full track status to the information screen
 function setTrackStatus() {
     let status;
     let color;
@@ -318,6 +337,7 @@ function setTrackStatus() {
 // {"Status":"6","Message":"VSCDeployed"}
 // {"Status":"7","Message":"VSCEnding"}
 
+// Set all the track sector statuses to the information screen
 function setTrackSectors(message) {
     if (message.OriginalCategory == "Flag") {
         if (/\d/.test(message.Message)) {
@@ -349,6 +369,7 @@ function setTrackSectors(message) {
     }
 }
 
+// Setting the grip status to the information screen
 function setGrip(message) {
     if (message.SubCategory == "LowGripConditions") {
         grip = "LOW";
@@ -363,7 +384,9 @@ function setGrip(message) {
     gripConditions.className = color;
 }
 
+// Setting the progress of the current session including custom progress per session
 function setProgress() {
+    // General information
     let color = "green";
     let timer = "00:00:00";
     let sessionDuration;
@@ -383,6 +406,7 @@ function setProgress() {
         console.log("Session type: " + sessionInfo.Type);
     }
     if (sessionInfo.Type == "Race") {
+        // If the session is a race
         let currentLap = laps.CurrentLap;
         let totalLaps = laps.TotalLaps;
         let bestLapP1;
@@ -473,10 +497,12 @@ function setProgress() {
             }
         }
     } else if (sessionInfo.Type == "Qualifying") {
+        // If the session is qualifying
         qProgressElement.className = "";
         maxSessionPercentage = "100%";
         console.log("Qualifying");
     } else {
+        // If the session is a practice session
         if (debug === true) {
             console.log(sessionDuration);
         }
@@ -509,6 +535,7 @@ function setProgress() {
     currentProgress.className = color;
 }
 
+// Setting the timers for the current session
 function setTimers() {
     const clockData = JSON.parse(
         httpGet("http://localhost:10101/api/v2/live-timing/clock")
@@ -542,8 +569,10 @@ function setTimers() {
     trackTimeElement.className = "green";
 }
 
+// Adding the DRS zones
 function addDrsZones() {}
 
+// Running all the functions
 let count = 0;
 async function run() {
     apiRequests();
@@ -564,6 +593,7 @@ async function run() {
     }
 }
 
+// Running all the funtions that need a for (i in RCMs.Messages) loop
 function forRaceControlMessages() {
     for (i in RCMs.Messages) {
         let message = RCMs.Messages[i];
@@ -581,4 +611,5 @@ function forRaceControlMessages() {
     }
 }
 
+// Running the whole screen
 run();
