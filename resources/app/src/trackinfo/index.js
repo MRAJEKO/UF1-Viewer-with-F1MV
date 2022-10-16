@@ -393,7 +393,7 @@ function setProgress() {
     // General information
     let color = "green";
     let timer = "00:15:00";
-    let totalTimer = "00:35:00";
+    let totalTimer = "00:00:00";
     let sessionDuration;
     let currentSessionPercentage;
     let maxSessionPercentage;
@@ -534,11 +534,22 @@ function setProgress() {
         }
         let maxQ = "Q3";
         maxSessionPercentage = "100%";
-
-        currentProgress.innerHTML =
-            currentSessionPercentage + " - " + maxSessionPercentage;
+        if (Q == maxQ) {
+            totalQProgressElement.innerHTML = Q + " - " + maxQ;
+            totalQProgressElement.className = "white";
+        } else {
+            totalQProgressElement.className = "green";
+        }
         totalQProgressElement.innerHTML = Q + " - " + maxQ;
-        totalQProgressElement.className = "green";
+
+        if (currentSessionPercentage == "100%" && totalTimerSeconds != "0") {
+            currentSessionPercentage = "99%";
+        }
+        if (currentSessionPercentage == "100%" && totalTimerSeconds == "0") {
+            currentProgress.innerHTML = "COMPLETED";
+            currentProgress.className = "white";
+            return;
+        }
     } else {
         // If the session is a practice session
         if (debug === true) {
