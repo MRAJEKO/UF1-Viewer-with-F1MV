@@ -112,7 +112,7 @@ function addTrackSectors() {
 
 function getMainHTML() {
     statusContainer = document.getElementById("statuses");
-    sessionStatus = document.querySelector("#session p");
+    sessionStatus = document.querySelector("#session-status");
     lapCount = document.querySelector("#lap-count");
     raceTimer = document.querySelector("#timer1");
     sessionTimer = document.querySelector("#timer2");
