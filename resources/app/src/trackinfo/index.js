@@ -70,6 +70,7 @@ let laps;
 let trackStatus;
 let timingData;
 let extraPolatedClock;
+let sessionData;
 
 // Requesting the information needed from the api
 function apiRequests() {
@@ -99,6 +100,10 @@ function apiRequests() {
 
     extraPolatedClock = JSON.parse(
         httpGet("http://localhost:10101/api/v1/live-timing/ExtrapolatedClock")
+    );
+
+    sessionData = JSON.parse(
+        httpGet("http://localhost:10101/api/v1/live-timing/SessionData")
     );
 }
 
@@ -136,7 +141,6 @@ function getMainHTML() {
     fullTrackStatus = document.querySelector("#sector-info #head p");
     gripConditions = document.querySelector("#grip p");
     trackTimeElement = document.querySelector("#track-time");
-    qProgressElement = document.querySelector("#q-progress");
     totalQProgressElement = document.querySelector("#total-q-progress");
 }
 
@@ -388,7 +392,8 @@ function setGrip(message) {
 function setProgress() {
     // General information
     let color = "green";
-    let timer = "00:00:00";
+    let timer = "00:15:00";
+    let totalTimer = "00:35:00";
     let sessionDuration;
     let currentSessionPercentage;
     let maxSessionPercentage;
@@ -396,12 +401,20 @@ function setProgress() {
         +timer.split(":")[0] * 60 * 60 +
         +timer.split(":")[1] * 60 +
         +timer.split(":")[2];
+    let totalTimerSeconds =
+        +totalTimer.split(":")[0] * 60 * 60 +
+        +totalTimer.split(":")[1] * 60 +
+        +totalTimer.split(":")[2];
     sessionDuration = new Date(
         new Date(sessionInfo.EndDate).getTime() -
             new Date(sessionInfo.StartDate).getTime()
     ).toLocaleTimeString("en-GB", {
         timeZone: "UTC",
     });
+    let sessionDurationSeconds =
+        +sessionDuration.split(":")[0] * 60 * 60 +
+        +sessionDuration.split(":")[1] * 60 +
+        +sessionDuration.split(":")[2];
     if (debug === true) {
         console.log("Session type: " + sessionInfo.Type);
     }
@@ -497,20 +510,41 @@ function setProgress() {
             }
         }
     } else if (sessionInfo.Type == "Qualifying") {
+        currentSessionPercentage =
+            Math.round(
+                100 -
+                    ((totalTimerSeconds - sessionDurationSeconds) /
+                        sessionDurationSeconds) *
+                        100 -
+                    100
+            ) + "%";
         // If the session is qualifying
-        qProgressElement.className = "";
+        let Q;
+        for (i in sessionData.Series) {
+            if (debug === true) {
+                console.log(sessionData.Series[i]);
+            }
+            Q = "Q" + sessionData.Series[i].QualifyingPart;
+        }
+        if (debug === true) {
+            console.log("Qualifying");
+            console.log(totalTimerSeconds);
+            console.log(sessionDurationSeconds);
+            console.log(Q);
+        }
+        let maxQ = "Q3";
         maxSessionPercentage = "100%";
-        console.log("Qualifying");
+
+        currentProgress.innerHTML =
+            currentSessionPercentage + " - " + maxSessionPercentage;
+        totalQProgressElement.innerHTML = Q + " - " + maxQ;
+        totalQProgressElement.className = "green";
     } else {
         // If the session is a practice session
         if (debug === true) {
             console.log(sessionDuration);
         }
         maxSessionPercentage = "100%";
-        let sessionDurationSeconds =
-            +sessionDuration.split(":")[0] * 60 * 60 +
-            +sessionDuration.split(":")[1] * 60 +
-            +sessionDuration.split(":")[2];
         console.log(sessionDurationSeconds);
         console.log(timerSeconds);
         currentSessionPercentage =
