@@ -52,6 +52,7 @@ let fullTrackStatus;
 let oldTrackStatus;
 let gripConditions;
 let trackTimeElement;
+let qProgressElement;
 let grip = "NORMAL";
 let color = "green";
 let redFlag = false;
@@ -125,6 +126,7 @@ function getMainHTML() {
     fullTrackStatus = document.querySelector("#sector-info #head p");
     gripConditions = document.querySelector("#grip p");
     trackTimeElement = document.querySelector("#track-time");
+    qProgressElement = document.querySelector("#q-progress");
 }
 
 function setSession() {
@@ -471,6 +473,7 @@ function setProgress() {
             }
         }
     } else if (sessionInfo.Type == "Qualifying") {
+        qProgressElement.className = "";
         maxSessionPercentage = "100%";
         console.log("Qualifying");
     } else {

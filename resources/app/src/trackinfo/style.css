@@ -14,6 +14,8 @@ body {
     display: flex;
     gap: 0.7vw;
     text-align: center;
+    width: 100vw;
+    justify-content: space-between;
 }
 
 #main-info div {
@@ -22,6 +24,7 @@ body {
 
 h1 {
     font-family: "F1Bold", Arial, Helvetica, sans-serif;
+    font-size: 15px;
     font-size: 1.1vw;
     text-align: center;
 }
@@ -39,6 +42,7 @@ h1 {
 
 p {
     font-family: "F1Regular", Arial, Helvetica, sans-serif;
+    font-size: 15px;
     font-size: 1.1vw;
     text-align: center;
     padding: 4px;
@@ -52,6 +56,7 @@ p {
     display: flex;
     gap: 1vw;
     text-align: center;
+    width: 100%;
 }
 
 #statuses {
