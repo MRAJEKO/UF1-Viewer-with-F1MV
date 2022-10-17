@@ -64,7 +64,6 @@ let qProgressElement;
 let totalQProgressElement;
 
 // API requests
-let sessionInfo;
 let RCMs;
 let laps;
 let trackStatus;
@@ -72,38 +71,46 @@ let timingData;
 let extraPolatedClock;
 let sessionData;
 
+let sessionInfo = JSON.parse(
+    httpGet("http://localhost:10101/api/v1/live-timing/SessionInfo")
+);
 // Requesting the information needed from the api
 function apiRequests() {
-    if (sessionInfo == undefined) {
-        sessionInfo = JSON.parse(
-            httpGet("http://localhost:10101/api/v1/live-timing/SessionInfo")
+    if (sessionInfo.Type == "Race") {
+        api = JSON.parse(
+            httpGet(
+                "http://localhost:10101/api/v2/live-timing/state/LapCount,TrackStatus,SessionStatus,TimingData,ExtrapolatedClock,SessionData"
+            )
         );
+        laps = api.LapCount;
+        trackStatus = api.TrackStatus;
+        sessionStartStatus = api.SessionStatus;
+        timingData = api.TimingData;
+        extraPolatedClock = api.ExtrapolatedClock;
+        sessionData = api.SessionData;
+        if (debug) {
+            console.log(laps);
+            console.log(trackStatus);
+            console.log(sessionStartStatus);
+            console.log(timingData);
+            console.log(extraPolatedClock);
+            console.log(sessionData);
+        }
+    } else {
+        api = JSON.parse(
+            httpGet(
+                "http://localhost:10101/api/v2/live-timing/state/TrackStatus,SessionStatus,TimingData,ExtrapolatedClock,SessionData"
+            )
+        );
+        trackStatus = api.trackStatus;
+        sessionStartStatus = api.SessionStatus;
+        timingData = api.TimingData;
+        extraPolatedClock = api.ExtrapolatedClock;
+        sessionData = api.SessionData;
     }
+
     RCMs = JSON.parse(
         httpGet("http://localhost:10101/api/v1/live-timing/RaceControlMessages")
-    );
-    if (sessionInfo.Type == "Race") {
-        laps = JSON.parse(
-            httpGet("http://localhost:10101/api/v1/live-timing/LapCount")
-        );
-    }
-    trackStatus = JSON.parse(
-        httpGet("http://localhost:10101/api/v1/live-timing/TrackStatus")
-    );
-    sessionStartStatus = JSON.parse(
-        httpGet("http://localhost:10101/api/v1/live-timing/SessionStatus")
-    );
-
-    timingData = JSON.parse(
-        httpGet("http://localhost:10101/api/v1/live-timing/TimingData")
-    );
-
-    extraPolatedClock = JSON.parse(
-        httpGet("http://localhost:10101/api/v1/live-timing/ExtrapolatedClock")
-    );
-
-    sessionData = JSON.parse(
-        httpGet("http://localhost:10101/api/v1/live-timing/SessionData")
     );
 }
 
