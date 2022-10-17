@@ -415,7 +415,7 @@ function setProgress() {
         +sessionDuration.split(":")[0] * 60 * 60 +
         +sessionDuration.split(":")[1] * 60 +
         +sessionDuration.split(":")[2];
-    if (debug === true) {
+    if (debug) {
         console.log("Session type: " + sessionInfo.Type);
     }
     if (sessionInfo.Type == "Race") {
@@ -424,11 +424,11 @@ function setProgress() {
         let totalLaps = laps.TotalLaps;
         let bestLapP1;
         for (i in timingData.Lines) {
-            if (debug === true) {
+            if (debug) {
                 console.log(timingData.Lines[i].Position);
             }
             if (timingData.Lines[i].Position == "1") {
-                if (debug === true) {
+                if (debug) {
                     console.log(timingData.Lines[i].BestLapTime.Value);
                 }
                 if (timingData.Lines[i].BestLapTime.Value === "") {
@@ -442,7 +442,7 @@ function setProgress() {
         let bestLapSeconds = +bestLapP1.split(":")[1] + bestLapMinutes * 60;
         let lapsRemaining = totalLaps - currentLap;
         let maxLaps = timerSeconds / bestLapSeconds;
-        if (debug === true) {
+        if (debug) {
             console.log(bestLapP1);
             console.log(bestLapSeconds);
             console.log("Timer seconds: " + timerSeconds);
@@ -485,7 +485,7 @@ function setProgress() {
                 "Lap: " + currentLap + "/" + (Math.floor(totalMaxLaps) + 1);
             lapCount.className = color;
             lapCount.innerHTML = lapCounter;
-            if (debug === true) {
+            if (debug) {
                 console.log("Session: " + currentSessionPercentage);
                 console.log("Session max: " + maxSessionPercentage);
                 console.log("Timerseconds: " + timerSeconds);
@@ -521,12 +521,12 @@ function setProgress() {
         // If the session is qualifying
         let Q;
         for (i in sessionData.Series) {
-            if (debug === true) {
+            if (debug) {
                 console.log(sessionData.Series[i]);
             }
             Q = "Q" + sessionData.Series[i].QualifyingPart;
         }
-        if (debug === true) {
+        if (debug) {
             console.log("Qualifying");
             console.log(totalTimerSeconds);
             console.log(sessionDurationSeconds);
@@ -552,7 +552,7 @@ function setProgress() {
         }
     } else {
         // If the session is a practice session
-        if (debug === true) {
+        if (debug) {
             console.log(sessionDuration);
         }
         maxSessionPercentage = "100%";
@@ -601,7 +601,7 @@ function setTimers() {
         }
     );
 
-    if (debug === true) {
+    if (debug) {
         console.log("Now: " + now);
         console.log("UTC Offset: " + sessionInfo.GmtOffset);
         console.log("UTC Offset ms: " + offsetMs);
@@ -631,7 +631,7 @@ async function run() {
         setTrackStatus();
         setProgress();
         setTimers();
-        if (debug === true) {
+        if (debug) {
             console.log(count++);
         }
         await sleep(500);
