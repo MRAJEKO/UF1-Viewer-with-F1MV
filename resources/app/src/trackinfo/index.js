@@ -590,7 +590,7 @@ function setProgress() {
 // Setting the timers for the current session
 function setTimers() {
     const clockData = JSON.parse(
-        httpGet("http://localhost:10101/api/v2/live-timing/clock")
+        httpGet("http://localhost:10101/api/v2/live-timing/Clock")
     );
     let systemTime = clockData.systemTime;
     let trackTime = clockData.trackTime;
