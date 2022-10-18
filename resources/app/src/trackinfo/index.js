@@ -38,6 +38,7 @@ let backgroundColor;
 let drsZoneNumber;
 let sessionStartStatus;
 let oldTrackStatus;
+let timer;
 
 // Set global variables
 let drsEnabled = true;
@@ -45,6 +46,7 @@ let pastMessages = [];
 let grip = "NORMAL";
 let color = "green";
 let redFlag = false;
+let fullSessionTimer = 3600000;
 
 // Global HTML elements
 let sessionStatus;
@@ -70,6 +72,7 @@ let trackStatus;
 let timingData;
 let extraPolatedClock;
 let sessionData;
+let clockData;
 
 let sessionInfo = JSON.parse(
     httpGet("http://localhost:10101/api/v1/live-timing/SessionInfo")
@@ -102,7 +105,7 @@ function apiRequests() {
                 "http://localhost:10101/api/v2/live-timing/state/TrackStatus,SessionStatus,TimingData,ExtrapolatedClock,SessionData"
             )
         );
-        trackStatus = api.trackStatus;
+        trackStatus = api.TrackStatus;
         sessionStartStatus = api.SessionStatus;
         timingData = api.TimingData;
         extraPolatedClock = api.ExtrapolatedClock;
@@ -111,6 +114,10 @@ function apiRequests() {
 
     RCMs = JSON.parse(
         httpGet("http://localhost:10101/api/v1/live-timing/RaceControlMessages")
+    );
+
+    clockData = JSON.parse(
+        httpGet("http://localhost:10101/api/v2/live-timing/Clock")
     );
 }
 
@@ -137,8 +144,8 @@ function getMainHTML() {
     statusContainer = document.getElementById("statuses");
     sessionStatus = document.querySelector("#session-status");
     lapCount = document.querySelector("#lap-count");
-    raceTimer = document.querySelector("#timer1");
-    sessionTimer = document.querySelector("#timer2");
+    sessionTimerElement = document.querySelector("#timer1");
+    fullSessionTimerElement = document.querySelector("#timer2");
     headPadding = document.querySelector("#head-material p");
     drs = document.querySelector("#drs p");
     manTyres = document.querySelector("#tyres p");
@@ -399,7 +406,7 @@ function setGrip(message) {
 function setProgress() {
     // General information
     let color = "green";
-    let timer = "00:15:00";
+    // let timer = "00:15:00";
     let totalTimer = "00:00:00";
     let sessionDuration;
     let currentSessionPercentage;
@@ -582,16 +589,16 @@ function setProgress() {
             return;
         }
     }
+    if (debug) {
+        console.log(color);
+    }
     currentProgress.innerHTML =
         currentSessionPercentage + " - " + maxSessionPercentage;
     currentProgress.className = color;
 }
 
 // Setting the timers for the current session
-function setTimers() {
-    const clockData = JSON.parse(
-        httpGet("http://localhost:10101/api/v2/live-timing/Clock")
-    );
+function setTrackTime() {
     let systemTime = clockData.systemTime;
     let trackTime = clockData.trackTime;
     let now = Date.now();
@@ -621,6 +628,76 @@ function setTimers() {
     trackTimeElement.className = "green";
 }
 
+function setTimers() {
+    let color = "green";
+    let fullColor = "green";
+    let fullTimer = "";
+    let sessionDuration;
+    if (extraPolatedClock.Extrapolating) {
+        color = "green";
+        sessionDuration = new Date(
+            (+extraPolatedClock.Remaining.split(":")[0] * 60 * 60 +
+                +extraPolatedClock.Remaining.split(":")[1] * 60 +
+                +extraPolatedClock.Remaining.split(":")[2]) *
+                1000 +
+                1000
+        );
+        let test = new Date().toLocaleTimeString("en-GB", {
+            timeZone: "UTC",
+        });
+        let trackTime = clockData.trackTime;
+        let systemTime = clockData.systemTime;
+        let timerStart = new Date(extraPolatedClock.Utc).getTime();
+        let now = Date.now();
+        timer = new Date(
+            sessionDuration - ((now -= systemTime -= trackTime) - timerStart)
+        ).toLocaleTimeString("en-GB", {
+            timeZone: "UTC",
+        });
+
+        // .toLocaleTimeString("en-GB", { timeZone: "UTC" });
+        if (debug) {
+            console.log(extraPolatedClock.Utc);
+            console.log(extraPolatedClock.Extrapolating);
+            // console.log(Remaining);
+            console.log(test);
+            console.log(sessionDuration);
+            console.log(systemTime);
+            console.log(timerStart);
+            console.log(timer);
+        }
+    } else {
+        timer = extraPolatedClock.Remaining;
+        if (sessionStartStatus.Status == "Aborted") {
+            trackTime = clockData.trackTime;
+            systemTime = clockData.systemTime;
+            timerStart = new Date(extraPolatedClock.Utc).getTime();
+            now = Date.now();
+            fullTimer = new Date(
+                fullSessionTimer -
+                    ((now -= systemTime -= trackTime) - timerStart)
+            ).toLocaleTimeString("en-GB", {
+                timeZone: "UTC",
+            });
+        }
+        if (debug) {
+            console.log(fullTimer);
+        }
+        if (timer == "00:00:00") {
+            color = "white";
+        } else {
+            color = "red";
+        }
+    }
+
+    if (sessionInfo.Type == "Race") {
+        sessionTimerElement.innerHTML = timer;
+        fullSessionTimerElement.innerHTML = fullTimer;
+        sessionTimerElement.className = color;
+        fullSessionTimerElement.className = fullColor;
+    }
+}
+
 // Adding the DRS zones
 function addDrsZones() {}
 
@@ -635,13 +712,14 @@ async function run() {
         setSession();
         forRaceControlMessages();
         setDRS();
+        setTimers();
+        setTrackTime();
         setTrackStatus();
         setProgress();
-        setTimers();
         if (debug) {
             console.log(count++);
         }
-        await sleep(500);
+        await sleep(250);
     }
 }
 
