@@ -175,7 +175,11 @@ function setSession() {
         status = "ONGOING";
         backgroundColor = "green";
         delayed = false;
-    } else if (status == "Finished" || status == "Finalised") {
+    } else if (
+        status == "Finished" ||
+        status == "Finalised" ||
+        status == "Ends"
+    ) {
         status = "FINISHED";
         backgroundColor = "white";
         delayed = false;
@@ -493,13 +497,13 @@ function setProgress() {
             let lapCounter = "Lap: " + currentLap + "/" + totalLaps;
             lapCount.className = color;
             lapCount.innerHTML = lapCounter;
-            if (currentSessionPercentage == "100%" && timerSeconds != "0") {
-                currentSessionPercentage = "99%";
-            }
-            if (currentSessionPercentage == "100%" && timerSeconds == "0") {
+            if (currentSessionPercentage == "100%" && currentLap == totalLaps) {
                 currentProgress.innerHTML = "COMPLETED";
                 currentProgress.className = "white";
                 return;
+            }
+            if (currentSessionPercentage == "100%" && currentLap != totalLaps) {
+                currentSessionPercentage = "99%";
             }
         } else {
             let totalMaxLaps = maxLaps + currentLap;
