@@ -769,42 +769,44 @@ function setTimers() {
             console.log(timer);
         }
     } else {
-        if (sessionInfo.Type != "Practice") {
-            timer = extraPolatedClock.Remaining;
-            if (sessionStartStatus.Status != "Inactive") {
-                fullColor = "green";
-                let trackTime = clockData.trackTime;
-                let systemTime = clockData.systemTime;
-                let timerStart = new Date(extraPolatedClock.Utc).getTime();
-                let now = Date.now();
+        timer = extraPolatedClock.Remaining;
+        if (sessionStartStatus.Status != "Inactive") {
+            fullColor = "green";
+            let trackTime = clockData.trackTime;
+            let systemTime = clockData.systemTime;
+            let timerStart = new Date(extraPolatedClock.Utc).getTime();
+            let now = Date.now();
+            console.log(fullTimerRemaining);
+            fullSessionTimer = new Date(
+                fullTimerRemaining -
+                    ((now -= systemTime -= trackTime) - timerStart)
+            ).toLocaleTimeString("en-GB", {
+                timeZone: "UTC",
+            });
+            if (debug) {
+                console.log((now -= systemTime -= trackTime) - timerStart);
+                console.log(fullSessionTimer);
                 console.log(fullTimerRemaining);
-                fullSessionTimer = new Date(
-                    fullTimerRemaining -
-                        ((now -= systemTime -= trackTime) - timerStart)
-                ).toLocaleTimeString("en-GB", {
-                    timeZone: "UTC",
-                });
-                if (debug) {
-                    console.log((now -= systemTime -= trackTime) - timerStart);
-                    console.log(fullSessionTimer);
-                    console.log(fullTimerRemaining);
-                }
             }
         }
-    }
-    if (fullTimerRemaining < 0) {
-        fullSessionTimer = "00:00:00";
-        fullColor = "hidden";
-    }
-    console.log(timer);
-    if (timer == "00:00:00") {
-        color = "white";
+
+        if (fullTimerRemaining < 0) {
+            fullSessionTimer = "00:00:00";
+            fullColor = "hidden";
+        }
+        console.log(timer);
+        if (timer == "00:00:00") {
+            color = "white";
+        }
     }
     if (sessionInfo.Type == "Race") {
         sessionTimerElement.innerHTML = timer;
         fullSessionTimerElement.innerHTML = fullSessionTimer;
         sessionTimerElement.className = color;
         fullSessionTimerElement.className = fullColor;
+    } else {
+        sessionTimerElement.innerHTML = timer;
+        sessionTimerElement.className = color;
     }
 }
 
