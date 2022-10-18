@@ -1,5 +1,5 @@
 Race timer
-Session timer
+Session timer (show timer when not changing)
 Qualifying timers (Q timer and full session (1 hour))
 
 ?Lap percentage completed (How far the leader is through the lap (Race only))

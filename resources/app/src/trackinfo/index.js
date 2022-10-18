@@ -46,7 +46,13 @@ let pastMessages = [];
 let grip = "NORMAL";
 let color = "green";
 let redFlag = false;
-let fullSessionTimer = 3600000;
+let fullTimerRemaining = 3600000;
+let fullSessionTimer = new Date(fullTimerRemaining).toLocaleTimeString(
+    "en-GB",
+    {
+        timeZone: "UTC",
+    }
+);
 
 // Global HTML elements
 let sessionStatus;
@@ -164,22 +170,36 @@ function setSession() {
     if (status == "Aborted") {
         status = "SUSPENDED";
         backgroundColor = "red";
+        delayed = false;
     } else if (status == "Started") {
         status = "ONGOING";
         backgroundColor = "green";
+        delayed = false;
     } else if (status == "Finished" || status == "Finalised") {
         status = "FINISHED";
         backgroundColor = "white";
+        delayed = false;
     }
     if (status == "Inactive" && delayed != true) {
-        for (i in RCMs.Messages) {
-            if (RCMs.Messages[i].Message.includes("SUSPENDED" || "DELAYED")) {
-                status = "DELAYED";
-                backgroundColor = "orange";
-                delayed = true;
-            } else {
-                status = "ONSCHEDULE";
-                backgroundColor = "green";
+        if (delayed) {
+            status = "DELAYED";
+            backgroundColor = "orange";
+            delayed = true;
+        } else {
+            for (i in RCMs.Messages) {
+                console.log(RCMs.Messages[i].Message);
+                if (
+                    RCMs.Messages[i].Message.includes("SUSPENDED") ||
+                    RCMs.Messages[i].Message.includes("DELAYED")
+                ) {
+                    console.log("DELAYED");
+                    status = "DELAYED";
+                    backgroundColor = "orange";
+                    delayed = true;
+                } else {
+                    status = "ONSCHEDULE";
+                    backgroundColor = "green";
+                }
             }
         }
     }
@@ -406,7 +426,7 @@ function setGrip(message) {
 function setProgress() {
     // General information
     let color = "green";
-    // let timer = "00:15:00";
+    let timer = "00:15:00";
     let totalTimer = "00:00:00";
     let sessionDuration;
     let currentSessionPercentage;
@@ -628,12 +648,90 @@ function setTrackTime() {
     trackTimeElement.className = "green";
 }
 
+// Get the history of aborts
+function getOldAborts() {
+    let statusSeriesIndexes = [];
+    let usedTime;
+    for (i in sessionData.StatusSeries) {
+        if (
+            sessionData.StatusSeries[i].SessionStatus != undefined &&
+            (sessionData.StatusSeries[i].SessionStatus == "Started" ||
+                sessionData.StatusSeries[i].SessionStatus == "Aborted")
+        ) {
+            if (debug) {
+                console.log(sessionData.StatusSeries[i].SessionStatus);
+                console.log(i);
+            }
+            statusSeriesIndexes.push(i);
+        }
+    }
+    console.log(statusSeriesIndexes);
+    for (i in statusSeriesIndexes) {
+        if (debug) {
+            console.log(statusSeriesIndexes[i]);
+        }
+        if (
+            sessionData.StatusSeries[statusSeriesIndexes[i]].SessionStatus ==
+            "Aborted"
+        ) {
+            if (debug) {
+                console.log(
+                    sessionData.StatusSeries[statusSeriesIndexes[i]].Utc
+                );
+            }
+            let startAbort =
+                sessionData.StatusSeries[statusSeriesIndexes[i]].Utc;
+            let endAbort;
+            if (
+                sessionData.StatusSeries[statusSeriesIndexes[+i + 1]] !=
+                undefined
+            ) {
+                endAbort =
+                    sessionData.StatusSeries[statusSeriesIndexes[+i + 1]].Utc;
+            }
+            if (startAbort != undefined && endAbort != undefined) {
+                usedTime =
+                    new Date(endAbort).getTime() -
+                    new Date(startAbort).getTime();
+                fullTimerRemaining -= usedTime;
+                fullSessionTimer = new Date(
+                    fullTimerRemaining
+                ).toLocaleTimeString("en-GB", {
+                    timeZone: "UTC",
+                });
+            }
+            if (debug) {
+                console.log("Start Abort: " + startAbort);
+                console.log("End Abort: " + endAbort);
+                console.log("Old remaining time: ");
+                console.log(fullTimerRemaining);
+                console.log("Used time ms: ");
+                console.log(usedTime);
+                console.log("Remaining time: " + fullTimerRemaining);
+                console.log(
+                    "Remaining timer: " +
+                        new Date(fullTimerRemaining).toLocaleTimeString(
+                            "en-GB",
+                            {
+                                timeZone: "UTC",
+                            }
+                        )
+                );
+            }
+        }
+    }
+}
+
 function setTimers() {
-    let color = "green";
-    let fullColor = "green";
-    let fullTimer = "";
+    let color = "red";
+    let fullColor = "red";
     let sessionDuration;
+    if (debug) {
+        console.log(fullSessionTimer);
+        console.log(fullTimerRemaining);
+    }
     if (extraPolatedClock.Extrapolating) {
+        fullColor = "red";
         color = "green";
         sessionDuration = new Date(
             (+extraPolatedClock.Remaining.split(":")[0] * 60 * 60 +
@@ -667,32 +765,40 @@ function setTimers() {
             console.log(timer);
         }
     } else {
-        timer = extraPolatedClock.Remaining;
-        if (sessionStartStatus.Status == "Aborted") {
-            trackTime = clockData.trackTime;
-            systemTime = clockData.systemTime;
-            timerStart = new Date(extraPolatedClock.Utc).getTime();
-            now = Date.now();
-            fullTimer = new Date(
-                fullSessionTimer -
-                    ((now -= systemTime -= trackTime) - timerStart)
-            ).toLocaleTimeString("en-GB", {
-                timeZone: "UTC",
-            });
-        }
-        if (debug) {
-            console.log(fullTimer);
-        }
-        if (timer == "00:00:00") {
-            color = "white";
-        } else {
-            color = "red";
+        if (sessionInfo.Type != "Practice") {
+            timer = extraPolatedClock.Remaining;
+            if (sessionStartStatus.Status != "Inactive") {
+                fullColor = "green";
+                let trackTime = clockData.trackTime;
+                let systemTime = clockData.systemTime;
+                let timerStart = new Date(extraPolatedClock.Utc).getTime();
+                let now = Date.now();
+                console.log(fullTimerRemaining);
+                fullSessionTimer = new Date(
+                    fullTimerRemaining -
+                        ((now -= systemTime -= trackTime) - timerStart)
+                ).toLocaleTimeString("en-GB", {
+                    timeZone: "UTC",
+                });
+                if (debug) {
+                    console.log((now -= systemTime -= trackTime) - timerStart);
+                    console.log(fullSessionTimer);
+                    console.log(fullTimerRemaining);
+                }
+            }
         }
     }
-
+    if (fullTimerRemaining < 0) {
+        fullSessionTimer = "00:00:00";
+        fullColor = "hidden";
+    }
+    console.log(timer);
+    if (timer == "00:00:00") {
+        color = "white";
+    }
     if (sessionInfo.Type == "Race") {
         sessionTimerElement.innerHTML = timer;
-        fullSessionTimerElement.innerHTML = fullTimer;
+        fullSessionTimerElement.innerHTML = fullSessionTimer;
         sessionTimerElement.className = color;
         fullSessionTimerElement.className = fullColor;
     }
@@ -707,6 +813,7 @@ async function run() {
     apiRequests();
     getMainHTML();
     addTrackSectors();
+    getOldAborts();
     while (true) {
         apiRequests();
         setSession();
@@ -723,7 +830,7 @@ async function run() {
     }
 }
 
-// Running all the funtions that need a for (i in RCMs.Messages) loop
+// Running all the funtions that sessionData.StatusSeries[i].Utc a for (i in RCMs.Messages) loop
 function forRaceControlMessages() {
     for (i in RCMs.Messages) {
         let message = RCMs.Messages[i];
