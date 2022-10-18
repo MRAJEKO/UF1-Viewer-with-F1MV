@@ -430,8 +430,7 @@ function setGrip(message) {
 function setProgress() {
     // General information
     let color = "green";
-    let timer = "00:15:00";
-    let totalTimer = "00:00:00";
+    // let timer = "00:15:00";
     let sessionDuration;
     let currentSessionPercentage;
     let maxSessionPercentage;
@@ -440,9 +439,9 @@ function setProgress() {
         +timer.split(":")[1] * 60 +
         +timer.split(":")[2];
     let totalTimerSeconds =
-        +totalTimer.split(":")[0] * 60 * 60 +
-        +totalTimer.split(":")[1] * 60 +
-        +totalTimer.split(":")[2];
+        +timer.split(":")[0] * 60 * 60 +
+        +timer.split(":")[1] * 60 +
+        +timer.split(":")[2];
     sessionDuration = new Date(
         new Date(sessionInfo.EndDate).getTime() -
             new Date(sessionInfo.StartDate).getTime()
@@ -548,6 +547,17 @@ function setProgress() {
             }
         }
     } else if (sessionInfo.Type == "Qualifying") {
+        // If the session is qualifying
+        switch (
+            sessionData.Series[sessionData.Series.length - 1].QualifyingPart
+        ) {
+            case 1:
+                sessionDurationSeconds = 1080;
+            case 2:
+                sessionDurationSeconds = 900;
+            case 3:
+                sessionDurationSeconds = 720;
+        }
         currentSessionPercentage =
             Math.round(
                 100 -
@@ -556,7 +566,6 @@ function setProgress() {
                         100 -
                     100
             ) + "%";
-        // If the session is qualifying
         let Q;
         for (i in sessionData.Series) {
             if (debug) {
@@ -566,6 +575,7 @@ function setProgress() {
         }
         if (debug) {
             console.log("Qualifying");
+            console.log(currentSessionPercentage);
             console.log(totalTimerSeconds);
             console.log(sessionDurationSeconds);
             console.log(Q);
