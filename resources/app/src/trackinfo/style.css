@@ -132,6 +132,11 @@ p {
     color: black;
 }
 
+.gray {
+    background-color: gray;
+    color: black;
+}
+
 .black-background {
     background-color: black !important;
 }

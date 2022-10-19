@@ -732,15 +732,14 @@ function getOldAborts() {
 }
 
 function setTimers() {
-    let color = "red";
-    let fullColor = "red";
+    let color = "gray";
+    let fullColor = "gray";
     let sessionDuration;
     if (debug) {
         console.log(fullSessionTimer);
         console.log(fullTimerRemaining);
     }
     if (extraPolatedClock.Extrapolating) {
-        fullColor = "red";
         color = "green";
         sessionDuration = new Date(
             (+extraPolatedClock.Remaining.split(":")[0] * 60 * 60 +
@@ -776,7 +775,7 @@ function setTimers() {
     } else {
         timer = extraPolatedClock.Remaining;
         if (sessionStartStatus.Status != "Inactive") {
-            fullColor = "green";
+            fullColor = "yellow";
             let trackTime = clockData.trackTime;
             let systemTime = clockData.systemTime;
             let timerStart = new Date(extraPolatedClock.Utc).getTime();
@@ -796,7 +795,6 @@ function setTimers() {
 
         if (fullTimerRemaining < 0) {
             fullSessionTimer = "00:00:00";
-            fullColor = "hidden";
         }
         if (timer == "00:00:00") {
             color = "white";
