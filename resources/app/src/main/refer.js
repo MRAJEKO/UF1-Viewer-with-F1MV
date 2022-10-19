@@ -58,6 +58,6 @@ function crashDetection() {
     window.open(
         "../crashDetection/index.html",
         "_blank",
-        "height=100px,width=400px,transparent=true,frame=false,resizable=true,hasShadow=false"
+        "height=400px,width=400px,transparent=true,frame=false,resizable=true,hasShadow=false"
     );
 }
