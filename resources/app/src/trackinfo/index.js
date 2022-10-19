@@ -1,4 +1,4 @@
-const debug = true;
+const debug = false;
 
 const sleep = (milliseconds) => {
     return new Promise((resolve) => setTimeout(resolve, milliseconds));
@@ -191,12 +191,10 @@ function setSession() {
             delayed = true;
         } else {
             for (i in RCMs.Messages) {
-                console.log(RCMs.Messages[i].Message);
                 if (
                     RCMs.Messages[i].Message.includes("SUSPENDED") ||
                     RCMs.Messages[i].Message.includes("DELAYED")
                 ) {
-                    console.log("DELAYED");
                     status = "DELAYED";
                     backgroundColor = "orange";
                     delayed = true;
@@ -604,8 +602,6 @@ function setProgress() {
             console.log(sessionDuration);
         }
         maxSessionPercentage = "100%";
-        console.log(sessionDurationSeconds);
-        console.log(timerSeconds);
         currentSessionPercentage =
             Math.round(
                 100 -
@@ -679,7 +675,6 @@ function getOldAborts() {
             statusSeriesIndexes.push(i);
         }
     }
-    console.log(statusSeriesIndexes);
     for (i in statusSeriesIndexes) {
         if (debug) {
             console.log(statusSeriesIndexes[i]);
@@ -786,7 +781,6 @@ function setTimers() {
             let systemTime = clockData.systemTime;
             let timerStart = new Date(extraPolatedClock.Utc).getTime();
             let now = Date.now();
-            console.log(fullTimerRemaining);
             fullSessionTimer = new Date(
                 fullTimerRemaining -
                     ((now -= systemTime -= trackTime) - timerStart)
@@ -804,7 +798,6 @@ function setTimers() {
             fullSessionTimer = "00:00:00";
             fullColor = "hidden";
         }
-        console.log(timer);
         if (timer == "00:00:00") {
             color = "white";
         }
