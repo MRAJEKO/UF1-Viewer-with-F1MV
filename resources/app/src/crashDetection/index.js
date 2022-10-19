@@ -16,16 +16,20 @@ let api;
 let driverList;
 let carData;
 let timingData;
+let sessionStatus;
+let warning;
+let crashCount = 0;
 
 function apiRequests() {
     api = JSON.parse(
         httpGet(
-            "http://localhost:10101/api/v2/live-timing/state/DriverList,CarData,TimingData"
+            "http://localhost:10101/api/v2/live-timing/state/DriverList,CarData,TimingData,SessionStatus"
         )
     );
     driverList = api.DriverList;
     carData = api.CarData;
     timingData = api.TimingData;
+    sessionStatus = api.SessionStatus;
     if (debug) {
         console.log("------------------------------");
         console.log("Driver list:");
@@ -79,7 +83,7 @@ function getCarStatus(data) {
         return false;
     }
 }
-let container = document.getElementById("container");
+let list = document.getElementById("list");
 
 let count = 0;
 async function run() {
@@ -107,16 +111,23 @@ async function run() {
             }
             if (crashed) {
                 if (driverElement == null) {
-                    let element = `<p id="${number}">${name}</p>`;
-                    container.innerHTML += element;
-                    document.getElementById(number).style.color = "#" + color;
+                    let newElement = document.createElement("li");
+                    newElement.id = number;
+                    newElement.style.color = "#" + color;
+                    newElement.innerHTML = name;
+                    list.appendChild(newElement);
+                    await sleep(10);
+                    newElement.className = "show";
                 }
+
                 if (debug) {
                     console.log(name + " has crashed");
                 }
             } else {
                 if (driverElement == null) {
                 } else {
+                    document.getElementById(number).className = "";
+                    await sleep(400);
                     driverElement.remove();
                 }
             }
@@ -126,7 +137,44 @@ async function run() {
         if (debug) {
             console.log(count++);
         }
+        console.log(document.getElementById("list").childNodes.length);
+        if (document.getElementById("list").childNodes.length > crashCount) {
+            crashCount = document.getElementById("list").childNodes.length;
+            triggerWarning();
+            console.log("New crash");
+        }
+    }
+}
+run();
+
+async function triggerWarning() {
+    console.log("trigger warning");
+    let title = document.querySelector("h1");
+    console.log(title);
+    let loop = 0;
+    while (loop <= 10) {
+        await sleep(200);
+        title.className = "warning";
+        await sleep(200);
+        title.className = "";
+        loop++;
+        console.log("loop");
     }
 }
 
-run();
+let transparent = false;
+function toggleBackground() {
+    if (transparent) {
+        document.querySelector("body").className = "";
+        transparent = false;
+    } else {
+        document.querySelector("body").className = "transparent";
+        transparent = true;
+    }
+}
+
+document.addEventListener("keydown", (event) => {
+    if (event.key == "Escape") {
+        toggleBackground();
+    }
+});
