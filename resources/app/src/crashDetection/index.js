@@ -142,6 +142,8 @@ async function run() {
             crashCount = document.getElementById("list").childNodes.length;
             triggerWarning();
             console.log("New crash");
+        } else {
+            crashCount = document.getElementById("list").childNodes.length;
         }
     }
 }
