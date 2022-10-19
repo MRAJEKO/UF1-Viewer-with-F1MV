@@ -15,3 +15,7 @@ body {
     background-color: gray;
     -webkit-app-region: drag;
 }
+
+#container {
+    display: flex;
+}
