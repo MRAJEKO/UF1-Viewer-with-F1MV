@@ -39,3 +39,15 @@ h1 {
     color: white;
     text-shadow: 0.5vw 0.5vw black;
 }
+
+.line {
+    background-color: white;
+    height: 0.2vh;
+    width: 90%;
+    margin-left: 5%;
+    margin-bottom: 3vw;
+}
+
+.mode {
+    background-color: #0290d0;
+}
