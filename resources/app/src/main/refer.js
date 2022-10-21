@@ -1,7 +1,4 @@
 const { spawn, exec } = require("child_process");
-var fs = require("fs-extra");
-const request = require("request");
-var AdmZip = require("adm-zip");
 
 function launchMVF1() {
     var mvPath =
@@ -20,7 +17,7 @@ function flagDisplay() {
 
 function trackTime() {
     window.open(
-        "../TrackTime/index.html",
+        "../tracktime/index.html",
         "_blank",
         "height=100px,width=400px,transparent=true,frame=false,resizable=true,hasShadow=false,nodeIntegration=no"
     );
@@ -35,8 +32,7 @@ function compass() {
 }
 
 function singleRCM() {
-    var left = (window.screen.width - 1000) / 2;
-    console.log(left);
+    let left = (window.screen.width - 1000) / 2;
     window.open(
         "../singlercm/index.html",
         "_blank",
@@ -59,5 +55,51 @@ function crashDetection() {
         "../crashDetection/index.html",
         "_blank",
         "height=400px,width=400px,transparent=true,frame=false,resizable=true,hasShadow=false"
+    );
+}
+
+function FP() {
+    window.open(
+        "../flagdisplay/index.html",
+        "_blank",
+        "fullscreen=true,frame=false,nodeIntegration=no"
+    );
+    window.open(
+        "../trackinfo/index.html",
+        "_blank",
+        "height=650px,width=950px,transparent=true,frame=false,resizable=true,hasShadow=false"
+    );
+    window.open(
+        "../crashDetection/index.html",
+        "_blank",
+        "height=400px,width=400px,transparent=true,frame=false,resizable=true,hasShadow=false"
+    );
+    window.open(
+        "../compass/index.html",
+        "_blank",
+        "height=80px,width=80px,transparent=true,frame=false,resizable=true,hasShadow=false"
+    );
+    window.open(
+        "../tracktime/index.html",
+        "_blank",
+        "height=80px,width=400px,transparent=true,frame=false,resizable=true,hasShadow=false,nodeIntegration=no"
+    );
+    window.open(
+        "../flagdisplay/index.html",
+        "_blank",
+        "height=100px,width=100px,frame=false,nodeIntegration=no"
+    );
+    window.open(
+        "../flagdisplay/index.html",
+        "_blank",
+        "height=100px,width=100px,frame=false,nodeIntegration=no"
+    );
+    let left = (window.screen.width - 1000) / 2;
+    window.open(
+        "../singlercm/index.html",
+        "_blank",
+        "top=19,left=" +
+            left +
+            ",alwaysOnTop=true,width=1000px,height=100px,frame=false,transparent=true,resizable=false,hasShadow=false,webPreferences={devTools=false}"
     );
 }
