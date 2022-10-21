@@ -1,4 +1,4 @@
-const debug = true;
+const debug = false;
 
 // Set sleep
 const sleep = (milliseconds) => {
@@ -65,9 +65,14 @@ function getTeamColor(number) {
 }
 
 function getCarData(number) {
-    if (debug) {
-        console.log("------------------------------");
-        console.log(carData.Entries[0].Cars[number].Channels);
+    try {
+        carData.Entries[0].Cars[number].Channels;
+        if (debug) {
+            console.log("------------------------------");
+            console.log(carData.Entries[0].Cars[number].Channels);
+        }
+    } catch (error) {
+        return "error";
     }
     return carData.Entries[0].Cars[number].Channels;
 }
@@ -93,42 +98,54 @@ async function run() {
         }
         apiRequests();
         for (i in driverList) {
-            let number = driverList[i].RacingNumber;
-            let name = getDriverName(number);
-            let color = getTeamColor(number);
-            let data = getCarData(number);
-            let crashed = getCarStatus(data);
-            let driverElement = document.getElementById(number);
-            if (crashed) {
-                let driverData = timingData.Lines[number];
-                if (
-                    driverData.InPit === true ||
-                    driverData.Retired === true ||
-                    driverData.Stopped === true
-                ) {
-                    crashed = false;
-                }
+            if (debug) {
+                console.log(i);
+                console.log(driverList[i]);
             }
-            if (crashed) {
-                if (driverElement == null) {
-                    let newElement = document.createElement("li");
-                    newElement.id = number;
-                    newElement.style.color = "#" + color;
-                    newElement.innerHTML = name;
-                    list.appendChild(newElement);
-                    await sleep(10);
-                    newElement.className = "show";
-                }
+            if (!isNaN(+i)) {
+                let number = driverList[i].RacingNumber;
+                let name = getDriverName(number);
+                let color = getTeamColor(number);
+                let data = getCarData(number);
+                if (data !== "error") {
+                    let crashed = getCarStatus(data);
+                    let driverElement = document.getElementById(number);
+                    if (crashed) {
+                        let driverData = timingData.Lines[number];
+                        if (
+                            driverData.InPit === true ||
+                            driverData.Retired === true ||
+                            driverData.Stopped === true
+                        ) {
+                            crashed = false;
+                        }
+                    }
+                    if (crashed) {
+                        if (driverElement == null) {
+                            let newElement = document.createElement("li");
+                            newElement.id = number;
+                            newElement.style.color = "#" + color;
+                            newElement.innerHTML = name;
+                            list.appendChild(newElement);
+                            await sleep(10);
+                            newElement.className = "show";
+                        }
 
-                if (debug) {
-                    console.log(name + " has crashed");
+                        if (debug) {
+                            console.log(name + " has crashed");
+                        }
+                    } else {
+                        if (driverElement == null) {
+                        } else {
+                            document.getElementById(number).className = "";
+                            await sleep(400);
+                            driverElement.remove();
+                        }
+                    }
                 }
             } else {
-                if (driverElement == null) {
-                } else {
-                    document.getElementById(number).className = "";
-                    await sleep(400);
-                    driverElement.remove();
+                if (debug) {
+                    console.log("NaN");
                 }
             }
         }
@@ -136,8 +153,8 @@ async function run() {
         await sleep(250);
         if (debug) {
             console.log(count++);
+            console.log(document.getElementById("list").childNodes.length);
         }
-        console.log(document.getElementById("list").childNodes.length);
         if (document.getElementById("list").childNodes.length > crashCount) {
             crashCount = document.getElementById("list").childNodes.length;
             triggerWarning();
