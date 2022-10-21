@@ -200,7 +200,7 @@ function setSession() {
                     delayed = true;
                 } else {
                     status = "ONSCHEDULE";
-                    backgroundColor = "green";
+                    backgroundColor = "gray";
                 }
             }
         }
@@ -516,6 +516,9 @@ function setProgress() {
             } else {
                 color = "red";
             }
+            if (currentSessionPercentage == "0%") {
+                color = "gray";
+            }
             let lapCounter =
                 "Lap: " + currentLap + "/" + (Math.floor(totalMaxLaps) + 1);
             lapCount.className = color;
@@ -578,6 +581,9 @@ function setProgress() {
             console.log(sessionDurationSeconds);
             console.log(Q);
         }
+        if (currentSessionPercentage == "0%") {
+            color = "gray";
+        }
         let maxQ = "Q3";
         maxSessionPercentage = "100%";
         if (Q == maxQ) {
@@ -610,6 +616,9 @@ function setProgress() {
                         100 -
                     100
             ) + "%";
+        if (currentSessionPercentage == "0%") {
+            color = "gray";
+        }
         if (currentSessionPercentage == "100%" && timerSeconds != "0") {
             currentSessionPercentage = "99%";
         }
