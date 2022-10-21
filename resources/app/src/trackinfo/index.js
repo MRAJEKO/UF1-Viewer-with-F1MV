@@ -181,7 +181,7 @@ function setSession() {
         status == "Ends"
     ) {
         status = "FINISHED";
-        backgroundColor = "white";
+        backgroundColor = "gray";
         delayed = false;
     }
     if (status == "Inactive" && delayed != true) {
@@ -496,7 +496,7 @@ function setProgress() {
             lapCount.innerHTML = lapCounter;
             if (currentSessionPercentage == "100%" && currentLap == totalLaps) {
                 currentProgress.innerHTML = "COMPLETED";
-                currentProgress.className = "white";
+                currentProgress.className = "gray";
                 return;
             }
             if (currentSessionPercentage == "100%" && currentLap != totalLaps) {
@@ -540,7 +540,7 @@ function setProgress() {
                 currentLap == maxLaps
             ) {
                 currentProgress.innerHTML = "COMPLETED";
-                currentProgress.className = "white";
+                currentProgress.className = "gray";
                 return;
             }
         }
@@ -582,7 +582,7 @@ function setProgress() {
         maxSessionPercentage = "100%";
         if (Q == maxQ) {
             totalQProgressElement.innerHTML = Q + " - " + maxQ;
-            totalQProgressElement.className = "white";
+            totalQProgressElement.className = "gray";
         } else {
             totalQProgressElement.className = "green";
         }
@@ -593,7 +593,7 @@ function setProgress() {
         }
         if (currentSessionPercentage == "100%" && totalTimerSeconds == "0") {
             currentProgress.innerHTML = "COMPLETED";
-            currentProgress.className = "white";
+            currentProgress.className = "gray";
             return;
         }
     } else {
@@ -615,7 +615,7 @@ function setProgress() {
         }
         if (currentSessionPercentage == "100%" && timerSeconds == "0") {
             currentProgress.innerHTML = "COMPLETED";
-            currentProgress.className = "white";
+            currentProgress.className = "gray";
             return;
         }
     }
@@ -797,7 +797,7 @@ function setTimers() {
             fullSessionTimer = "00:00:00";
         }
         if (timer == "00:00:00") {
-            color = "white";
+            color = "gray";
         }
     }
     if (sessionInfo.Type == "Race") {
