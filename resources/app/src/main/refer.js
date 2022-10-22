@@ -58,6 +58,14 @@ function crashDetection() {
     );
 }
 
+function fastest() {
+    window.open(
+        "../crashDetection/index.html",
+        "_blank",
+        "height=200px,width=1000px,transparent=true,frame=false,resizable=true,hasShadow=false"
+    );
+}
+
 function FP() {
     window.open(
         "../flagdisplay/index.html",
