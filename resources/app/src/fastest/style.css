@@ -39,6 +39,7 @@ h3 {
 }
 /* Time */
 p {
+    font-style: italic;
     font-size: 1.1vw;
     font-family: "F1Regular", Arial, Helvetica, sans-serif;
 }
