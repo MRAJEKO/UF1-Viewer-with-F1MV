@@ -15,8 +15,21 @@ body {
 
 /* Title */
 h1 {
-    font-family: "F1Bold", Arial, Helvetica, sans-serif;
+    font-family: "F1Regular", Arial, Helvetica, sans-serif;
     font-size: 2vw;
+}
+
+/* Name */
+h2 {
+    font-size: 1.5vw;
+    font-family: "F1Regular", Arial, Helvetica, sans-serif;
+}
+
+/* Time */
+p {
+    font-style: italic;
+    font-size: 1.1vw;
+    font-family: "F1Regular", Arial, Helvetica, sans-serif;
 }
 
 .line {
@@ -26,22 +39,14 @@ h1 {
     margin: 0.4vw 0;
 }
 
-/* Category */
-h2 {
-    font-size: 1.5vw;
-    font-family: "F1Bold", Arial, Helvetica, sans-serif;
+img {
+    width: 30px;
 }
 
-/* Name */
-h3 {
-    font-size: 1.3vw;
-    font-family: "F1Regular", Arial, Helvetica, sans-serif;
-}
-/* Time */
-p {
-    font-style: italic;
-    font-size: 1.1vw;
-    font-family: "F1Regular", Arial, Helvetica, sans-serif;
+.row {
+    flex-direction: row;
+    background-color: white;
+    width: 20vw;
 }
 
 section {
