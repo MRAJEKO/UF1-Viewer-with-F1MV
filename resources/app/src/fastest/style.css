@@ -49,6 +49,10 @@ p {
     background-color: #0d0d13;
 }
 
+.number {
+    width: 3vw;
+}
+
 img {
     width: 2.5vw;
     /* height: 2.5vw; */
@@ -63,7 +67,7 @@ img {
 
 section {
     display: flex;
-    gap: 3vw;
-    justify-content: space-evenly;
+    gap: 2vw;
+    justify-content: center;
     align-items: center;
 }
