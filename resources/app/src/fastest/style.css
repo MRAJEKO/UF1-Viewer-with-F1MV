@@ -15,36 +15,48 @@ body {
 
 /* Title */
 h1 {
-    font-family: "F1Regular", Arial, Helvetica, sans-serif;
-    font-size: 2vw;
+    font-family: "F1Bold", Arial, Helvetica, sans-serif;
+    font-size: 2.5vw;
+}
+
+.lap h1,
+.sectors h1 {
+    color: purple;
+    background-color: #0d0d13;
+}
+
+.speedtrap h1,
+.finishline h1 {
+    background-color: #0d0d13;
+    color: rgb(170, 170, 170);
 }
 
 /* Name */
 h2 {
-    font-size: 1.5vw;
+    margin: 0 0.5vw;
+    font-size: 1.7vw;
     font-family: "F1Regular", Arial, Helvetica, sans-serif;
 }
 
 /* Time */
 p {
     font-style: italic;
-    font-size: 1.1vw;
-    font-family: "F1Regular", Arial, Helvetica, sans-serif;
-}
-
-.line {
+    font-size: 3.5vw;
+    font-family: "F1Bold", Arial, Helvetica, sans-serif;
+    color: white;
     width: 100%;
-    height: 1px;
-    background-color: white;
-    margin: 0.4vw 0;
+    /* background-color: #18141c; */
+    background-color: #0d0d13;
 }
 
 img {
-    width: 30px;
+    width: 2.5vw;
+    /* height: 2.5vw; */
+    background-color: blue;
 }
 
 .row {
-    flex-direction: row;
+    display: flex;
     background-color: white;
     width: 20vw;
 }
