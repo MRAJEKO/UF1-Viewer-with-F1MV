@@ -55,13 +55,15 @@ p {
 
 img {
     width: 2.5vw;
-    /* height: 2.5vw; */
-    background-color: blue;
+    height: 2.5vw;
+    padding: 0.1vw;
+    background-color: white;
 }
 
 .row {
+    align-items: center;
     display: flex;
-    background-color: white;
+    background-color: #d5d7db;
     width: 20vw;
 }
 
