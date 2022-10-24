@@ -62,7 +62,7 @@ function fastest() {
     window.open(
         "../fastest/index.html",
         "_blank",
-        "height=200px,width=1000px,transparent=true,frame=false,resizable=true,hasShadow=false"
+        "height=300px,width=1000px,transparent=true,frame=false,resizable=true,hasShadow=false"
     );
 }
 
