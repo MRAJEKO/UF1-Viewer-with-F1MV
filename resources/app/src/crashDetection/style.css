@@ -10,7 +10,7 @@ h1 {
     padding: 10px;
     background-color: rgba(49, 49, 49, 0.425);
     border-radius: 10px;
-    font-size: 23px;
+    font-size: 30px;
     text-align: center;
     color: white;
 }
@@ -31,7 +31,8 @@ h1 {
 
 #list li {
     font-family: "F1Regular", Arial, Helvetica, sans-serif;
-    padding: 10px;
+    font-size: 20px;
+    padding: 8px;
     margin: 5px 0px;
     overflow: hidden;
     max-height: 0;

@@ -23,9 +23,9 @@ body {
 }
 
 h1 {
-    font-family: "F1Bold", Arial, Helvetica, sans-serif;
+    font-family: "F1Regular", Arial, Helvetica, sans-serif;
     font-size: 15px;
-    font-size: 1.1vw;
+    font-size: 1.5vw;
     text-align: center;
 }
 
@@ -41,11 +41,11 @@ h1 {
 }
 
 p {
-    font-family: "F1Regular", Arial, Helvetica, sans-serif;
+    font-family: "F1Bold", Arial, Helvetica, sans-serif;
     font-size: 15px;
-    font-size: 1.1vw;
+    font-size: 1.4vw;
     text-align: center;
-    padding: 4px;
+    padding: 2px 4px;
     margin: 2px;
     border-radius: 10px;
     border: 0.5px solid black;
@@ -66,12 +66,12 @@ p {
 }
 
 #statuses h1 {
-    padding: 4px;
+    padding: 2px 4px;
     margin: 2px;
 }
 
 #statuses p {
-    padding: 4px;
+    padding: 2px 4px;
     margin: 2px;
     border-radius: 10px;
     width: 12vw;
