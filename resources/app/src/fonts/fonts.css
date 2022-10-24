@@ -5,6 +5,11 @@
 
 @font-face {
     font-family: "F1Bold";
+    src: url("TitilliumWeb-Bold.ttf") format("truetype");
+}
+
+@font-face {
+    font-family: "F1Italic-Bold";
     src: url("TitilliumWeb-BoldItalic.ttf") format("truetype");
 }
 
