@@ -29,76 +29,17 @@ function httpGet(theUrl) {
 }
 
 let driverList;
-let timingData;
+let timingStats;
 
 function requestApi() {
     let api = JSON.parse(
         httpGet(
-            "http://localhost:10101/api/v2/live-timing/state/DriverList,TimingData"
+            "http://localhost:10101/api/v2/live-timing/state/DriverList,TimingStats"
         )
     );
     driverList = api.DriverList;
-    timingData = api.TimingData.Lines;
+    timingStats = api.TimingStats.Lines;
 }
-
-function timeToMs(time) {
-    let minutes = time.split(":")[0];
-    let seconds = time.split(":")[1];
-    let timeSeconds = +minutes * 60 + +seconds;
-    return timeSeconds;
-}
-
-function msToTime(seconds) {
-    let minutes = Math.floor(seconds / 60).toString();
-    seconds -= +minutes * 60;
-    seconds = seconds.toFixed(3);
-    let time = minutes + ":" + seconds;
-    return time;
-}
-
-function getNumberFromTimes(times) {
-    let driverNumbers = [];
-    for (i in times) {
-        for (index in timingData) {
-            if (timingData[index].BestLapTime.Value == times[i]) {
-                let number = timingData[index].RacingNumber;
-                driverNumbers.push(number);
-                if (debug) {
-                    console.log(number);
-                }
-            }
-        }
-    }
-    return driverNumbers;
-}
-
-function sortLaps() {
-    let times = [];
-    for (i in timingData) {
-        let bestLapTime = timingData[i].BestLapTime.Value;
-        if (bestLapTime != "") {
-            let bestLapMS = timeToMs(bestLapTime);
-            times.push(+bestLapMS);
-        }
-    }
-    times.sort(function (a, b) {
-        return a - b;
-    });
-    console.log(times);
-    let sortedTimes = [];
-    for (i in times) {
-        sortedTimes.push(msToTime(times[i]));
-    }
-    if (debug) {
-        console.log(times);
-        console.log(sortedTimes);
-    }
-    return sortedTimes;
-}
-
-function sortSectors() {}
-
-function sortSpeeds() {}
 
 function getElement(id) {
     return document.getElementById(id);
@@ -116,50 +57,49 @@ const icons = {
     "Alfa Romeo": "alfa-romeo.png",
     Mercedes: "mercedes.png",
 };
-async function setFastestLaps(sortedNumbers) {
+async function setFastestLaps() {
     console.log("Fastest laps");
     let amount = 3;
-    let firstFew = sortedNumbers.slice(0, amount);
-    console.log(sortedNumbers);
-    console.log(firstFew);
-    for (i in firstFew) {
-        let lastName = driverList[firstFew[i]].LastName.toUpperCase();
-        let icon = icons[driverList[firstFew[i]].TeamName];
-        let color = "#" + driverList[firstFew[i]].TeamColour;
-        let time = timingData[firstFew[i]].BestLapTime.Value;
-        if (debug) {
-            console.log(lastName);
-            console.log(icon);
-            console.log(color);
-            console.log(time);
-        }
-        if (getElement("lap" + (+i + 1)).innerHTML != time) {
-            let reveal = getElement("lapreveal" + (+i + 1));
-            console.log(reveal);
-            reveal.className = "reveal animation-center";
-            await sleep(1000);
-            getElement("lapimg" + (+i + 1)).src = "../icons/" + icon;
-            getElement("lapimg" + (+i + 1)).style.backgroundColor = color;
-            getElement("lapname" + (+i + 1)).innerHTML = lastName;
-            getElement("lap" + (+i + 1)).innerHTML = time;
-            await sleep(1000);
-            reveal.className = "reveal animation-end";
+    let count = 1;
+    for (i in timingStats) {
+        if (timingStats[i].PersonalBestLapTime.Position < amount + 1) {
+            let lastName = driverList[i].LastName.toUpperCase();
+            let icon = icons[driverList[i].TeamName];
+            let color = "#" + driverList[i].TeamColour;
+            let time = timingStats[i].PersonalBestLapTime.Value;
+            if (debug) {
+                console.log(lastName);
+                console.log(icon);
+                console.log(color);
+                console.log(count);
+                console.log(getElement("lap" + count).innerHTML);
+                console.log(time);
+            }
+            if (getElement("lap" + count).innerHTML != time) {
+                let reveal = getElement("lapreveal" + count);
+                console.log(reveal);
+                reveal.className = "reveal animation-center";
+                await sleep(1000);
+                getElement("lapimg" + count).src = "../icons/" + icon;
+                getElement("lapimg" + count).style.backgroundColor = color;
+                getElement("lapname" + count).innerHTML = lastName;
+                getElement("lap" + count).innerHTML = time;
+                await sleep(1000);
+                reveal.className = "reveal animation-end";
 
-            await sleep(1000);
-            reveal.className = "reveal animation-start";
+                await sleep(1000);
+                reveal.className = "reveal animation-start";
+            }
+            count++;
         }
     }
 }
+
 let count = 0;
 async function run() {
     while (true) {
         requestApi();
-        let sortedTimes = sortLaps();
-        if (sortedTimes == "") {
-            return;
-        }
-        let sortedNumbers = getNumberFromTimes(sortedTimes);
-        await setFastestLaps(sortedNumbers);
+        await setFastestLaps();
         await sleep(1000);
         count++;
         if (debug) {
