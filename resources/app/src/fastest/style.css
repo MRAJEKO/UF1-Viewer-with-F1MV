@@ -1,0 +1,122 @@
+* {
+    margin: 0;
+    padding: 0;
+    text-align: center;
+}
+
+body {
+    background-color: gray;
+    -webkit-app-region: drag;
+}
+
+.transparent {
+    background-color: transparent;
+}
+
+/* Title */
+h1 {
+    font-family: "F1Bold", Arial, Helvetica, sans-serif;
+    font-size: 2.5vw;
+}
+
+.lap h1,
+.sectors h1 {
+    color: purple;
+    background-color: #0d0d13;
+}
+
+.speedtrap h1,
+.finishline h1 {
+    background-color: #0d0d13;
+    color: rgb(170, 170, 170);
+}
+
+/* Name */
+h2 {
+    margin: 0 0.5vw;
+    font-size: 1.7vw;
+    font-family: "F1Regular", Arial, Helvetica, sans-serif;
+}
+
+/* Time */
+p {
+    font-style: italic;
+    font-size: 3.5vw;
+    font-family: "F1Bold", Arial, Helvetica, sans-serif;
+    color: white;
+    width: 100%;
+    /* background-color: #18141c; */
+    background-color: #0d0d13;
+}
+
+.number {
+    width: 3vw;
+}
+
+img {
+    width: 2.5vw;
+    height: 2.5vw;
+    padding: 0.1vw;
+    background-color: white;
+}
+
+.row {
+    align-items: center;
+    display: flex;
+    background-color: #d5d7db;
+    width: 20vw;
+}
+
+section {
+    display: flex;
+    gap: 2vw;
+    justify-content: center;
+    align-items: center;
+}
+
+.time {
+    position: relative;
+}
+
+.reveal {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    height: 100%;
+    width: 125%;
+    background-color: #0d0d13;
+    transform: translateX(-100%) skew(-30deg);
+}
+
+.reveal-container {
+    top: 0;
+    left: 0;
+    display: flex;
+    justify-content: center;
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    overflow: hidden;
+}
+
+/* .animation-start {
+    transition: all 1s ease-in-out;
+    transform: translateX(-100%) skew(-30deg);
+} */
+
+.animation-center {
+    transition: all 1s ease-in-out;
+    transform: translateX(0%) skew(-30deg) !important;
+}
+
+.animation-end {
+    transition: all 1s ease-in-out;
+    transform: translateX(100%) skew(-30deg) !important;
+}
+
+.reveal-text h2 {
+    font-size: 3.5vw;
+    color: white;
+    transform: skew(30deg);
+}
