@@ -15,7 +15,7 @@ body {
 
 /* Title */
 h1 {
-    font-family: "F1Bold", Arial, Helvetica, sans-serif;
+    font-family: "F1Italic-Bold", Arial, Helvetica, sans-serif;
     font-size: 2.5vw;
 }
 
@@ -35,14 +35,13 @@ h1 {
 h2 {
     margin: 0 0.5vw;
     font-size: 1.7vw;
-    font-family: "F1Regular", Arial, Helvetica, sans-serif;
+    font-family: "F1Italic", Arial, Helvetica, sans-serif;
 }
 
 /* Time */
 p {
-    font-style: italic;
     font-size: 3.5vw;
-    font-family: "F1Bold", Arial, Helvetica, sans-serif;
+    font-family: "F1Italic-Bold", Arial, Helvetica, sans-serif;
     color: white;
     width: 100%;
     /* background-color: #18141c; */
