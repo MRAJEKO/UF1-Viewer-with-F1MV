@@ -1,5 +1,9 @@
 const debug = true;
 
+const sleep = (milliseconds) => {
+    return new Promise((resolve) => setTimeout(resolve, milliseconds));
+};
+
 let transparent = false;
 function toggleBackground() {
     if (transparent) {
@@ -112,38 +116,56 @@ const icons = {
     "Alfa Romeo": "alfa-romeo.png",
     Mercedes: "mercedes.png",
 };
-function setFastestLaps(sortedNumbers) {
+async function setFastestLaps(sortedNumbers) {
     console.log("Fastest laps");
     let amount = 3;
-    let first3 = sortedNumbers.slice(0, amount);
+    let firstFew = sortedNumbers.slice(0, amount);
     console.log(sortedNumbers);
-    console.log(first3);
-    for (i in first3) {
-        let lastName = driverList[first3[i]].LastName.toUpperCase();
-        let icon = icons[driverList[first3[i]].TeamName];
-        let color = "#" + driverList[first3[i]].TeamColour;
-        let time = timingData[first3[i]].BestLapTime.Value;
+    console.log(firstFew);
+    for (i in firstFew) {
+        let lastName = driverList[firstFew[i]].LastName.toUpperCase();
+        let icon = icons[driverList[firstFew[i]].TeamName];
+        let color = "#" + driverList[firstFew[i]].TeamColour;
+        let time = timingData[firstFew[i]].BestLapTime.Value;
         if (debug) {
             console.log(lastName);
             console.log(icon);
             console.log(color);
             console.log(time);
         }
-        getElement("lapimg" + (+i + 1)).src = "../icons/" + icon;
-        getElement("lapimg" + (+i + 1)).style.backgroundColor = color;
-        getElement("lapname" + (+i + 1)).innerHTML = lastName;
-        getElement("lap" + (+i + 1)).innerHTML = time;
+        if (getElement("lap" + (+i + 1)).innerHTML != time) {
+            let reveal = getElement("lapreveal" + (+i + 1));
+            console.log(reveal);
+            reveal.className = "reveal animation-center";
+            await sleep(1000);
+            getElement("lapimg" + (+i + 1)).src = "../icons/" + icon;
+            getElement("lapimg" + (+i + 1)).style.backgroundColor = color;
+            getElement("lapname" + (+i + 1)).innerHTML = lastName;
+            getElement("lap" + (+i + 1)).innerHTML = time;
+            await sleep(1000);
+            reveal.className = "reveal animation-end";
+
+            await sleep(1000);
+            reveal.className = "reveal animation-start";
+        }
     }
 }
-
-function run() {
-    requestApi();
-    let sortedTimes = sortLaps();
-    if (sortedTimes == "") {
-        return;
+let count = 0;
+async function run() {
+    while (true) {
+        requestApi();
+        let sortedTimes = sortLaps();
+        if (sortedTimes == "") {
+            return;
+        }
+        let sortedNumbers = getNumberFromTimes(sortedTimes);
+        await setFastestLaps(sortedNumbers);
+        await sleep(1000);
+        count++;
+        if (debug) {
+            console.log(count);
+        }
     }
-    let sortedNumbers = getNumberFromTimes(sortedTimes);
-    setFastestLaps(sortedNumbers);
 }
 
 run();

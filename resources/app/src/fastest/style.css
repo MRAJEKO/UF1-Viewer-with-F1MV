@@ -73,3 +73,50 @@ section {
     justify-content: center;
     align-items: center;
 }
+
+.time {
+    position: relative;
+}
+
+.reveal {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    height: 100%;
+    width: 125%;
+    background-color: #0d0d13;
+    transform: translateX(-100%) skew(-30deg);
+}
+
+.reveal-container {
+    top: 0;
+    left: 0;
+    display: flex;
+    justify-content: center;
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    overflow: hidden;
+}
+
+/* .animation-start {
+    transition: all 1s ease-in-out;
+    transform: translateX(-100%) skew(-30deg);
+} */
+
+.animation-center {
+    transition: all 1s ease-in-out;
+    transform: translateX(0%) skew(-30deg) !important;
+}
+
+.animation-end {
+    transition: all 1s ease-in-out;
+    transform: translateX(100%) skew(-30deg) !important;
+}
+
+.reveal-text h2 {
+    font-size: 3.5vw;
+    color: white;
+    transform: skew(30deg);
+}
