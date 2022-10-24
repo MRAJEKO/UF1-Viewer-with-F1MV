@@ -9,8 +9,13 @@
 }
 
 @font-face {
-    font-family: "F1Regular";
+    font-family: "F1Italic";
     src: url("TitilliumWeb-Italic.ttf") format("truetype");
+}
+
+@font-face {
+    font-family: "F1Regular";
+    src: url("TitilliumWeb-Regular.ttf") format("truetype");
 }
 
 @font-face {
