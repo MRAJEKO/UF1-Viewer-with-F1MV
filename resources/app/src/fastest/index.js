@@ -74,21 +74,10 @@ async function setFastestLaps() {
                 console.log(getElement("lap" + count).innerHTML);
                 console.log(time);
             }
-            if (getElement("lap" + count).innerHTML != time) {
-                let reveal = getElement("lapreveal" + count);
-                console.log(reveal);
-                reveal.className = "reveal animation-center";
-                await sleep(1000);
-                getElement("lapimg" + count).src = "../icons/" + icon;
-                getElement("lapimg" + count).style.backgroundColor = color;
-                getElement("lapname" + count).innerHTML = lastName;
-                getElement("lap" + count).innerHTML = time;
-                await sleep(1000);
-                reveal.className = "reveal animation-end";
-
-                await sleep(1000);
-                reveal.className = "reveal animation-start";
-            }
+            getElement("lapimg" + count).src = "../icons/" + icon;
+            getElement("lapimg" + count).style.backgroundColor = color;
+            getElement("lapname" + count).innerHTML = lastName;
+            getElement("lap" + count).innerHTML = time;
             count++;
         }
     }
@@ -123,21 +112,11 @@ async function setSector(sectorNumber) {
                 icon = "noicon.png";
                 color = "white";
             }
-            if (getElement("s" + sectorNumber).innerHTML != time) {
-                let reveal = getElement("sreveal" + sectorNumber);
-                reveal.className = "reveal animation-center";
-                await sleep(1000);
-                getElement("s" + sectorNumber + "img").src = "../icons/" + icon;
-                getElement("s" + sectorNumber + "img").style.backgroundColor =
-                    color;
-                getElement("s" + sectorNumber + "name").innerHTML = lastName;
-                getElement("s" + sectorNumber).innerHTML = time;
-                await sleep(1000);
-                reveal.className = "reveal animation-end";
-
-                await sleep(1000);
-                reveal.className = "reveal animation-start";
-            }
+            getElement("s" + sectorNumber + "img").src = "../icons/" + icon;
+            getElement("s" + sectorNumber + "img").style.backgroundColor =
+                color;
+            getElement("s" + sectorNumber + "name").innerHTML = lastName;
+            getElement("s" + sectorNumber).innerHTML = time;
         }
     }
 }
@@ -163,20 +142,10 @@ async function setLap(position) {
                 console.log(getElement("lap" + position).innerHTML);
                 console.log(time);
             }
-            if (getElement("lap" + position).innerHTML != time) {
-                let reveal = getElement("lapreveal" + position);
-                reveal.className = "reveal animation-center";
-                await sleep(1000);
-                getElement("lapimg" + position).src = "../icons/" + icon;
-                getElement("lapimg" + position).style.backgroundColor = color;
-                getElement("lapname" + position).innerHTML = lastName;
-                getElement("lap" + position).innerHTML = time;
-                await sleep(1000);
-                reveal.className = "reveal animation-end";
-
-                await sleep(1000);
-                reveal.className = "reveal animation-start";
-            }
+            getElement("lapimg" + position).src = "../icons/" + icon;
+            getElement("lapimg" + position).style.backgroundColor = color;
+            getElement("lapname" + position).innerHTML = lastName;
+            getElement("lap" + position).innerHTML = time;
         }
     }
 }
@@ -213,21 +182,10 @@ async function setSpeed(type, position) {
                 console.log(getElement(type + position).innerHTML);
                 console.log(time);
             }
-            if (getElement(type + position).innerHTML != time + " km/h") {
-                let reveal = getElement(type + "reveal" + position);
-                reveal.className = "reveal animation-center";
-                await sleep(1000);
-                getElement(type + "img" + position).src = "../icons/" + icon;
-                getElement(type + "img" + position).style.backgroundColor =
-                    color;
-                getElement(type + "name" + position).innerHTML = lastName;
-                getElement(type + position).innerHTML = time + " km/h";
-                await sleep(1000);
-                reveal.className = "reveal animation-end";
-
-                await sleep(1000);
-                reveal.className = "reveal animation-start";
-            }
+            getElement(type + "img" + position).src = "../icons/" + icon;
+            getElement(type + "img" + position).style.backgroundColor = color;
+            getElement(type + "name" + position).innerHTML = lastName;
+            getElement(type + position).innerHTML = time + " km/h";
         }
     }
 }
