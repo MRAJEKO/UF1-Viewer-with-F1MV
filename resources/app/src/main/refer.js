@@ -73,6 +73,11 @@ function FP() {
         "fullscreen=true,frame=false,nodeIntegration=no"
     );
     window.open(
+        "../fastest/index.html",
+        "_blank",
+        "height=251px,width=900px,transparent=true,frame=false,resizable=true,hasShadow=false"
+    );
+    window.open(
         "../trackinfo/index.html",
         "_blank",
         "height=650px,width=950px,transparent=true,frame=false,resizable=true,hasShadow=false"
