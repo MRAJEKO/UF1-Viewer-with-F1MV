@@ -24,6 +24,16 @@
 }
 
 @font-face {
+    font-family: "F1SemiBold";
+    src: url("TitilliumWeb-SemiBold.ttf") format("truetype");
+}
+
+@font-face {
+    font-family: "F1Italic-SemiBold";
+    src: url("TitilliumWeb-SemiBoldItalic.ttf") format("truetype");
+}
+
+@font-face {
     font-family: "F1Wide";
     src: url("Formula1-Wide.ttf") format("truetype");
 }
