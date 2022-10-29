@@ -48,12 +48,24 @@ function apiRequests() {
     sessionInfo = api.SessionInfo;
 }
 
+let bestLapTimes = [];
+
 function getImprovedDriver() {
-    
+    for (i in timingData) {
+        if (
+            timingData[i].LastLapTime.PersonalFastest &&
+            timingData[i].BestLapTime.Value != bestLapTimes[i]
+        ) {
+            bestLapTimes[i] = timingData[i].BestLapTime.Value;
+            console.log(i);
+        }
+    }
+    console.log(bestLapTimes);
 }
 
 async function run() {
     apiRequests();
+    getImprovedDriver();
     if (debug) {
         console.log(driverList);
         console.log(tireData);
@@ -61,6 +73,9 @@ async function run() {
         console.log(bestTimes);
         console.log(sessionInfo);
     }
+    await sleep(10000);
+    apiRequests();
+    getImprovedDriver();
 }
 
 run();
