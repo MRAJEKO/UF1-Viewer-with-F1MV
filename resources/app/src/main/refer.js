@@ -50,6 +50,14 @@ function trackInfo() {
     );
 }
 
+function improve() {
+    window.open(
+        "../improves/index.html",
+        "_blank",
+        "height=500px,width=400px,transparent=true,frame=false,resizable=true,hasShadow=false"
+    );
+}
+
 function crashDetection() {
     window.open(
         "../crashDetection/index.html",
