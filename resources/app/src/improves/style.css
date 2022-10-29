@@ -16,13 +16,15 @@ body {
     gap: 2vw;
 }
 .transparent {
-    background-color: transparent;
+    background-color: transparent !important;
 }
 
+/* General time styling */
 .improved-time {
     background-color: #0a0a0f;
 }
 
+/* Header styling */
 .header {
     display: flex;
     background-color: white;
@@ -85,6 +87,7 @@ body {
     font-size: 6vw;
 }
 
+/* Time styling */
 .times {
     height: 16vw;
     display: flex;
@@ -133,6 +136,7 @@ body {
     align-items: center;
 }
 
+/* Sector styling */
 .sectors {
     border-top: 0.2vw solid #2d2d33;
     display: flex;
