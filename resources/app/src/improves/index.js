@@ -1,4 +1,4 @@
-const debug = false;
+const debug = true;
 
 // Set sleep
 const sleep = (milliseconds) => {
@@ -28,3 +28,39 @@ document.addEventListener("keydown", (event) => {
         toggleBackground();
     }
 });
+
+let driverList;
+let tireData;
+let timingData;
+let bestTimes;
+let sessionInfo;
+
+function apiRequests() {
+    let endpoints =
+        "DriverList,TimingAppData,TimingData,TimingStats,SessionInfo";
+    let api = JSON.parse(
+        httpGet("http://localhost:10101/api/v2/live-timing/state/" + endpoints)
+    );
+    driverList = api.DriverList;
+    tireData = api.TimingAppData.Lines;
+    timingData = api.TimingData.Lines;
+    bestTimes = api.TimingStats.Lines;
+    sessionInfo = api.SessionInfo;
+}
+
+function getImprovedDriver() {
+    
+}
+
+async function run() {
+    apiRequests();
+    if (debug) {
+        console.log(driverList);
+        console.log(tireData);
+        console.log(timingData);
+        console.log(bestTimes);
+        console.log(sessionInfo);
+    }
+}
+
+run();
