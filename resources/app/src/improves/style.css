@@ -8,20 +8,46 @@ body {
     -webkit-app-region: drag;
     height: 100vh;
     width: 100vw;
+    overflow: hidden;
+}
+
+.transparent {
+    background-color: transparent !important;
 }
 
 #container {
     display: flex;
-    flex-direction: column;
-    gap: 2vw;
+    flex-direction: column-reverse;
 }
-.transparent {
-    background-color: transparent !important;
+
+#container {
+    display: flex;
+    flex-direction: column-reverse;
+    list-style: none;
+}
+
+#container li {
+    max-height: 0;
+}
+
+li.show {
+    max-height: 100% !important;
+}
+
+/* ANIMATIONS */
+
+#container li {
+    transition: all 0.4s ease-out;
+    opacity: 0;
+}
+#container li.show {
+    opacity: 1;
 }
 
 /* General time styling */
 .improved-time {
     background-color: #0a0a0f;
+    margin-bottom: 2vw;
 }
 
 /* Header styling */
@@ -34,7 +60,6 @@ body {
 }
 
 .icon {
-    background-color: blue;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -83,7 +108,6 @@ body {
 
 .tire p {
     font-family: "F1Regular", Arial, Helvetica, sans-serif;
-    color: red;
     font-size: 6vw;
 }
 
@@ -146,6 +170,7 @@ body {
 
 .sector {
     width: 100%;
+    margin-bottom: 2vw;
 }
 
 .sector-times {
