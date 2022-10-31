@@ -1,5 +1,3 @@
-const { spawn, exec } = require("child_process");
-
 function flagDisplay() {
     window.open(
         "../flagdisplay/index.html",
@@ -21,17 +19,6 @@ function compass() {
         "../compass/index.html",
         "_blank",
         "height=100px,width=100px,transparent=true,frame=false,resizable=true,hasShadow=false"
-    );
-}
-
-function singleRCM() {
-    let left = (window.screen.width - 1000) / 2;
-    window.open(
-        "../singlercm/index.html",
-        "_blank",
-        "top=0,left=" +
-            left +
-            ",alwaysOnTop=true,width=1000px,height=100px,frame=false,transparent=true,resizable=false,hasShadow=false,webPreferences={devTools=false}"
     );
 }
 
