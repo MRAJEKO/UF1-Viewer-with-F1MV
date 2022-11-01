@@ -1,10 +1,38 @@
 const { spawn, exec } = require("child_process");
+const fs = require("fs");
 
 function launchMVF1() {
-    var mvPath =
-        "C:/Users/Aiden/AppData/Local/MultiViewerForF1/MultiViewer for F1.exe";
-    console.log("Launching MultiViewer");
-    spawn(mvPath, [], { detached: true });
+    let LOCALAPPDATA = process.env.LOCALAPPDATA;
+    if (navigator.appVersion.indexOf("Win") != -1) {
+        if (!fs.existsSync(`${LOCALAPPDATA}\\Test`)) {
+            alert(
+                "Cannot run MultiViewer because of invalid path. Please put your MultiViewer folder under '%APPDATA%'"
+            );
+            return;
+        }
+        let mvPath = `${LOCALAPPDATA}\\MultiViewerForF1\\MultiViewer for F1.exe`;
+        console.log("Launching MultiViewer");
+        spawn(mvPath, [], { detached: true });
+    } else if (navigator.appVersion.indexOf("Mac") != -1) {
+        alert("Launching MultiViewer is not compatible with MacOS yet.");
+        // if (!fs.existsSync(`/Applications/MultiViewer for F1.app`)) {
+        //     alert(
+        //         "Cannot run MultiViewer because of invalid path. Please put your MultiViewer folder under '/Applications'"
+        //     );
+        //     return;
+        // }
+        // let mvPath = `/Applications/MultiViewer for F1.app`;
+        // console.log("Launching MultiViewer");
+        // spawn(mvPath, [], { detached: true });
+    } else if (navigator.appVersion.indexOf("X11") != -1) {
+        alert("Launching MultiViewer is not compatible with Unix OS yet.");
+    } else if (navigator.appVersion.indexOf("Linux") != -1) {
+        alert("Launching MultiViewer is not compatible with Linux OS yet.");
+    } else {
+        {
+            alert("Cannot run MultiViewer because OS is unknown.");
+        }
+    }
 }
 
 function flagDisplay() {

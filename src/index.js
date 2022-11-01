@@ -2,12 +2,6 @@ const { app, BrowserWindow, webContents } = require("electron");
 const { url } = require("inspector");
 const path = require("path");
 
-// Handle creating/removing shortcuts on Windows when installing/uninstalling.
-// eslint-disable-next-line global-require
-if (require("electron-squirrel-startup")) {
-    app.quit();
-}
-
 const createWindow = () => {
     // Create the browser window.
     const mainWindow = new BrowserWindow({
