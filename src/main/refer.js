@@ -4,7 +4,7 @@ const fs = require("fs");
 function launchMVF1() {
     let LOCALAPPDATA = process.env.LOCALAPPDATA;
     if (navigator.appVersion.indexOf("Win") != -1) {
-        if (!fs.existsSync(`${LOCALAPPDATA}\\Test`)) {
+        if (!fs.existsSync(`${LOCALAPPDATA}\\MultiViewerForF1`)) {
             alert(
                 "Cannot run MultiViewer because of invalid path. Please put your MultiViewer folder under '%APPDATA%'"
             );
