@@ -1,0 +1,160 @@
+.center-screen {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+img {
+    user-select: none;
+    -webkit-user-drag: none;
+}
+
+* {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeSpeed;
+    transition: all 0.2s ease-in-out;
+    user-select: none;
+}
+
+.bottom-screen {
+    position: absolute;
+    top: 95%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.menu_box {
+    color: white;
+    background-color: #373737;
+}
+
+body {
+    background-color: #131416;
+    overflow: hidden;
+}
+
+#menu_content {
+    margin: 10px;
+}
+
+button {
+    border-radius: 128px !important;
+    flex-direction: column;
+    justify-content: center;
+    align-self: center;
+    width: fit-content;
+}
+
+button:hover,
+button:focus {
+    border: 1px solid white !important;
+    box-shadow: none !important;
+}
+
+.settingsButtons {
+    display: flex;
+    flex-direction: column;
+}
+
+.settingsButtons > button {
+    margin: 5px;
+}
+
+#logoHeader {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-self: center;
+}
+#infolink {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-self: center;
+}
+#infotag {
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+}
+#DigiFlag,
+#F1MV {
+    display: inline-flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+#edit_hostInfo > input[type="text"] {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-self: center;
+}
+#edit_hostInfo > input[type="text"]:focus {
+    border: none;
+}
+#select_theme {
+    display: flex;
+    flex-direction: column;
+}
+#themes {
+    display: inline-flex;
+    flex-direction: inherit;
+    flex-wrap: wrap;
+    align-content: center;
+}
+#select_device {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#F1MVLinkContainer {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-self: center;
+}
+#tagLink {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-self: center;
+    margin-bottom: 10px !important;
+    border-radius: 128px !important;
+}
+
+#F1MVLinkContainer > span {
+    margin: 5px;
+}
+
+label:hover {
+    color: #198754;
+    transition: color 0.2s ease-in-out;
+    cursor: pointer;
+}
+.form-check-input[disabled] ~ .form-check-label:hover {
+    color: #dc3545;
+    font-weight: normal;
+    transition: color 0.1s linear;
+    cursor: not-allowed;
+}
+input[type="radio"]:hover {
+    background-color: #198754;
+    cursor: pointer;
+}
+.form-check-input[type="checkbox"]:hover {
+    background-color: #198754;
+    cursor: pointer;
+}
+#Pixoo64.form-check > .form-check-input[disabled]:hover {
+    background-color: #dc3545;
+    transition: color 0.1s linear;
+    cursor: not-allowed;
+}
+
+#zoomControl {
+    z-index: 0;
+}

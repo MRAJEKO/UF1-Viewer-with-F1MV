@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
+  <!-- Import Bootstrap -->
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.5/dist/umd/popper.min.js"
+    integrity="sha384-Xe+8cL9oJa6tN/veChSP7q+mnSPaj5Bcu9mPX5F5xIGE0DVittaqT5lorf0EI7Vk" crossorigin="anonymous">
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.min.js"
+    integrity="sha384-ODmDIVzN+pFdexxHEHFBQH3/9/vQ9uori45z4JjnFsRydbmQbmL5t1tQ0culUzyK" crossorigin="anonymous">
+  </script>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-gH2yIJqKdNHPEq0n4Mqa/HGKIhSkIHeL5AyhkYV8i59U5AR6csBvApHHNl/vI1Bx" crossorigin="anonymous" />
+  <!-- Import JQuery -->
+  <script src="https://code.jquery.com/jquery-3.6.1.min.js"></script>
+
+  <!-- JS -->
+  <script src="index.js"></script>
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="./styles/index.css" />
+</head>
+
+<body>
+  <div class="center-screen menu_box">
+    <div id="menu_content">
+      <center>
+        <div class="logoContainer">
+          <h1 id="logoHeader">F1MV X DigiFlag</h1>
+          <div id="F1MV">
+            <img src="./assets/logos/F1MV.png" width="92px" height="92px" />
+          </div>
+          <div id="DigiFlag">
+            <img src="./assets/logos/DigiFlag.png" width="92x" height="92px" />
+          </div>
+        </div>
+      </center>
+      <div id="F1MVLinkContainer">
+        <span id="tagLink" class="badge text-bg-secondary">DigiFlag is currently not linked to F1MV</span>
+        <button type="button" class="btn btn-primary" id="LinkF1MV">
+          Link to F1MV
+        </button>
+      </div>
+      <p id="infotag"></p>
+      <a href="#" id="infolink"></a>
+      <div id="edit_hostInfo"></div>
+      <div id="select_theme"></div>
+      <div id="select_device"></div>
+    </div>
+  </div>
+  <div class="bottom-screen" id="zoomControl">
+    <button class="btn btn-primary" height="50px" id="newInstance">Create a new instance</button>
+    <button class="btn btn-primary" height="50px" id="zoomIn">+</button>
+    <button class="btn btn-primary" height="50px" id="zoomOut">-</button>
+  </div>
+</body>
+
+</html>

@@ -6,6 +6,14 @@ function flagDisplay() {
     );
 }
 
+function digiFlag() {
+    window.open(
+        "../digiFlag/index.html",
+        "_blank",
+        "title=DigiFlag,autoHideMenuBar=true"
+    );
+}
+
 function trackTime() {
     window.open(
         "../tracktime/index.html",
