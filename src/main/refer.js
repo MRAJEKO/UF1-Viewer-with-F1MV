@@ -59,6 +59,14 @@ function trackTime() {
     );
 }
 
+function compass() {
+    window.open(
+        "../compass/index.html",
+        "_blank",
+        "height=100px,width=100px,transparent=true,frame=false,resizable=true,hasShadow=false"
+    );
+}
+
 function fastest() {
     window.open(
         "../fastest/index.html",
