@@ -1,4 +1,6 @@
-const debug = true;
+const debug = false;
+
+console.log(window.myAPI);
 
 const sleep = (milliseconds) => {
     return new Promise((resolve) => setTimeout(resolve, milliseconds));

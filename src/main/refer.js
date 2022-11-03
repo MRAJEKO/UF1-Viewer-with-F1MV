@@ -1,6 +1,8 @@
 const { spawn, exec } = require("child_process");
 const fs = require("fs");
 
+console.log(window.myAPI);
+
 function launchMVF1() {
     let LOCALAPPDATA = process.env.LOCALAPPDATA;
     if (navigator.appVersion.indexOf("Win") != -1) {
@@ -63,7 +65,7 @@ function trackInfo() {
     window.open(
         "../trackinfo/index.html",
         "_blank",
-        "height=800px,width=1400px,transparent=true,frame=false,resizable=true,hasShadow=false"
+        "height=800px,width=1400px,transparent=true,frame=false,resizable=true,hasShadow=false,contextIsolation=false,"
     );
 }
 
