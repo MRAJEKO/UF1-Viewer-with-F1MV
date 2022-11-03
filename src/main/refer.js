@@ -1,5 +1,10 @@
 const { spawn, exec } = require("child_process");
 const fs = require("fs");
+const { ipcRenderer } = require("electron");
+
+ipcRenderer.invoke("A", "").then((result) => {
+    console.log(result);
+});
 
 console.log(window.myAPI);
 

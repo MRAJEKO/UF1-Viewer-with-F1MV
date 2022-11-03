@@ -1,4 +1,4 @@
-const { app, BrowserWindow, webContents } = require("electron");
+const { app, BrowserWindow, ipcMain } = require("electron");
 const { url } = require("inspector");
 const path = require("path");
 
@@ -44,3 +44,6 @@ app.on("activate", () => {
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and import them here.
+ipcMain.handle("A", async (event, args) => {
+    return "BrowserWindow";
+});
