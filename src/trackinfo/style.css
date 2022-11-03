@@ -1,0 +1,146 @@
+* {
+    margin: 0;
+    padding: 0;
+    color: white;
+    transition: 0.5s all ease;
+}
+
+body {
+    background-color: gray;
+    -webkit-app-region: drag;
+}
+
+#main-info {
+    display: flex;
+    gap: 0.7vw;
+    text-align: center;
+    width: 100vw;
+    justify-content: space-between;
+}
+
+#main-info div {
+    min-width: fit-content;
+}
+
+h1 {
+    font-family: "F1Regular", Arial, Helvetica, sans-serif;
+    font-size: 15px;
+    font-size: 1.5vw;
+    text-align: center;
+}
+
+.line {
+    margin: 5px 0px;
+    height: 1px;
+    width: 100%;
+    background-color: white;
+}
+
+#pit-entry {
+    min-width: fit-content;
+}
+
+p {
+    font-family: "F1Bold", Arial, Helvetica, sans-serif;
+    font-size: 15px;
+    font-size: 1.4vw;
+    text-align: center;
+    padding: 2px 4px;
+    margin: 2px;
+    border-radius: 10px;
+    border: 0.5px solid black;
+    margin-bottom: 4px;
+}
+
+#container {
+    display: flex;
+    gap: 1vw;
+    text-align: center;
+    width: 100%;
+}
+
+#statuses {
+    display: grid;
+    grid-template-columns: 8vw auto;
+    min-width: fit-content;
+}
+
+#statuses h1 {
+    padding: 2px 4px;
+    margin: 2px;
+}
+
+#statuses p {
+    padding: 2px 4px;
+    margin: 2px;
+    border-radius: 10px;
+    width: 12vw;
+    background-size: cover;
+    border: 0.5px solid black;
+}
+
+.hidden {
+    display: none !important;
+}
+
+.transparent {
+    background: transparent !important;
+}
+
+/* Colors and backgrounds */
+.green {
+    background-color: rgb(0, 175, 0) !important;
+    color: white;
+}
+
+.yellow {
+    background-color: rgb(255, 230, 0) !important;
+    color: black;
+}
+
+.orange {
+    background-color: rgb(255, 123, 0) !important;
+    color: white;
+}
+
+.red {
+    background-color: rgb(209, 0, 0) !important;
+}
+
+.slippery {
+    background-image: url(images/red_yellow_flag.png);
+    color: black;
+}
+
+.pink {
+    background-color: pink !important;
+    color: black;
+}
+
+.blue {
+    background-color: rgb(0, 0, 199) !important;
+    color: white;
+}
+
+.light-blue {
+    background-color: rgb(53, 201, 251);
+    color: black;
+}
+
+.white {
+    background-color: white;
+    color: black;
+}
+
+.gray {
+    background-color: gray;
+    color: black;
+}
+
+.black-background {
+    background-color: black !important;
+}
+
+.black-text {
+    color: black !important;
+}
