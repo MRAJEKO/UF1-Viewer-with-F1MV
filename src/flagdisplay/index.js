@@ -1,3 +1,5 @@
+const debug = false;
+
 // Set sleep
 const sleep = (milliseconds) => {
     return new Promise((resolve) => setTimeout(resolve, milliseconds));
@@ -14,18 +16,20 @@ function httpGet(theUrl) {
 // Set basic info
 const flag = document.getElementById("flag");
 const extra = document.getElementById("extra");
-let host = "localhost";
-let port = 10101;
+let trackStatus;
 
-// Set trackstatus output
-let trackStatus = JSON.parse(
-    httpGet(`http://${host}:${port.toString()}/api/v1/live-timing/TrackStatus`)
-);
-
-if (trackStatus.error === "No data found, do you have live timing running?") {
-    console.log(
-        "Live timing screen is not running. Refresh when it is running."
+function apiRequests() {
+    let api = JSON.parse(
+        httpGet(
+            `http://localhost:10101/api/v2/live-timing/state/TrackStatus,TimingData`
+        )
     );
+    timingData = api.TimingData.Lines;
+    trackStatus = api.TrackStatus;
+    if (debug) {
+        console.log(trackStatus);
+        console.log(timingData);
+    }
 }
 
 let safetyCar = 0;
@@ -37,46 +41,50 @@ let fastestLapCounter = 0;
 let fastestLapTime = "";
 let oldFastestLapTime = "";
 
-const noLiveTiming = async () => {
-    while (
-        trackStatus.error === "No data found, do you have live timing running?"
-    ) {
-        console.log(trackStatus.error);
-        await sleep(5000);
+async function blinking() {
+    let i = 0;
+    while (i != 5) {
+        flag.className = "";
+        flag.classList.add("black");
+        await sleep(500);
+        flag.className = "";
+        flag.classList.add("yellow");
+        await sleep(500);
+        i++;
     }
-};
+}
+
+// If a Safety Car Occurs
+async function SC() {
+    if (debug) {
+        console.log("Safety Car");
+    }
+    safetyCar = 1;
+    trackClear = 0;
+    await blinking();
+}
+
+// If a Virtual Safety Car Occurs
+async function VSC() {
+    if (debug) {
+        console.log("Virtual Safety Car");
+    }
+    virtualSafetyCar = 1;
+    trackClear = 0;
+    await blinking();
+}
 
 // Update track status
-const updatestatus = async () => {
-    while (
-        trackStatus.error !== "No data found, do you have live timing running?"
-    ) {
-        console.log(
-            JSON.parse(
-                httpGet(
-                    `http://${host}:${port.toString()}/api/v1/live-timing/ExtrapolatedClock`
-                )
-            )
-        );
-
-        let trackStatus = JSON.parse(
-            httpGet(
-                `http://${host}:${port.toString()}/api/v1/live-timing/TrackStatus`
-            )
-        );
-
-        // Fastest Lap
-        let carList = JSON.parse(
-            httpGet(
-                `http://${host}:${port.toString()}/api/v1/live-timing/TimingData`
-            )
-        ).Lines;
-        console.log(carList);
-        for (i in carList) {
-            let fastestLap = carList[i].LastLapTime.OverallFastest;
-            fastestLapTime = carList[i].LastLapTime.Value;
-            console.log(fastestLapTime);
-            console.log(oldFastestLapTime);
+async function updateStatus() {
+    while (true) {
+        apiRequests();
+        for (i in timingData) {
+            let fastestLap = timingData[i].LastLapTime.OverallFastest;
+            fastestLapTime = timingData[i].LastLapTime.Value;
+            if (debug) {
+                console.log(fastestLapTime);
+                console.log(oldFastestLapTime);
+            }
             if (
                 (fastestLap === true && fastestLapCounter === 0) ||
                 (fastestLap === true && fastestLapTime !== oldFastestLapTime)
@@ -85,18 +93,22 @@ const updatestatus = async () => {
                 fastestLapCounter = 1;
                 trackClear = 1;
                 extra.classList.add("fastestLap");
-                console.log("fastestLap");
+                if (debug) console.log("fastestLap");
                 await sleep(2000);
                 extra.classList.remove("fastestLap");
             }
-            console.log(fastestLap);
+            if (debug) {
+                console.log(fastestLap);
+            }
         }
 
         flag.className = "black";
         // Status 1 - Track Clear
         if (trackStatus.Status === "1") {
             if (trackClear === 0) {
-                console.log("Track Clear");
+                if (debug) {
+                    console.log("Track Clear");
+                }
                 trackClear = 1;
                 flag.classList.add("green");
                 await sleep(5000);
@@ -109,7 +121,9 @@ const updatestatus = async () => {
 
         // Status 2 - Yellow Flag
         if (trackStatus.Status === "2") {
-            console.log("Yellow Flag");
+            if (debug) {
+                console.log("Yellow Flag");
+            }
             flag.classList.add("yellow");
             trackClear = 0;
         }
@@ -130,7 +144,9 @@ const updatestatus = async () => {
 
         // Status 5 - Red Flag
         if (trackStatus.Status === "5") {
-            console.log("Red Flag");
+            if (debug) {
+                console.log("Red Flag");
+            }
             flag.classList.add("red");
             safetyCar = 0;
             virtualSafetyCar = 0;
@@ -153,48 +169,8 @@ const updatestatus = async () => {
         }
         await sleep(500);
     }
-
-    // If a Safety Car Occurs
-    function SC() {
-        console.log("Safety Car");
-        safetyCar = 1;
-        trackClear = 0;
-        async function blinking() {
-            i = 0;
-            while (i != 10) {
-                flag.className = "";
-                flag.classList.add("black");
-                await sleep(250);
-                flag.className = "";
-                flag.classList.add("yellow");
-                await sleep(250);
-                i++;
-            }
-        }
-        blinking();
-    }
-
-    // If a Virtual Safety Car Occurs
-    function VSC() {
-        console.log("Virtual Safety Car");
-        virtualSafetyCar = 1;
-        trackClear = 0;
-        async function blinking() {
-            i = 0;
-            while (i != 5) {
-                flag.className = "";
-                flag.classList.add("black");
-                await sleep(500);
-                flag.className = "";
-                flag.classList.add("yellow");
-                await sleep(500);
-                i++;
-            }
-        }
-        blinking();
-    }
-};
-updatestatus();
+}
+updateStatus();
 
 // {"Status":"1","Message":"AllClear"}
 // {"Status":"2","Message":"Yellow"}
