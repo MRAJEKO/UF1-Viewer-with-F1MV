@@ -1,4 +1,4 @@
-const debug = false;
+const debug = true;
 
 const sleep = (milliseconds) => {
     return new Promise((resolve) => setTimeout(resolve, milliseconds));
@@ -427,7 +427,7 @@ function setGrip(message) {
 // Setting the progress of the current session including custom progress per session
 function setProgress() {
     // General information
-    let color = "green";
+    let color = "gray";
     // let timer = "00:15:00";
     let sessionDuration;
     let currentSessionPercentage;
@@ -486,21 +486,29 @@ function setProgress() {
             console.log("Laps Remaining: " + lapsRemaining);
         }
         if (maxLaps > lapsRemaining) {
-            currentSessionPercentage =
-                Math.round(((currentLap - totalLaps) / totalLaps) * 100 + 100) +
-                "%";
+            if (sessionStartStatus.Status == "Inactive") {
+                currentLap = 0;
+                color = "gray";
+                currentSessionPercentage = "0%";
+            } else {
+                color = "green";
+                currentSessionPercentage =
+                    Math.round(
+                        ((currentLap - 1 - totalLaps) / totalLaps) * 100 + 100
+                    ) + "%";
+            }
+
             maxSessionPercentage = "100%";
-            color = "green";
             let lapCounter = "Lap: " + currentLap + "/" + totalLaps;
             lapCount.className = color;
             lapCount.innerHTML = lapCounter;
-            if (currentSessionPercentage == "100%" && currentLap == totalLaps) {
+            if (currentSessionPercentage == "100%" && currentLap != totalLaps) {
+                currentSessionPercentage = "99%";
+            }
+            if (sessionStartStatus.Status == "Finished") {
                 currentProgress.innerHTML = "COMPLETED";
                 currentProgress.className = "gray";
                 return;
-            }
-            if (currentSessionPercentage == "100%" && currentLap != totalLaps) {
-                currentSessionPercentage = "99%";
             }
         } else {
             let totalMaxLaps = maxLaps + currentLap;
@@ -783,7 +791,7 @@ function setTimers() {
         }
     } else {
         timer = extraPolatedClock.Remaining;
-        if (sessionStartStatus.Status != "Inactive") {
+        if (timer != "02:00:00") {
             fullColor = "yellow";
             let trackTime = clockData.trackTime;
             let systemTime = clockData.systemTime;
