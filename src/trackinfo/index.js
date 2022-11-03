@@ -1,7 +1,8 @@
-const debug = false;
+const debug = true;
 
-console.log(window.myAPI);
-
+if (debug) {
+    console.log(window.myAPI);
+}
 const sleep = (milliseconds) => {
     return new Promise((resolve) => setTimeout(resolve, milliseconds));
 };
@@ -90,7 +91,7 @@ function apiRequests() {
     if (sessionInfo.Type == "Race") {
         api = JSON.parse(
             httpGet(
-                "http://localhost:10101/api/v2/live-timing/state/LapCount,TrackStatus,SessionStatus,TimingData,ExtrapolatedClock,SessionData"
+                "http://localhost:10101/api/v2/live-timing/state/LapCount,TrackStatus,SessionStatus,TimingData,ExtrapolatedClock,SessionData,RaceControlMessages"
             )
         );
         laps = api.LapCount;
@@ -99,6 +100,7 @@ function apiRequests() {
         timingData = api.TimingData;
         extraPolatedClock = api.ExtrapolatedClock;
         sessionData = api.SessionData;
+        RCMs = api.RaceControlMessages;
         if (debug) {
             console.log(laps);
             console.log(trackStatus);
@@ -106,11 +108,12 @@ function apiRequests() {
             console.log(timingData);
             console.log(extraPolatedClock);
             console.log(sessionData);
+            console.log(RCMs);
         }
     } else {
         api = JSON.parse(
             httpGet(
-                "http://localhost:10101/api/v2/live-timing/state/TrackStatus,SessionStatus,TimingData,ExtrapolatedClock,SessionData"
+                "http://localhost:10101/api/v2/live-timing/state/TrackStatus,SessionStatus,TimingData,ExtrapolatedClock,SessionData,RaceControlMessages"
             )
         );
         trackStatus = api.TrackStatus;
@@ -118,11 +121,8 @@ function apiRequests() {
         timingData = api.TimingData;
         extraPolatedClock = api.ExtrapolatedClock;
         sessionData = api.SessionData;
+        RCMs = api.RaceControlMessages;
     }
-
-    RCMs = JSON.parse(
-        httpGet("http://localhost:10101/api/v1/live-timing/RaceControlMessages")
-    );
 
     clockData = JSON.parse(
         httpGet("http://localhost:10101/api/v2/live-timing/Clock")
