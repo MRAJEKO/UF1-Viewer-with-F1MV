@@ -8,13 +8,30 @@
         <script defer src="refer.js"></script>
     </head>
     <body>
+        <section id="menu">
+            <section id="trackinfo">
+                <label class="switch">
+                    <input type="checkbox" />
+                    <span class="slider round"></span>
+                </label>
+            </section>
+        </section>
         <h1>Ultimate Formula 1 Viewer</h1>
-        <button onclick="launchMVF1()">MultiViewer (Windows only)</button>
-        <button onclick="flagDisplay()">Flag Display</button>
-        <button onclick="digiFlag()">DigiFlag</button>
-        <button onclick="trackTime()">Delayed Track Time (Outdated)</button>
-        <button onclick="trackInfo()">Track Information</button>
-        <button onclick="compass()">Track Rotation Compass</button>
-        <button onclick="fastest()">Fastest</button>
+        <button class="window" onclick="launchMVF1()">
+            MultiViewer (Windows only)
+        </button>
+        <button class="window" onclick="flagDisplay()">Flag Display</button>
+        <button class="window" onclick="digiFlag()">DigiFlag</button>
+        <button class="window" onclick="trackTime()">
+            Delayed Track Time (Outdated)
+        </button>
+        <button class="window" onclick="trackInfo()">Track Information</button>
+        <button class="window" onclick="compass()">
+            Track Rotation Compass
+        </button>
+        <button class="window" onclick="fastest()">Fastest</button>
+        <button id="options" onclick="settings()">
+            <img id="settings-icon" src="../icons/settings.png" alt="" />
+        </button>
     </body>
 </html>

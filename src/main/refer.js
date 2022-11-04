@@ -139,3 +139,21 @@ function fastest() {
             console.log(result);
         });
 }
+
+let rotated = false;
+function settings() {
+    if (rotated) {
+        document.getElementById("settings-icon").style.transform =
+            "rotate(-45deg)";
+        document.getElementById("menu").className = "";
+        rotated = false;
+
+        document.querySelector("#trackinfo input").checked = true;
+    } else {
+        document.getElementById("settings-icon").style.transform =
+            "rotate(45deg)";
+        document.getElementById("menu").className = "shown";
+        rotated = true;
+        console.log("Settings");
+    }
+}
