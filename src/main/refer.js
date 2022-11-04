@@ -2,10 +2,6 @@ const { spawn, exec } = require("child_process");
 const fs = require("fs");
 const { ipcRenderer } = require("electron");
 
-ipcRenderer.invoke("A", "").then((result) => {
-    console.log(result);
-});
-
 console.log(window.myAPI);
 
 function launchMVF1() {
@@ -43,49 +39,103 @@ function launchMVF1() {
 }
 
 function flagDisplay() {
-    window.open(
-        "../flagdisplay/index.html",
-        "_blank",
-        "top=500,left=200,frame=false,nodeIntegration=no"
-    );
+    ipcRenderer
+        .invoke(
+            "window",
+            "flagdisplay/index.html",
+            800,
+            600,
+            false,
+            true,
+            false,
+            false
+        )
+        .then((result) => {
+            console.log(result);
+        });
 }
 
 function digiFlag() {
-    window.open(
-        "../digiFlag/index.html",
-        "_blank",
-        "title=DigiFlag,autoHideMenuBar=true"
-    );
+    ipcRenderer
+        .invoke(
+            "window",
+            "digiflag/index.html",
+            800,
+            600,
+            true,
+            true,
+            false,
+            false
+        )
+        .then((result) => {
+            console.log(result);
+        });
 }
 
 function trackTime() {
-    window.open(
-        "../tracktime/index.html",
-        "_blank",
-        "height=100px,width=400px,transparent=true,frame=false,resizable=true,hasShadow=false,nodeIntegration=no"
-    );
+    ipcRenderer
+        .invoke(
+            "window",
+            "tracktime/index.html",
+            400,
+            140,
+            false,
+            true,
+            true,
+            false
+        )
+        .then((result) => {
+            console.log(result);
+        });
 }
 
 function trackInfo() {
-    window.open(
-        "../trackinfo/index.html",
-        "_blank",
-        "height=800px,width=1400px,transparent=true,frame=false,resizable=true,hasShadow=false,contextIsolation=false,"
-    );
+    ipcRenderer
+        .invoke(
+            "window",
+            "trackinfo/index.html",
+            1000,
+            800,
+            false,
+            true,
+            true,
+            false
+        )
+        .then((result) => {
+            console.log(result);
+        });
 }
 
 function compass() {
-    window.open(
-        "../compass/index.html",
-        "_blank",
-        "height=100px,width=100px,transparent=true,frame=false,resizable=true,hasShadow=false"
-    );
+    ipcRenderer
+        .invoke(
+            "window",
+            "compass/index.html",
+            100,
+            100,
+            false,
+            true,
+            true,
+            false
+        )
+        .then((result) => {
+            console.log(result);
+        });
 }
 
 function fastest() {
-    window.open(
-        "../fastest/index.html",
-        "_blank",
-        "height=300px,width=1000px,transparent=true,frame=false,resizable=true,hasShadow=false"
-    );
+    ipcRenderer
+        .invoke(
+            "window",
+            "fastest/index.html",
+            1000,
+            300,
+            false,
+            true,
+            true,
+            false
+        )
+        .then((result) => {
+            console.log(result);
+        });
 }

@@ -44,6 +44,33 @@ app.on("activate", () => {
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and import them here.
-ipcMain.handle("A", async (event, args) => {
-    return "BrowserWindow";
-});
+ipcMain.handle(
+    "window",
+    async (
+        event,
+        pathToHTML,
+        width,
+        height,
+        frame,
+        hideMenuBar,
+        transparent,
+        hasShadow
+    ) => {
+        const newWindow = new BrowserWindow({
+            autoHideMenuBar: true,
+            width: width,
+            height: height,
+            frame,
+            hideMenuBar,
+            transparent,
+            hasShadow,
+            webPreferences: {
+                preload: path.join(__dirname, "preload.js"),
+                nodeIntegration: true,
+                contextIsolation: false,
+            },
+        });
+        newWindow.loadFile(path.join(__dirname, pathToHTML));
+        return "Opening: " + pathToHTML;
+    }
+);
