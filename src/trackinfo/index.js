@@ -559,15 +559,24 @@ function setProgress() {
         }
     } else if (sessionInfo.Type == "Qualifying") {
         // If the session is qualifying
+        if (debug) {
+            console.log(
+                sessionData.Series[sessionData.Series.length - 1].QualifyingPart
+            );
+        }
+        let sessionDurationSeconds = 0;
         switch (
             sessionData.Series[sessionData.Series.length - 1].QualifyingPart
         ) {
-            case 1:
-                sessionDurationSeconds = 1080;
-            case 2:
-                sessionDurationSeconds = 900;
             case 3:
+                console.log(3);
                 sessionDurationSeconds = 720;
+            case 2:
+                console.log(2);
+                sessionDurationSeconds = 900;
+            case 1:
+                console.log(1);
+                sessionDurationSeconds = 1080;
         }
         currentSessionPercentage =
             Math.round(
@@ -593,6 +602,8 @@ function setProgress() {
         }
         if (currentSessionPercentage == "0%") {
             color = "gray";
+        } else {
+            color = "green";
         }
         let maxQ = "Q3";
         maxSessionPercentage = "100%";
