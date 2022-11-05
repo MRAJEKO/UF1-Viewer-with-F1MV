@@ -9,11 +9,29 @@
     </head>
     <body>
         <section id="menu">
-            <section id="trackinfo">
-                <label class="switch">
-                    <input type="checkbox" />
-                    <span class="slider round"></span>
-                </label>
+            <section class="settings-section" id="trackinfo">
+                <h2>Track Information</h2>
+                <div class="setting">
+                    <p>
+                        Dynamic text color on flag color (black text on a yellow
+                        flag)
+                    </p>
+                    <div class="option">
+                        <label class="switch">
+                            <input type="checkbox" />
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                </div>
+                <div class="setting">
+                    <p>Default text color</p>
+                    <div class="option">
+                        <select class="selector" name="cars" id="cars">
+                            <option value="white">White</option>
+                            <option value="black">Black</option>
+                        </select>
+                    </div>
+                </div>
             </section>
         </section>
         <h1>Ultimate Formula 1 Viewer</h1>

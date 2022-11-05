@@ -1,7 +1,7 @@
 * {
     margin: 0;
     padding: 0;
-    font-family: "SFBold";
+    font-family: "SFBold", Arial, Helvetica, sans-serif;
 }
 
 body {
@@ -67,27 +67,82 @@ h1 {
 }
 
 /* Settings menu */
-
 #menu {
     overflow: hidden;
     position: fixed;
-    display: block;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     height: 0;
     transition: height 1s ease;
     width: 100vw;
     backdrop-filter: blur(1rem);
+    background-color: #0f0f0f50;
+}
+
+#menu * {
+    color: white;
+}
+
+h2 {
+    text-align: left;
+    padding-left: 15px;
+    font-size: 20px;
+    padding-bottom: 30px;
+}
+
+#menu p {
+    font-family: "SFMedium", Arial, Helvetica, sans-serif;
 }
 
 .shown {
     height: 100vh !important;
 }
 
+.setting {
+    display: flex;
+    justify-content: space-between;
+    height: 30px;
+    padding: 15px;
+}
+
+.settings-section {
+    padding: 20px 0;
+    margin-top: 30px;
+    background-color: #1f1f1f9f;
+    border: 2px solid black;
+    border-radius: 20px;
+    max-width: 1000px;
+    width: 90%;
+}
+
+.option {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100px;
+}
+
+.option option {
+    background-color: black;
+    border: 1px solid gray;
+}
+
+.selector {
+    outline: none;
+    border: 1px solid gray;
+    background: transparent;
+    padding: 5px;
+}
+
 /* Setting toggle switch */
 .switch {
-    position: absolute;
+    position: relative;
+    left: 0;
     display: inline-block;
-    width: 60px;
-    height: 34px;
+    width: 40px;
+    height: 24px;
 }
 
 .switch input {
@@ -111,8 +166,8 @@ h1 {
 .slider:before {
     position: absolute;
     content: "";
-    height: 26px;
-    width: 26px;
+    height: 16px;
+    width: 16px;
     left: 4px;
     bottom: 4px;
     background-color: white;
@@ -129,9 +184,9 @@ input:focus + .slider {
 }
 
 input:checked + .slider:before {
-    -webkit-transform: translateX(26px);
-    -ms-transform: translateX(26px);
-    transform: translateX(26px);
+    -webkit-transform: translateX(16px);
+    -ms-transform: translateX(16px);
+    transform: translateX(16px);
 }
 
 /* Rounded sliders */
