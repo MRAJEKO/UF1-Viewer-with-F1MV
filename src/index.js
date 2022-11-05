@@ -1,6 +1,7 @@
 const { app, BrowserWindow, ipcMain } = require("electron");
 const { url } = require("inspector");
 const path = require("path");
+const fs = require("fs");
 
 const createWindow = () => {
     // Create the browser window.
@@ -74,3 +75,17 @@ ipcMain.handle(
         return "Opening: " + pathToHTML;
     }
 );
+
+ipcMain.handle("config", async (event, key, value) => {
+    const config = require("./config.json");
+    config[key] = value;
+    const data = JSON.stringify(config);
+    fs.writeFile(__dirname + "/config.json", data, (err) => {
+        if (err) {
+            console.log("Error writing file", err);
+        } else {
+            console.log("Successfully wrote file");
+        }
+    });
+    return require("./config.json");
+});

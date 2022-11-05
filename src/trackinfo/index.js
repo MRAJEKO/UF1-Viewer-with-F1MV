@@ -1,8 +1,15 @@
 const debug = true;
 
+const { ipcRenderer } = require("electron");
+
 if (debug) {
     console.log(window.myAPI);
 }
+
+ipcRenderer.invoke("config", "peop", false).then((result) => {
+    console.log(result);
+});
+
 const sleep = (milliseconds) => {
     return new Promise((resolve) => setTimeout(resolve, milliseconds));
 };
