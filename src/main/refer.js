@@ -2,7 +2,7 @@ const { spawn, exec } = require("child_process");
 const fs = require("fs");
 const { ipcRenderer } = require("electron");
 
-console.log(window.myAPI);
+const debug = true;
 
 function launchMVF1() {
     let LOCALAPPDATA = process.env.LOCALAPPDATA;
@@ -146,9 +146,8 @@ function settings() {
         document.getElementById("settings-icon").style.transform =
             "rotate(-45deg)";
         document.getElementById("menu").className = "";
+        saveSettings();
         rotated = false;
-
-        document.querySelector("#trackinfo input").checked = true;
     } else {
         document.getElementById("settings-icon").style.transform =
             "rotate(45deg)";
@@ -157,3 +156,63 @@ function settings() {
         console.log("Settings");
     }
 }
+
+async function saveSettings() {
+    const config = (await ipcRenderer.invoke("get_config")).current;
+    if (debug) console.log(config);
+    for (index in config) {
+        for (i in config[index]) {
+            if (debug) {
+                console.log(i);
+                console.log(index);
+                console.log(config[index]);
+                console.log(config[index][i]);
+                console.log(document.getElementById(i));
+                console.log(document.getElementById(i).value);
+                console.log(document.getElementById(i).checked);
+                console.log(document.getElementById(i).type == "checkbox");
+            }
+            let value = document.getElementById(i).value;
+            console.log(value);
+            if (document.getElementById(i).type == "checkbox") {
+                console.log("Checkbox   ");
+                value = document.getElementById(i).checked;
+            }
+            console.log(value);
+            await ipcRenderer.invoke("write_config", index, i, value);
+        }
+    }
+}
+
+async function setSettings() {
+    const config = (await ipcRenderer.invoke("get_config")).current;
+    if (debug) console.log(config);
+    for (index in config) {
+        for (i in config[index]) {
+            if (debug) {
+                console.log(i);
+                console.log(config[index]);
+                console.log(config[index][i]);
+                console.log(document.getElementById(i));
+            }
+            if (document.getElementById(i).classList.contains("switch")) {
+                if (debug) {
+                    console.log("Switch");
+                }
+                document.querySelector(`#${i} input`).checked =
+                    config[index][i];
+            }
+            if (document.getElementById(i).classList.contains("selector")) {
+                document.getElementById(i).value = config[index][i];
+                if (debug) {
+                    console.log(
+                        (document.getElementById(i).value = config[index][i])
+                    );
+                    console.log("Selector");
+                }
+            }
+        }
+    }
+}
+
+setSettings();

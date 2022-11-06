@@ -76,9 +76,9 @@ ipcMain.handle(
     }
 );
 
-ipcMain.handle("config", async (event, key, value) => {
+ipcMain.handle("write_config", async (event, category, key, value) => {
     const config = require("./config.json");
-    config[key] = value;
+    config.current[category][key] = value;
     const data = JSON.stringify(config);
     fs.writeFile(__dirname + "/config.json", data, (err) => {
         if (err) {
@@ -88,4 +88,9 @@ ipcMain.handle("config", async (event, key, value) => {
         }
     });
     return require("./config.json");
+});
+
+ipcMain.handle("get_config", async (event, args) => {
+    const config = require("./config.json");
+    return config;
 });

@@ -1,14 +1,7 @@
 const debug = true;
 
 const { ipcRenderer } = require("electron");
-
-if (debug) {
-    console.log(window.myAPI);
-}
-
-ipcRenderer.invoke("config", "peop", false).then((result) => {
-    console.log(result);
-});
+const { get } = require("request");
 
 const sleep = (milliseconds) => {
     return new Promise((resolve) => setTimeout(resolve, milliseconds));
@@ -49,6 +42,8 @@ let drsZoneNumber;
 let sessionStartStatus;
 let oldTrackStatus;
 let timer;
+let dynamicTextColor;
+let defaultTextColor;
 
 // Set global variables
 let drsEnabled = true;
@@ -93,6 +88,35 @@ let clockData;
 let sessionInfo = JSON.parse(
     httpGet("http://localhost:10101/api/v1/live-timing/SessionInfo")
 );
+
+async function getConfigurations() {
+    const config = (await ipcRenderer.invoke("get_config")).current.trackinfo;
+    dynamicTextColor = config.dynamic_text_color;
+    defaultTextColor = config.default_text_color;
+    if (debug) {
+        console.log(dynamicTextColor);
+        console.log(defaultTextColor);
+    }
+    if (dynamicTextColor == false && defaultTextColor != "white") {
+        let lines = document.querySelectorAll(".line");
+        let heads = document.querySelectorAll("h1");
+        for (i in lines) {
+            lines[i].className = `line ${defaultTextColor}-background`;
+        }
+        for (i in heads) {
+            heads[i].className = `${defaultTextColor}-text`;
+        }
+    } else {
+        let lines = document.querySelectorAll(".line");
+        let heads = document.querySelectorAll("h1");
+        for (i in lines) {
+            lines[i].className = `line`;
+        }
+        for (i in heads) {
+            heads[i].className = ``;
+        }
+    }
+}
 // Requesting the information needed from the api
 function apiRequests() {
     if (sessionInfo.Type == "Race") {
@@ -368,11 +392,14 @@ function setTrackStatus() {
     if (oldTrackStatus != +trackStatus.Status) {
         fullTrackStatus.innerHTML = status;
         fullTrackStatus.className = color;
-        for (i in lines) {
-            lines[i].className = "line " + topColor + "-background";
-        }
-        for (i in heads) {
-            heads[i].className = topColor + "-text";
+        if (dynamicTextColor) {
+            console.log("dynamicTextColor");
+            for (i in lines) {
+                lines[i].className = "line " + topColor + "-background";
+            }
+            for (i in heads) {
+                heads[i].className = topColor + "-text";
+            }
         }
         oldTrackStatus = +trackStatus.Status;
     }
@@ -854,11 +881,13 @@ function addDrsZones() {}
 // Running all the functions
 let count = 0;
 async function run() {
+    getConfigurations();
     apiRequests();
     getMainHTML();
     addTrackSectors();
     getOldAborts();
     while (true) {
+        getConfigurations();
         apiRequests();
         setSession();
         forRaceControlMessages();
