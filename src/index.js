@@ -55,17 +55,19 @@ ipcMain.handle(
         frame,
         hideMenuBar,
         transparent,
-        hasShadow
+        hasShadow,
+        alwaysOnTop
     ) => {
         // Create the new window with all arguments
         const newWindow = new BrowserWindow({
-            autoHideMenuBar: true,
+            autoHideMenuBar: hideMenuBar,
             width: width,
             height: height,
             frame,
             hideMenuBar,
             transparent,
             hasShadow,
+            alwaysOnTop,
             webPreferences: {
                 preload: path.join(__dirname, "preload.js"),
                 nodeIntegration: true,
@@ -73,7 +75,7 @@ ipcMain.handle(
             },
         });
         newWindow.loadFile(path.join(__dirname, pathToHTML));
-        return "Opening: " + pathToHTML;
+        return "Opening: " + pathToHTML + alwaysOnTop;
     }
 );
 

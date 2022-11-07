@@ -4,6 +4,10 @@ const { ipcRenderer } = require("electron");
 
 const debug = true;
 
+const sleep = (milliseconds) => {
+    return new Promise((resolve) => setTimeout(resolve, milliseconds));
+};
+
 function launchMVF1() {
     let LOCALAPPDATA = process.env.LOCALAPPDATA;
     if (navigator.appVersion.indexOf("Win") != -1) {
@@ -38,121 +42,120 @@ function launchMVF1() {
     }
 }
 
-function flagDisplay() {
-    ipcRenderer
-        .invoke(
-            "window",
-            "flagdisplay/index.html",
-            800,
-            600,
-            false,
-            true,
-            false,
-            false
-        )
-        .then((result) => {
-            console.log(result);
-        });
+let alwaysOnTop;
+async function setAlwaysOnTop() {
+    while (true) {
+        alwaysOnTop = (await ipcRenderer.invoke("get_config")).current.general
+            .always_on_top;
+        if (debug) console.log(alwaysOnTop);
+        await sleep(2000);
+    }
+}
+setAlwaysOnTop();
+
+async function flagDisplay() {
+    await ipcRenderer.invoke(
+        "window",
+        "flagdisplay/index.html",
+        800,
+        600,
+        false,
+        true,
+        false,
+        false,
+        false
+    );
 }
 
-function digiFlag() {
-    ipcRenderer
-        .invoke(
-            "window",
-            "digiflag/index.html",
-            800,
-            600,
-            true,
-            true,
-            false,
-            false
-        )
-        .then((result) => {
-            console.log(result);
-        });
+async function digiFlag() {
+    await ipcRenderer.invoke(
+        "window",
+        "digiflag/index.html",
+        800,
+        600,
+        true,
+        true,
+        false,
+        false,
+        false
+    );
 }
 
-function trackTime() {
-    ipcRenderer
-        .invoke(
-            "window",
-            "tracktime/index.html",
-            400,
-            140,
-            false,
-            true,
-            true,
-            false
-        )
-        .then((result) => {
-            console.log(result);
-        });
+async function trackTime() {
+    await ipcRenderer.invoke(
+        "window",
+        "tracktime/index.html",
+        400,
+        140,
+        false,
+        true,
+        true,
+        false,
+        alwaysOnTop
+    );
 }
 
-function trackInfo() {
-    ipcRenderer
-        .invoke(
-            "window",
-            "trackinfo/index.html",
-            1000,
-            800,
-            false,
-            true,
-            true,
-            false
-        )
-        .then((result) => {
-            console.log(result);
-        });
+async function trackInfo() {
+    await ipcRenderer.invoke(
+        "window",
+        "trackinfo/index.html",
+        1000,
+        800,
+        false,
+        true,
+        true,
+        false,
+        false
+    );
 }
 
-function compass() {
-    ipcRenderer
-        .invoke(
-            "window",
-            "compass/index.html",
-            100,
-            100,
-            false,
-            true,
-            true,
-            false
-        )
-        .then((result) => {
-            console.log(result);
-        });
+async function compass() {
+    await ipcRenderer.invoke(
+        "window",
+        "compass/index.html",
+        100,
+        100,
+        false,
+        true,
+        true,
+        false,
+        alwaysOnTop
+    );
 }
 
-function fastest() {
-    ipcRenderer
-        .invoke(
-            "window",
-            "fastest/index.html",
-            1000,
-            300,
-            false,
-            true,
-            true,
-            false
-        )
-        .then((result) => {
-            console.log(result);
-        });
+async function fastest() {
+    console.log(alwaysOnTop);
+    let result = await ipcRenderer.invoke(
+        "window",
+        "fastest/index.html",
+        1000,
+        300,
+        false,
+        true,
+        true,
+        false,
+        alwaysOnTop
+    );
+    console.log(result);
 }
 
 let rotated = false;
-function settings() {
+async function settings() {
     if (rotated) {
+        rotated = false;
         document.getElementById("settings-icon").style.transform =
             "rotate(-45deg)";
         document.getElementById("menu").className = "";
+        document.getElementById("reset-defaults").classList.remove("show");
         saveSettings();
-        rotated = false;
     } else {
+        rotated = true;
         document.getElementById("settings-icon").style.transform =
             "rotate(45deg)";
         document.getElementById("menu").className = "shown";
-        rotated = true;
+        document.getElementById("reset-defaults").classList.add("show");
+        await sleep(700);
+        document.getElementById("menu").className = "shown overflow";
     }
 }
 
@@ -174,7 +177,7 @@ async function saveSettings() {
             let value = document.getElementById(i).value;
             console.log(value);
             if (document.getElementById(i).type == "checkbox") {
-                console.log("Checkbox   ");
+                console.log("Checkbox");
                 value = document.getElementById(i).checked;
             }
             console.log(value);
