@@ -2,7 +2,7 @@ const { spawn, exec } = require("child_process");
 const fs = require("fs");
 const { ipcRenderer } = require("electron");
 
-const debug = true;
+const debug = false;
 
 const sleep = (milliseconds) => {
     return new Promise((resolve) => setTimeout(resolve, milliseconds));
@@ -124,8 +124,7 @@ async function compass() {
 }
 
 async function fastest() {
-    console.log(alwaysOnTop);
-    let result = await ipcRenderer.invoke(
+    await ipcRenderer.invoke(
         "window",
         "fastest/index.html",
         1000,
@@ -136,7 +135,6 @@ async function fastest() {
         false,
         alwaysOnTop
     );
-    console.log(result);
 }
 
 let rotated = false;
@@ -175,12 +173,11 @@ async function saveSettings() {
                 console.log(document.getElementById(i).type == "checkbox");
             }
             let value = document.getElementById(i).value;
-            console.log(value);
+            if (debug) console.log(value);
             if (document.getElementById(i).type == "checkbox") {
-                console.log("Checkbox");
+                if (debug) console.log("Checkbox");
                 value = document.getElementById(i).checked;
             }
-            console.log(value);
             await ipcRenderer.invoke("write_config", index, i, value);
         }
     }
