@@ -36,6 +36,14 @@
                         </select>
                     </div>
                 </div>
+                <button
+                    id="reset-defaults"
+                    class="buttons"
+                    onclick="restoreAll()"
+                >
+                    <img id="reset-icon" src="../icons/restore.png" alt="" />
+                    <p>RESTORE DEFAULT SETTINGS</p>
+                </button>
             </section>
         </section>
         <h1>Ultimate Formula 1 Viewer</h1>
@@ -52,7 +60,7 @@
             Track Rotation Compass
         </button>
         <button class="window" onclick="fastest()">Fastest</button>
-        <button id="options" onclick="settings()">
+        <button id="options" class="buttons" onclick="settings()">
             <img id="settings-icon" src="../icons/settings.png" alt="" />
         </button>
     </body>

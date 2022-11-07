@@ -153,7 +153,6 @@ function settings() {
             "rotate(45deg)";
         document.getElementById("menu").className = "shown";
         rotated = true;
-        console.log("Settings");
     }
 }
 
@@ -195,12 +194,12 @@ async function setSettings() {
                 console.log(config[index][i]);
                 console.log(document.getElementById(i));
             }
-            if (document.getElementById(i).classList.contains("switch")) {
+            if (document.getElementById(i).type == "checkbox") {
                 if (debug) {
                     console.log("Switch");
+                    console.log(document.getElementById(i).checked);
                 }
-                document.querySelector(`#${i} input`).checked =
-                    config[index][i];
+                document.getElementById(i).checked = config[index][i];
             }
             if (document.getElementById(i).classList.contains("selector")) {
                 document.getElementById(i).value = config[index][i];
@@ -216,3 +215,33 @@ async function setSettings() {
 }
 
 setSettings();
+
+async function restoreAll() {
+    if (debug) console.log("Restoring all settings");
+    const config = await ipcRenderer.invoke("get_config");
+    const defaultConfig = config.default;
+    const currentConfig = config.current;
+    for (index in currentConfig) {
+        for (i in currentConfig[index]) {
+            if (debug) {
+            }
+            if (document.getElementById(i).type == "checkbox") {
+                if (debug) {
+                    console.log("Switch");
+                }
+                document.getElementById(i).checked = defaultConfig[index][i];
+            }
+            if (document.getElementById(i).classList.contains("selector")) {
+                document.getElementById(i).value = defaultConfig[index][i];
+                if (debug) {
+                    console.log(
+                        (document.getElementById(i).value =
+                            defaultConfig[index][i])
+                    );
+                    console.log("Selector");
+                }
+            }
+        }
+    }
+    saveSettings();
+}
