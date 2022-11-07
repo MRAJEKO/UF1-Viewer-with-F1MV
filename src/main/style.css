@@ -14,9 +14,9 @@ body {
 .window {
     margin-left: 10%;
     margin-right: 10%;
-    width: 60%;
-    height: 5vw;
-    margin-bottom: 3vw;
+    width: 70%;
+    height: 40px;
+    margin-bottom: 20px;
     display: inline-block;
     border-radius: 5em;
     background-color: #e80404;
@@ -35,7 +35,7 @@ body {
 
 h1 {
     font-size: 5vw;
-    padding: 5%;
+    padding: 30px;
     text-align: center;
     color: white;
     text-shadow: 0.5vw 0.5vw black;
@@ -46,7 +46,7 @@ h1 {
     height: 0.2vh;
     width: 90%;
     margin-left: 5%;
-    margin-bottom: 3vw;
+    margin-bottom: 20px;
 }
 
 .buttons {
