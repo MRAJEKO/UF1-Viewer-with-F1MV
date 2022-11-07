@@ -21,16 +21,17 @@ function launchMVF1() {
         console.log("Launching MultiViewer");
         spawn(mvPath, [], { detached: true });
     } else if (navigator.appVersion.indexOf("Mac") != -1) {
-        alert("Launching MultiViewer is not compatible with MacOS yet.");
-        // if (!fs.existsSync(`/Applications/MultiViewer for F1.app`)) {
-        //     alert(
-        //         "Cannot run MultiViewer because of invalid path. Please put your MultiViewer folder under '/Applications'"
-        //     );
-        //     return;
-        // }
-        // let mvPath = `/Applications/MultiViewer for F1.app`;
-        // console.log("Launching MultiViewer");
-        // spawn(mvPath, [], { detached: true });
+        // alert("Launching MultiViewer is not compatible with MacOS yet.");
+        if (!fs.existsSync(`/Applications/MultiViewer for F1.app`)) {
+            alert(
+                "Cannot run MultiViewer because of invalid path. Please put your MultiViewer folder under '/Applications'"
+            );
+            return;
+        }
+        let mvPath =
+            "/Applications/MultiViewer for F1.app/Contents/MacOS/MultiViewer for F1";
+        console.log("Launching MultiViewer");
+        spawn("open", [mvPath], { detached: true });
     } else if (navigator.appVersion.indexOf("X11") != -1) {
         alert("Launching MultiViewer is not compatible with Unix OS yet.");
     } else if (navigator.appVersion.indexOf("Linux") != -1) {
