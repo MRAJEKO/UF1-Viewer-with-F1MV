@@ -1,15 +1,20 @@
 // Create all needed variables
-const { app, BrowserWindow, ipcMain } = require("electron");
+const { app, BrowserWindow, ipcMain, screen } = require("electron");
 const { url } = require("inspector");
 const path = require("path");
 const fs = require("fs");
 
+// Get main display height
 // Create the browser window.
 const createWindow = () => {
+    const mainDisplayHeight = screen.getPrimaryDisplay().size.height;
     const mainWindow = new BrowserWindow({
         autoHideMenuBar: true,
-        width: 800,
-        height: 900,
+        width: 600,
+        height: mainDisplayHeight,
+        minWidth: 600,
+        minHeight: 600,
+        maximizable: false,
         webPreferences: {
             preload: path.join(__dirname, "preload.js"),
             nodeIntegration: true,
