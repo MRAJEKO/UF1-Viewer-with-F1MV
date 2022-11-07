@@ -1,10 +1,11 @@
+// Create all needed variables
 const { app, BrowserWindow, ipcMain } = require("electron");
 const { url } = require("inspector");
 const path = require("path");
 const fs = require("fs");
 
+// Create the browser window.
 const createWindow = () => {
-    // Create the browser window.
     const mainWindow = new BrowserWindow({
         autoHideMenuBar: true,
         width: 800,
@@ -16,14 +17,13 @@ const createWindow = () => {
         },
     });
 
-    // and load the index.html of the app.
+    // Load main window (main/index.html)
     mainWindow.loadFile(path.join(__dirname, "main/index.html"));
+    // Disable the menu bar
     mainWindow.setMenuBarVisibility(false);
 };
 
-// This method will be called when Electron has finished
-// initialization and is ready to create browser windows.
-// Some APIs can only be used after this event occurs.
+// Create the main window when the app is ready to launch
 app.on("ready", createWindow);
 
 // Quit when all windows are closed, except on macOS. There, it's common
@@ -43,11 +43,11 @@ app.on("activate", () => {
     }
 });
 
-// In this file you can include the rest of your app's specific main process
-// code. You can also put them in separate files and import them here.
+// Receive request on channel 'window' to create a new browserwindow from 'main/refer.js'
 ipcMain.handle(
     "window",
     async (
+        // Get all arguments for new window
         event,
         pathToHTML,
         width,
@@ -57,6 +57,7 @@ ipcMain.handle(
         transparent,
         hasShadow
     ) => {
+        // Create the new window with all arguments
         const newWindow = new BrowserWindow({
             autoHideMenuBar: true,
             width: width,
@@ -76,10 +77,12 @@ ipcMain.handle(
     }
 );
 
+// Receive request on 'write_config' to write all the settings to 'config.json'
 ipcMain.handle("write_config", async (event, category, key, value) => {
     const config = require("./config.json");
     config.current[category][key] = value;
     const data = JSON.stringify(config);
+    // Write the data to 'config.json'
     fs.writeFile(__dirname + "/config.json", data, (err) => {
         if (err) {
             console.log("Error writing file", err);
@@ -90,6 +93,7 @@ ipcMain.handle("write_config", async (event, category, key, value) => {
     return require("./config.json");
 });
 
+// Receive request on 'get_config' to get all the current values inside of 'config.json'
 ipcMain.handle("get_config", async (event, args) => {
     const config = require("./config.json");
     return config;
