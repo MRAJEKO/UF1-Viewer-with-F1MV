@@ -2,6 +2,7 @@
     margin: 0;
     padding: 0;
     font-family: "SFBold", Arial, Helvetica, sans-serif;
+    color-scheme: dark;
 }
 
 body {
@@ -68,7 +69,8 @@ h1 {
 
 /* Settings menu */
 #menu {
-    overflow: hidden;
+    overflow-y: scroll;
+    padding: 0 8.5px;
     position: fixed;
     display: flex;
     flex-direction: column;
@@ -84,9 +86,11 @@ h1 {
     color: white;
 }
 
+.overflow {
+    overflow: auto !important;
+}
+
 h2 {
-    text-align: left;
-    padding-left: 15px;
     font-size: 20px;
     padding-bottom: 30px;
 }
@@ -117,6 +121,7 @@ h2 {
 }
 
 #reset-defaults {
+    right: -100px;
     bottom: 60px !important;
     background-color: #d32f2f;
     border-radius: 30px;
@@ -127,6 +132,10 @@ h2 {
     height: 50px;
     transition: all 0.4s ease-in-out;
     margin: 0px 15px 20px 0;
+}
+
+#reset-defaults.show {
+    right: 0 !important;
 }
 
 #reset-defaults p {
@@ -151,6 +160,14 @@ h2 {
 
 .description {
     font-size: 20px;
+}
+
+#credits * {
+    text-decoration: none;
+}
+
+#credits img {
+    padding-left: 5px;
 }
 
 .option {

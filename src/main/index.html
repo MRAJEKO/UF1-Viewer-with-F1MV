@@ -9,6 +9,18 @@
     </head>
     <body>
         <section id="menu">
+            <section class="settings-section" id="general">
+                <h2>General</h2>
+                <div class="setting">
+                    <p>Always on top for useful windows</p>
+                    <div class="option">
+                        <label class="switch">
+                            <input id="always_on_top" type="checkbox" />
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                </div>
+            </section>
             <section class="settings-section" id="trackinfo">
                 <h2>Track Information</h2>
                 <div class="setting">
@@ -36,14 +48,171 @@
                         </select>
                     </div>
                 </div>
-                <button
-                    id="reset-defaults"
-                    class="buttons"
-                    onclick="restoreAll()"
-                >
-                    <img id="reset-icon" src="../icons/restore.png" alt="" />
-                    <p>RESTORE DEFAULT SETTINGS</p>
-                </button>
+            </section>
+            <section class="settings-section" id="credits">
+                <h2>Credits</h2>
+                <h3>
+                    <a href="https://beta.f1mv.com/" target="_blank"
+                        >MultiViewer for F1</a
+                    ><img
+                        width="12"
+                        height="12"
+                        src="../icons/open-external.png"
+                        alt=""
+                    />
+                </h3>
+                <p>
+                    <a href="discord.gg/f1mv" target="_blank">Discord</a>
+                    <img
+                        width="12"
+                        height="12"
+                        src="../icons/open-external.png"
+                        alt=""
+                    />
+                </p>
+                <p>
+                    <a
+                        href="https://www.buymeacoffee.com/multiviewer"
+                        target="_blank"
+                        >Support him</a
+                    >
+                    <img
+                        width="12"
+                        height="12"
+                        src="../icons/open-external.png"
+                        alt=""
+                    />
+                </p>
+                <p>
+                    <a
+                        href="https://github.com/f1multiviewer/issue-tracker/discussions"
+                        >Requests and ideas</a
+                    ><img
+                        width="12"
+                        height="12"
+                        src="../icons/open-external.png"
+                        alt=""
+                    />
+                </p>
+                <br />
+                <h3>Ultimate Formula 1 Viewer</h3>
+                <p>
+                    <a href="https://github.com/MRAJEKO" target="_blank"
+                        >MRAJEKO</a
+                    ><img
+                        width="12"
+                        height="12"
+                        src="../icons/open-external.png"
+                        alt=""
+                    />
+                </p>
+                <br />
+                <h3>
+                    <a
+                        href="https://discord.com/channels/982375740764983366/1025112064945029263"
+                        target="_blank"
+                        >More MultiViewer Integrations</a
+                    ><img
+                        width="12"
+                        height="12"
+                        src="../icons/open-external.png"
+                        alt=""
+                    />
+                </h3>
+                <p>
+                    <a href="https://github.com/LapsTimeOFF" target="_blank"
+                        >LapsTimeOff</a
+                    ><img
+                        width="12"
+                        height="12"
+                        src="../icons/open-external.png"
+                        alt=""
+                    />
+                </p>
+                <p>
+                    <a href="https://github.com/TheBaconCat" target="_blank"
+                        >TheBaconCat</a
+                    ><img
+                        width="12"
+                        height="12"
+                        src="../icons/open-external.png"
+                        alt=""
+                    />
+                </p>
+                <p>
+                    <a href="https://github.com/JJWatMyself" target="_blank"
+                        >jjwATmyself</a
+                    ><img
+                        width="12"
+                        height="12"
+                        src="../icons/open-external.png"
+                        alt=""
+                    />
+                </p>
+                <p>
+                    <a href="https://github.com/Petarkco" target="_blank"
+                        >Petarkco</a
+                    >
+                    <img
+                        width="12"
+                        height="12"
+                        src="../icons/open-external.png"
+                        alt=""
+                    />
+                </p>
+                <br />
+                <h3>Other Formula 1 Resources</h3>
+                <p>
+                    <a href="https://www.formula1.com/" target="_blank"
+                        >Formula 1</a
+                    ><img
+                        width="12"
+                        height="12"
+                        src="../icons/open-external.png"
+                        alt=""
+                    />
+                </p>
+                <p>
+                    <a
+                        href="https://www.buymeacoffee.com/trackweather"
+                        target="_blank"
+                        >Arjan de Wit</a
+                    ><img
+                        width="12"
+                        height="12"
+                        src="../icons/open-external.png"
+                        alt=""
+                    />
+                </p>
+                <p>
+                    <a href="https://github.com/bacinger" target="_blank"
+                        >bacinger</a
+                    ><img
+                        width="12"
+                        height="12"
+                        src="../icons/open-external.png"
+                        alt=""
+                    />
+                </p>
+                <br />
+                <p>
+                    A big thank you to all the members of the MultiViewer for F1
+                    discord server for helping and creating amazing addons to
+                    the already amazing MultiViewer for F1 application.
+                </p>
+                <br />
+                <img
+                    width="60"
+                    height="60"
+                    alt="Peanut"
+                    src="../icons/green-heart.png"
+                />
+                <img
+                    width="60"
+                    height="60"
+                    alt="Peanut"
+                    src="../icons/peanut.png"
+                />
             </section>
         </section>
         <h1>Ultimate Formula 1 Viewer</h1>
@@ -60,6 +229,10 @@
             Track Rotation Compass
         </button>
         <button class="window" onclick="fastest()">Fastest</button>
+        <button id="reset-defaults" class="buttons" onclick="restoreAll()">
+            <img id="reset-icon" src="../icons/restore.png" alt="" />
+            <p>RESTORE DEFAULT SETTINGS</p>
+        </button>
         <button id="options" class="buttons" onclick="settings()">
             <img id="settings-icon" src="../icons/settings.png" alt="" />
         </button>
