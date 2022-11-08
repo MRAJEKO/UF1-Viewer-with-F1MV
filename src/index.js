@@ -8,10 +8,14 @@ const fs = require("fs");
 // Create the browser window.
 const createWindow = () => {
     const mainDisplayHeight = screen.getPrimaryDisplay().size.height;
+    let height = 800;
+    if (mainDisplayHeight < 800) {
+        height = mainDisplayHeight;
+    }
     const mainWindow = new BrowserWindow({
         autoHideMenuBar: true,
         width: 600,
-        height: mainDisplayHeight,
+        height: height,
         minWidth: 600,
         minHeight: 600,
         maximizable: false,
