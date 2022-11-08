@@ -96,6 +96,20 @@ async function trackInfo() {
     );
 }
 
+async function singleRCM() {
+    await ipcRenderer.invoke(
+        "window",
+        "singlercm/index.html",
+        1000,
+        100,
+        false,
+        true,
+        true,
+        false,
+        alwaysOnTop,
+    );
+}
+
 async function compass() {
     await ipcRenderer.invoke(
         "window",
