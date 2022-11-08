@@ -68,20 +68,6 @@ async function flagDisplay() {
     );
 }
 
-async function digiFlag() {
-    await ipcRenderer.invoke(
-        "window",
-        "digiflag/index.html",
-        800,
-        600,
-        true,
-        true,
-        false,
-        false,
-        false
-    );
-}
-
 async function trackTime() {
     await ipcRenderer.invoke(
         "window",
