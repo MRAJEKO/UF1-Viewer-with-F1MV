@@ -84,7 +84,7 @@ function getSpeedLimit() {
         sessionInfo.Type == "Qualifying" ||
         sessionInfo.Type == "Practice" ||
         sessionStatus == "Inactive" ||
-        sessionStatus == "Suspended"
+        sessionStatus == "Aborted"
     ) {
         return 0;
     }
@@ -140,7 +140,10 @@ function otherInfluence(racingNumber) {
 }
 
 function neutralFilter() {
-    if (sessionInfo.Type == "Race" && sessionStatus == "Inactive") {
+    if (
+        sessionInfo.Type == "Race" &&
+        (sessionStatus == "Inactive" || sessionStatus == "Aborted")
+    ) {
         return "";
     }
     return 0;
