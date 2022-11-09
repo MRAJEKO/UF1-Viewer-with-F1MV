@@ -106,7 +106,21 @@ async function singleRCM() {
         true,
         true,
         false,
-        alwaysOnTop,
+        alwaysOnTop
+    );
+}
+
+async function crashDetection() {
+    await ipcRenderer.invoke(
+        "window",
+        "crashdetection/index.html",
+        400,
+        400,
+        false,
+        true,
+        true,
+        false,
+        alwaysOnTop
     );
 }
 
