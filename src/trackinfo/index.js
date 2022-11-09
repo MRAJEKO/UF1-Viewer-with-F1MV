@@ -1,4 +1,4 @@
-const debug = true;
+const debug = false;
 
 const { ipcRenderer } = require("electron");
 
@@ -402,7 +402,6 @@ function setTrackStatus() {
         fullTrackStatus.innerHTML = status;
         fullTrackStatus.className = color;
         if (dynamicTextColor) {
-            console.log("dynamicTextColor");
             for (i in lines) {
                 lines[i].className = "line " + topColor + "-background";
             }
@@ -425,7 +424,7 @@ function setTrackStatus() {
 // Set all the track sector statuses to the information screen
 function setTrackSectors(message) {
     if (debug) console.log(message.OriginalCategory);
-    if (message.Category == "Flag") {
+    if (message.OriginalCategory == "Flag") {
         if (/\d/.test(message.Message)) {
             let sectorNumber = +message.Message.match(/\d+/)[0];
             let trackSector = document.querySelector(
@@ -552,6 +551,7 @@ function setProgress() {
             if (sessionStartStatus.Status == "Finished") {
                 currentProgress.innerHTML = "COMPLETED";
                 currentProgress.className = "gray";
+                lapCount.className = "gray";
                 return;
             }
         } else {
@@ -611,13 +611,10 @@ function setProgress() {
             sessionData.Series[sessionData.Series.length - 1].QualifyingPart
         ) {
             case 3:
-                console.log(3);
                 sessionDurationSeconds = 720;
             case 2:
-                console.log(2);
                 sessionDurationSeconds = 900;
             case 1:
-                console.log(1);
                 sessionDurationSeconds = 1080;
         }
         currentSessionPercentage =
