@@ -8,6 +8,7 @@
 body {
     background-color: gray;
     -webkit-app-region: drag;
+    height: 100vh;
 }
 
 #main-info {
