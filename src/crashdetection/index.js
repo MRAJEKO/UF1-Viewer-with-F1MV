@@ -1,6 +1,4 @@
-const { session } = require("electron");
-
-const debug = true;
+const debug = false;
 
 // Set sleep
 const sleep = (milliseconds) => {
@@ -88,8 +86,10 @@ function getSpeedLimit() {
         sessionStatus == "Inactive" ||
         sessionStatus == "Suspended"
     ) {
+        console.log(0);
         return 0;
     }
+    console.log(30);
     return 30;
 }
 
@@ -104,11 +104,11 @@ function otherInfluence(racingNumber) {
                 +timingData.Lines[racingNumber].Sectors.length - 1
             ].Segments.length - 2
         ].Status != 0 &&
-        sessionStatus == "Inactive" &&
-        sessionInfo.Type == "Race"
+        (sessionStatus == "Inactive" || sessionStatus == "Finished")
     ) {
         return true;
     }
+    // If the race is started and the last mini sector has a different value then 0 (has a value)
     if (
         sessionInfo.Type == "Race" &&
         sessionStatus == "Started" &&
@@ -122,7 +122,30 @@ function otherInfluence(racingNumber) {
     ) {
         return true;
     }
+    // Detect if practice pitstop
+    // If the session is 'practice' and the second mini sector does have a value.
+    if (debug) {
+        console.log(sessionInfo.Type == "Practice");
+        console.log(timingData.Lines[racingNumber].PitOut);
+        console.log(
+            timingData.Lines[racingNumber].Sectors[0].Segments[1].Status == 0
+        );
+    }
+    if (
+        sessionInfo.Type == "Practice" &&
+        timingData.Lines[racingNumber].PitOut &&
+        timingData.Lines[racingNumber].Sectors[0].Segments[1].Status == 0
+    ) {
+        return true;
+    }
     return false;
+}
+
+function neutralFilter() {
+    if (sessionInfo.Type == "Race" && sessionStatus == "Inactive") {
+        return "";
+    }
+    return 0;
 }
 
 function getCarStatus(data, racingNumber) {
@@ -130,7 +153,12 @@ function getCarStatus(data, racingNumber) {
     let speed = data[2];
     let gear = data[3];
     let speedLimit = getSpeedLimit();
-    if (rpm === 0 || speed <= speedLimit || gear > 8 || gear === 0) {
+    if (
+        rpm === 0 ||
+        speed <= speedLimit ||
+        gear > 8 ||
+        gear === neutralFilter()
+    ) {
         return true;
     } else {
         return false;
