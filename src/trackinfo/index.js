@@ -1,4 +1,4 @@
-const debug = false;
+const debug = true;
 
 const { ipcRenderer } = require("electron");
 
@@ -121,7 +121,7 @@ function apiRequests() {
     if (sessionInfo.Type == "Race") {
         api = JSON.parse(
             httpGet(
-                "http://localhost:10101/api/v2/live-timing/state/LapCount,TrackStatus,SessionStatus,TimingData,ExtrapolatedClock,SessionData,RaceControlMessages"
+                "http://localhost:10101/api/v2/live-timing/state/LapCount,TrackStatus,SessionStatus,TimingData,ExtrapolatedClock,SessionData"
             )
         );
         laps = api.LapCount;
@@ -130,7 +130,11 @@ function apiRequests() {
         timingData = api.TimingData;
         extraPolatedClock = api.ExtrapolatedClock;
         sessionData = api.SessionData;
-        RCMs = api.RaceControlMessages;
+        RCMs = JSON.parse(
+            httpGet(
+                "http://localhost:10101/api/v1/live-timing/RaceControlMessages"
+            )
+        );
         if (debug) {
             console.log(laps);
             console.log(trackStatus);
@@ -143,7 +147,7 @@ function apiRequests() {
     } else {
         api = JSON.parse(
             httpGet(
-                "http://localhost:10101/api/v2/live-timing/state/TrackStatus,SessionStatus,TimingData,ExtrapolatedClock,SessionData,RaceControlMessages"
+                "http://localhost:10101/api/v2/live-timing/state/TrackStatus,SessionStatus,TimingData,ExtrapolatedClock,SessionData"
             )
         );
         trackStatus = api.TrackStatus;
@@ -151,7 +155,11 @@ function apiRequests() {
         timingData = api.TimingData;
         extraPolatedClock = api.ExtrapolatedClock;
         sessionData = api.SessionData;
-        RCMs = api.RaceControlMessages;
+        RCMs = JSON.parse(
+            httpGet(
+                "http://localhost:10101/api/v1/live-timing/RaceControlMessages"
+            )
+        );
     }
 
     clockData = JSON.parse(
@@ -320,18 +328,20 @@ function setDRS() {
 // Setting the pit entry status to the information screen
 function setPitEntry(message) {
     if (message.SubCategory == "PitEntry") {
-        if (pastMessages.includes(JSON.stringify(message))) {
-        } else {
-            pastMessage += JSON.stringify(message);
-            if (message.Message.includes("ENABLED")) {
-                drsEnabled = true;
-            } else drsEnabled = false;
+        if (message.Flag == "OPEN") {
+            pitEntry.innerHTML = "OPEN";
+            pitEntry.className = "green";
+        }
+        if (message.Flag == "CLOSED") {
+            pitEntry.innerHTML = "CLOSED";
+            pitEntry.className = "red";
         }
     }
 }
 
 // Setting the pit exit status to the information screen
 function setPitExit(message) {
+    if (debug) console.log(message);
     if (message.SubCategory == "PitExit") {
         if (message.Flag == "OPEN") {
             pitExit.innerHTML = "OPEN";
