@@ -86,10 +86,8 @@ function getSpeedLimit() {
         sessionStatus == "Inactive" ||
         sessionStatus == "Suspended"
     ) {
-        console.log(0);
         return 0;
     }
-    console.log(30);
     return 30;
 }
 
