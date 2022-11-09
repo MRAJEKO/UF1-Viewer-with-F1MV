@@ -1,7 +1,6 @@
 const debug = false;
 
 const { ipcRenderer } = require("electron");
-const { get } = require("request");
 
 const sleep = (milliseconds) => {
     return new Promise((resolve) => setTimeout(resolve, milliseconds));
@@ -415,10 +414,10 @@ function setTrackStatus() {
 
 // Set all the track sector statuses to the information screen
 function setTrackSectors(message) {
-    if (message.OriginalCategory == "Flag") {
+    if (debug) console.log(message.OriginalCategory);
+    if (message.Category == "Flag") {
         if (/\d/.test(message.Message)) {
             let sectorNumber = +message.Message.match(/\d+/)[0];
-            let flag = "CLEAR";
             let trackSector = document.querySelector(
                 `#trackSector${sectorNumber}`
             );
@@ -438,7 +437,6 @@ function setTrackSectors(message) {
     }
     if (message.SubCategory == "TrackSurfaceSlippery") {
         let sectorNumber = +message.Message.match(/\d+/)[0];
-        let flag = "CLEAR";
         let trackSector = document.querySelector(`#trackSector${sectorNumber}`);
         trackSector.innerHTML = "SLIPPERY";
         trackSector.className = "slippery";
@@ -673,6 +671,8 @@ function setProgress() {
             ) + "%";
         if (currentSessionPercentage == "0%") {
             color = "gray";
+        } else {
+            color = "green";
         }
         if (currentSessionPercentage == "100%" && timerSeconds != "0") {
             currentSessionPercentage = "99%";
@@ -907,6 +907,7 @@ async function run() {
 function forRaceControlMessages() {
     for (i in RCMs.Messages) {
         let message = RCMs.Messages[i];
+        if (debug) console.log(message);
         if (pastMessages.includes(JSON.stringify(message))) {
         } else {
             pastMessages += JSON.stringify(message);
