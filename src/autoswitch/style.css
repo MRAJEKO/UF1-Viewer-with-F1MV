@@ -1,0 +1,15 @@
+* {
+    margin: 0;
+    padding: 0;
+    color: white;
+}
+
+body {
+    height: 100vh;
+    background-color: gray;
+    -webkit-app-region: drag;
+}
+
+.transparent {
+    background-color: transparent;
+}

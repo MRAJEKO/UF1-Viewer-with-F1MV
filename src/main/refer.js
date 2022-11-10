@@ -152,6 +152,20 @@ async function fastest() {
     );
 }
 
+async function autoSwitch() {
+    await ipcRenderer.invoke(
+        "window",
+        "autoswitch/index.html",
+        400,
+        600,
+        false,
+        true,
+        true,
+        false,
+        alwaysOnTop
+    );
+}
+
 let rotated = false;
 async function settings() {
     if (rotated) {
