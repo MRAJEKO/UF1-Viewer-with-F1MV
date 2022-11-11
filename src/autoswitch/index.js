@@ -162,7 +162,7 @@ function getSpeedLimit() {
         sessionStatus == "Inactive" ||
         sessionStatus == "Aborted"
     ) {
-        return 0;
+        return 10;
     }
     return 30;
 }
@@ -225,11 +225,11 @@ function otherInfluence(racingNumber) {
     return false;
 }
 
-function neutralFilter() {
+function neutralFilter(number) {
     if (
         sessionStatus == "Inactive" ||
         sessionStatus == "Aborted" ||
-        sessionType != "Race"
+        (sessionType != "Race" && timingData[number].PitOut)
     ) {
         return "";
     }
@@ -245,7 +245,7 @@ function getCarStatus(data, racingNumber) {
         rpm === 0 ||
         speed <= speedLimit ||
         gear > 8 ||
-        gear === neutralFilter()
+        gear === neutralFilter(racingNumber)
     ) {
         return true;
     } else {
@@ -301,7 +301,7 @@ function getCurrentExceptions() {
                         }
                     }
                     console.log(+number);
-                    // replaceWindow(1, +number);
+                    return number;
                 } else {
                     if (driverInfo[number].important) {
                         influenceCounter--;
@@ -350,12 +350,10 @@ let playerAssignment = {};
 let channelId;
 let shownDrivers = [];
 async function getAllPlayers() {
-    const result = (
-        await (
-            await fetch(`http://${host}:${port}/api/graphql`, {
-                headers: { "content-type": "application/json" },
-                body: JSON.stringify({
-                    query: `query DriverData {
+    const result = await fetch(`http://${host}:${port}/api/graphql`, {
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+            query: `query DriverData {
                     players {
                       driverData {
                         driverNumber
@@ -367,26 +365,26 @@ async function getAllPlayers() {
                       }
                     }
                   }`,
-                    variables: {},
-                    operationName: "DriverData",
-                }),
-                method: "POST",
-            })
-        ).json()
-    ).data.players;
-    console.log(result);
-    for (i in result) {
-        driverInfo[result[i].driverData.driverNumber].shown = true;
-        driverInfo[result[i].driverData.driverNumber].browserWindowId =
-            result[i].id;
+            variables: {},
+            operationName: "DriverData",
+        }),
+        method: "POST",
+    });
+    const data = (await result.json()).data.players;
+    console.log(data);
+    for (i in data) {
+        driverInfo[data[i].driverData.driverNumber].shown = true;
+        driverInfo[data[i].driverData.driverNumber].browserWindowId =
+            data[i].id;
     }
-    channelId = result[0].streamData.contentId;
+    channelId = data[0].streamData.contentId;
     if (debug) {
         console.log(driverInfo);
         console.log(shownDrivers);
         console.log(playerAssignment);
         console.log(channelId);
     }
+    return data;
 }
 
 async function setSpeedometerVisibility(id) {
@@ -550,14 +548,42 @@ async function replaceWindow(oldDriver, newDriver) {
     console.log(driverInfo);
 }
 
+async function pitLaneSwitch(players) {
+    const playerAmount = players.length;
+    console.log(playerAmount);
+    for (i in timingData) {
+        if (timingData[i].InPit) {
+            if (driverInfo[i].shown) {
+                for (index in priorityList) {
+                    if (
+                        !driverInfo[priorityList[index]].shown &&
+                        index < playerAmount
+                    ) {
+                        const oldDriver = i;
+                        const newDriver = priorityList[index];
+                        if (debug) {
+                            console.log(oldDriver);
+                            console.log(newDriver);
+                        }
+                        await replaceWindow(oldDriver, newDriver);
+                        return "Replaced " + oldDriver + " with " + newDriver;
+                    }
+                }
+            }
+        }
+    }
+}
+
 // Runing all function to add the funtionality
 async function run() {
     await getAllPlayers();
     // await replaceWindow(1, 77);
     while (true) {
-        apiRequests();
-        getAllOBCs();
-        getCurrentExceptions();
+        await apiRequests();
+        const players = await getAllPlayers();
+        const detection = await getCurrentExceptions();
+        const pitSwitch = await pitLaneSwitch(players);
+        console.log(pitSwitch);
         console.log(1);
         await sleep(250);
     }
