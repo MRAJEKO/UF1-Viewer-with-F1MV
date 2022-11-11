@@ -209,9 +209,16 @@ function otherInfluence(racingNumber) {
     // Detect if practice start
     // If the session is 'practice' and the second mini sector does have a value.
     if (
-        sessionType == "Practice" &&
-        timingData[racingNumber].PitOut &&
-        timingData[racingNumber].Sectors[0].Segments[1].Status == 0
+        (sessionType == "Practice" &&
+            timingData[racingNumber].PitOut &&
+            timingData[racingNumber].Sectors[0].Segments[1].Status == 0) ||
+        timingData[racingNumber].Sectors[
+            +timingData[racingNumber].Sectors.length - 1
+        ].Segments[
+            +timingData[racingNumber].Sectors[
+                +timingData[racingNumber].Sectors.length - 1
+            ].Segments.length - 1
+        ].Status == 2064
     ) {
         return "PPS";
     }
@@ -220,8 +227,9 @@ function otherInfluence(racingNumber) {
 
 function neutralFilter() {
     if (
-        sessionType == "Race" &&
-        (sessionStatus == "Inactive" || sessionStatus == "Aborted")
+        sessionStatus == "Inactive" ||
+        sessionStatus == "Aborted" ||
+        sessionType != "Race"
     ) {
         return "";
     }
@@ -271,7 +279,6 @@ function getCurrentExceptions() {
                     // RS = Race Start
                     // GL = Grid Lineup
                     const influence = otherInfluence(number);
-                    console.log(influence);
                     if (influence == "PPS") {
                         if (debug)
                             console.log(
@@ -294,7 +301,7 @@ function getCurrentExceptions() {
                         }
                     }
                     console.log(+number);
-                    replaceWindow(1, +number);
+                    // replaceWindow(1, +number);
                 } else {
                     if (driverInfo[number].important) {
                         influenceCounter--;
@@ -369,7 +376,6 @@ async function getAllPlayers() {
     ).data.players;
     console.log(result);
     for (i in result) {
-        // console.log(result[i].driverData.driverNumber);
         driverInfo[result[i].driverData.driverNumber].shown = true;
         driverInfo[result[i].driverData.driverNumber].browserWindowId =
             result[i].id;
@@ -552,6 +558,7 @@ async function run() {
         apiRequests();
         getAllOBCs();
         getCurrentExceptions();
+        console.log(1);
         await sleep(250);
     }
 }
