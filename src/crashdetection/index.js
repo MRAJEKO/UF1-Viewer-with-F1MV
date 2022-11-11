@@ -130,9 +130,17 @@ function otherInfluence(racingNumber) {
         );
     }
     if (
-        sessionInfo.Type == "Practice" &&
-        timingData.Lines[racingNumber].PitOut &&
-        timingData.Lines[racingNumber].Sectors[0].Segments[1].Status == 0
+        (sessionInfo.Type == "Practice" &&
+            timingData.Lines[racingNumber].PitOut &&
+            timingData.Lines[racingNumber].Sectors[0].Segments[1].Status ==
+                0) ||
+        timingData.Lines[racingNumber].Sectors[
+            +timingData.Lines[racingNumber].Sectors.length - 1
+        ].Segments[
+            +timingData.Lines[racingNumber].Sectors[
+                +timingData.Lines[racingNumber].Sectors.length - 1
+            ].Segments.length - 1
+        ].Status == 2064
     ) {
         return true;
     }
