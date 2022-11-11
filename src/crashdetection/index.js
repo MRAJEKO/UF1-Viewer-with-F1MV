@@ -147,10 +147,11 @@ function otherInfluence(racingNumber) {
     return false;
 }
 
-function neutralFilter() {
+function neutralFilter(number) {
     if (
-        sessionInfo.Type == "Race" &&
-        (sessionStatus == "Inactive" || sessionStatus == "Aborted")
+        sessionStatus == "Inactive" ||
+        sessionStatus == "Aborted" ||
+        (sessionInfo.Type != "Race" && timingData.Lines[number].PitOut)
     ) {
         return "";
     }
@@ -166,7 +167,7 @@ function getCarStatus(data, racingNumber) {
         rpm === 0 ||
         speed <= speedLimit ||
         gear > 8 ||
-        gear === neutralFilter()
+        gear === neutralFilter(racingNumber)
     ) {
         return true;
     } else {
