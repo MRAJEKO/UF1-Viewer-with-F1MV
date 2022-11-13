@@ -1,0 +1,31 @@
+/* Base styling */
+* {
+    margin: 0;
+    padding: 0;
+    color: white;
+}
+
+/* Make body full window height and dragable with gray background */
+body {
+    height: 100vh;
+    background-color: gray;
+    -webkit-app-region: drag;
+}
+
+/* When used the background will be set to transparent (used for transparent window on body) */
+.transparent {
+    background-color: transparent;
+}
+
+/* Setup styling (not be used in final product) */
+.container {
+    display: grid;
+    grid-template-columns: 45vw 45vw;
+    gap: 10vw;
+}
+
+h1 {
+    border: 3px solid white;
+    text-align: center;
+    font-family: "F1Regular", Arial, Helvetica, sans-serif;
+}

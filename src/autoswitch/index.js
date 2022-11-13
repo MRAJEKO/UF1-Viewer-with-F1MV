@@ -1,0 +1,646 @@
+const { ensureDir } = require("fs-extra");
+
+const debug = false;
+
+const host = "localhost";
+const port = 10101;
+
+const vipDrivers = [1, 16, 11, 44, 55, 63];
+
+// Set sleep
+const sleep = (milliseconds) => {
+    return new Promise((resolve) => setTimeout(resolve, milliseconds));
+};
+
+function httpGet(theUrl) {
+    let xmlHttpReq = new XMLHttpRequest();
+    xmlHttpReq.open("GET", theUrl, false);
+    xmlHttpReq.send(null);
+    return xmlHttpReq.responseText;
+}
+
+let transparent = false;
+function toggleBackground() {
+    if (transparent) {
+        document.querySelector("body").className = "";
+        transparent = false;
+    } else {
+        document.querySelector("body").className = "transparent";
+        transparent = true;
+    }
+}
+
+document.addEventListener("keydown", (event) => {
+    if (event.key == "Escape") {
+        toggleBackground();
+    }
+});
+
+// Get all the onboard camera's
+function getAllOBCs() {
+    // Temp testing code
+    const obc1 = document.getElementById("obc1");
+    const obc2 = document.getElementById("obc2");
+    const obc3 = document.getElementById("obc3");
+    const obc4 = document.getElementById("obc4");
+    const obc5 = document.getElementById("obc5");
+    const obc6 = document.getElementById("obc6");
+}
+
+// Receive all the API endpoints
+let sessionType = JSON.parse(
+    httpGet(`http://${host}:${port}/api/v2/live-timing/state/SessionInfo`)
+).Type;
+if (debug) console.log(sessionType);
+let carData;
+let lapCount;
+let driverList;
+let sessionData;
+let sessionInfo;
+let sessionStatus;
+let timingData;
+let timingStats;
+let trackStatus;
+function apiRequests() {
+    if (sessionType == "Race") {
+        const api = JSON.parse(
+            httpGet(
+                `http://${host}:${port}/api/v2/live-timing/state/CarData,LapCount,DriverList,SessionData,SessionInfo,SessionStatus,TimingData,TimingStats,TrackStatus`
+            )
+        );
+        if (debug) console.log(api);
+        carData = api.CarData.Entries;
+        lapCount = api.LapCount;
+        driverList = api.DriverList;
+        sessionData = api.SessionData;
+        sessionInfo = api.SessionInfo;
+        sessionType = sessionType;
+        sessionStatus = api.SessionStatus.Status;
+        timingData = api.TimingData.Lines;
+        timingStats = api.TimingStats.Lines;
+        trackStatus = api.TrackStatus;
+        if (debug) {
+            console.log(carData);
+            console.log(lapCount);
+            console.log(driverList);
+            console.log(sessionData);
+            console.log(sessionInfo);
+            console.log(sessionType);
+            console.log(sessionStatus);
+            console.log(timingData);
+            console.log(timingStats);
+            console.log(trackStatus);
+        }
+    } else {
+        const api = JSON.parse(
+            httpGet(
+                `http://${host}:${port}/api/v2/live-timing/state/CarData,DriverList,SessionData,SessionInfo,SessionStatus,TimingData,TimingStats,TrackStatus`
+            )
+        );
+        // if (debug) console.log(api);
+        carData = api.CarData.Entries;
+        driverList = api.DriverList;
+        sessionData = api.SessionData;
+        sessionInfo = api.SessionInfo;
+        sessionType = sessionType;
+        sessionStatus = api.SessionStatus.Status;
+        timingData = api.TimingData.Lines;
+        timingStats = api.TimingStats.Lines;
+        trackStatus = api.TrackStatus;
+        if (debug) {
+            // console.log(carData);
+            // console.log(driverList);
+            // console.log(sessionData);
+            // console.log(sessionInfo);
+            // console.log(sessionType);
+            // console.log(sessionStatus);
+            // console.log(timingData);
+            // console.log(timingStats);
+            // console.log(trackStatus);
+        }
+    }
+}
+apiRequests();
+
+function getDriverName(number) {
+    if (debug) {
+    }
+    return (
+        driverList[number].FirstName +
+        " " +
+        driverList[number].LastName.toUpperCase()
+    );
+}
+
+function getCarData(number) {
+    try {
+        carData[0].Cars[number].Channels;
+    } catch (error) {
+        return "error";
+    }
+    return carData[0].Cars[number].Channels;
+}
+
+function getSpeedLimit() {
+    if (
+        sessionType == "Qualifying" ||
+        sessionType == "Practice" ||
+        sessionStatus == "Inactive" ||
+        sessionStatus == "Aborted"
+    ) {
+        return 10;
+    }
+    return 30;
+}
+
+let mvpLog = { lap: 1, drivers: [] };
+function whatHappended(racingNumber) {
+    // If someone pits during a race
+    if (sessionType == "Race" && timingData[racingNumber].InPit) {
+        return true;
+    }
+    // Detect if grid start during inactive (formation lap) during a 'Race' session
+    // If the final to last mini sector has a value (is not 0). Check if the session is 'Inactive' and if the session type is 'Race'
+    if (
+        timingData[racingNumber].Sectors[
+            +timingData[racingNumber].Sectors.length - 1
+        ].Segments[
+            +timingData[racingNumber].Sectors[
+                +timingData[racingNumber].Sectors.length - 1
+            ].Segments.length - 2
+        ].Status != 0 &&
+        ((sessionStatus == "Inactive" && sessionType == "Race") ||
+            (sessionStatus == "Finished" && sessionType == "Practice")) &&
+        !timingData[racingNumber].PitOut
+    ) {
+        if (sessionType == "Race") {
+            console.log(
+                racingNumber + " is lining up during the formation lap"
+            );
+            return false;
+        }
+        console.log(racingNumber + " is doing a practice grid start");
+        return true;
+    }
+    // Detect race start
+    // If the race is started and the last mini sector has a different value then 0 (has a value)
+    if (
+        sessionType == "Race" &&
+        sessionStatus == "Started" &&
+        timingData[racingNumber].Sectors[
+            +timingData[racingNumber].Sectors.length - 1
+        ].Segments[
+            +timingData[racingNumber].Sectors[
+                +timingData[racingNumber].Sectors.length - 1
+            ].Segments.length - 3
+        ].Status != 0 &&
+        lapCount.CurrentLap == 1
+    ) {
+        console.log(racingNumber + " is doing a race start");
+        return false;
+    }
+    // Detect if practice start
+    // If the session is 'practice' and the second mini sector does have a value.
+    if (sessionType == "Practice" && timingData[racingNumber].PitOut) {
+        console.log(racingNumber + " is doing a practice pitlane start");
+        return true;
+    }
+    if (
+        sessionType == "Race" &&
+        sessionStatus == "Finished" &&
+        timingData[racingNumber].Sectors[
+            +timingData[racingNumber].Sectors.length - 2
+        ].Segments[
+            +timingData[racingNumber].Sectors[
+                +timingData[racingNumber].Sectors.length - 2
+            ].Segments.length - 1
+        ].Status != 0
+    ) {
+        console.log(racingNumber + " is in parc ferme");
+        return false;
+    }
+    console.log(racingNumber + " has crashed");
+    return true;
+}
+
+function getCarData(number) {
+    try {
+        carData[0].Cars[number].Channels;
+        if (debug) {
+            console.log("------------------------------");
+            console.log(carData[0].Cars[number].Channels);
+        }
+    } catch (error) {
+        return "error";
+    }
+    return carData[0].Cars[number].Channels;
+}
+
+function neutralFilter(number) {
+    if (
+        sessionStatus == "Inactive" ||
+        sessionStatus == "Aborted" ||
+        (sessionInfo.Type != "Race" && timingData[number].PitOut)
+    ) {
+        return "";
+    }
+    return 0;
+}
+
+function getCarStatus(data, racingNumber) {
+    let rpm = data[0];
+    let speed = data[2];
+    let gear = data[3];
+    let speedLimit = getSpeedLimit();
+    if (
+        rpm === 0 ||
+        speed <= speedLimit ||
+        gear > 8 ||
+        gear === neutralFilter(racingNumber)
+    ) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+function getCurrentExceptions(racingNumber) {
+    let name = getDriverName(racingNumber);
+    let data = getCarData(racingNumber);
+    if (data !== "error") {
+        let crashed = getCarStatus(data, racingNumber);
+        if (sessionType == "Race") {
+            if (lapCount.CurrentLap == mvpLog.lap) {
+                if (mvpLog.drivers.includes(racingNumber)) {
+                    return true;
+                }
+            } else {
+                mvpLog.lap = lapCount.CurrentLap;
+                mvpLog.drivers = [];
+            }
+        }
+        if (crashed) {
+            let driverData = timingData[racingNumber];
+            if (driverData.InPit || driverData.Retired || driverData.Stopped) {
+                crashed = false;
+            }
+        }
+        if (crashed) {
+            // PPS = Practice Pitlane Start
+            // PGS = Pracice Grid Start
+            // RS = Race Start
+            // GL = Grid Lineup
+            const influence = whatHappended(racingNumber);
+            return influence;
+        }
+    }
+}
+
+async function getPlayerBounds(id) {
+    const response = await fetch(`http://${host}:${port}/api/graphql`, {
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+            query: `query Player($playerId: ID!) {
+                player(id: $playerId) {
+                  bounds {
+                    height
+                    width
+                    x
+                    y
+                  }
+                }
+              }`,
+            variables: { playerId: id },
+            operationName: "Player",
+        }),
+        method: "POST",
+    });
+    const data = (await response.json()).data.player.bounds;
+    if (debug) console.log(data);
+    return data;
+}
+
+let channelId;
+async function getAllPlayers() {
+    let shownDrivers = {};
+    let playerAmount = 0;
+    const result = await fetch(`http://${host}:${port}/api/graphql`, {
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+            query: `query DriverData {
+                    players {
+                      driverData {
+                        driverNumber
+                      }
+                      id
+                      streamData {
+                        contentId
+                        title
+                      }
+                    }
+                  }`,
+            variables: {},
+            operationName: "DriverData",
+        }),
+        method: "POST",
+    });
+    const data = (await result.json()).data.players;
+    if (debug) console.log(data);
+    for (i in data) {
+        if (data[i].driverData != null) {
+            shownDrivers[data[i].driverData.driverNumber] = data[i].id;
+            playerAmount++;
+        }
+    }
+    channelId = data[0].streamData.contentId;
+    if (debug) {
+        console.log(driverInfo);
+        console.log(shownDrivers);
+        console.log(playerAssignment);
+        console.log(channelId);
+    }
+    return [playerAmount, shownDrivers];
+}
+
+async function setSpeedometerVisibility(id) {
+    const response = await fetch(`http://${host}:${port}/api/graphql`, {
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+            query: `mutation PlayerSetSpeedometerVisibility($playerSetSpeedometerVisibilityId: ID!, $visible: Boolean) {
+                playerSetSpeedometerVisibility(id: $playerSetSpeedometerVisibilityId, visible: $visible)
+              }`,
+            variables: {
+                playerSetSpeedometerVisibilityId: id,
+                visible: true,
+            },
+            operationName: "PlayerSetSpeedometerVisibility",
+        }),
+        method: "POST",
+    });
+
+    const data = await response.json();
+
+    if (debug) console.log(data);
+}
+
+async function syncWithOther(shownDrivers) {
+    console.log(shownDrivers);
+    let syncPlayer;
+    for (i in shownDrivers) {
+        syncPlayer = shownDrivers[i];
+    }
+    console.log(syncPlayer);
+    if (debug) console.log(syncPlayer);
+    const response = await fetch(`http://${host}:${port}/api/graphql`, {
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+            query: `mutation PlayerSync($playerSyncId: ID!) {
+                playerSync(id: $playerSyncId)
+              }`,
+            variables: {
+                playerSyncId: syncPlayer,
+            },
+            operationName: "PlayerSync",
+        }),
+        method: "POST",
+    });
+
+    const data = await response.json();
+
+    if (debug) console.log(data);
+}
+
+async function createWindow(shownDrivers, oldDriver, newDriver) {
+    const browserWindowId = shownDrivers[oldDriver];
+    const bounds = await getPlayerBounds(browserWindowId);
+    const height = bounds.height;
+    const width = bounds.width;
+    if (debug) {
+        console.log(height);
+        console.log(width);
+    }
+    const response = await fetch(`http://${host}:${port}/api/graphql`, {
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+            query: `mutation PlayerCreate($input: PlayerCreateInput!) {
+                playerCreate(input: $input)
+              }`,
+            variables: {
+                input: {
+                    bounds: {
+                        height: height,
+                        width: width,
+                        x: 0,
+                        y: -5000,
+                    },
+                    contentId: channelId,
+                    driverNumber: newDriver,
+                    maintainAspectRatio: false,
+                },
+            },
+            operationName: "PlayerCreate",
+        }),
+        method: "POST",
+    });
+
+    return await response.json();
+}
+
+async function showNewWindow(shownDrivers, oldDriver, newId) {
+    const browserWindowId = newId;
+    const oldBrowserWindowId = shownDrivers[oldDriver];
+    const bounds = await getPlayerBounds(oldBrowserWindowId);
+    const x = bounds.x;
+    const y = bounds.y;
+    const response = await fetch(`http://${host}:${port}/api/graphql`, {
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+            query: `mutation PlayerSetBounds($playerSetBoundsId: ID!, $bounds: RectangleInput!) {
+                playerSetBounds(id: $playerSetBoundsId, bounds: $bounds) {
+                  x
+                  y
+                }
+              }`,
+            variables: {
+                playerSetBoundsId: browserWindowId,
+                bounds: {
+                    x: x,
+                    y: y,
+                },
+            },
+            operationName: "PlayerSetBounds",
+        }),
+        method: "POST",
+    });
+
+    const data = await response.json();
+    if (debug) console.log(data);
+}
+
+async function removeWindow(shownDrivers, oldDriver) {
+    const browserWindowId = shownDrivers[oldDriver];
+    const response = await fetch(`http://${host}:${port}/api/graphql`, {
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+            query: `mutation PlayerDelete($playerDeleteId: ID!) {
+                playerDelete(id: $playerDeleteId)
+              }`,
+            variables: {
+                playerDeleteId: browserWindowId,
+            },
+            operationName: "PlayerDelete",
+        }),
+        method: "POST",
+    });
+
+    return await response.json();
+}
+
+async function replaceWindow(shownDrivers, oldDriver, newDriver) {
+    console.log("Replacing " + oldDriver + " with " + newDriver);
+
+    const newWindow = await createWindow(shownDrivers, +oldDriver, +newDriver);
+
+    await sleep(1000);
+
+    await setSpeedometerVisibility(newWindow.data.playerCreate);
+
+    await syncWithOther(shownDrivers);
+
+    await sleep(2000);
+
+    await showNewWindow(shownDrivers, oldDriver, newWindow.data.playerCreate);
+
+    await removeWindow(shownDrivers, oldDriver);
+
+    console.log("Replaced " + oldDriver + " with " + newDriver);
+
+    if (debug) {
+        console.log(newWindow);
+        console.log(driverInfo);
+    }
+}
+
+function hiddenDriver(racingNumber) {
+    if (
+        (sessionType != "Race" &&
+            ((timingData[racingNumber].InPit &&
+                carData[0].Cars[racingNumber].Channels[2] <= 5) ||
+                timingData[racingNumber].Retired ||
+                timingData[racingNumber].Stopped)) ||
+        (sessionType == "Race" &&
+            (timingData[racingNumber].Retired ||
+                timingData[racingNumber].Stopped))
+    ) {
+        return true;
+    }
+    return false;
+}
+
+function secondaryDriver(racingNumber) {
+    if (
+        (sessionType != "Race" &&
+            timingData[racingNumber].Sectors[0].Segments[0].Status == 2064) ||
+        (timingData[racingNumber].IntervalToPositionAhead.Value != "" &&
+            +timingData[racingNumber].IntervalToPositionAhead.Value.substring(
+                1
+            ) > 2 &&
+            !timingData[racingNumber].IntervalToPositionAhead.Catching)
+    ) {
+        console.log(lapCount.CurrentLap);
+        if (lapCount.CurrentLap >= 3) {
+            if (
+                !timingData[
+                    racingNumber
+                ].IntervalToPositionAhead.Value.includes("LAP")
+            ) {
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
+    return false;
+}
+
+async function setPriorities(players) {
+    let prioList = vipDrivers;
+    for (vip in vipDrivers) {
+        prioList[vip] = vipDrivers[vip].toString();
+    }
+    for (driver in timingData) {
+        if (!prioList.includes(driver)) {
+            prioList.push(driver);
+        }
+    }
+    let mvpDrivers = [];
+    let primaryDrivers = [];
+    let secondaryDrivers = [];
+    let hiddenDrivers = [];
+    for (i in prioList) {
+        let driver = prioList[i];
+        if (hiddenDriver(driver)) {
+            hiddenDrivers.push(driver);
+            continue;
+        }
+        if (secondaryDriver(driver)) {
+            secondaryDrivers.push(driver);
+            continue;
+        }
+        if (getCurrentExceptions(driver)) {
+            console.log(driver);
+            if (!mvpLog.drivers.includes(driver)) {
+                mvpLog.drivers.push(driver);
+            }
+            mvpDrivers.push(driver);
+            continue;
+        }
+        primaryDrivers.push(driver);
+    }
+    prioList = mvpDrivers.concat(
+        primaryDrivers,
+        secondaryDrivers,
+        hiddenDrivers
+    );
+    console.log(prioList);
+    return prioList;
+}
+
+// Runing all function to add the funtionality
+async function run() {
+    while (true) {
+        await apiRequests();
+        const prioList = await setPriorities();
+        const players = await getAllPlayers();
+        const windowAmount = players[0];
+        const shownDrivers = players[1];
+        // console.log(shownDrivers);
+        loop1: for (i in prioList) {
+            let driver = prioList[i];
+            if (i < windowAmount) {
+                if (!shownDrivers[driver]) {
+                    loop2: for (shown in shownDrivers) {
+                        if (!prioList.slice(0, windowAmount).includes(shown)) {
+                            console.log("Replace " + shown + " with " + driver);
+                            await replaceWindow(shownDrivers, shown, driver);
+                            await sleep(1000);
+                            break loop1;
+                        }
+                    }
+                }
+            } else {
+                break;
+            }
+        }
+        // const detection = await getCurrentExceptions();
+        // if (detection != undefined) {
+        //     await replaceWindow(shownDrivers);
+        // }
+        // const pitSwitch = await pitLaneSwitch(shownDrivers);
+        await sleep(500);
+    }
+}
+
+run();
