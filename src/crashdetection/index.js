@@ -17,16 +17,28 @@ let driverList;
 let carData;
 let timingData;
 let sessionStatus;
-let sessionInfo;
+let lapCount;
 let warning;
 let crashCount = 0;
 
+let sessionInfo = JSON.parse(
+    httpGet("http://localhost:10101/api/v2/live-timing/state/SessionInfo")
+);
 function apiRequests() {
-    api = JSON.parse(
-        httpGet(
-            "http://localhost:10101/api/v2/live-timing/state/DriverList,CarData,TimingData,SessionStatus,SessionInfo"
-        )
-    );
+    if (sessionInfo.Type == "Race") {
+        api = JSON.parse(
+            httpGet(
+                "http://localhost:10101/api/v2/live-timing/state/DriverList,CarData,TimingData,SessionStatus,SessionInfo,LapCount"
+            )
+        );
+        lapCount = api.LapCount;
+    } else {
+        api = JSON.parse(
+            httpGet(
+                "http://localhost:10101/api/v2/live-timing/state/DriverList,CarData,TimingData,SessionStatus,SessionInfo"
+            )
+        );
+    }
     driverList = api.DriverList;
     carData = api.CarData;
     timingData = api.TimingData;
@@ -86,7 +98,7 @@ function getSpeedLimit() {
         sessionStatus == "Inactive" ||
         sessionStatus == "Aborted"
     ) {
-        return 0;
+        return 10;
     }
     return 30;
 }
@@ -102,8 +114,10 @@ function otherInfluence(racingNumber) {
                 +timingData.Lines[racingNumber].Sectors.length - 1
             ].Segments.length - 2
         ].Status != 0 &&
-        (sessionStatus == "Inactive" || sessionStatus == "Finished")
+        (sessionStatus == "Inactive" || sessionStatus == "Finished") &&
+        !timingData.Lines[racingNumber].PitOut
     ) {
+        console.log(racingNumber + " is lining up on the grid");
         return true;
     }
     // If the race is started and the last mini sector has a different value then 0 (has a value)
@@ -115,9 +129,11 @@ function otherInfluence(racingNumber) {
         ].Segments[
             +timingData.Lines[racingNumber].Sectors[
                 +timingData.Lines[racingNumber].Sectors.length - 1
-            ].Segments.length - 1
-        ].Status != 0
+            ].Segments.length - 3
+        ].Status != 0 &&
+        lapCount.CurrentLap == 1
     ) {
+        console.log(racingNumber + " is doing a race start");
         return true;
     }
     // Detect if practice pitstop
@@ -130,18 +146,10 @@ function otherInfluence(racingNumber) {
         );
     }
     if (
-        (sessionInfo.Type == "Practice" &&
-            timingData.Lines[racingNumber].PitOut &&
-            timingData.Lines[racingNumber].Sectors[0].Segments[1].Status ==
-                0) ||
-        timingData.Lines[racingNumber].Sectors[
-            +timingData.Lines[racingNumber].Sectors.length - 1
-        ].Segments[
-            +timingData.Lines[racingNumber].Sectors[
-                +timingData.Lines[racingNumber].Sectors.length - 1
-            ].Segments.length - 1
-        ].Status == 2064
+        sessionInfo.Type == "Practice" &&
+        timingData.Lines[racingNumber].PitOut
     ) {
+        console.log(racingNumber + " is doing a practice start");
         return true;
     }
     return false;
