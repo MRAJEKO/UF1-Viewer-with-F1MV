@@ -1,4 +1,4 @@
-const debug = true;
+const debug = false;
 
 const host = "localhost";
 const port = 10101;
@@ -266,13 +266,14 @@ function getCurrentExceptions() {
                 if (crashed) {
                     let driverData = timingData[number];
                     if (
-                        driverData.InPit === true ||
-                        driverData.Retired === true ||
-                        driverData.Stopped === true
+                        driverData.InPit ||
+                        driverData.Retired ||
+                        driverData.Stopped
                     ) {
                         crashed = false;
                     }
                 }
+                console.log(crashed);
                 if (crashed) {
                     // PPS = Practice Pitlane Start
                     // PGS = Pracice Grid Start
@@ -300,7 +301,6 @@ function getCurrentExceptions() {
                             console.log(name + " has crashed");
                         }
                     }
-                    console.log(+number);
                     return number;
                 } else {
                     if (driverInfo[number].important) {
@@ -342,7 +342,7 @@ async function getPlayerBounds(id) {
         method: "POST",
     });
     const data = (await response.json()).data.player.bounds;
-    console.log(data);
+    if (debug) console.log(data);
     return data;
 }
 
@@ -371,7 +371,7 @@ async function getAllPlayers() {
         method: "POST",
     });
     const data = (await result.json()).data.players;
-    console.log(data);
+    if (debug) console.log(data);
     for (i in data) {
         driverInfo[data[i].driverData.driverNumber].shown = true;
         driverInfo[data[i].driverData.driverNumber].browserWindowId =
@@ -405,20 +405,20 @@ async function setSpeedometerVisibility(id) {
 
     const data = await response.json();
 
-    console.log(data);
+    if (debug) console.log(data);
 }
 
 async function syncWithOther(driver) {
     let syncPlayer;
     for (i in driverInfo) {
-        console.log(i != driver);
+        if (debug) console.log(i != driver);
         if (i != driver) {
             if (driverInfo[i].browserWindowId != "none") {
                 syncPlayer = driverInfo[i].browserWindowId;
             }
         }
     }
-    console.log(syncPlayer);
+    if (debug) console.log(syncPlayer);
     const response = await fetch(`http://${host}:${port}/api/graphql`, {
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
@@ -435,7 +435,7 @@ async function syncWithOther(driver) {
 
     const data = await response.json();
 
-    console.log(data);
+    if (debug) console.log(data);
 }
 
 async function createWindow(oldDriver, newDriver) {
@@ -502,7 +502,7 @@ async function showNewWindow(oldDriver, newId) {
     });
 
     const data = await response.json();
-    console.log(data);
+    if (debug) console.log(data);
 }
 
 async function removeWindow(oldDriver) {
@@ -525,6 +525,8 @@ async function removeWindow(oldDriver) {
 }
 
 async function replaceWindow(oldDriver, newDriver) {
+    console.log("Replacing " + oldDriver + " with " + newDriver);
+
     const newWindow = await createWindow(oldDriver, newDriver);
 
     await sleep(1000);
@@ -544,34 +546,85 @@ async function replaceWindow(oldDriver, newDriver) {
     driverInfo[newDriver].shown = true;
     driverInfo[newDriver].browserWindowId = newWindow.data.playerCreate;
 
-    console.log(newWindow);
-    console.log(driverInfo);
+    console.log("Replaced " + oldDriver + " with " + newDriver);
+
+    if (debug) {
+        console.log(newWindow);
+        console.log(driverInfo);
+    }
 }
 
 async function pitLaneSwitch(players) {
-    const playerAmount = players.length;
-    console.log(playerAmount);
-    for (i in timingData) {
-        if (timingData[i].InPit) {
-            if (driverInfo[i].shown) {
-                for (index in priorityList) {
-                    if (
-                        !driverInfo[priorityList[index]].shown &&
-                        index < playerAmount
-                    ) {
-                        const oldDriver = i;
-                        const newDriver = priorityList[index];
-                        if (debug) {
-                            console.log(oldDriver);
-                            console.log(newDriver);
-                        }
-                        await replaceWindow(oldDriver, newDriver);
-                        return "Replaced " + oldDriver + " with " + newDriver;
+    // New code
+    for (timing in timingData) {
+        if (
+            timingData[timing].InPit &&
+            driverInfo[timing].shown &&
+            carData[0].Cars[timing].Channels[2] <= 5 &&
+            sessionType != "Race"
+        ) {
+            for (driver in driverInfo) {
+                if (driverInfo[driver].important && !driverInfo[driver].shown) {
+                    console.log(timing + " is a important driver.");
+                    await replaceWindow(timing, priorityList[priority]);
+                }
+            }
+            for (priority in priorityList) {
+                if (
+                    !driverInfo[priorityList[priority]].shown &&
+                    !timingData[priorityList[priority]].InPit
+                ) {
+                    if (debug) {
+                        console.log(timing);
+                        console.log(priorityList[priority]);
                     }
+                    console.log(
+                        timing + " when and stopped into the pit lane."
+                    );
+                    await replaceWindow(timing, priorityList[priority]);
+                    return;
                 }
             }
         }
     }
+
+    // Old code
+    // const playerAmount = players.length;
+    // if (debug) console.log(playerAmount);
+
+    // for (timing in timingData) {
+    //     for (priority in priorityList) {
+    //         for (driver in driverList[timing]) {
+    //             if (driverList[timing].important) {
+    //                 if (!driverList[timing].shown) {
+    //                     if (timing == priority && !driverList[timing].shown) {
+    //                     }
+    //                 }
+    //             }
+    //         }
+    //     }
+    //     console.log(i + "");
+    //     console.log(timingData[i].InPit && carData[0].Cars[i].Channels[2] <= 5);
+    //     if (timingData[i].InPit && carData[0].Cars[i].Channels[2] <= 5) {
+    //         if (driverInfo[i].shown) {
+    //             for (index in priorityList) {
+    //                 if (
+    //                     !driverInfo[priorityList[index]].shown &&
+    //                     !timingData[priorityList[index]].InPit
+    //                 ) {
+    //                     const oldDriver = i;
+    //                     const newDriver = priorityList[index];
+    //                     if (debug) {
+    //                         console.log(oldDriver);
+    //                         console.log(newDriver);
+    //                     }
+    //                     await replaceWindow(oldDriver, newDriver);
+    //                     return "Replaced " + oldDriver + " with " + newDriver;
+    //                 }
+    //             }
+    //         }
+    //     }
+    // }
 }
 
 // Runing all function to add the funtionality
@@ -582,9 +635,10 @@ async function run() {
         await apiRequests();
         const players = await getAllPlayers();
         const detection = await getCurrentExceptions();
+        if (detection != undefined) {
+            await replaceWindow();
+        }
         const pitSwitch = await pitLaneSwitch(players);
-        console.log(pitSwitch);
-        console.log(1);
         await sleep(250);
     }
 }
