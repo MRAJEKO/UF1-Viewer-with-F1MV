@@ -161,6 +161,7 @@ async function getPlayerBounds(id) {
 }
 
 let channelId;
+let mainWindow;
 async function getAllPlayers() {
     let shownDrivers = {};
     let playerAmount = 0;
@@ -190,6 +191,10 @@ async function getAllPlayers() {
         if (data[i].driverData != null) {
             shownDrivers[data[i].driverData.driverNumber] = data[i].id;
             playerAmount++;
+        } else {
+            if (mainWindow == undefined) {
+                mainWindow = data[i].browserWindowId;
+            }
         }
     }
     channelId = data[0].streamData.contentId;
@@ -224,13 +229,14 @@ async function setSpeedometerVisibility(id) {
 }
 
 async function syncWithOther(shownDrivers) {
-    console.log(shownDrivers);
     let syncPlayer;
-    for (i in shownDrivers) {
-        syncPlayer = shownDrivers[i];
+    if (mainWindow != undefined) {
+        syncPlayer = mainWindow;
+    } else {
+        for (i in shownDrivers) {
+            syncPlayer = shownDrivers[i];
+        }
     }
-    console.log(syncPlayer);
-    if (debug) console.log(syncPlayer);
     const response = await fetch(`http://${host}:${port}/api/graphql`, {
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
