@@ -40,17 +40,6 @@ document.addEventListener("keydown", (event) => {
     }
 });
 
-// Get all the onboard camera's
-function getAllOBCs() {
-    // Temp testing code
-    const obc1 = document.getElementById("obc1");
-    const obc2 = document.getElementById("obc2");
-    const obc3 = document.getElementById("obc3");
-    const obc4 = document.getElementById("obc4");
-    const obc5 = document.getElementById("obc5");
-    const obc6 = document.getElementById("obc6");
-}
-
 // Receive all the API endpoints
 let sessionType = JSON.parse(
     httpGet(`http://${host}:${port}/api/v2/live-timing/state/SessionInfo`)
@@ -193,7 +182,7 @@ async function getAllPlayers() {
             playerAmount++;
         } else {
             if (mainWindow == undefined) {
-                mainWindow = data[i].browserWindowId;
+                mainWindow = data[i].id;
             }
         }
     }
@@ -237,6 +226,7 @@ async function syncWithOther(shownDrivers) {
             syncPlayer = shownDrivers[i];
         }
     }
+    console.log(syncPlayer);
     const response = await fetch(`http://${host}:${port}/api/graphql`, {
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
