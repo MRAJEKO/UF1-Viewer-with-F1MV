@@ -132,186 +132,6 @@ function getDriverName(number) {
     );
 }
 
-function getCarData(number) {
-    try {
-        carData[0].Cars[number].Channels;
-    } catch (error) {
-        return "error";
-    }
-    return carData[0].Cars[number].Channels;
-}
-
-function getSpeedLimit() {
-    if (
-        sessionType == "Qualifying" ||
-        sessionType == "Practice" ||
-        sessionStatus == "Inactive" ||
-        sessionStatus == "Aborted" ||
-        trackStatus.Status == "4" ||
-        trackStatus.Status == "6" ||
-        trackStatus.Status == "7"
-    ) {
-        return 10;
-    }
-    return 30;
-}
-
-let mvpLog = { lap: 1, drivers: [] };
-function whatHappended(racingNumber) {
-    // If someone pits during a race
-    if (
-        sessionType == "Race" &&
-        (timingData[racingNumber].InPit || timingData[racingNumber].PitOut) &&
-        sessionStatus == "Started" &&
-        lapCount.CurrentLap > 1
-    ) {
-        console.log(racingNumber + " had gone into the pitlane");
-        return true;
-    }
-    // Detect if grid start during inactive (formation lap) during a 'Race' session
-    // If the final to last mini sector has a value (is not 0). Check if the session is 'Inactive' and if the session type is 'Race'
-    if (
-        timingData[racingNumber].Sectors[
-            +timingData[racingNumber].Sectors.length - 1
-        ].Segments[
-            +timingData[racingNumber].Sectors[
-                +timingData[racingNumber].Sectors.length - 1
-            ].Segments.length - 2
-        ].Status != 0 &&
-        ((sessionStatus == "Inactive" && sessionType == "Race") ||
-            (sessionStatus == "Finished" && sessionType == "Practice")) &&
-        !timingData[racingNumber].PitOut
-    ) {
-        if (sessionType == "Race") {
-            console.log(
-                racingNumber + " is lining up during the formation lap"
-            );
-            return false;
-        }
-        console.log(racingNumber + " is doing a practice grid start");
-        return true;
-    }
-    // Detect race start
-    // If the race is started and the last mini sector has a different value then 0 (has a value)
-    if (
-        sessionType == "Race" &&
-        sessionStatus == "Started" &&
-        timingData[racingNumber].Sectors[
-            +timingData[racingNumber].Sectors.length - 1
-        ].Segments[
-            +timingData[racingNumber].Sectors[
-                +timingData[racingNumber].Sectors.length - 1
-            ].Segments.length - 3
-        ].Status != 0 &&
-        lapCount.CurrentLap == 1
-    ) {
-        console.log(racingNumber + " is doing a race start");
-        return false;
-    }
-    // Detect if practice start
-    // If the session is 'practice' and the second mini sector does have a value.
-    if (sessionType == "Practice" && timingData[racingNumber].PitOut) {
-        console.log(racingNumber + " is doing a practice pitlane start");
-        return true;
-    }
-    if (
-        sessionType == "Race" &&
-        sessionStatus == "Finished" &&
-        timingData[racingNumber].Sectors[
-            +timingData[racingNumber].Sectors.length - 2
-        ].Segments[
-            +timingData[racingNumber].Sectors[
-                +timingData[racingNumber].Sectors.length - 2
-            ].Segments.length - 1
-        ].Status != 0
-    ) {
-        console.log(racingNumber + " is in parc ferme");
-        return false;
-    }
-    console.log(racingNumber + " has crashed");
-    return true;
-}
-
-function getCarData(number) {
-    try {
-        carData[0].Cars[number].Channels;
-        if (debug) {
-            console.log("------------------------------");
-            console.log(carData[0].Cars[number].Channels);
-        }
-    } catch (error) {
-        return "error";
-    }
-    return carData[0].Cars[number].Channels;
-}
-
-function neutralFilter(number) {
-    if (
-        sessionStatus == "Inactive" ||
-        sessionStatus == "Aborted" ||
-        (sessionInfo.Type != "Race" && timingData[number].PitOut)
-    ) {
-        return "";
-    }
-    return 0;
-}
-
-function getCarStatus(data, racingNumber) {
-    let rpm = data[0];
-    let speed = data[2];
-    let gear = data[3];
-    let speedLimit = getSpeedLimit();
-    if (
-        rpm === 0 ||
-        speed <= speedLimit ||
-        gear > 8 ||
-        gear === neutralFilter(racingNumber)
-    ) {
-        return true;
-    } else {
-        return false;
-    }
-}
-
-function getCurrentExceptions(racingNumber) {
-    let data = getCarData(racingNumber);
-    if (data !== "error") {
-        let crashed = getCarStatus(data, racingNumber);
-        if (sessionType == "Race") {
-            if (lapCount.CurrentLap == mvpLog.lap) {
-                if (mvpLog.drivers.includes(racingNumber)) {
-                    return true;
-                }
-            } else {
-                mvpLog.lap = lapCount.CurrentLap;
-                mvpLog.drivers = [];
-            }
-        }
-        let driverData = timingData[racingNumber];
-        if (crashed) {
-            if (
-                (driverData.InPit && sessionType != "Race") ||
-                driverData.Retired ||
-                driverData.Stopped
-            ) {
-                crashed = false;
-            }
-        } else {
-            if (driverData.InPit && sessionType == "Race") {
-                crashed = true;
-            }
-        }
-        if (crashed) {
-            // PPS = Practice Pitlane Start
-            // PGS = Pracice Grid Start
-            // RS = Race Start
-            // GL = Grid Lineup
-            const influence = whatHappended(racingNumber);
-            return influence;
-        }
-    }
-}
-
 async function getPlayerBounds(id) {
     const response = await fetch(`http://${host}:${port}/api/graphql`, {
         headers: { "content-type": "application/json" },
@@ -537,51 +357,14 @@ async function replaceWindow(shownDrivers, oldDriver, newDriver) {
     }
 }
 
-function hiddenDriver(racingNumber) {
-    if (
-        (sessionType != "Race" &&
-            ((timingData[racingNumber].InPit &&
-                carData[0].Cars[racingNumber].Channels[2] <= 5) ||
-                timingData[racingNumber].Retired ||
-                timingData[racingNumber].Stopped)) ||
-        (sessionType == "Race" &&
-            (timingData[racingNumber].Retired ||
-                timingData[racingNumber].Stopped))
-    ) {
+function primaryDriver(racingNumber) {
+    if (sessionType != "Race") {
+        // If the session is a Practice or Qualifying session
         return true;
     }
-    return false;
-}
-
-function secondaryDriver(racingNumber) {
-    if (
-        (sessionType != "Race" &&
-            timingData[racingNumber].Sectors[0].Segments[0].Status == 2064) ||
-        (timingData[racingNumber].IntervalToPositionAhead.Value != "" &&
-            +timingData[racingNumber].IntervalToPositionAhead.Value.substring(
-                1
-            ) > 1 &&
-            +timingData[racingNumber].IntervalToPositionAhead.Catching)
-    ) {
-        console.log(lapCount.CurrentLap);
-        if (lapCount.CurrentLap >= 3) {
-            if (
-                !timingData[
-                    racingNumber
-                ].IntervalToPositionAhead.Value.includes("LAP")
-            ) {
-                return true;
-            } else {
-                return false;
-            }
-        } else {
-            return false;
-        }
+    if (!lapCount.CurrentLap >= 3) {
+        return true;
     }
-    return false;
-}
-
-function primaryDriver(racingNumber) {
     if (
         timingData[racingNumber].IntervalToPositionAhead.Value != "" &&
         +timingData[racingNumber].IntervalToPositionAhead.Value.substring(1) <=
@@ -592,21 +375,101 @@ function primaryDriver(racingNumber) {
     return false;
 }
 
+function secondaryDriver(racingNumber) {
+    if (sessionType != "Race") {
+        // If the session is a Practice or Qualifying session
+        if (
+            (timingData[racingNumber].Sectors[0].Segments[0].Status == 2064 ||
+                timingData[racingNumber].PitOut) &&
+            !(
+                timingData[racingNumber].InPit &&
+                carData[0].Cars[racingNumber].Channels[2] <= 5
+            )
+        ) {
+            // If the first mini sector is 2064 (pit out) or pitout is true and the driver is not in the pit. The driver will then be on a outlap and is a secondary driver
+            return true;
+        }
+        return false;
+    }
+    if (
+        timingData[racingNumber].IntervalToPositionAhead.Value != "" ||
+        (+timingData[racingNumber].IntervalToPositionAhead.Value.substring(1) >
+            1 &&
+            timingData[racingNumber].IntervalToPositionAhead.Catching)
+    ) {
+        // If the value to the car ahead is not nothing and is bigger than 1 second and the car is catching. The driver will then be a secondary driver (if it is after 3 laps from the start)
+        if (lapCount.CurrentLap >= 3) {
+            if (
+                !timingData[
+                    racingNumber
+                ].IntervalToPositionAhead.Value.includes("LAP")
+            ) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+    }
+    return false;
+}
+
+function tertiaryDriver(racingNumber) {
+    if (sessionType != "Race") {
+        // If the session is a Practice or Qualifying session
+        if (
+            timingData[racingNumber].InPit &&
+            carData[0].Cars[racingNumber].Channels[2] <= 5
+        ) {
+            return true;
+        }
+        return false;
+    }
+    if (
+        timingData[racingNumber].IntervalToPositionAhead.Value == "" ||
+        (+timingData[racingNumber].IntervalToPositionAhead.Value.substring(1) >
+            1 &&
+            !timingData[racingNumber].IntervalToPositionAhead.Catching)
+    ) {
+        // If the value to the car ahead is not nothing or the gap is more than a second and he is not catching. The driver will then be a tertairy driver (if it is after 3 laps from the start)
+        if (lapCount.CurrentLap >= 3) {
+            return true;
+        }
+    }
+    return false;
+}
+
+function hiddenDriver(racingNumber) {
+    if (timingData[racingNumber].Retired || timingData[racingNumber].Stopped) {
+        return true;
+    }
+    return false;
+}
+
 let prioLog = { lap: 1, drivers: [] };
 async function setPriorities(players) {
+    // Setting the prio list to the old list that was inside prioLog -> drivers
     let prioList = prioLog.drivers;
-    if (prioLog.lap != lapCount.CurrentLap || prioList.length == 0) {
+    // If the session is not a race or the lap that the priolist is set is not equal to the current racing lap or the priolist is empty
+    // Create a new list using the vip drivers and all other drivers in timing data (sorted on racing number)
+    if (
+        sessionType != "Race" ||
+        prioLog.lap != lapCount.CurrentLap ||
+        prioList.length == 0
+    ) {
         prioList = [];
         console.log("New list");
+        // Put the vipDrivers first
         for (vip in vipDrivers) {
             prioList[vip] = vipDrivers[vip].toString();
         }
+        // Fill the rest of the prio list with all drivers inside of timing data that are not already in the list (are vip drivers)
         for (driver in timingData) {
             if (!prioList.includes(driver)) {
                 prioList.push(driver);
             }
         }
     }
+
     console.log(prioList);
     let mvpDrivers = [];
     let primaryDrivers = [];
@@ -626,8 +489,9 @@ async function setPriorities(players) {
             hiddenDrivers.push(driver);
             continue;
         }
-        if (sessionType == "Race" && prioLog.lap == lapCount.CurrentLap) {
-            primaryDrivers.push(driver);
+
+        if (tertiaryDriver(driver)) {
+            tertiaryDrivers.push(driver);
             continue;
         }
 
@@ -635,14 +499,10 @@ async function setPriorities(players) {
             secondaryDrivers.push(driver);
             continue;
         }
-        if (sessionType == "Race") {
-            if (primaryDriver(driver)) {
-                primaryDrivers.push(driver);
-            } else {
-                tertiaryDrivers.push(driver);
-            }
-        } else {
+
+        if (primaryDriver(driver)) {
             primaryDrivers.push(driver);
+            continue;
         }
     }
     prioList = mvpDrivers.concat(
@@ -651,8 +511,10 @@ async function setPriorities(players) {
         tertiaryDrivers,
         hiddenDrivers
     );
-    prioLog.lap = lapCount.CurrentLap;
-    prioLog.drivers = prioList;
+    if (sessionType == "Race") {
+        prioLog.lap = lapCount.CurrentLap;
+        prioLog.drivers = prioList;
+    }
     console.log(mvpDrivers);
     console.log(primaryDrivers);
     console.log(secondaryDrivers);
@@ -660,6 +522,186 @@ async function setPriorities(players) {
     console.log(hiddenDrivers);
     console.log(prioList);
     return prioList;
+}
+
+function getCarData(number) {
+    try {
+        carData[0].Cars[number].Channels;
+    } catch (error) {
+        return "error";
+    }
+    return carData[0].Cars[number].Channels;
+}
+
+function getSpeedLimit() {
+    if (
+        sessionType == "Qualifying" ||
+        sessionType == "Practice" ||
+        sessionStatus == "Inactive" ||
+        sessionStatus == "Aborted" ||
+        trackStatus.Status == "4" ||
+        trackStatus.Status == "6" ||
+        trackStatus.Status == "7"
+    ) {
+        return 10;
+    }
+    return 30;
+}
+
+let mvpLog = { lap: 1, drivers: [] };
+function whatHappended(racingNumber) {
+    // If someone pits during a race
+    if (
+        sessionType == "Race" &&
+        (timingData[racingNumber].InPit || timingData[racingNumber].PitOut) &&
+        sessionStatus == "Started" &&
+        lapCount.CurrentLap > 1
+    ) {
+        console.log(racingNumber + " had gone into the pitlane");
+        return true;
+    }
+    // Detect if grid start during inactive (formation lap) during a 'Race' session
+    // If the final to last mini sector has a value (is not 0). Check if the session is 'Inactive' and if the session type is 'Race'
+    if (
+        timingData[racingNumber].Sectors[
+            +timingData[racingNumber].Sectors.length - 1
+        ].Segments[
+            +timingData[racingNumber].Sectors[
+                +timingData[racingNumber].Sectors.length - 1
+            ].Segments.length - 2
+        ].Status != 0 &&
+        ((sessionStatus == "Inactive" && sessionType == "Race") ||
+            (sessionStatus == "Finished" && sessionType == "Practice")) &&
+        !timingData[racingNumber].PitOut
+    ) {
+        if (sessionType == "Race") {
+            console.log(
+                racingNumber + " is lining up during the formation lap"
+            );
+            return false;
+        }
+        console.log(racingNumber + " is doing a practice grid start");
+        return true;
+    }
+    // Detect race start
+    // If the race is started and the last mini sector has a different value then 0 (has a value)
+    if (
+        sessionType == "Race" &&
+        sessionStatus == "Started" &&
+        timingData[racingNumber].Sectors[
+            +timingData[racingNumber].Sectors.length - 1
+        ].Segments[
+            +timingData[racingNumber].Sectors[
+                +timingData[racingNumber].Sectors.length - 1
+            ].Segments.length - 3
+        ].Status != 0 &&
+        lapCount.CurrentLap == 1
+    ) {
+        console.log(racingNumber + " is doing a race start");
+        return false;
+    }
+    // Detect if practice start
+    // If the session is 'practice' and the second mini sector does have a value.
+    if (sessionType == "Practice" && timingData[racingNumber].PitOut) {
+        console.log(racingNumber + " is doing a practice pitlane start");
+        return true;
+    }
+    if (
+        sessionType == "Race" &&
+        sessionStatus == "Finished" &&
+        timingData[racingNumber].Sectors[
+            +timingData[racingNumber].Sectors.length - 2
+        ].Segments[
+            +timingData[racingNumber].Sectors[
+                +timingData[racingNumber].Sectors.length - 2
+            ].Segments.length - 1
+        ].Status != 0
+    ) {
+        console.log(racingNumber + " is in parc ferme");
+        return false;
+    }
+    console.log(racingNumber + " has crashed");
+    return true;
+}
+
+function getCarData(number) {
+    try {
+        carData[0].Cars[number].Channels;
+        if (debug) {
+            console.log("------------------------------");
+            console.log(carData[0].Cars[number].Channels);
+        }
+    } catch (error) {
+        return "error";
+    }
+    return carData[0].Cars[number].Channels;
+}
+
+function neutralFilter(number) {
+    if (
+        sessionStatus == "Inactive" ||
+        sessionStatus == "Aborted" ||
+        (sessionInfo.Type != "Race" && timingData[number].PitOut)
+    ) {
+        return "";
+    }
+    return 0;
+}
+
+function getCarStatus(data, racingNumber) {
+    let rpm = data[0];
+    let speed = data[2];
+    let gear = data[3];
+    let speedLimit = getSpeedLimit();
+    if (
+        rpm === 0 ||
+        speed <= speedLimit ||
+        gear > 8 ||
+        gear === neutralFilter(racingNumber)
+    ) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+function getCurrentExceptions(racingNumber) {
+    let data = getCarData(racingNumber);
+    if (data !== "error") {
+        let crashed = getCarStatus(data, racingNumber);
+        if (sessionType == "Race") {
+            if (lapCount.CurrentLap == mvpLog.lap) {
+                if (mvpLog.drivers.includes(racingNumber)) {
+                    return true;
+                }
+            } else {
+                mvpLog.lap = lapCount.CurrentLap;
+                mvpLog.drivers = [];
+            }
+        }
+        let driverData = timingData[racingNumber];
+        if (crashed) {
+            if (
+                (driverData.InPit && sessionType != "Race") ||
+                driverData.Retired ||
+                driverData.Stopped
+            ) {
+                crashed = false;
+            }
+        } else {
+            if (driverData.InPit && sessionType == "Race") {
+                crashed = true;
+            }
+        }
+        if (crashed) {
+            // PPS = Practice Pitlane Start
+            // PGS = Pracice Grid Start
+            // RS = Race Start
+            // GL = Grid Lineup
+            const influence = whatHappended(racingNumber);
+            return influence;
+        }
+    }
 }
 
 // Runing all function to add the funtionality
