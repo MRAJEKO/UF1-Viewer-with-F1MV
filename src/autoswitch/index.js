@@ -146,7 +146,10 @@ function getSpeedLimit() {
         sessionType == "Qualifying" ||
         sessionType == "Practice" ||
         sessionStatus == "Inactive" ||
-        sessionStatus == "Aborted"
+        sessionStatus == "Aborted" ||
+        trackStatus.Status == "4" ||
+        trackStatus.Status == "6" ||
+        trackStatus.Status == "7"
     ) {
         return 10;
     }
@@ -156,7 +159,13 @@ function getSpeedLimit() {
 let mvpLog = { lap: 1, drivers: [] };
 function whatHappended(racingNumber) {
     // If someone pits during a race
-    if (sessionType == "Race" && timingData[racingNumber].InPit) {
+    if (
+        sessionType == "Race" &&
+        (timingData[racingNumber].InPit || timingData[racingNumber].PitOut) &&
+        sessionStatus == "Started" &&
+        lapCount.CurrentLap > 1
+    ) {
+        console.log(racingNumber + " had gone into the pitlane");
         return true;
     }
     // Detect if grid start during inactive (formation lap) during a 'Race' session
@@ -265,7 +274,6 @@ function getCarStatus(data, racingNumber) {
 }
 
 function getCurrentExceptions(racingNumber) {
-    let name = getDriverName(racingNumber);
     let data = getCarData(racingNumber);
     if (data !== "error") {
         let crashed = getCarStatus(data, racingNumber);
@@ -279,10 +287,18 @@ function getCurrentExceptions(racingNumber) {
                 mvpLog.drivers = [];
             }
         }
+        let driverData = timingData[racingNumber];
         if (crashed) {
-            let driverData = timingData[racingNumber];
-            if (driverData.InPit || driverData.Retired || driverData.Stopped) {
+            if (
+                (driverData.InPit && sessionType != "Race") ||
+                driverData.Retired ||
+                driverData.Stopped
+            ) {
                 crashed = false;
+            }
+        } else {
+            if (driverData.InPit && sessionType == "Race") {
+                crashed = true;
             }
         }
         if (crashed) {
@@ -544,8 +560,8 @@ function secondaryDriver(racingNumber) {
         (timingData[racingNumber].IntervalToPositionAhead.Value != "" &&
             +timingData[racingNumber].IntervalToPositionAhead.Value.substring(
                 1
-            ) > 2 &&
-            !timingData[racingNumber].IntervalToPositionAhead.Catching)
+            ) > 1 &&
+            +timingData[racingNumber].IntervalToPositionAhead.Catching)
     ) {
         console.log(lapCount.CurrentLap);
         if (lapCount.CurrentLap >= 3) {
@@ -565,45 +581,83 @@ function secondaryDriver(racingNumber) {
     return false;
 }
 
-async function setPriorities(players) {
-    let prioList = vipDrivers;
-    for (vip in vipDrivers) {
-        prioList[vip] = vipDrivers[vip].toString();
+function primaryDriver(racingNumber) {
+    if (
+        timingData[racingNumber].IntervalToPositionAhead.Value != "" &&
+        +timingData[racingNumber].IntervalToPositionAhead.Value.substring(1) <=
+            1
+    ) {
+        return true;
     }
-    for (driver in timingData) {
-        if (!prioList.includes(driver)) {
-            prioList.push(driver);
+    return false;
+}
+
+let prioLog = { lap: 1, drivers: [] };
+async function setPriorities(players) {
+    let prioList = prioLog.drivers;
+    if (prioLog.lap != lapCount.CurrentLap || prioList.length == 0) {
+        prioList = [];
+        console.log("New list");
+        for (vip in vipDrivers) {
+            prioList[vip] = vipDrivers[vip].toString();
+        }
+        for (driver in timingData) {
+            if (!prioList.includes(driver)) {
+                prioList.push(driver);
+            }
         }
     }
+    console.log(prioList);
     let mvpDrivers = [];
     let primaryDrivers = [];
     let secondaryDrivers = [];
+    let tertiaryDrivers = [];
     let hiddenDrivers = [];
     for (i in prioList) {
         let driver = prioList[i];
-        if (hiddenDriver(driver)) {
-            hiddenDrivers.push(driver);
-            continue;
-        }
-        if (secondaryDriver(driver)) {
-            secondaryDrivers.push(driver);
-            continue;
-        }
         if (getCurrentExceptions(driver)) {
-            console.log(driver);
             if (!mvpLog.drivers.includes(driver)) {
                 mvpLog.drivers.push(driver);
             }
             mvpDrivers.push(driver);
             continue;
         }
-        primaryDrivers.push(driver);
+        if (hiddenDriver(driver)) {
+            hiddenDrivers.push(driver);
+            continue;
+        }
+        if (sessionType == "Race" && prioLog.lap == lapCount.CurrentLap) {
+            primaryDrivers.push(driver);
+            continue;
+        }
+
+        if (secondaryDriver(driver)) {
+            secondaryDrivers.push(driver);
+            continue;
+        }
+        if (sessionType == "Race") {
+            if (primaryDriver(driver)) {
+                primaryDrivers.push(driver);
+            } else {
+                tertiaryDrivers.push(driver);
+            }
+        } else {
+            primaryDrivers.push(driver);
+        }
     }
     prioList = mvpDrivers.concat(
         primaryDrivers,
         secondaryDrivers,
+        tertiaryDrivers,
         hiddenDrivers
     );
+    prioLog.lap = lapCount.CurrentLap;
+    prioLog.drivers = prioList;
+    console.log(mvpDrivers);
+    console.log(primaryDrivers);
+    console.log(secondaryDrivers);
+    console.log(tertiaryDrivers);
+    console.log(hiddenDrivers);
     console.log(prioList);
     return prioList;
 }
