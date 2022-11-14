@@ -856,7 +856,10 @@ function setTimers() {
         }
     } else {
         timer = extraPolatedClock.Remaining;
-        if (timer != "02:00:00") {
+        if (
+            (timer != "02:00:00" && sessionInfo.Name == "Race") ||
+            (timer != "01:00:00" && sessionInfo.Name == "Sprint")
+        ) {
             fullColor = "yellow";
             let trackTime = clockData.trackTime;
             let systemTime = clockData.systemTime;
