@@ -1,1 +1,18 @@
-{"current":{"general":{"always_on_top":true},"trackinfo":{"dynamic_text_color":false,"default_text_color":"white"}},"default":{"general":{"always_on_top":true},"trackinfo":{"dynamic_text_color":false,"default_text_color":"white"}}}
+{
+    "current": {
+        "general": { "always_on_top": true },
+        "trackinfo": {
+            "dynamic_text_color": false,
+            "default_text_color": "white",
+            "default_background_color": "gray"
+        }
+    },
+    "default": {
+        "general": { "always_on_top": true },
+        "trackinfo": {
+            "dynamic_text_color": false,
+            "default_text_color": "white",
+            "default_background_color": "gray"
+        }
+    }
+}

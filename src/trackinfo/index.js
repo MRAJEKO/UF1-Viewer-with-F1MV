@@ -13,23 +13,6 @@ function httpGet(theUrl) {
     return xmlHttpReq.responseText;
 }
 
-let transparent = false;
-function toggleBackground() {
-    if (transparent) {
-        document.getElementById("background").className = "";
-        transparent = false;
-    } else {
-        document.getElementById("background").className = "transparent";
-        transparent = true;
-    }
-}
-
-document.addEventListener("keydown", (event) => {
-    if (event.key == "Escape") {
-        toggleBackground();
-    }
-});
-
 // Empty global variables
 let api;
 let maxProgress;
@@ -43,6 +26,8 @@ let oldTrackStatus;
 let timer;
 let dynamicTextColor;
 let defaultTextColor;
+let defaultBackgroundColor;
+let transparent = false;
 
 // Set global variables
 let drsEnabled = true;
@@ -84,6 +69,22 @@ let extraPolatedClock;
 let sessionData;
 let clockData;
 
+function toggleBackground() {
+    if (transparent) {
+        document.getElementById("background").className = "";
+        transparent = false;
+    } else {
+        document.getElementById("background").className = "transparent";
+        transparent = true;
+    }
+}
+
+document.addEventListener("keydown", (event) => {
+    if (event.key == "Escape") {
+        toggleBackground();
+    }
+});
+
 let sessionInfo = JSON.parse(
     httpGet("http://localhost:10101/api/v1/live-timing/SessionInfo")
 );
@@ -92,9 +93,11 @@ async function getConfigurations() {
     const config = (await ipcRenderer.invoke("get_config")).current.trackinfo;
     dynamicTextColor = config.dynamic_text_color;
     defaultTextColor = config.default_text_color;
+    defaultBackgroundColor = config.default_background_color;
     if (debug) {
         console.log(dynamicTextColor);
         console.log(defaultTextColor);
+        console.log(defaultBackgroundColor);
     }
     if (dynamicTextColor == false && defaultTextColor != "white") {
         let lines = document.querySelectorAll(".line");
@@ -114,6 +117,14 @@ async function getConfigurations() {
         for (i in heads) {
             heads[i].className = ``;
         }
+    }
+    if (defaultBackgroundColor == "transparent") {
+        document.getElementById("background").style.backgroundColor = "gray";
+        document.getElementById("background").className = "transparent";
+        transparent = true;
+    } else {
+        document.getElementById("background").style.backgroundColor =
+            defaultBackgroundColor;
     }
 }
 // Requesting the information needed from the api
@@ -894,7 +905,6 @@ async function run() {
     addTrackSectors();
     getOldAborts();
     while (true) {
-        getConfigurations();
         apiRequests();
         setSession();
         forRaceControlMessages();
