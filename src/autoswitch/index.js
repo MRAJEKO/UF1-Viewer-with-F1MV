@@ -5,7 +5,11 @@ const debug = false;
 const host = "localhost";
 const port = 10101;
 
-const vipDrivers = [1, 16, 11, 44, 55, 63];
+// Top 6 drivers
+// const vipDrivers = [1, 16, 11, 44, 55, 63];
+
+// Drivers leaving the season and final battles for the standings
+const vipDrivers = [5, 3, 6, 47, 11, 16, 1, 44];
 
 // Set sleep
 const sleep = (milliseconds) => {
