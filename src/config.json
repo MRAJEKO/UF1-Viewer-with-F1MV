@@ -1,6 +1,7 @@
 {
     "current": {
         "general": { "always_on_top": true },
+        "network": { "host": "localhost", "port": "10101" },
         "trackinfo": {
             "dynamic_text_color": false,
             "default_text_color": "white",
@@ -9,6 +10,7 @@
     },
     "default": {
         "general": { "always_on_top": true },
+        "network": { "host": "localhost", "port": "10101" },
         "trackinfo": {
             "dynamic_text_color": false,
             "default_text_color": "white",

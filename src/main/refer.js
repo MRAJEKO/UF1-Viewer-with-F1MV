@@ -239,6 +239,15 @@ async function setSettings() {
                     console.log("Selector");
                 }
             }
+            if (document.getElementById(i).type == "text") {
+                document.getElementById(i).value = config[index][i];
+                if (debug) {
+                    console.log(
+                        (document.getElementById(i).value = config[index][i])
+                    );
+                    console.log("Text");
+                }
+            }
         }
     }
 }
@@ -268,6 +277,16 @@ async function restoreAll() {
                             defaultConfig[index][i])
                     );
                     console.log("Selector");
+                }
+            }
+            if (document.getElementById(i).type == "text") {
+                document.getElementById(i).value = defaultConfig[index][i];
+                if (debug) {
+                    console.log(
+                        (document.getElementById(i).value =
+                            defaultConfig[index][i])
+                    );
+                    console.log("Text");
                 }
             }
         }

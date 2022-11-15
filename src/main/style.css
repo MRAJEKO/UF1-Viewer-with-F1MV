@@ -251,3 +251,8 @@ input:checked + .slider:before {
 .slider.round:before {
     border-radius: 50%;
 }
+
+/* Settings typer */
+.typ {
+    width: 100%;
+}
