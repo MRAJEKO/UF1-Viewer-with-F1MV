@@ -10,10 +10,12 @@ const sleep = (milliseconds) => {
 
 let host;
 let port;
+let rpc;
 async function getConfigurations() {
-    const config = (await ipcRenderer.invoke("get_config")).current.network;
-    host = config.host;
-    port = config.port;
+    const config = (await ipcRenderer.invoke("get_config")).current;
+    host = config.network.host;
+    port = config.network.port;
+    rpc = config.general.discord_rpc;
     if (debug) {
         console.log(host);
         console.log(port);
@@ -332,6 +334,9 @@ async function isSynced() {
         if (api == null) {
             document.getElementById("connect").className = "shown";
         } else {
+            if (rpc) {
+                require("./RPC.js");
+            }
             document.getElementById("connect").className = "";
         }
     } catch (error) {
