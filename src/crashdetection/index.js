@@ -1,6 +1,6 @@
 const debug = false;
 
-const { ipcRenderer } = require("electron")
+const { ipcRenderer } = require("electron");
 
 // Set sleep
 const sleep = (milliseconds) => {
@@ -13,6 +13,7 @@ let carData;
 let timingData;
 let sessionStatus;
 let lapCount;
+let trackStatus;
 let warning;
 let crashCount = 0;
 
@@ -45,6 +46,7 @@ async function apiRequests() {
         LapCount
         CarData
         DriverList
+        TrackStatus
       }
     }`,
                     operationName: "LiveTimingState",
@@ -58,6 +60,7 @@ async function apiRequests() {
     timingData = api.TimingData;
     sessionStatus = api.SessionStatus.Status;
     sessionInfo = api.SessionInfo;
+    trackStatus = api.TrackStatus;
     if (sessionInfo.Type == "Race") {
         lapCount = api.LapCount;
     }
@@ -113,7 +116,10 @@ function getSpeedLimit() {
         sessionInfo.Type == "Qualifying" ||
         sessionInfo.Type == "Practice" ||
         sessionStatus == "Inactive" ||
-        sessionStatus == "Aborted"
+        sessionStatus == "Aborted" ||
+        trackStatus.Status == "4" ||
+        trackStatus.Status == "6" ||
+        trackStatus.Status == "7"
     ) {
         return 10;
     }
@@ -168,6 +174,20 @@ function otherInfluence(racingNumber) {
     ) {
         console.log(racingNumber + " is doing a practice start");
         return true;
+    }
+    if (
+        sessionInfo.Type == "Race" &&
+        sessionStatus == "Finished" &&
+        timingData.Lines[racingNumber].Sectors[
+            +timingData.Lines[racingNumber].Sectors.length - 2
+        ].Segments[
+            +timingData.Lines[racingNumber].Sectors[
+                +timingData.Lines[racingNumber].Sectors.length - 2
+            ].Segments.length - 1
+        ].Status != 0
+    ) {
+        console.log(racingNumber + " is in parc ferme");
+        return false;
     }
     return false;
 }
