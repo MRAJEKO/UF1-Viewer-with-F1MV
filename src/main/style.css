@@ -22,15 +22,14 @@ body {
     background-color: #e80404;
     color: white;
     font-size: 1em;
-    border: rgb(50, 50, 50);
-    box-shadow: 0.5vw 0.5vw #000000;
+    box-shadow: 4px 4px #000000;
     transition: all 0.5s ease;
+    border: none;
 }
 
 .window:hover {
-    transform: translate(0.5vw, 0.5vw);
-    box-shadow: 0vw 0vw #000000;
-    transition: all 0.5s ease;
+    transform: translate(4px, 4px);
+    box-shadow: 0 0 #000000;
 }
 
 h1 {
@@ -65,6 +64,58 @@ h1 {
 
 .mode {
     background-color: #0290d0;
+}
+
+/* Connect menu */
+#connect {
+    height: 0vh;
+    width: 100vw;
+    backdrop-filter: blur(1.5rem);
+    background-color: #00000079;
+    position: fixed;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    transition: all 0.7s ease-in-out;
+    overflow: hidden;
+}
+
+#connect .text {
+    margin-top: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 2px solid black;
+    background-color: #3030306b;
+    padding: 10px !important;
+    width: 400px;
+    border-radius: 40px;
+}
+
+#connect .link {
+    margin-top: 120px;
+    padding: 15px 30px;
+    border-radius: 5em;
+    background-color: #e80404;
+    color: white;
+    font-size: 20px;
+    border: none;
+    box-shadow: 3px 3px #000000;
+    transition: all 0.5s ease;
+}
+
+#connect .link:hover {
+    transform: translate(3px, 3px);
+    box-shadow: 0 0 #000000;
+}
+
+#connect .link h2 {
+    font-size: 20px;
+}
+
+#connect h2 {
+    font-size: 15px;
+    padding: 0;
 }
 
 /* Settings menu */

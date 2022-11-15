@@ -8,6 +8,18 @@ const sleep = (milliseconds) => {
     return new Promise((resolve) => setTimeout(resolve, milliseconds));
 };
 
+let host;
+let port;
+async function getConfigurations() {
+    const config = (await ipcRenderer.invoke("get_config")).current.network;
+    host = config.host;
+    port = config.port;
+    if (debug) {
+        console.log(host);
+        console.log(port);
+    }
+}
+
 function launchMVF1() {
     let LOCALAPPDATA = process.env.LOCALAPPDATA;
     if (navigator.appVersion.indexOf("Win") != -1) {
@@ -166,6 +178,7 @@ async function autoSwitch() {
     );
 }
 
+// Settings
 let rotated = false;
 async function settings() {
     if (rotated) {
@@ -293,3 +306,38 @@ async function restoreAll() {
     }
     saveSettings();
 }
+
+// Link MV
+async function isSynced() {
+    await getConfigurations();
+    try {
+        const api = (
+            await (
+                await fetch(`http://${host}:${port}/api/graphql`, {
+                    headers: { "content-type": "application/json" },
+                    body: JSON.stringify({
+                        query: `query LiveTimingClock {
+                            liveTimingClock {
+                              liveTimingStartTime
+                            }
+                          }`,
+                        operationName: "LiveTimingClock",
+                    }),
+                    method: "POST",
+                })
+            ).json()
+        ).data.liveTimingClock;
+
+        console.log(api);
+        if (api == null) {
+            document.getElementById("connect").className = "shown";
+        } else {
+            document.getElementById("connect").className = "";
+        }
+    } catch (error) {
+        console.log(error);
+        document.getElementById("connect").className = "shown";
+    }
+}
+
+isSynced();
