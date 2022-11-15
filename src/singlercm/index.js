@@ -1,3 +1,5 @@
+const { ipcRenderer } = require("electron");
+
 // Set sleep
 const sleep = (milliseconds) => {
     return new Promise((resolve) => setTimeout(resolve, milliseconds));
@@ -82,9 +84,21 @@ let category;
 let queue = [];
 let running = false;
 
+let host;
+let port;
+async function getConfigurations() {
+    const config = (await ipcRenderer.invoke("get_config")).current.network;
+    host = config.host;
+    port = config.port;
+    if (debug) {
+        console.log(host);
+        console.log(port);
+    }
+}
+
 async function getLastRCM() {
     rcms = JSON.parse(
-        httpGet("http://localhost:10101/api/v1/live-timing/RaceControlMessages")
+        httpGet(`http://${host}:${port}/api/v1/live-timing/RaceControlMessages`)
     );
     lastRCM = rcms.Messages[rcms.Messages.length - 1];
     if (newMessage(lastRCM)) {
@@ -99,6 +113,7 @@ async function getLastRCM() {
 
 async function run() {
     while (true) {
+        await getConfigurations();
         getLastRCM();
         showLastMessage();
         await sleep(1000);

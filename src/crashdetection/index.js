@@ -1,16 +1,11 @@
 const debug = false;
 
+const { ipcRenderer } = require("electron")
+
 // Set sleep
 const sleep = (milliseconds) => {
     return new Promise((resolve) => setTimeout(resolve, milliseconds));
 };
-
-function httpGet(theUrl) {
-    let xmlHttpReq = new XMLHttpRequest();
-    xmlHttpReq.open("GET", theUrl, false);
-    xmlHttpReq.send(null);
-    return xmlHttpReq.responseText;
-}
 
 let api;
 let driverList;
@@ -21,29 +16,51 @@ let lapCount;
 let warning;
 let crashCount = 0;
 
+let host;
+let port;
+async function getConfigurations() {
+    const config = (await ipcRenderer.invoke("get_config")).current.network;
+    host = config.host;
+    port = config.port;
+    if (debug) {
+        console.log(host);
+        console.log(port);
+    }
+}
+
 let sessionInfo = JSON.parse(
     httpGet("http://localhost:10101/api/v2/live-timing/state/SessionInfo")
 );
-function apiRequests() {
-    if (sessionInfo.Type == "Race") {
-        api = JSON.parse(
-            httpGet(
-                "http://localhost:10101/api/v2/live-timing/state/DriverList,CarData,TimingData,SessionStatus,SessionInfo,LapCount"
-            )
-        );
-        lapCount = api.LapCount;
-    } else {
-        api = JSON.parse(
-            httpGet(
-                "http://localhost:10101/api/v2/live-timing/state/DriverList,CarData,TimingData,SessionStatus,SessionInfo"
-            )
-        );
-    }
+async function apiRequests() {
+    const api = (
+        await (
+            await fetch(`http://${host}:${port}/api/graphql`, {
+                headers: { "content-type": "application/json" },
+                body: JSON.stringify({
+                    query: `query LiveTimingState {
+      liveTimingState {
+        TimingData
+        SessionStatus
+        SessionInfo
+        LapCount
+        CarData
+        DriverList
+      }
+    }`,
+                    operationName: "LiveTimingState",
+                }),
+                method: "POST",
+            })
+        ).json()
+    ).data.liveTimingState;
     driverList = api.DriverList;
     carData = api.CarData;
     timingData = api.TimingData;
     sessionStatus = api.SessionStatus.Status;
     sessionInfo = api.SessionInfo;
+    if (sessionInfo.Type == "Race") {
+        lapCount = api.LapCount;
+    }
     if (debug) {
         console.log("------------------------------");
         console.log("Driver list:");
@@ -190,7 +207,8 @@ async function run() {
         if (debug) {
             console.log("------------------------------");
         }
-        apiRequests();
+        await getConfigurations();
+        await apiRequests();
         for (i in driverList) {
             if (debug) {
                 console.log(i);

@@ -1,6 +1,9 @@
 // Set is file is being debuged
 const debug = false;
 
+// Get 'ipcRenderer' from 'electron'
+const { ipcRenderer } = require("electron");
+
 // Create sleep function to use as wait inside of loops
 const sleep = (milliseconds) => {
     return new Promise((resolve) => setTimeout(resolve, milliseconds));
@@ -25,24 +28,42 @@ document.addEventListener("keydown", (event) => {
     }
 });
 
-// Function to return the API request
-function httpGet(theUrl) {
-    let xmlHttpReq = new XMLHttpRequest();
-    xmlHttpReq.open("GET", theUrl, false);
-    xmlHttpReq.send(null);
-    return xmlHttpReq.responseText;
+// Get all configurations
+let host;
+let port;
+async function getConfigurations() {
+    const config = (await ipcRenderer.invoke("get_config")).current.network;
+    host = config.host;
+    port = config.port;
+    if (debug) {
+        console.log(host);
+        console.log(port);
+    }
 }
+
 // Create empty variables
 let driverList;
 let timingStats;
 
 // Request 'DriverList' and 'TimingStats' from the api and add them to their variables
-function requestApi() {
-    let api = JSON.parse(
-        httpGet(
-            "http://localhost:10101/api/v2/live-timing/state/DriverList,TimingStats"
-        )
-    );
+async function requestApi() {
+    const api = (
+        await (
+            await fetch(`http://${host}:${port}/api/graphql`, {
+                headers: { "content-type": "application/json" },
+                body: JSON.stringify({
+                    query: `query LiveTimingState {
+      liveTimingState {
+        TimingStats
+        DriverList
+      }
+    }`,
+                    operationName: "LiveTimingState",
+                }),
+                method: "POST",
+            })
+        ).json()
+    ).data.liveTimingState;
     driverList = api.DriverList;
     timingStats = api.TimingStats.Lines;
 }
@@ -197,7 +218,8 @@ let count = 0;
 async function run() {
     // Loop forever (true is always true)
     while (true) {
-        requestApi();
+        await getConfigurations();
+        await requestApi();
         await setFastestLaps();
         await setFastestSectors();
         await setSpeeds();

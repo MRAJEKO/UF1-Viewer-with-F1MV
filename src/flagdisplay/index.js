@@ -1,29 +1,48 @@
 const debug = false;
 
+const { ipcRenderer } = require("electron");
+
 // Set sleep
 const sleep = (milliseconds) => {
     return new Promise((resolve) => setTimeout(resolve, milliseconds));
 };
 
-// URL output function
-function httpGet(theUrl) {
-    let xmlHttpReq = new XMLHttpRequest();
-    xmlHttpReq.open("GET", theUrl, false);
-    xmlHttpReq.send(null);
-    return xmlHttpReq.responseText;
-}
-
 // Set basic info
 const flag = document.getElementById("flag");
 const extra = document.getElementById("extra");
 let trackStatus;
+let timingData;
 
-function apiRequests() {
-    let api = JSON.parse(
-        httpGet(
-            `http://localhost:10101/api/v2/live-timing/state/TrackStatus,TimingData`
-        )
-    );
+let host;
+let port;
+async function getConfigurations() {
+    const config = (await ipcRenderer.invoke("get_config")).current.network;
+    host = config.host;
+    port = config.port;
+    if (debug) {
+        console.log(host);
+        console.log(port);
+    }
+}
+
+async function apiRequests() {
+    const api = (
+        await (
+            await fetch(`http://${host}:${port}/api/graphql`, {
+                headers: { "content-type": "application/json" },
+                body: JSON.stringify({
+                    query: `query LiveTimingState {
+      liveTimingState {
+        TimingData
+        TrackStatus
+      }
+    }`,
+                    operationName: "LiveTimingState",
+                }),
+                method: "POST",
+            })
+        ).json()
+    ).data.liveTimingState;
     timingData = api.TimingData.Lines;
     trackStatus = api.TrackStatus;
     if (debug) {
@@ -77,7 +96,8 @@ async function VSC() {
 // Update track status
 async function updateStatus() {
     while (true) {
-        apiRequests();
+        await getConfigurations();
+        await apiRequests();
         for (i in timingData) {
             let fastestLap = timingData[i].LastLapTime.OverallFastest;
             fastestLapTime = timingData[i].LastLapTime.Value;

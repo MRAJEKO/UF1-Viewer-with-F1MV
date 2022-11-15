@@ -1,3 +1,8 @@
+const { ipcRenderer } = require("electron");
+const { get } = require("request");
+
+const debug = false;
+
 // Function to return the API request
 function httpGet(theUrl) {
     let xmlHttpReq = new XMLHttpRequest();
@@ -6,24 +11,52 @@ function httpGet(theUrl) {
     return xmlHttpReq.responseText;
 }
 
+async function getConfigurations() {
+    const config = (await ipcRenderer.invoke("get_config")).current.network;
+    host = config.host;
+    port = config.port;
+    if (debug) {
+        console.log(host);
+        console.log(port);
+    }
+}
+
 // Request the session info
-let sessionInfo = JSON.parse(
-    httpGet("http://localhost:10101/api/v1/live-timing/SessionInfo")
-);
+async function apiRequests() {
+    const api = (
+        await (
+            await fetch(`http://${host}:${port}/api/graphql`, {
+                headers: { "content-type": "application/json" },
+                body: JSON.stringify({
+                    query: `query LiveTimingState {
+  liveTimingState {
+    SessionInfo
+  }
+}`,
+                    operationName: "LiveTimingState",
+                }),
+                method: "POST",
+            })
+        ).json()
+    ).data.liveTimingState;
+    sessionInfo = api.SessionInfo;
+}
 
-// Get the circuit key
-let circuitKey = sessionInfo.Meeting.Circuit.Key;
+function rotate() {
+    // Get the circuit key
+    let circuitKey = sessionInfo.Meeting.Circuit.Key;
 
-// Get the current season
-let season = sessionInfo.StartDate.slice(0, 4);
+    // Get the current season
+    let season = sessionInfo.StartDate.slice(0, 4);
 
-// Get the rotation of the track map according to the circuit key and current season
-let trackRotation = JSON.parse(
-    httpGet(`https://api.f1mv.com/api/v1/circuits/${circuitKey}/${season}`)
-).rotation;
+    // Get the rotation of the track map according to the circuit key and current season
+    let trackRotation = JSON.parse(
+        httpGet(`https://api.f1mv.com/api/v1/circuits/${circuitKey}/${season}`)
+    ).rotation;
 
-// Set the track rotation to the compass image
-document.getElementById("compass").style.rotate = trackRotation + "deg";
+    // Set the track rotation to the compass image
+    document.getElementById("compass").style.rotate = trackRotation + "deg";
+}
 
 // Check if 'escape' is being pressed to trigger 'toggleBackground'
 document.addEventListener("keydown", (event) => {
@@ -43,3 +76,11 @@ function toggleBackground() {
         transparent = true;
     }
 }
+
+async function run() {
+    await getConfigurations();
+    await apiRequests();
+    rotate();
+}
+
+run();

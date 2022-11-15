@@ -69,31 +69,15 @@ let extraPolatedClock;
 let sessionData;
 let clockData;
 
-function toggleBackground() {
-    if (transparent) {
-        document.getElementById("background").className = "";
-        transparent = false;
-    } else {
-        document.getElementById("background").className = "transparent";
-        transparent = true;
-    }
-}
-
-document.addEventListener("keydown", (event) => {
-    if (event.key == "Escape") {
-        toggleBackground();
-    }
-});
-
-let sessionInfo = JSON.parse(
-    httpGet("http://localhost:10101/api/v1/live-timing/SessionInfo")
-);
-
 async function getConfigurations() {
     const config = (await ipcRenderer.invoke("get_config")).current.trackinfo;
+    const networkConfig = (await ipcRenderer.invoke("get_config")).current
+        .network;
     dynamicTextColor = config.dynamic_text_color;
     defaultTextColor = config.default_text_color;
     defaultBackgroundColor = config.default_background_color;
+    host = networkConfig.host;
+    port = networkConfig.port;
     if (debug) {
         console.log(dynamicTextColor);
         console.log(defaultTextColor);
@@ -127,12 +111,34 @@ async function getConfigurations() {
             defaultBackgroundColor;
     }
 }
+
+function toggleBackground() {
+    if (transparent) {
+        document.getElementById("background").className = "";
+        transparent = false;
+    } else {
+        document.getElementById("background").className = "transparent";
+        transparent = true;
+    }
+}
+
+document.addEventListener("keydown", (event) => {
+    if (event.key == "Escape") {
+        toggleBackground();
+    }
+});
+
+let sessionInfo;
+
 // Requesting the information needed from the api
 function apiRequests() {
+    sessionInfo = JSON.parse(
+        httpGet(`http://${host}:${port}/api/v1/live-timing/SessionInfo`)
+    );
     if (sessionInfo.Type == "Race") {
         api = JSON.parse(
             httpGet(
-                "http://localhost:10101/api/v2/live-timing/state/LapCount,TrackStatus,SessionStatus,TimingData,ExtrapolatedClock,SessionData"
+                `http://${host}:${port}/api/v2/live-timing/state/LapCount,TrackStatus,SessionStatus,TimingData,ExtrapolatedClock,SessionData`
             )
         );
         laps = api.LapCount;
@@ -143,7 +149,7 @@ function apiRequests() {
         sessionData = api.SessionData;
         RCMs = JSON.parse(
             httpGet(
-                "http://localhost:10101/api/v1/live-timing/RaceControlMessages"
+                `http://${host}:${port}/api/v1/live-timing/RaceControlMessages`
             )
         );
         if (debug) {
@@ -158,7 +164,7 @@ function apiRequests() {
     } else {
         api = JSON.parse(
             httpGet(
-                "http://localhost:10101/api/v2/live-timing/state/TrackStatus,SessionStatus,TimingData,ExtrapolatedClock,SessionData"
+                `http://${host}:${port}/api/v2/live-timing/state/TrackStatus,SessionStatus,TimingData,ExtrapolatedClock,SessionData`
             )
         );
         trackStatus = api.TrackStatus;
@@ -168,13 +174,13 @@ function apiRequests() {
         sessionData = api.SessionData;
         RCMs = JSON.parse(
             httpGet(
-                "http://localhost:10101/api/v1/live-timing/RaceControlMessages"
+                `http://${host}:${port}/api/v1/live-timing/RaceControlMessages`
             )
         );
     }
 
     clockData = JSON.parse(
-        httpGet("http://localhost:10101/api/v2/live-timing/Clock")
+        httpGet(`http://${host}:${port}/api/v2/live-timing/Clock`)
     );
 }
 
@@ -902,7 +908,7 @@ function addDrsZones() {}
 // Running all the functions
 let count = 0;
 async function run() {
-    getConfigurations();
+    await getConfigurations();
     apiRequests();
     getMainHTML();
     addTrackSectors();

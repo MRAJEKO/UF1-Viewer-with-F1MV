@@ -1,9 +1,7 @@
 const { ensureDir } = require("fs-extra");
+const { ipcRenderer } = require("electron");
 
 const debug = false;
-
-const host = "localhost";
-const port = 10101;
 
 // Top 6 drivers
 // const vipDrivers = [1, 16, 11, 44, 55, 63];
@@ -15,13 +13,6 @@ const vipDrivers = [5, 3, 6, 47, 11, 16, 1, 44];
 const sleep = (milliseconds) => {
     return new Promise((resolve) => setTimeout(resolve, milliseconds));
 };
-
-function httpGet(theUrl) {
-    let xmlHttpReq = new XMLHttpRequest();
-    xmlHttpReq.open("GET", theUrl, false);
-    xmlHttpReq.send(null);
-    return xmlHttpReq.responseText;
-}
 
 let transparent = false;
 function toggleBackground() {
@@ -40,10 +31,19 @@ document.addEventListener("keydown", (event) => {
     }
 });
 
+let host;
+let port;
+async function getConfigurations() {
+    const config = (await ipcRenderer.invoke("get_config")).current.network;
+    host = config.host;
+    port = config.port;
+    if (debug) {
+        console.log(host);
+        console.log(port);
+    }
+}
+
 // Receive all the API endpoints
-let sessionType = JSON.parse(
-    httpGet(`http://${host}:${port}/api/v2/live-timing/state/SessionInfo`)
-).Type;
 if (debug) console.log(sessionType);
 let carData;
 let lapCount;
@@ -54,66 +54,57 @@ let sessionStatus;
 let timingData;
 let timingStats;
 let trackStatus;
-function apiRequests() {
+async function apiRequests() {
+    const api = (
+        await (
+            await fetch(`http://${host}:${port}/api/graphql`, {
+                headers: { "content-type": "application/json" },
+                body: JSON.stringify({
+                    query: `query LiveTimingState {
+      liveTimingState {
+        TrackStatus
+        TimingData
+        TimingStats
+        SessionStatus
+        SessionInfo
+        LapCount
+        CarData
+        DriverList
+        SessionData
+      }
+    }`,
+                    operationName: "LiveTimingState",
+                }),
+                method: "POST",
+            })
+        ).json()
+    ).data.liveTimingState;
+    if (debug) console.log(api);
+    carData = api.CarData.Entries;
+    driverList = api.DriverList;
+    sessionData = api.SessionData;
+    sessionInfo = api.SessionInfo;
+    sessionType = sessionInfo.Type;
+    sessionStatus = api.SessionStatus.Status;
+    timingData = api.TimingData.Lines;
+    timingStats = api.TimingStats.Lines;
+    trackStatus = api.TrackStatus;
     if (sessionType == "Race") {
-        const api = JSON.parse(
-            httpGet(
-                `http://${host}:${port}/api/v2/live-timing/state/CarData,LapCount,DriverList,SessionData,SessionInfo,SessionStatus,TimingData,TimingStats,TrackStatus`
-            )
-        );
-        if (debug) console.log(api);
-        carData = api.CarData.Entries;
         lapCount = api.LapCount;
-        driverList = api.DriverList;
-        sessionData = api.SessionData;
-        sessionInfo = api.SessionInfo;
-        sessionType = sessionType;
-        sessionStatus = api.SessionStatus.Status;
-        timingData = api.TimingData.Lines;
-        timingStats = api.TimingStats.Lines;
-        trackStatus = api.TrackStatus;
-        if (debug) {
-            console.log(carData);
-            console.log(lapCount);
-            console.log(driverList);
-            console.log(sessionData);
-            console.log(sessionInfo);
-            console.log(sessionType);
-            console.log(sessionStatus);
-            console.log(timingData);
-            console.log(timingStats);
-            console.log(trackStatus);
-        }
-    } else {
-        const api = JSON.parse(
-            httpGet(
-                `http://${host}:${port}/api/v2/live-timing/state/CarData,DriverList,SessionData,SessionInfo,SessionStatus,TimingData,TimingStats,TrackStatus`
-            )
-        );
-        // if (debug) console.log(api);
-        carData = api.CarData.Entries;
-        driverList = api.DriverList;
-        sessionData = api.SessionData;
-        sessionInfo = api.SessionInfo;
-        sessionType = sessionType;
-        sessionStatus = api.SessionStatus.Status;
-        timingData = api.TimingData.Lines;
-        timingStats = api.TimingStats.Lines;
-        trackStatus = api.TrackStatus;
-        if (debug) {
-            // console.log(carData);
-            // console.log(driverList);
-            // console.log(sessionData);
-            // console.log(sessionInfo);
-            // console.log(sessionType);
-            // console.log(sessionStatus);
-            // console.log(timingData);
-            // console.log(timingStats);
-            // console.log(trackStatus);
-        }
+    }
+    if (debug) {
+        console.log(carData);
+        console.log(lapCount);
+        console.log(driverList);
+        console.log(sessionData);
+        console.log(sessionInfo);
+        console.log(sessionType);
+        console.log(sessionStatus);
+        console.log(timingData);
+        console.log(timingStats);
+        console.log(trackStatus);
     }
 }
-apiRequests();
 
 function getDriverName(number) {
     if (debug) {
@@ -707,6 +698,7 @@ function getCurrentExceptions(racingNumber) {
 // Runing all function to add the funtionality
 async function run() {
     while (true) {
+        await getConfigurations();
         await apiRequests();
         const prioList = await setPriorities();
         const players = await getAllPlayers();

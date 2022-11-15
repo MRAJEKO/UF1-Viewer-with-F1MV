@@ -1,3 +1,5 @@
+const { ipcRenderer } = require("electron");
+
 // Set sleep
 const sleep = (milliseconds) => {
     return new Promise((resolve) => setTimeout(resolve, milliseconds));
@@ -10,12 +12,24 @@ function httpGet(theUrl) {
     return xmlHttpReq.responseText;
 }
 
+let host;
+let port;
+async function getConfigurations() {
+    const config = (await ipcRenderer.invoke("get_config")).current.network;
+    host = config.host;
+    port = config.port;
+    if (debug) {
+        console.log(host);
+        console.log(port);
+    }
+}
+
 let localTimeUTC = JSON.parse(
-    httpGet(`http://localhost:10101/api/v1/live-timing/Heartbeat`)
+    httpGet(`http://${host}:${port}/api/v1/live-timing/Heartbeat`)
 ).Utc;
 
 let trackTimezoneOffset = JSON.parse(
-    httpGet("http://localhost:10101/api/v1/live-timing/SessionInfo")
+    httpGet(`http://${host}:${port}/api/v1/live-timing/SessionInfo`)
 ).GmtOffset.split(":")[0];
 
 let localDate;
@@ -52,9 +66,10 @@ async function addSecond() {
 }
 
 async function getTime() {
+    await getConfigurations();
     while (currentTime === previousTime) {
         localTimeUTC = JSON.parse(
-            httpGet(`http://localhost:10101/api/v1/live-timing/Heartbeat`)
+            httpGet(`http://${host}:${port}/api/v1/live-timing/Heartbeat`)
         ).Utc;
         currentTime = localTimeUTC;
         await sleep(100);
