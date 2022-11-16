@@ -58,11 +58,17 @@ function launchMVF1() {
 }
 
 let alwaysOnTop;
+let alwaysOnTopImprovements;
 async function setAlwaysOnTop() {
     while (true) {
-        alwaysOnTop = (await ipcRenderer.invoke("get_config")).current.general
-            .always_on_top;
-        if (debug) console.log(alwaysOnTop);
+        const config = (await ipcRenderer.invoke("get_config")).current;
+        alwaysOnTop = config.general.always_on_top;
+        alwaysOnTopImprovements =
+            config.improvements.always_on_top_improvements;
+        if (debug) {
+            console.log(alwaysOnTop);
+            console.log(alwaysOnTopImprovements);
+        }
         await sleep(2000);
     }
 }
@@ -166,6 +172,20 @@ async function fastest() {
     );
 }
 
+async function improves() {
+    await ipcRenderer.invoke(
+        "window",
+        "improves/index.html",
+        300,
+        500,
+        false,
+        true,
+        true,
+        false,
+        alwaysOnTopImprovements
+    );
+}
+
 async function autoSwitch() {
     await ipcRenderer.invoke(
         "window",
@@ -206,6 +226,7 @@ async function saveSettings() {
     if (debug) console.log(config);
     for (index in config) {
         for (i in config[index]) {
+            console.log(i);
             if (debug) {
                 console.log(i);
                 console.log(index);
@@ -232,6 +253,7 @@ async function setSettings() {
     if (debug) console.log(config);
     for (index in config) {
         for (i in config[index]) {
+            console.log(i);
             if (debug) {
                 console.log(i);
                 console.log(config[index]);

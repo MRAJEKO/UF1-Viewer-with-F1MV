@@ -106,6 +106,33 @@
                     </div>
                 </div>
             </section>
+            <section class="settings-section" id="Improvements">
+                <h2>Improvements</h2>
+                <div class="setting">
+                    <p>Amount of laps</p>
+                    <div class="option">
+                        <input
+                            name="lap_amount"
+                            type="text"
+                            maxlength="2"
+                            id="lap_amount"
+                            class="typ"
+                        />
+                    </div>
+                </div>
+                <div class="setting">
+                    <p>Set window always on top</p>
+                    <div class="option">
+                        <label class="switch">
+                            <input
+                                id="always_on_top_improvements"
+                                type="checkbox"
+                            />
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                </div>
+            </section>
             <section class="settings-section" id="credits">
                 <h2>Credits</h2>
                 <h3>
@@ -292,6 +319,7 @@
                 Track Rotation Compass
             </button>
             <button class="window" onclick="fastest()">Fastest</button>
+            <button class="window" onclick="improves()">Improvements</button>
         </section>
         <div class="line"></div>
         <button class="window" onclick="autoSwitch()">

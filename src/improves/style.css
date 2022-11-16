@@ -1,0 +1,209 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background-color: gray;
+    -webkit-app-region: drag;
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
+}
+
+.transparent {
+    background-color: transparent !important;
+}
+
+#container {
+    display: flex;
+    flex-direction: column-reverse;
+}
+
+#container {
+    display: flex;
+    flex-direction: column-reverse;
+    list-style: none;
+}
+
+#container li {
+    max-height: 0;
+}
+
+li.show {
+    max-height: 100% !important;
+}
+
+/* ANIMATIONS */
+
+#container li {
+    transition: all 0.4s ease-out;
+    opacity: 0;
+}
+#container li.show {
+    opacity: 1;
+}
+
+/* General time styling */
+.improved-time {
+    background-color: #0a0a0f;
+    margin-bottom: 2vw;
+}
+
+/* Header styling */
+.header {
+    display: flex;
+    background-color: white;
+    color: black;
+    height: 10vw;
+    width: 100vw;
+}
+
+.icon {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 10vw;
+    width: 10vw;
+}
+
+.icon img {
+    height: 9vw;
+}
+
+.position {
+    width: 10vw;
+    height: 10vw;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.position p {
+    font-family: "F1SemiBold", Arial, Helvetica, sans-serif;
+    font-size: 7vw;
+}
+
+.name {
+    width: 70vw;
+    height: 10vw;
+    display: flex;
+    align-items: center;
+}
+
+.name p {
+    font-size: 6vw;
+    padding-left: 1vw;
+}
+
+.tire {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 10vw;
+    height: 10vw;
+    float: right;
+    background-color: #00000a;
+}
+
+.tire p {
+    font-family: "F1Regular", Arial, Helvetica, sans-serif;
+    font-size: 6vw;
+}
+
+/* Time styling */
+.times {
+    height: 16vw;
+    display: flex;
+}
+
+.personal,
+.target {
+    width: 50vw;
+}
+
+.personal {
+    border-right: 0.1vw solid #2d2d33;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.personal p {
+    font-size: 10vw;
+}
+
+.target {
+    border-left: 0.1vw solid #2d2d33;
+    gap: 3vw;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+}
+
+.target p {
+    font-size: 5vw;
+}
+
+.target-name p {
+    font-size: 4vw;
+    color: #5b5b5d;
+}
+
+.top,
+.bottom {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Sector styling */
+.sectors {
+    border-top: 0.2vw solid #2d2d33;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+}
+
+.sector {
+    width: 100%;
+    margin-bottom: 2vw;
+}
+
+.sector-times {
+    display: flex;
+    justify-content: space-evenly;
+}
+
+.sector-time {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: white;
+    font-size: 5vw;
+}
+
+.sector-delta {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: white;
+    font-size: 3vw;
+}
+
+.sector-color {
+    height: 1vw;
+}
+
+.sectors p {
+    font-family: "F1Italic";
+}
+
+p {
+    font-family: "F1Italic-Bold";
+}
