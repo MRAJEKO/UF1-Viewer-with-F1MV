@@ -333,11 +333,12 @@ async function isSynced() {
         console.log(api);
         if (api == null) {
             document.getElementById("connect").className = "shown";
+            document.getElementById("connect").classList.add("animation");
         } else {
             if (rpc) {
                 require("./RPC.js");
             }
-            document.getElementById("connect").className = "";
+            document.getElementById("connect").className = "animation";
         }
     } catch (error) {
         console.log(error);

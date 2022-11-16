@@ -76,7 +76,6 @@ h1 {
     display: flex;
     align-items: center;
     flex-direction: column;
-    transition: all 0.7s ease-in-out;
     overflow: hidden;
 }
 
@@ -116,6 +115,10 @@ h1 {
 #connect h2 {
     font-size: 15px;
     padding: 0;
+}
+
+.animation {
+    transition: all 0.7s ease-in-out;
 }
 
 /* Settings menu */
