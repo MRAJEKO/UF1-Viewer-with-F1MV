@@ -370,12 +370,10 @@ function secondaryDriver(racingNumber) {
     if (sessionType != "Race") {
         // If the session is a Practice or Qualifying session
         if (
-            (timingData[racingNumber].Sectors[0].Segments[0].Status == 2064 ||
-                timingData[racingNumber].PitOut) &&
-            !(
-                timingData[racingNumber].InPit &&
-                carData[0].Cars[racingNumber].Channels[2] <= 5
-            )
+            timingData[racingNumber].Sectors[0].Segments[0].Status == 2064 ||
+            timingData[racingNumber].PitOut ||
+            (timingData[racingNumber].InPit &&
+                carData[0].Cars[racingNumber].Channels[2] >= 5)
         ) {
             // If the first mini sector is 2064 (pit out) or pitout is true and the driver is not in the pit. The driver will then be on a outlap and is a secondary driver
             return true;
@@ -497,6 +495,7 @@ async function setPriorities(players) {
         }
 
         if (primaryDriver(driver)) {
+            console.log(driver);
             primaryDrivers.push(driver);
             continue;
         }
