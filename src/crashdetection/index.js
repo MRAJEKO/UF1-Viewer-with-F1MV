@@ -28,10 +28,6 @@ async function getConfigurations() {
         console.log(port);
     }
 }
-
-let sessionInfo = JSON.parse(
-    httpGet("http://localhost:10101/api/v2/live-timing/state/SessionInfo")
-);
 async function apiRequests() {
     const api = (
         await (
