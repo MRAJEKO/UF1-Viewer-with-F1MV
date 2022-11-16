@@ -430,6 +430,11 @@ function tertiaryDriver(racingNumber) {
 }
 
 function hiddenDriver(racingNumber) {
+    if (sessionType == "Qualifying") {
+        if (timingData[racingNumber].KnockedOut) {
+            return true;
+        }
+    }
     if (timingData[racingNumber].Retired || timingData[racingNumber].Stopped) {
         return true;
     }
