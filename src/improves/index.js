@@ -1,9 +1,18 @@
 const debug = false;
 
+const { ipcRenderer } = require("electron");
+
 // Set sleep
 const sleep = (milliseconds) => {
     return new Promise((resolve) => setTimeout(resolve, milliseconds));
 };
+
+let lapCount;
+async function getConfigurations() {
+    const config = (await ipcRenderer.invoke("get_config")).current
+        .improvements;
+    lapCount = config.lap_amount;
+}
 
 function httpGet(theUrl) {
     let xmlHttpReq = new XMLHttpRequest();
@@ -65,6 +74,7 @@ function setDriverTimes() {
 async function showImprovedLap(data) {
     console.log(data);
     let container = document.getElementById("container");
+    console.log(container.children.length);
     let length = container.children.length;
     let newLap = `<div class="header">
             <div class="position">
@@ -152,11 +162,15 @@ async function showImprovedLap(data) {
     container = document.getElementById("container");
     await sleep(10);
     newElement.classList.add("show");
-    if (length >= 5) {
-        let lastLap = container.children[length - 1];
+    if (length >= lapCount) {
+        let lastLap = container.children[0];
+        console.log(container.children);
+        console.log(container.children[0]);
+        console.log(lastLap);
         lastLap.classList.remove("show");
         await sleep(400);
         lastLap.remove();
+        console.log(container);
     }
 }
 
@@ -314,6 +328,7 @@ async function getAllDriverData(racingNumber) {
 }
 
 async function run() {
+    await getConfigurations();
     apiRequests();
     setDriverTimes();
     while (true) {
@@ -326,7 +341,7 @@ async function run() {
             console.log(bestTimes);
             console.log(sessionInfo);
         }
-        await sleep(2000);
+        await sleep(250);
         apiRequests();
         getImprovedDriver();
     }

@@ -15,35 +15,23 @@ body {
     background-color: transparent !important;
 }
 
+/* Container and animations */
 #container {
     display: flex;
     flex-direction: column-reverse;
 }
 
-#container {
-    display: flex;
-    flex-direction: column-reverse;
-    list-style: none;
-}
-
 #container li {
-    max-height: 0;
+    height: 0;
+    margin-bottom: 0;
+    overflow: hidden;
+    transition: all 0.5s ease-in-out;
 }
 
-li.show {
-    max-height: 100% !important;
-}
-
-/* ANIMATIONS */
-
-#container li {
-    transition: all 0.4s ease-out;
-    opacity: 0;
-}
 #container li.show {
-    opacity: 1;
+    height: 37vw !important;
+    margin-bottom: 5px;
 }
-
 /* General time styling */
 .improved-time {
     background-color: #0a0a0f;
