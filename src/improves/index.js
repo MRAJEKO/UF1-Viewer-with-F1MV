@@ -251,6 +251,15 @@ async function getAllDriverData(racingNumber) {
     if (tire == "M") {
         tireColor = "yellow";
     }
+    if (tire == "I") {
+        tireColor = "green";
+    }
+    if (tire == "W") {
+        tireColor = "green";
+    }
+    if (tire == "U" || tire == "T") {
+        tireColor = "gray";
+    }
     driverData["tireColor"] = tireColor;
     let targetPosition;
     let lapTimeColor;
