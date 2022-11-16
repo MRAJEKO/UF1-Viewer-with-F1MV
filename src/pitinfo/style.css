@@ -1,0 +1,10 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    -webkit-app-region: drag;
+    height: 100vh;
+    background-color: gray;
+}

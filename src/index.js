@@ -8,8 +8,8 @@ const fs = require("fs");
 // Create the browser window.
 const createWindow = () => {
     const mainDisplayHeight = screen.getPrimaryDisplay().size.height;
-    let height = 800;
-    if (mainDisplayHeight < 800) {
+    let height = 900;
+    if (mainDisplayHeight < height) {
         height = mainDisplayHeight;
     }
     const mainWindow = new BrowserWindow({
