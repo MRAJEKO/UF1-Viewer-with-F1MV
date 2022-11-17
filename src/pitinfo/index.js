@@ -67,8 +67,42 @@ document.addEventListener("keydown", (event) => {
     }
 });
 
+let driverList;
+let timingData;
+let timingAppData;
+let pitLaneTimeCollection;
+async function apiRequests() {
+    const api = (
+        await (
+            await fetch(`http://${host}:${port}/api/graphql`, {
+                headers: { "content-type": "application/json" },
+                body: JSON.stringify({
+                    query: `query LiveTimingState {
+                        liveTimingState {
+                          TimingData
+                          TimingAppData
+                          DriverList
+                          PitLaneTimeCollection
+                        }
+                      }`,
+                    operationName: "LiveTimingState",
+                }),
+                method: "POST",
+            })
+        ).json()
+    ).data.liveTimingState;
+    driverList = api.DriverList;
+    timingData = api.TimingData.Lines;
+    timingAppData = api.TimingAppData.Lines;
+    pitLaneTimeCollection = api.PitLaneTimeCollection.PitTimes;
+}
+
+async function showAllDriver() {}
+
 async function run() {
     await getConfigurations();
+    await apiRequests();
+    console.log(pitLaneTimeCollection);
 }
 
 run();
