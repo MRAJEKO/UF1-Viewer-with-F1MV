@@ -1,5 +1,7 @@
 const { ipcRenderer } = require("electron");
 
+const debug = false;
+
 // Set sleep
 const sleep = (milliseconds) => {
     return new Promise((resolve) => setTimeout(resolve, milliseconds));

@@ -1,5 +1,7 @@
 const { ipcRenderer } = require("electron");
 
+const debug = false;
+
 // Set sleep
 const sleep = (milliseconds) => {
     return new Promise((resolve) => setTimeout(resolve, milliseconds));
@@ -24,24 +26,32 @@ async function getConfigurations() {
     }
 }
 
-let localTimeUTC = JSON.parse(
-    httpGet(`http://${host}:${port}/api/v1/live-timing/Heartbeat`)
-).Utc;
+getConfigurations();
 
-let trackTimezoneOffset = JSON.parse(
-    httpGet(`http://${host}:${port}/api/v1/live-timing/SessionInfo`)
-).GmtOffset.split(":")[0];
+let localTimeUTC;
+let trackTimezoneOffset;
+let currentTime;
+let previousTime;
+
+function getBasicInfo() {
+    localTimeUTC = JSON.parse(
+        httpGet(`http://${host}:${port}/api/v1/live-timing/Heartbeat`)
+    ).Utc;
+
+    trackTimezoneOffset = JSON.parse(
+        httpGet(`http://${host}:${port}/api/v1/live-timing/SessionInfo`)
+    ).GmtOffset.split(":")[0];
+
+    currentTime = localTimeUTC;
+    previousTime = localTimeUTC;
+}
 
 let localDate;
-
 function adjustDate(input) {
     let date = new Date(input);
     let localDateMil = new Date(date.getTime() + trackTimezoneOffset * 3600000);
     localDate = localDateMil;
 }
-
-let currentTime = localTimeUTC;
-let previousTime = localTimeUTC;
 
 let t;
 
@@ -67,6 +77,7 @@ async function addSecond() {
 
 async function getTime() {
     await getConfigurations();
+    await getBasicInfo();
     while (currentTime === previousTime) {
         localTimeUTC = JSON.parse(
             httpGet(`http://${host}:${port}/api/v1/live-timing/Heartbeat`)
