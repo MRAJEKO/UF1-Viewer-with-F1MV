@@ -240,22 +240,37 @@ async function saveSettings() {
     if (debug) console.log(config);
     for (index in config) {
         for (i in config[index]) {
-            console.log(i);
             if (debug) {
                 console.log(i);
                 console.log(index);
                 console.log(config[index]);
                 console.log(config[index][i]);
-                console.log(document.getElementById(i));
-                console.log(document.getElementById(i).value);
-                console.log(document.getElementById(i).checked);
-                console.log(document.getElementById(i).type == "checkbox");
+                console.log(
+                    document.querySelector("#" + index + " " + "#" + i)
+                );
+                console.log(
+                    document.querySelector("#" + index + " " + "#" + i).value
+                );
+                console.log(
+                    document.querySelector("#" + index + " " + "#" + i).checked
+                );
+                console.log(
+                    document.querySelector("#" + index + " " + "#" + i).type ==
+                        "checkbox"
+                );
             }
-            let value = document.getElementById(i).value;
+            let value = document.querySelector(
+                "#" + index + " " + "#" + i
+            ).value;
             if (debug) console.log(value);
-            if (document.getElementById(i).type == "checkbox") {
+            if (
+                document.querySelector("#" + index + " " + "#" + i).type ==
+                "checkbox"
+            ) {
                 if (debug) console.log("Checkbox");
-                value = document.getElementById(i).checked;
+                value = document.querySelector(
+                    "#" + index + " " + "#" + i
+                ).checked;
             }
             await ipcRenderer.invoke("write_config", index, i, value);
         }
@@ -267,34 +282,52 @@ async function setSettings() {
     if (debug) console.log(config);
     for (index in config) {
         for (i in config[index]) {
-            console.log(i);
             if (debug) {
                 console.log(i);
                 console.log(config[index]);
                 console.log(config[index][i]);
-                console.log(document.getElementById(i));
             }
-            if (document.getElementById(i).type == "checkbox") {
+            if (
+                document.querySelector("#" + index + " " + "#" + i).type ==
+                "checkbox"
+            ) {
                 if (debug) {
                     console.log("Switch");
-                    console.log(document.getElementById(i).checked);
+                    console.log(
+                        document.querySelector("#" + index + " " + "#" + i)
+                            .checked
+                    );
                 }
-                document.getElementById(i).checked = config[index][i];
+                document.querySelector("#" + index + " " + "#" + i).checked =
+                    config[index][i];
             }
-            if (document.getElementById(i).classList.contains("selector")) {
-                document.getElementById(i).value = config[index][i];
+            if (
+                document
+                    .querySelector("#" + index + " " + "#" + i)
+                    .classList.contains("selector")
+            ) {
+                document.querySelector("#" + index + " " + "#" + i).value =
+                    config[index][i];
                 if (debug) {
                     console.log(
-                        (document.getElementById(i).value = config[index][i])
+                        (document.querySelector(
+                            "#" + index + " " + "#" + i
+                        ).value = config[index][i])
                     );
                     console.log("Selector");
                 }
             }
-            if (document.getElementById(i).type == "text") {
-                document.getElementById(i).value = config[index][i];
+            if (
+                document.querySelector("#" + index + " " + "#" + i).type ==
+                "text"
+            ) {
+                document.querySelector("#" + index + " " + "#" + i).value =
+                    config[index][i];
                 if (debug) {
                     console.log(
-                        (document.getElementById(i).value = config[index][i])
+                        (document.querySelector(
+                            "#" + index + " " + "#" + i
+                        ).value = config[index][i])
                     );
                     console.log("Text");
                 }
@@ -314,28 +347,43 @@ async function restoreAll() {
         for (i in currentConfig[index]) {
             if (debug) {
             }
-            if (document.getElementById(i).type == "checkbox") {
+            if (
+                document.querySelector("#" + index + " " + "#" + i).type ==
+                "checkbox"
+            ) {
                 if (debug) {
                     console.log("Switch");
                 }
-                document.getElementById(i).checked = defaultConfig[index][i];
+                document.querySelector("#" + index + " " + "#" + i).checked =
+                    defaultConfig[index][i];
             }
-            if (document.getElementById(i).classList.contains("selector")) {
-                document.getElementById(i).value = defaultConfig[index][i];
+            if (
+                document
+                    .querySelector("#" + index + " " + "#" + i)
+                    .classList.contains("selector")
+            ) {
+                document.querySelector("#" + index + " " + "#" + i).value =
+                    defaultConfig[index][i];
                 if (debug) {
                     console.log(
-                        (document.getElementById(i).value =
-                            defaultConfig[index][i])
+                        (document.querySelector(
+                            "#" + index + " " + "#" + i
+                        ).value = defaultConfig[index][i])
                     );
                     console.log("Selector");
                 }
             }
-            if (document.getElementById(i).type == "text") {
-                document.getElementById(i).value = defaultConfig[index][i];
+            if (
+                document.querySelector("#" + index + " " + "#" + i).type ==
+                "text"
+            ) {
+                document.querySelector("#" + index + " " + "#" + i).value =
+                    defaultConfig[index][i];
                 if (debug) {
                     console.log(
-                        (document.getElementById(i).value =
-                            defaultConfig[index][i])
+                        (document.querySelector(
+                            "#" + index + " " + "#" + i
+                        ).value = defaultConfig[index][i])
                     );
                     console.log("Text");
                 }

@@ -6,5 +6,8 @@
 body {
     -webkit-app-region: drag;
     height: 100vh;
-    background-color: gray;
+}
+
+.transparent {
+    background-color: transparent !important;
 }
