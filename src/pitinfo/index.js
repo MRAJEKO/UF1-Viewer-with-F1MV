@@ -97,12 +97,38 @@ async function apiRequests() {
     pitLaneTimeCollection = api.PitLaneTimeCollection.PitTimes;
 }
 
-async function showAllDriver() {}
+let driverCount = 0;
+function getDriverCount() {
+    for (i in timingData) {
+        driverCount++;
+    }
+}
+
+function getPositions() {
+    let positions = [];
+    while (positions.length != driverCount) {
+        for (i in timingData) {
+            if (timingData[i].Position == positions.length + 1) {
+                positions.push(i);
+            }
+        }
+    }
+    console.log(positions);
+    return positions;
+}
+
+function showPositions(positions) {
+    for (let i of positions) {
+        document.getElementById("container").innerHTML += `<p>${i}</p>`;
+    }
+}
 
 async function run() {
     await getConfigurations();
     await apiRequests();
-    console.log(pitLaneTimeCollection);
+    getDriverCount();
+    const positions = getPositions();
+    showPositions(positions);
 }
 
 run();
