@@ -433,6 +433,7 @@ function hiddenDriver(racingNumber) {
             return true;
         }
     }
+    console.log(racingNumber);
     if (timingData[racingNumber].Retired || timingData[racingNumber].Stopped) {
         return true;
     }
@@ -454,7 +455,9 @@ async function setPriorities(players) {
         console.log("New list");
         // Put the vipDrivers first
         for (vip in vipDrivers) {
-            prioList[vip] = vipDrivers[vip].toString();
+            if (vipDrivers[vip] in timingData) {
+                prioList[vip] = vipDrivers[vip].toString();
+            }
         }
         // Fill the rest of the prio list with all drivers inside of timing data that are not already in the list (are vip drivers)
         for (driver in timingData) {
