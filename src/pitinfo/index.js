@@ -123,12 +123,37 @@ function showPositions(positions) {
     }
 }
 
+function showTempTires() {
+    document.getElementById(
+        "container"
+    ).innerHTML += `<img src="../icons/tires/hard.png">`;
+    document.getElementById(
+        "container"
+    ).innerHTML += `<img src="../icons/tires/medium.png">`;
+    document.getElementById(
+        "container"
+    ).innerHTML += `<img src="../icons/tires/soft.png">`;
+    document.getElementById(
+        "container"
+    ).innerHTML += `<img src="../icons/tires/inter.png">`;
+    document.getElementById(
+        "container"
+    ).innerHTML += `<img src="../icons/tires/wet.png">`;
+    document.getElementById(
+        "container"
+    ).innerHTML += `<img src="../icons/tires/test.png">`;
+    document.getElementById(
+        "container"
+    ).innerHTML += `<img src="../icons/tires/unknown.png">`;
+}
+
 async function run() {
     await getConfigurations();
     await apiRequests();
     getDriverCount();
     const positions = getPositions();
     showPositions(positions);
+    showTempTires();
 }
 
 run();
