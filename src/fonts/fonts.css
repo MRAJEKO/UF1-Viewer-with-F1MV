@@ -45,3 +45,8 @@
     font-family: "F1Wide";
     src: url("Formula1-Wide.ttf") format("truetype");
 }
+
+@font-face {
+    font-family: "Exo2";
+    src: url("Exo2-VariableFont_wght.ttf") format("truetype");
+}
