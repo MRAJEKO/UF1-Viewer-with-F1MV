@@ -186,6 +186,20 @@ async function improves() {
     );
 }
 
+async function currentLaps() {
+    await ipcRenderer.invoke(
+        "window",
+        "currentlaps/index.html",
+        300,
+        500,
+        false,
+        true,
+        true,
+        false,
+        alwaysOnTopImprovements
+    );
+}
+
 async function autoSwitch() {
     await ipcRenderer.invoke(
         "window",
