@@ -116,20 +116,6 @@ async function trackInfo() {
     );
 }
 
-async function pitInfo() {
-    await ipcRenderer.invoke(
-        "window",
-        "pitinfo/index.html",
-        1000,
-        800,
-        false,
-        true,
-        true,
-        false,
-        false
-    );
-}
-
 async function singleRCM() {
     await ipcRenderer.invoke(
         "window",
