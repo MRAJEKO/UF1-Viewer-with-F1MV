@@ -7,11 +7,16 @@ const sleep = (milliseconds) => {
     return new Promise((resolve) => setTimeout(resolve, milliseconds));
 };
 
-let lapCount;
+let host;
+let port;
 async function getConfigurations() {
-    const config = (await ipcRenderer.invoke("get_config")).current
-        .improvements;
-    lapCount = config.lap_amount;
+    const config = (await ipcRenderer.invoke("get_config")).current.network;
+    host = config.host;
+    port = config.port;
+    if (debug) {
+        console.log(host);
+        console.log(port);
+    }
 }
 
 function httpGet(theUrl) {
@@ -49,12 +54,29 @@ let bestTimes;
 let sessionInfo;
 let topThree;
 
-function apiRequests() {
-    let endpoints =
-        "DriverList,TimingAppData,TimingData,TimingStats,SessionInfo,TopThree,SessionStatus";
-    let api = JSON.parse(
-        httpGet("http://localhost:10101/api/v2/live-timing/state/" + endpoints)
-    );
+async function apiRequests() {
+    const api = (
+        await (
+            await fetch(`http://${host}:${port}/api/graphql`, {
+                headers: { "content-type": "application/json" },
+                body: JSON.stringify({
+                    query: `query LiveTimingState {
+      liveTimingState {
+        DriverList
+        TimingAppData
+        TimingData
+        TimingStats
+        SessionInfo
+        TopThree
+        SessionStatus
+      }
+    }`,
+                    operationName: "LiveTimingState",
+                }),
+                method: "POST",
+            })
+        ).json()
+    ).data.liveTimingState;
     driverList = api.DriverList;
     tireData = api.TimingAppData.Lines;
     timingData = api.TimingData.Lines;
@@ -99,7 +121,14 @@ function pushLap(driver) {
     for (sector in timingData[driver].Sectors) {
         let bestSector = +bestTimes[driver].BestSectors[sector].Value;
         let currentSector = +timingData[driver].Sectors[sector].Value;
-        if (difference(bestSector) > currentSector && currentSector != 0) {
+        if (
+            difference(bestSector) > currentSector &&
+            currentSector != 0 &&
+            !timingData[driver].LastLapTime.PersonalFastest &&
+            timingData[driver].Sectors[0].Segments[
+                +timingData[driver].Sectors[0].Segments.length - 1
+            ].Status != 0
+        ) {
             return true;
         }
         for (segment in timingData[driver].Sectors[sector].Segments) {
@@ -107,8 +136,10 @@ function pushLap(driver) {
                 timingData[driver].Sectors[sector].Segments[segment].Status;
             if (
                 segmentStatus == 2051 ||
-                segmentStatus == 2049 ||
-                bestSector == currentSector
+                (bestSector == currentSector &&
+                    timingData[driver].Sectors[0].Segments[
+                        +timingData[driver].Sectors[0].Segments.length - 1
+                    ].Status != 0)
             ) {
                 return true;
             }
@@ -117,28 +148,96 @@ function pushLap(driver) {
     return false;
 }
 
-function checkStatus() {
+function getPosition() {
+    loop1: for (timing in timingData) {
+        let segment = 0;
+        loop2: for (sector in timingData[timing].Sectors) {
+            let sectorLength =
+                timingData[timing].Sectors[sector].Segments.length;
+            loop3: for (currentSegment in timingData[timing].Sectors[sector]
+                .Segments) {
+                if (
+                    timingData[timing].Sectors[sector].Segments[currentSegment]
+                        .Status == 0
+                ) {
+                    segment += +currentSegment;
+
+                    driverStatusses[timing]["segment"] = segment + 1;
+                    break loop2;
+                } else {
+                    driverStatusses[timing]["segment"] = 1;
+                }
+            }
+            segment += +sectorLength;
+        }
+    }
+}
+
+function sortDriversOnPosition(statuses) {
+    let counter = trackSegmentCount;
+    let pushDriverOrder = [];
+    let slowDriverOrder = [];
+    while (counter != 0) {
+        for (i in statuses) {
+            if (statuses[i].segment == counter) {
+                if (statuses[i].status == 0) {
+                    console.log(i);
+                    pushDriverOrder.push(i);
+                }
+                if (statuses[i].status == 1) {
+                    slowDriverOrder.push(i);
+                }
+            }
+        }
+        counter--;
+    }
+    console.log(pushDriverOrder);
+    console.log(slowDriverOrder);
+}
+
+function getStatus() {
     for (i in timingData) {
+        driverStatusses[i] = {};
         if (inPit(i)) {
+            driverStatusses[i]["status"] = 2;
             console.log(i + " is in pit");
             continue;
         }
         if (slowLap(i)) {
+            driverStatusses[i]["status"] = 1;
             console.log(i + " is on a slow lap");
             continue;
         }
         if (pushLap(i)) {
+            driverStatusses[i]["status"] = 0;
             console.log(i + " is on a push lap");
             continue;
         }
+        driverStatusses[i]["status"] = 1;
         console.log(i + " is on a slow lap");
     }
+    return driverStatusses;
 }
 
+let trackSegmentCount = 0;
+function getTrackSegmentCount() {
+    let firstTimingData = timingData[Object.keys(timingData)[0]];
+    for (i in firstTimingData.Sectors) {
+        trackSegmentCount += +firstTimingData.Sectors[i].Segments.length;
+    }
+    console.log(trackSegmentCount);
+}
+
+let driverStatusses = {};
 async function run() {
     await getConfigurations();
-    apiRequests();
-    checkStatus();
+    await apiRequests();
+    getTrackSegmentCount();
+    // while (true)
+    getStatus();
+    getPosition();
+    sortDriversOnPosition(driverStatusses);
+    console.log(driverStatusses);
 }
 
 console.log("Run");
