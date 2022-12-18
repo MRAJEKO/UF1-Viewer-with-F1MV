@@ -68,8 +68,13 @@ body {
 }
 
 .position p {
-    font-family: "F1SemiBold", Arial, Helvetica, sans-serif;
-    font-size: 7vw;
+    font-family: "F1Regular", Arial, Helvetica, sans-serif;
+    transform: skew(-10deg);
+    font-size: 5vw;
+    width: 5vw;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .name {
@@ -81,7 +86,7 @@ body {
 
 .name p {
     font-size: 6vw;
-    padding-left: 1vw;
+    padding-left: 2vw;
 }
 
 .tire {
@@ -96,7 +101,8 @@ body {
 
 .tire p {
     font-family: "F1Regular", Arial, Helvetica, sans-serif;
-    font-size: 6vw;
+    transform: skew(0deg);
+    font-size: 4.5vw;
 }
 
 /* Time styling */
@@ -118,7 +124,7 @@ body {
 }
 
 .personal p {
-    font-size: 10vw;
+    font-size: 8.5vw;
 }
 
 .target {
@@ -131,11 +137,11 @@ body {
 }
 
 .target p {
-    font-size: 5vw;
+    font-size: 4vw;
 }
 
 .target-name p {
-    font-size: 4vw;
+    font-size: 3vw;
     color: #5b5b5d;
 }
 
@@ -144,7 +150,7 @@ body {
     height: 100%;
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: space-evenly;
     align-items: center;
 }
 
@@ -158,7 +164,12 @@ body {
 
 .sector {
     width: 100%;
-    margin-bottom: 2vw;
+    padding: 0 1vw 1vw;
+}
+
+#sector2 {
+    border-left: 0.1vw solid #2d2d33;
+    border-right: 0.1vw solid #2d2d33;
 }
 
 .sector-times {
@@ -189,9 +200,24 @@ body {
 }
 
 .sectors p {
-    font-family: "F1Italic";
+    font-family: "F1Regular";
+    /* font-style: italic; */
 }
 
 p {
-    font-family: "F1Italic-Bold";
+    font-family: "F1Bold";
+    transform: skew(-10deg);
+}
+
+/* New styling */
+.segments {
+    display: flex;
+    width: 100%;
+    height: 1vw;
+    gap: 1vw;
+}
+
+.segment {
+    background-color: gray;
+    width: 100%;
 }
