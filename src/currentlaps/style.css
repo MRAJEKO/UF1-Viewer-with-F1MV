@@ -68,7 +68,7 @@ body {
 }
 
 .position p {
-    font-family: "F1Regular", Arial, Helvetica, sans-serif;
+    font-family: "OF1Regular", Arial, Helvetica, sans-serif;
     transform: skew(-10deg);
     font-size: 5vw;
     width: 5vw;
@@ -100,7 +100,7 @@ body {
 }
 
 .tire p {
-    font-family: "F1Regular", Arial, Helvetica, sans-serif;
+    font-family: "OF1Regular", Arial, Helvetica, sans-serif;
     transform: skew(0deg);
     font-size: 4.5vw;
 }
@@ -200,12 +200,12 @@ body {
 }
 
 .sectors p {
-    font-family: "F1Regular";
+    font-family: "OF1Regular";
     /* font-style: italic; */
 }
 
 p {
-    font-family: "F1Bold";
+    font-family: "OF1Bold";
     transform: skew(-10deg);
 }
 
