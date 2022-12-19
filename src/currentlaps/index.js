@@ -70,17 +70,30 @@ async function apiRequests() {
 async function run() {
     await getConfigurations();
     await apiRequests();
-    getAllPushDriverPositions();
+    const pushDrivers = getAllPushDriverPositions();
+    console.log(pushDrivers);
 }
 
 function getAllPushDriverPositions() {
-    Object.keys(timingData).some((driverNumber) => {
+    let pushDriversPositions = [];
+
+    for (const driverNumber in timingData) {
+        const driverTimingData = timingData[driverNumber];
         const isDriverPushing = isDriverOnPushLap(driverNumber);
 
-        // Temporary logs
-        console.log(driverList[driverNumber].FullName);
-        console.log(isDriverPushing);
-    });
+        if (!isDriverPushing) continue;
+
+        const driverPosition = getDriverPosition(driverNumber);
+        if (driverPosition === 0) continue;
+
+        pushDriversPositions.push({ driver: driverNumber, position: driverPosition });
+    }
+
+    pushDriversPositions.sort((a, b) => b.position - a.position);
+
+    const sortedDrivers = pushDriversPositions.map((driverNumber) => driverNumber.driver);
+
+    return sortedDrivers;
 }
 
 function parseLapOrSectorTime(time) {
@@ -101,8 +114,7 @@ function isDriverOnPushLap(driverNumber) {
 
     if (driverTimingData.Sectors[0].Segments[0].Status === 2064) return false;
 
-    const pushDeltaThreshold =
-        sessionType === "Race" ? 0 : sessionType === "Qualifying" ? 1 : 3;
+    const pushDeltaThreshold = sessionType === "Race" ? 0 : sessionType === "Qualifying" ? 1 : 3;
 
     return Object.keys(driverTimingData.Sectors).some((sectorIndex) => {
         const sector = driverTimingData.Sectors[sectorIndex];
@@ -111,21 +123,29 @@ function isDriverOnPushLap(driverNumber) {
         const sectorTime = parseLapOrSectorTime(sector.Value);
         const bestSectorTime = parseLapOrSectorTime(bestSector.Value);
 
-        if (sector.Segments.some((segment) => segment.Status === 2051))
-            return true;
+        if (sector.Segments.some((segment) => segment.Status === 2051)) return true;
 
-        const completedFirstSector = !driverTimingData.Sectors[0].Segments.some(
-            (segment) => segment.Status === 0
-        );
+        const completedFirstSector = !driverTimingData.Sectors[0].Segments.some((segment) => segment.Status === 0);
 
-        if (
-            sectorTime - bestSectorTime < pushDeltaThreshold &&
-            completedFirstSector
-        )
-            return true;
+        if (sectorTime - bestSectorTime < pushDeltaThreshold && completedFirstSector) return true;
 
         return false;
     });
+}
+
+function getDriverPosition(driverNumber) {
+    const driverTimingData = timingData[driverNumber];
+    const sectors = driverTimingData.Sectors;
+
+    let currentSegment = 0;
+
+    for (let sectorIndex = 0; sectorIndex < sectors.length; sectorIndex++) {
+        for (let segmentIndex = 0; segmentIndex < sectors[sectorIndex].Segments.length; segmentIndex++) {
+            if (sectors[sectorIndex].Segments[segmentIndex].Status === 0) return currentSegment + segmentIndex;
+        }
+        currentSegment += sectors[sectorIndex].Segments.length;
+    }
+    return 0;
 }
 
 run();
