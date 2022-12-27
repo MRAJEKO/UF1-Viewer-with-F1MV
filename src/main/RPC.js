@@ -21,7 +21,7 @@ async function setActivity() {
 		buttons: [
 			{
 				label: `Download MultiViewer for F1 !`,
-				url: 'https://beta.f1mv.com/download',
+				url: 'https://multiviewer.app/download',
 			},
 		],
 	});
