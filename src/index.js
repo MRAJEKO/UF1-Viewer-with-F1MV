@@ -109,3 +109,21 @@ ipcMain.handle("get_config", async (event, args) => {
     const config = require("./config.json");
     return config;
 });
+
+// Get the correct team icon from the team name
+ipcMain.handle("get_icon", async (event, teamName) => {
+    const icons = {
+        "Red Bull Racing": "../icons/teams/red-bull.png",
+        McLaren: "../icons/teams/mclaren-white.png",
+        "Aston Martin": "../icons/teams/aston-martin.png",
+        Williams: "../icons/teams/williams-white.png",
+        AlphaTauri: "../icons/teams/alpha-tauri.png",
+        Alpine: "../icons/teams/alpine.png",
+        Ferrari: "../icons/teams/ferrari.png",
+        "Haas F1 Team": "../icons/teams/haas-red.png",
+        "Alfa Romeo": "../icons/teams/alfa-romeo.png",
+        Mercedes: "../icons/teams/mercedes.png",
+    };
+
+    return icons[teamName];
+});

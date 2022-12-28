@@ -9,8 +9,7 @@ const sleep = (milliseconds) => {
 
 let lapCount;
 async function getConfigurations() {
-    const config = (await ipcRenderer.invoke("get_config")).current
-        .improvements;
+    const config = (await ipcRenderer.invoke("get_config")).current.improvements;
     lapCount = config.lap_amount;
 }
 
@@ -50,11 +49,8 @@ let sessionInfo;
 let topThree;
 
 function apiRequests() {
-    let endpoints =
-        "DriverList,TimingAppData,TimingData,TimingStats,SessionInfo,TopThree";
-    let api = JSON.parse(
-        httpGet("http://localhost:10101/api/v2/live-timing/state/" + endpoints)
-    );
+    let endpoints = "DriverList,TimingAppData,TimingData,TimingStats,SessionInfo,TopThree";
+    let api = JSON.parse(httpGet("http://localhost:10101/api/v2/live-timing/state/" + endpoints));
     driverList = api.DriverList;
     tireData = api.TimingAppData.Lines;
     timingData = api.TimingData.Lines;
@@ -176,10 +172,7 @@ async function showImprovedLap(data) {
 
 async function getImprovedDriver() {
     for (i in timingData) {
-        if (
-            timingData[i].LastLapTime.PersonalFastest &&
-            timingData[i].BestLapTime.Value != bestLapTimes[i]
-        ) {
+        if (timingData[i].LastLapTime.PersonalFastest && timingData[i].BestLapTime.Value != bestLapTimes[i]) {
             bestLapTimes[i] = timingData[i].BestLapTime.Value;
             let driverData = await getAllDriverData(i);
             await showImprovedLap(driverData);
@@ -190,8 +183,7 @@ async function getImprovedDriver() {
 function getSectorInfo(driverNumber, sectorNumber, targetRacingNumber) {
     let sectorInfo = [];
     let driverTime = +timingData[driverNumber].Sectors[sectorNumber - 1].Value;
-    let targetTime =
-        +bestTimes[targetRacingNumber].BestSectors[sectorNumber - 1].Value;
+    let targetTime = +bestTimes[targetRacingNumber].BestSectors[sectorNumber - 1].Value;
     if (debug) {
         console.log(driverTime);
         console.log(targetTime);
@@ -206,9 +198,7 @@ function getSectorInfo(driverNumber, sectorNumber, targetRacingNumber) {
     let sectorColor = "#00ff00";
     if (timingData[driverNumber].Sectors[sectorNumber - 1].OverallFastest) {
         sectorColor = "#800080";
-    } else if (
-        timingData[driverNumber].Sectors[sectorNumber - 1].PersonalFastest
-    ) {
+    } else if (timingData[driverNumber].Sectors[sectorNumber - 1].PersonalFastest) {
         sectorColor = "#00ff00";
     } else {
         sectorColor = "yellow";
@@ -220,29 +210,16 @@ function getSectorInfo(driverNumber, sectorNumber, targetRacingNumber) {
     return sectorInfo;
 }
 
-const icons = {
-    "Red Bull Racing": "red-bull.png",
-    McLaren: "mclaren-white.png",
-    "Aston Martin": "aston-martin.png",
-    Williams: "williams-white.png",
-    AlphaTauri: "alpha-tauri.png",
-    Alpine: "alpine.png",
-    Ferrari: "ferrari.png",
-    "Haas F1 Team": "haas-red.png",
-    "Alfa Romeo": "alfa-romeo.png",
-    Mercedes: "mercedes.png",
-};
 async function getAllDriverData(racingNumber) {
     let driverData = [];
     let lapTime = timingData[racingNumber].LastLapTime.Value;
     driverData["lapTime"] = lapTime;
     let position = timingData[racingNumber].Position;
     driverData["position"] = position;
-    driverData["teamIcon"] = "../icons/" + icons[driverList[i].TeamName];
+    driverData["teamIcon"] = await ipcRenderer.invoke("get_icon", driverList[i].TeamName);
     driverData["teamColor"] = "#" + driverList[i].TeamColour;
     driverData["name"] = driverList[i].LastName.toUpperCase();
-    let tire =
-        tireData[i].Stints[+tireData[i].Stints.length - 1].Compound.charAt(0);
+    let tire = tireData[i].Stints[+tireData[i].Stints.length - 1].Compound.charAt(0);
     driverData["tire"] = tire;
     let tireColor = "red";
     if (tire == "H") {
@@ -296,8 +273,7 @@ async function getAllDriverData(racingNumber) {
     }
     driverData["targetDelta"] = targetDelta;
     driverData["targetDeltaColor"] = targetDeltaColor;
-    driverData["targetName"] =
-        driverList[targetRacingNumber].LastName.toUpperCase();
+    driverData["targetName"] = driverList[targetRacingNumber].LastName.toUpperCase();
     let sector1 = getSectorInfo(racingNumber, 1, targetRacingNumber);
     let sector1time = sector1.sectorTime;
     let sector1delta = sector1.sectorDelta;
