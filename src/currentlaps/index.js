@@ -7,6 +7,13 @@ const sleep = (milliseconds) => {
     return new Promise((resolve) => setTimeout(resolve, milliseconds));
 };
 
+// Define colors
+const purple = "#9c27b0";
+const green = "#4caf50";
+const yellow = "#fdd835";
+const blue = "#2196f3";
+const red = "#f44336";
+
 async function getConfigurations() {
     const config = (await ipcRenderer.invoke("get_config")).current.network;
     host = config.host;
@@ -40,45 +47,67 @@ async function apiRequests() {
             await fetch(`http://${host}:${port}/api/graphql`, {
                 headers: { "content-type": "application/json" },
                 body: JSON.stringify({
-                    query: `query LiveTimingState {
-        liveTimingState {
-            DriverList
-            TimingAppData
-            TimingData
-            TimingStats
-            SessionInfo
-            TopThree
-            SessionStatus
-        }
-    }`,
-                    operationName: "LiveTimingState",
+                    query: `query clockAndTimings {
+                        liveTimingClock {
+                            trackTime
+                            systemTime
+                            paused
+                        }
+                        liveTimingState {
+                            DriverList
+                            TimingAppData
+                            TimingData
+                            TimingStats
+                            SessionInfo
+                            TopThree
+                            SessionStatus
+                        }
+                        }
+                        `,
+                    operationName: "clockAndTimings",
                 }),
                 method: "POST",
             })
         ).json()
-    ).data.liveTimingState;
-    driverList = api.DriverList;
-    tireData = api.TimingAppData.Lines;
-    timingData = api.TimingData.Lines;
-    bestTimes = api.TimingStats.Lines;
-    sessionInfo = api.SessionInfo;
+    ).data;
+
+    const liveTimingState = api.liveTimingState;
+    driverList = liveTimingState.DriverList;
+    tireData = liveTimingState.TimingAppData.Lines;
+    timingData = liveTimingState.TimingData.Lines;
+    bestTimes = liveTimingState.TimingStats.Lines;
+    sessionInfo = liveTimingState.SessionInfo;
     sessionType = sessionInfo.Type;
-    topThree = api.TopThree.Lines;
-    sessionStatus = api.SessionStatus.Status;
+    topThree = liveTimingState.TopThree.Lines;
+    sessionStatus = liveTimingState.SessionStatus.Status;
+
+    clockData = api.liveTimingClock;
 }
 
+getConfigurations();
 async function run() {
-    await getConfigurations();
-    await apiRequests();
-    const pushDrivers = getAllPushDriverPositions();
-    console.log(pushDrivers);
+    while (true) {
+        await sleep(250);
+        await apiRequests();
+        const pushDrivers = getAllPushDriverPositions();
+        for (let driver of pushDrivers) {
+            await initiateTemplate(driver);
+            updateTemplate(driver);
+        }
+        for (let driver in timingData) {
+            saveTimeOfNewLap(driver);
+        }
+
+        console.log(driverLaps);
+
+        console.log(pushDrivers);
+    }
 }
 
 function getAllPushDriverPositions() {
     let pushDriversPositions = [];
 
     for (const driverNumber in timingData) {
-        const driverTimingData = timingData[driverNumber];
         const isDriverPushing = isDriverOnPushLap(driverNumber);
 
         if (!isDriverPushing) continue;
@@ -148,240 +177,214 @@ function getDriverPosition(driverNumber) {
     return 0;
 }
 
-run();
+function getColorFromStatusCodeOrName(codeOrName) {
+    switch (codeOrName) {
+        case 2048:
+            return "#fdd835";
+        case 2049:
+            return "#4caf50";
+        case 2051:
+            return "#fdd835";
+        case 2052:
+            return "#f44336";
+        case 2064:
+            return "#2196f3";
+        case 2068:
+            return "#f44336";
+        case "S":
+            return "#ff0000";
+        case "M":
+            return "#ffde00";
+        case "H":
+            return "#dbdada";
+        case "I":
+            return "#2c7515";
+        case "W":
+            return "#3d7ba3";
+        default:
+            return "#5b5b5d";
+    }
+}
 
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-// function isDriverOnPushLap(driverNumber) {
+async function initiateTemplate(driverNumber) {
+    const container = document.getElementById("container");
+
+    if (container.querySelector(`#n${driverNumber}`) !== null) return;
+
+    const driverTimingData = timingData[driverNumber];
+
+    const noTimeColor = getColorFromStatusCodeOrName("gray");
+
+    // Header
+    const teamColor = "#" + driverList[driverNumber].TeamColour;
+
+    const teamIcon = await ipcRenderer.invoke("get_icon", driverList[driverNumber].TeamName);
+
+    const driverName = driverList[driverNumber].LastName.toUpperCase();
+
+    const currentTire = tireData[driverNumber].Stints.pop().Compound.charAt(0);
+
+    const tireColor = getColorFromStatusCodeOrName(currentTire);
+
+    const HTMLHeaderElement = `<div class="position"><p>0</p></div><div class="icon" style="background-color: ${teamColor}"><img src="${teamIcon}" alt="" /></div><div class="name"><p>${driverName}</p></div><div class="tire"><p style="color: ${tireColor}">${currentTire}</p></div>`;
+
+    // Times
+    const HTMLTimesElement = `<div class="personal"><p style="color: ${noTimeColor}">NO TIME</p></div><div class="target"><div class="top"><div class="delta"><p style="color: ${noTimeColor}">NO DELTA</p></div><div class="target-time"><p style="color: ${noTimeColor}">NO TIME</p></div></div><div class="bottom">
+    <div class="target-position"><p>0</p></div><div class="target-name"><p>NO DRIVER</p></div></div></div>`;
+
+    // Sectors
+    const sectors = driverTimingData.Sectors;
+
+    let HTMLAllSectors = "";
+    for (let sectorIndex = 0; sectorIndex < sectors.length; sectorIndex++) {
+        const driverSegmentData = sectors[sectorIndex].Segments;
+
+        let segments = "";
+        for (let count = 0; count < driverSegmentData.length; count++) {
+            const HTMLSegment = `<div class="segment" id="segment${count}" style="background-color: ${noTimeColor}"></div>`;
+            segments += HTMLSegment;
+        }
+
+        const HTMLSectorElement = `<div id="sector${sectorIndex}" class="sector"><div class="sector-times"><div class="sector-time"><p style="color: ${noTimeColor}">NO TIME</p></div><div class="sector-delta" style="display: none"><p>NO DELTA</p></div></div><div class="segments">${segments}</div></div>`;
+
+        HTMLAllSectors += HTMLSectorElement;
+    }
+    let listItem = document.createElement("li");
+    const HTMLPushLap = `
+    <div class="header">${HTMLHeaderElement}</div>
+    <div class="times">${HTMLTimesElement}</div>
+    <div class="sectors">${HTMLAllSectors}</div>
+    `;
+
+    listItem.innerHTML = HTMLPushLap;
+
+    listItem.classList.add("pushlap", "show");
+    listItem.id = "n" + driverNumber;
+
+    container.prepend(listItem);
+}
+
+driverLaps = {};
+function saveTimeOfNewLap(driverNumber) {
+    const driverTimingData = timingData[driverNumber];
+
+    const lastStatus = driverTimingData.Sectors.slice(-1)[0].Segments.slice(-1)[0].Status;
+
+    const newLap = lastStatus !== 2064 && lastStatus !== 0;
+
+    if (newLap) {
+        const trackTime = clockData.trackTime;
+        const systemTime = clockData.systemTime;
+        const now = Date.now();
+        const localTime = parseInt(clockData.paused ? trackTime : now - (systemTime - trackTime));
+
+        driverLaps[driverNumber] = localTime;
+    }
+}
+
+function formatMsToF1(ms, fixedAmount) {
+    const minutes = Math.floor(ms / 60000);
+
+    let milliseconds = ms % 60000;
+
+    const seconds =
+        Math.floor(milliseconds / 1000) < 10 && minutes > 0
+            ? "0" + Math.floor(milliseconds / 1000)
+            : Math.floor(milliseconds / 1000);
+
+    milliseconds = (milliseconds % 1000).toString().slice(0, fixedAmount);
+
+    if (milliseconds == "") milliseconds = 0;
+
+    return minutes > 0 ? minutes + ":" + seconds + "." + milliseconds : seconds + "." + milliseconds;
+}
+
+function updateTemplate(driverNumber) {
+    const driverTimingData = timingData[driverNumber];
+
+    // Position
+    const position = driverTimingData.Position;
+
+    let displayedPosition = document.querySelector(`#n${driverNumber} .position p`).innerHTML;
+
+    if (displayedPosition != position) document.querySelector(`#n${driverNumber} .position p`).innerHTML = position;
+
+    // Current lap time
+    const trackTime = clockData.trackTime;
+    const systemTime = clockData.systemTime;
+    const now = Date.now();
+    const localTime = parseInt(clockData.paused ? trackTime : now - (systemTime - trackTime));
+
+    const timeDiff = localTime - driverLaps[driverNumber];
+
+    if (isNaN(timeDiff)) {
+        document.querySelector(`#n${driverNumber} .times .personal p`).textContent = "NO TIME";
+    } else {
+        const displayTime = formatMsToF1(timeDiff, 0);
+
+        document.querySelector(`#n${driverNumber} .times .personal p`).textContent = displayTime;
+    }
+
+    // Target
+    let targetPosition = 1;
+    if (sessionType === "Practice") {
+        targetPosition = position == 1 ? 2 : 1;
+    } else if (sessionType === "Qualifying") {
+        console.log("Qualifying");
+    } else {
+        console.log("Race");
+    }
+
+    document.querySelector(`#n${driverNumber} .times .target .bottom .target-position p`).textContent =
+        "P" + targetPosition;
+
+    if (targetPosition <= 3) {
+        const targetName = driverList[topThree[targetPosition - 1].RacingNumber].LastName.toUpperCase();
+
+        document.querySelector(`#n${driverNumber} .times .target .bottom .target-name p`).textContent = targetName;
+    }
+
+    console.log(targetPosition);
+}
+
+// function initiateTemplate(driverNumber) {
 //     const driverTimingData = timingData[driverNumber];
-//     const driverBestTimes = bestTimes[driverNumber];
+//     const driverBestTimingData = bestTimes[driverNumber];
+//     console.log(driverTimingData);
 
-//     const pushDeltaThreshold =
-//         sessionInfo.Type == "Race"
-//             ? 0
-//             : sessionInfo.Type === "Qualifying"
-//             ? 1
-//             : 3;
+//     // Sectors
+//     for (let sectorIndex in driverTimingData.Sectors) {
+//         driverSectorData = driverTimingData.Sectors[sectorIndex];
+//         driverSegmentData = driverSectorData.Segments;
 
-//     return Object.keys(driverTimingData.Sectors).some((sectorIndex) => {
-//         const sector = driverTimingData.Sectors[sectorIndex];
-//         const bestSector = driverBestTimes.BestSectors[sectorIndex];
-
-//         const sectorTime = parseLapOrSectorTime(sector.Value);
-//         const bestSectorTime = parseLapOrSectorTime(bestSector.Value);
-
-//         // Driver hasn't completed the sector yet
-//         if (sectorTime === 0) return false;
-
-//         // Delta of current to best sector time is less than the push threshold
-//         if (sectorTime - bestSectorTime < pushDeltaThreshold) return true;
-
-//         // Driver set a new best sector time in this lap
-//         const completedFirstSector = !driverTimingData.Sectors[0].Segments.some(
-//             ({ status }) => status === 0
-//         );
-//         if (bestSector.Value === sector.Value && completedFirstSector)
-//             return true;
-
-//         // Consider lap a push lap if the driver set any overall best mini sectors
-//         return sector.Segments.some((segment) => segment.Status === 2051);
-//     });
-// }
-
-// function inPit(driver) {
-//     if (
-//         timingData[driver].Stopped ||
-//         timingData[driver].InPit ||
-//         timingData[driver].Retired
-//     ) {
-//         return true;
-//     }
-//     return false;
-// }
-
-// function slowLap(driver) {
-//     if (
-//         timingData[driver].PitOut ||
-//         timingData[driver].Sectors[0].Segments[0].Status == 2064 ||
-//         sessionStatus == "Aborted"
-//     ) {
-//         return true;
-//     }
-//     return false;
-// }
-
-// function difference(time) {
-//     if (sessionInfo.Type == "Race") {
-//         return time;
-//     } else if (sessionInfo.Type == "Qualifying") {
-//         return time + 1;
-//     }
-//     return time + 3;
-// }
-
-// function pushLap(driver) {
-//     for (sector in timingData[driver].Sectors) {
-//         let bestSector = +bestTimes[driver].BestSectors[sector].Value;
-//         let currentSector = +timingData[driver].Sectors[sector].Value;
-//         if (
-//             difference(bestSector) > currentSector &&
-//             currentSector != 0 &&
-//             !timingData[driver].LastLapTime.PersonalFastest &&
-//             timingData[driver].Sectors[0].Segments[
-//                 +timingData[driver].Sectors[0].Segments.length - 1
-//             ].Status != 0
-//         ) {
-//             return true;
+//         // Segments
+//         let segments = "";
+//         for (let count = 0; count < driverSegmentData.length; count++) {
+//             const segmentColor = getColorFromStatusCodeOrName(driverSegmentData[count].Status);
+//             const HTMLSegment = `<div class="segment" id="segment${count}" style="background-color: ${segmentColor}"></div>`;
+//             segments += HTMLSegment;
 //         }
-//         for (segment in timingData[driver].Sectors[sector].Segments) {
-//             let segmentStatus =
-//                 timingData[driver].Sectors[sector].Segments[segment].Status;
-//             if (
-//                 segmentStatus == 2051 ||
-//                 (bestSector == currentSector &&
-//                     timingData[driver].Sectors[0].Segments[
-//                         +timingData[driver].Sectors[0].Segments.length - 1
-//                     ].Status != 0)
-//             ) {
-//                 return true;
-//             }
-//         }
-//     }
-//     return false;
-// }
 
-// function getPosition() {
-//     loop1: for (timing in timingData) {
-//         let segment = 0;
-//         loop2: for (sector in timingData[timing].Sectors) {
-//             let sectorLength =
-//                 timingData[timing].Sectors[sector].Segments.length;
-//             loop3: for (currentSegment in timingData[timing].Sectors[sector]
-//                 .Segments) {
-//                 if (
-//                     timingData[timing].Sectors[sector].Segments[currentSegment]
-//                         .Status == 0
-//                 ) {
-//                     segment += +currentSegment;
+//         // Sector time
+//         const currentSectorTime = parseLapOrSectorTime(driverSectorData.Value);
 
-//                     driverStatusses[timing]["segment"] = segment + 1;
-//                     break loop2;
-//                 } else {
-//                     driverStatusses[timing]["segment"] = 1;
-//                 }
-//             }
-//             segment += +sectorLength;
-//         }
+//         const completedSector = driverSegmentData.pop().Status === 0 ? false : true;
+//         const HTMLSegmentTime = completedSector
+//             ? `<p>${currentSectorTime.toFixed(3)}</p>`
+//             : `<p style="color: ${getColorFromStatusCodeOrName("gray")}">NO TIME</p>`;
+
+//         // Sector Delta
+//         const bestSectorTime = parseLapOrSectorTime(driverBestTimingData.BestSectors[sectorIndex].Value);
+
+//         const sectorTimeDelta = currentSectorTime - bestSectorTime;
+//         console.log(sectorTimeDelta);
+//         console.log(bestSectorTime);
+
+//         console.log(HTMLSegmentTime);
+//         console.log(driverSegmentData);
+//         console.log(segments);
+//         sectorTime = driverSectorData.Value;
 //     }
 // }
 
-// function sortDriversOnPosition(statuses) {
-//     let counter = trackSegmentCount;
-//     let pushDriverOrder = [];
-//     let slowDriverOrder = [];
-//     while (counter != 0) {
-//         for (i in statuses) {
-//             if (statuses[i].segment == counter) {
-//                 if (statuses[i].status == 0) {
-//                     console.log(i);
-//                     pushDriverOrder.push(i);
-//                 }
-//                 if (statuses[i].status == 1) {
-//                     slowDriverOrder.push(i);
-//                 }
-//             }
-//         }
-//         counter--;
-//     }
-//     console.log(pushDriverOrder);
-//     console.log(slowDriverOrder);
-// }
-
-// function getStatus() {
-//     for (i in timingData) {
-//         driverStatusses[i] = {};
-//         if (inPit(i)) {
-//             driverStatusses[i]["status"] = 2;
-//             console.log(i + " is in pit");
-//             continue;
-//         }
-//         if (slowLap(i)) {
-//             driverStatusses[i]["status"] = 1;
-//             console.log(i + " is on a slow lap");
-//             continue;
-//         }
-//         if (pushLap(i)) {
-//             driverStatusses[i]["status"] = 0;
-//             console.log(i + " is on a push lap");
-//             continue;
-//         }
-//         driverStatusses[i]["status"] = 1;
-//         console.log(i + " is on a slow lap");
-//     }
-//     return driverStatusses;
-// }
-
-// let trackSegmentCount = 0;
-// function getTrackSegmentCount() {
-//     let firstTimingData = timingData[Object.keys(timingData)[0]];
-//     for (i in firstTimingData.Sectors) {
-//         trackSegmentCount += +firstTimingData.Sectors[i].Segments.length;
-//     }
-//     console.log(trackSegmentCount);
-// }
-
-// let driverStatusses = {};
-// async function run() {
-//     await getConfigurations();
-//     await apiRequests();
-//     getTrackSegmentCount();
-//     // while (true)
-//     getStatus();
-//     getPosition();
-//     sortDriversOnPosition(driverStatusses);
-//     console.log(driverStatusses);
-// }
-
-// console.log("Run");
-// run();
+run();

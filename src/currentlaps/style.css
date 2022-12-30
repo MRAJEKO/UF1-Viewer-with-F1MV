@@ -33,7 +33,8 @@ body {
     margin-bottom: 5px;
 }
 /* General time styling */
-.improved-time {
+.improved-time,
+.pushlap {
     background-color: #0a0a0f;
     margin-bottom: 2vw;
 }
@@ -183,7 +184,8 @@ body {
     justify-content: center;
     text-align: center;
     color: white;
-    font-size: 5vw;
+    font-size: 4.5vw;
+    margin: 1.5vw 0;
 }
 
 .sector-delta {
@@ -192,7 +194,7 @@ body {
     justify-content: center;
     text-align: center;
     color: white;
-    font-size: 3vw;
+    font-size: 2.5vw;
 }
 
 .sector-color {
@@ -201,7 +203,6 @@ body {
 
 .sectors p {
     font-family: "OF1Regular";
-    /* font-style: italic; */
 }
 
 p {
@@ -218,6 +219,6 @@ p {
 }
 
 .segment {
-    background-color: gray;
+    background-color: #5b5b5d;
     width: 100%;
 }
