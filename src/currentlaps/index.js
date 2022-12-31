@@ -96,7 +96,7 @@ async function apiRequests() {
 async function run() {
     await getConfigurations();
     while (true) {
-        await sleep(500);
+        await sleep(80);
         await apiRequests();
         const pushDrivers = getAllPushDriverPositions();
         for (let driver of pushDrivers) {
@@ -249,6 +249,19 @@ function getColorFromStatusCodeOrName(codeOrName) {
     }
 }
 
+function rgbToHex(rgb) {
+    // Extract the red, green, and blue components from the RGB value
+    const [r, g, b] = rgb.match(/\d+/g).map((x) => parseInt(x, 10));
+
+    // Convert the red, green, and blue values to hexadecimal
+    const hexR = r.toString(16).padStart(2, "0");
+    const hexG = g.toString(16).padStart(2, "0");
+    const hexB = b.toString(16).padStart(2, "0");
+
+    // Return the hexadecimal color code
+    return `#${hexR}${hexG}${hexB}`;
+}
+
 async function initiateTemplate(driverNumber) {
     const container = document.getElementById("container");
 
@@ -299,10 +312,13 @@ async function initiateTemplate(driverNumber) {
     <div class="sectors">${HTMLAllSectors}</div>
     `;
 
+    const currentLap = driverTimingData.NumberOfLaps;
+
     listItem.innerHTML = HTMLPushLap;
 
     listItem.classList.add("pushlap");
     listItem.id = "n" + driverNumber;
+    listItem.lapNumber = currentLap;
 
     container.prepend(listItem);
 
@@ -341,28 +357,31 @@ function formatMsToF1(ms, fixedAmount) {
     let milliseconds = ms % 60000;
 
     const seconds =
-        Math.floor(milliseconds / 1000) < 10 && minutes > 0
-            ? "0" + Math.floor(milliseconds / 1000)
-            : Math.floor(milliseconds / 1000);
+        milliseconds / 1000 < 10 && minutes > 0
+            ? "0" + (milliseconds / 1000).toFixed(fixedAmount)
+            : (milliseconds / 1000).toFixed(fixedAmount);
 
-    milliseconds = (milliseconds % 1000).toString().slice(0, fixedAmount);
-
-    if (milliseconds == "") milliseconds = 0;
-
-    return minutes > 0 ? minutes + ":" + seconds + "." + milliseconds : seconds + "." + milliseconds;
+    return minutes > 0 ? minutes + ":" + seconds : seconds;
 }
 
 function updateTemplate(driverNumber, pushDrivers) {
     const driverTimingData = timingData[driverNumber];
 
+    const driverElement = document.getElementById(`n${driverNumber}`);
+
+    const elementLapTime = driverElement.lapNumber;
+
+    const currentDriverLap = driverTimingData.NumberOfLaps;
+
+    const lapTimeElement = document.querySelector(`#n${driverNumber} .times .personal p`);
+
     if (!pushDrivers.includes(driverNumber)) {
         console.log(`Remove ${driverNumber} from list`);
 
-        if (driverTimingData.InPit) {
-            document.querySelector(`#n${driverNumber} .times .personal p`).textContent = "IN PIT";
-            document.querySelector(`#n${driverNumber} .times .personal p`).style.color =
-                getColorFromStatusCodeOrName("red");
-        } else if (driverTimingData.Sectors.pop().Segments.pop().Status !== 0) {
+        if (driverTimingData.InPit && elementLapTime === currentDriverLap) {
+            lapTimeElement.textContent = "IN PIT";
+            lapTimeElement.style.color = getColorFromStatusCodeOrName("red");
+        } else if (driverTimingData.Sectors.slice(-1)[0].Segments.slice(-1)[0].Status !== 0) {
             const color = getColorFromStatusCodeOrName(
                 driverTimingData.LastLapTime.OverallFastest
                     ? "ob"
@@ -371,14 +390,35 @@ function updateTemplate(driverNumber, pushDrivers) {
                     : "ni"
             );
 
-            document.querySelector(`#n${driverNumber} .times .personal p`).textContent =
-                driverTimingData.LastLapTime.Value;
-            document.querySelector(`#n${driverNumber} .times .personal p`).style.color = color;
-        } else {
-            document.querySelector(`#n${driverNumber} .times .personal p`).textContent = "BACKED OUT";
-            document.querySelector(`#n${driverNumber} .times .personal p`).style.color =
-                getColorFromStatusCodeOrName("red");
-            document.querySelector(`#n${driverNumber} .times .personal p`).style.fontSize = "6vw";
+            lapTimeElement.textContent = driverTimingData.LastLapTime.Value;
+            lapTimeElement.style.color = color;
+        } else if (elementLapTime === currentDriverLap) {
+            lapTimeElement.textContent = "ABORTED";
+            lapTimeElement.style.color = getColorFromStatusCodeOrName("red");
+        }
+
+        // Set last segment color
+
+        const sectors = driverTimingData.Sectors;
+
+        const lastSectorIndex = sectors.length - 1;
+
+        const lastSegmentIndex = sectors[lastSectorIndex].Segments.length - 1;
+
+        const lastSegmentColor = getColorFromStatusCodeOrName(
+            sectors[lastSectorIndex].Segments[lastSegmentIndex].Status
+        );
+
+        const lastSegmentElement = document.querySelector(
+            `#n${driverNumber} .sectors #sector${lastSectorIndex} .segments #segment${lastSegmentIndex}`
+        );
+
+        console.log(lastSegmentElement.style.backgroundColor);
+
+        const elementBackgroundColor = rgbToHex(lastSegmentElement.style.backgroundColor);
+
+        if (elementBackgroundColor == getColorFromStatusCodeOrName("gray")) {
+            lastSegmentElement.style.backgroundColor = lastSegmentColor;
         }
 
         return;
@@ -397,8 +437,6 @@ function updateTemplate(driverNumber, pushDrivers) {
     const now = Date.now();
     const localTime = parseInt(clockData.paused ? trackTime : now - (systemTime - trackTime));
 
-    const currentDriverLap = driverTimingData.NumberOfLaps;
-
     if (driverLaps[driverNumber]) {
         if (driverNumber == 1) {
             console.log(driverLaps[driverNumber].lap);
@@ -406,18 +444,18 @@ function updateTemplate(driverNumber, pushDrivers) {
         }
 
         if (driverLaps[driverNumber].lap !== currentDriverLap) {
-            document.querySelector(`#n${driverNumber} .times .personal p`).textContent =
-                driverTimingData.LastLapTime.Value;
+            lapTimeElement.textContent = driverTimingData.LastLapTime.Value;
         } else {
             const timeDiff = localTime - driverLaps[driverNumber].time;
 
             const displayTime = formatMsToF1(timeDiff, 1);
 
-            document.querySelector(`#n${driverNumber} .times .personal p`).textContent = displayTime;
-            document.querySelector(`#n${driverNumber} .times .personal p`).style.color = "white";
+            lapTimeElement.textContent = displayTime;
+            lapTimeElement.style.color = "white";
         }
     } else {
-        document.querySelector(`#n${driverNumber} .times .personal p`).textContent = "NO TIME";
+        lapTimeElement.textContent = "NO TIME";
+        lapTimeElement.style.color = getColorFromStatusCodeOrName("gray");
     }
 
     // Target
@@ -430,41 +468,98 @@ function updateTemplate(driverNumber, pushDrivers) {
         console.log("Race");
     }
 
-    document.querySelector(`#n${driverNumber} .times .target .bottom .target-position p`).textContent =
-        "P" + targetPosition;
+    const targetPositionElement = document.querySelector(`#n${driverNumber} .times .target .bottom .target-position p`);
 
-    const targetNumber = topThree[targetPosition - 1].RacingNumber;
+    targetPositionElement.textContent = "P" + targetPosition;
+
+    const targetDriverNumber = topThree[targetPosition - 1].RacingNumber;
 
     if (targetPosition <= 3) {
-        const targetName = driverList[targetNumber].LastName.toUpperCase();
+        const targetName = driverList[targetDriverNumber].LastName.toUpperCase();
 
         document.querySelector(`#n${driverNumber} .times .target .bottom .target-name p`).textContent = targetName;
     }
 
-    // Sectors
     const sectors = driverTimingData.Sectors;
 
-    const bestTargetTimes = bestTimes[targetNumber];
+    const bestTargetTimes = bestTimes[targetDriverNumber];
 
-    console.log(bestTargetTimes);
+    const completedFirstSector = driverTimingData.Sectors[0].Segments.slice(-1)[0].Status !== 0;
+
+    let currentSectorIndex = 0;
+    for (let sectorIndex in sectors) {
+        if (sectors[sectorIndex].Segments.slice(-1)[0].Status === 0) break;
+        currentSectorIndex++;
+    }
+
+    let targetTime = "NO TIME";
+    let targetDelta = "NO DELTA";
+    if (bestTargetTimes.PersonalBestLapTime.Value !== "") {
+        for (let targetBestSectorIndex in bestTargetTimes.BestSectors) {
+            const targetBestSectorTime = bestTargetTimes.BestSectors[targetBestSectorIndex].Value;
+
+            if (targetBestSectorIndex > currentSectorIndex) break;
+
+            targetTime =
+                targetTime === "NO TIME"
+                    ? (targetTime = parseLapOrSectorTime(targetBestSectorTime))
+                    : (targetTime += parseLapOrSectorTime(targetBestSectorTime));
+        }
+
+        console.log(targetTime);
+        targetTime = formatMsToF1(targetTime * 1000, 3);
+    }
+
+    const targetTimeElement = document.querySelector(`#n${driverNumber} .times .target .top .target-time p`);
+
+    if (!targetTimeElement.textContent !== targetTime) {
+        targetTimeElement.textContent = targetTime;
+        targetTimeElement.style.color = "white";
+    }
+
+    if (targetTime !== "NO TIME" && completedFirstSector) {
+        let totalSectorTimes = 0;
+        let totalTargetBestSectorTimes = 0;
+        for (let sectorCounter = currentSectorIndex - 1; sectorCounter >= 0; sectorCounter--) {
+            totalSectorTimes += parseLapOrSectorTime(sectors[sectorCounter].Value);
+            totalTargetBestSectorTimes += parseLapOrSectorTime(bestTargetTimes.BestSectors[sectorCounter].Value);
+        }
+
+        const targetDeltaElement = document.querySelector(`#n${driverNumber} .times .target .top .delta p`);
+
+        const deltaToTargetTime = totalSectorTimes - totalTargetBestSectorTimes;
+
+        targetDelta = deltaToTargetTime >= 0 ? "+" + deltaToTargetTime.toFixed(3) : deltaToTargetTime.toFixed(3);
+
+        if (targetDeltaElement.textContent != targetDelta) targetDeltaElement.textContent = targetDelta;
+    }
 
     console.log(driverNumber);
+    console.log(targetTime);
+
+    // Sectors
+
+    // console.log(bestTargetTimes);
+
+    // console.log(driverNumber);
+
+    console.log(sectors);
 
     for (let sectorIndex in sectors) {
-        const completedFirstSector = driverTimingData.Sectors[0].Segments.slice(-1)[0].Status !== 0;
+        const sectorTimeElement = document.querySelector(
+            `#n${driverNumber} .sectors #sector${sectorIndex} .sector-times .sector-time p`
+        );
 
-        if (
-            completedFirstSector &&
-            document.querySelector(`#n${driverNumber} .sectors #sector${sectorIndex} .sector-times .sector-time p`)
-                .textContent == "NO TIME" &&
-            sectors[sectorIndex].Value != ""
-        ) {
-            document.querySelector(
-                `#n${driverNumber} .sectors #sector${sectorIndex} .sector-times .sector-time p`
-            ).textContent = sectors[sectorIndex].Value;
-            document.querySelector(
-                `#n${driverNumber} .sectors #sector${sectorIndex} .sector-times .sector-time p`
-            ).style.color = "white";
+        if (completedFirstSector && sectors[sectorIndex].Value != "") {
+            if (sectorTimeElement.textContent !== sectors[sectorIndex].Value) {
+                sectorTimeElement.textContent = sectors[sectorIndex].Value;
+                sectorTimeElement.style.color = "white";
+            }
+        } else {
+            if (sectorTimeElement.textContent !== "NO TIME") {
+                sectorTimeElement.textContent = "NO TIME";
+                sectorTimeElement.style.color = getColorFromStatusCodeOrName("gray");
+            }
         }
 
         const segments = sectors[sectorIndex].Segments;
@@ -472,9 +567,11 @@ function updateTemplate(driverNumber, pushDrivers) {
         for (let segmentIndex in segments) {
             const segmentColor = getColorFromStatusCodeOrName(segments[segmentIndex].Status);
 
-            document.querySelector(
+            const segmentElement = document.querySelector(
                 `#n${driverNumber} .sectors #sector${sectorIndex} .segments #segment${segmentIndex}`
-            ).style.backgroundColor = segmentColor;
+            );
+
+            segmentElement.style.backgroundColor = segmentColor;
         }
     }
 
