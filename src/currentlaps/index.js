@@ -41,6 +41,9 @@ async function apiRequests() {
         host: host,
         port: port,
     };
+
+    const liveTimingClock = await npm_f1mv_api.LiveTimingClockAPIGraphQL(config, ["trackTime", "systemTime", "paused"]);
+
     const liveTimingState = await npm_f1mv_api.LiveTimingAPIGraphQL(config, [
         "DriverList",
         "TimingAppData",
@@ -51,36 +54,6 @@ async function apiRequests() {
         "SessionStatus",
     ]);
 
-    // const liveTimingClock = await npm_f1mv_api.liveTimingClock(config, ["trackTime", "systemTime", "paused"]);
-    // console.log(liveTimingClock);
-    const api = (
-        await (
-            await fetch(`http://${host}:${port}/api/graphql`, {
-                headers: { "content-type": "application/json" },
-                body: JSON.stringify({
-                    query: `query clockAndTimings {
-                        liveTimingClock {
-                            trackTime
-                            systemTime
-                            paused
-                        }
-                        liveTimingState {
-                            DriverList
-                            TimingAppData
-                            TimingData
-                            TimingStats
-                            SessionInfo
-                            TopThree
-                            SessionStatus
-                        }
-                        }
-                        `,
-                    operationName: "clockAndTimings",
-                }),
-                method: "POST",
-            })
-        ).json()
-    ).data;
     driverList = liveTimingState.DriverList;
     tireData = liveTimingState.TimingAppData.Lines;
     timingData = liveTimingState.TimingData.Lines;
@@ -90,7 +63,7 @@ async function apiRequests() {
     topThree = liveTimingState.TopThree.Lines;
     sessionStatus = liveTimingState.SessionStatus.Status;
 
-    clockData = api.liveTimingClock;
+    clockData = liveTimingClock;
 }
 
 async function run() {
