@@ -216,10 +216,11 @@ async function getAllDriverData(racingNumber) {
     driverData["lapTime"] = lapTime;
     let position = timingData[racingNumber].Position;
     driverData["position"] = position;
-    driverData["teamIcon"] = await ipcRenderer.invoke("get_icon", driverList[i].TeamName);
-    driverData["teamColor"] = "#" + driverList[i].TeamColour;
-    driverData["name"] = driverList[i].LastName.toUpperCase();
-    let tire = tireData[i].Stints[+tireData[i].Stints.length - 1].Compound.charAt(0);
+    driverData["teamIcon"] = await ipcRenderer.invoke("get_icon", driverList[racingNumber].TeamName);
+    driverData["teamColor"] = "#" + driverList[racingNumber].TeamColour;
+    driverData["name"] = driverList[racingNumber].LastName.toUpperCase();
+    console.log(racingNumber);
+    let tire = tireData[racingNumber].Stints[+tireData[racingNumber].Stints.length - 1].Compound.charAt(0);
     driverData["tire"] = tire;
     let tireColor = "red";
     if (tire == "H") {
