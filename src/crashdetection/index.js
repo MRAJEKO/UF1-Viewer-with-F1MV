@@ -42,7 +42,7 @@ async function apiRequests() {
     sessionInfo = liveTimingState.SessionInfo;
     sessionType = sessionInfo.Type;
     trackStatus = liveTimingState.TrackStatus;
-    if (sessionType == "Race") {
+    if (sessionType === "Race") {
         lapCount = liveTimingState.LapCount;
     }
 }
@@ -59,20 +59,20 @@ function toggleBackground() {
 }
 
 document.addEventListener("keydown", (event) => {
-    if (event.key == "Escape") {
+    if (event.key === "Escape") {
         toggleBackground();
     }
 });
 
 function getSpeedThreshold() {
     if (
-        sessionType == "Qualifying" ||
-        sessionType == "Practice" ||
-        sessionStatus == "Inactive" ||
-        sessionStatus == "Aborted" ||
-        trackStatus.Status == "4" ||
-        trackStatus.Status == "6" ||
-        trackStatus.Status == "7"
+        sessionType === "Qualifying" ||
+        sessionType === "Practice" ||
+        sessionStatus === "Inactive" ||
+        sessionStatus === "Aborted" ||
+        trackStatus.Status === "4" ||
+        trackStatus.Status === "6" ||
+        trackStatus.Status === "7"
     ) {
         return 10;
     }
@@ -102,7 +102,7 @@ function overwriteCrashedStatus(racingNumber) {
         sessionType === "Race" &&
         sessionStatus === "Started" &&
         lastSectorSegments.slice(-1)[0].Status !== 0 &&
-        lapCount.CurrentLap == 1
+        lapCount.CurrentLap === 1
     ) {
         console.log(racingNumber + " is doing a race start");
         return true;
@@ -118,8 +118,8 @@ function overwriteCrashedStatus(racingNumber) {
     // Detect if car is in parc ferme
     // If the car has stopped anywhere in the final sector and the 'race' has 'finished'
     if (
-        sessionType == "Race" &&
-        sessionStatus == "Finished" &&
+        sessionType === "Race" &&
+        sessionStatus === "Finished" &&
         lastSectorSegments.some((segment) => segment.Status !== 0)
     ) {
         console.log(racingNumber + " is in parc ferme");
@@ -145,9 +145,9 @@ function weirdCarBehaviour(driverCarData, racingNumber) {
         speed <= speedLimit ||
         gear > 8 ||
         gear ===
-            (sessionStatus == "Inactive" ||
-            sessionStatus == "Aborted" ||
-            (sessionType != "Race" && driverTimingData.PitOut)
+            (sessionStatus === "Inactive" ||
+            sessionStatus === "Aborted" ||
+            (sessionType !== "Race" && driverTimingData.PitOut)
                 ? ""
                 : 0)
     );
