@@ -16,10 +16,6 @@ body {
 }
 
 /* Container and animations */
-#container {
-    display: flex;
-    flex-direction: column-reverse;
-}
 
 #container li {
     height: 0;
@@ -194,7 +190,7 @@ body {
     justify-content: center;
     text-align: center;
     color: white;
-    font-size: 2.5vw;
+    font-size: 3vw;
 }
 
 .sector-color {
