@@ -183,7 +183,7 @@ function isDriverOnPushLap(driverNumber) {
 
     const sectors = driverTimingData.Sectors;
 
-    const lastSectorIndex = sectors.length - 1;
+    const lastSector = sectors.slice(-1)[0];
 
     if (sectors.slice(-1)[0].Value !== "" && sectors.slice(-1)[0].Segments.slice(-1)[0].Status !== 0) return false;
 
@@ -197,7 +197,13 @@ function isDriverOnPushLap(driverNumber) {
 
         // Check if the first sector is completed by checking if the last segment of the first sector has a value meaning he has crossed the last point of that sector and the final sector time does not have a value. The last check is done because sometimes the segment already has a status but the times are not updated yet.
         const completedFirstSector =
-            driverTimingData.Sectors[0].Segments.slice(-1)[0].Status !== 0 && sectors[lastSectorIndex].Value === "";
+            (sectors[0].Segments.slice(-1)[0].Status !== 0 && lastSector.Value === "") ||
+            (lastSector.Segments.slice(-1)[0].Status === 0 &&
+                lastSector.Value !== "" &&
+                sectors[1].Segments[0].Status !== 0 &&
+                sectors[0].Segments.slice(-1)[0].Status !== 0);
+
+        if (driverNumber == 63) console.log(completedFirstSector);
 
         // If the first sector time is above the threshold it should imidiately break because it will not be a push lap
         if (sectorTime - bestSectorTime > pushDeltaThreshold && completedFirstSector) {
@@ -217,6 +223,8 @@ function isDriverOnPushLap(driverNumber) {
             continue;
         }
     }
+
+    if (driverNumber == 63) console.log(isPushing);
 
     // Return the final pushing state
     return isPushing;
@@ -282,6 +290,8 @@ function getAllPushDriverPositions() {
     });
 
     const sortedDrivers = pushDriversPositions.map((driverNumber) => driverNumber.driver);
+
+    console.log(sortedDrivers);
 
     // Return a array with all the driver numbers that are on a push lap in the order of position on track
     return sortedDrivers;
@@ -401,6 +411,8 @@ function getTargetPositionAndNumber(driverNumber) {
 
     const position = driverTimingData.Position;
 
+    if (driverNumber == 14) console.log(position);
+
     let targetPosition = 1;
     if (sessionType === "Practice") {
         targetPosition = position == 1 ? 2 : 1;
@@ -409,21 +421,17 @@ function getTargetPositionAndNumber(driverNumber) {
 
         const currentEntries = qualiTimingData.NoEntries[sessionPart];
 
-        const cutoff = driverTimingData.Cutoff;
+        if (driverNumber == 14) console.log(currentEntries);
+
+        const cutoff = currentEntries !== null ? position > currentEntries : false;
+
+        if (driverNumber == 14) console.log(cutoff);
 
         if (cutoff && driverTimingData.BestLapTime.Value === "") {
             targetPosition =
                 parseInt(driverTimingData.Position) <= currentEntries ? (position == 1 ? 2 : 1) : currentEntries;
         } else {
-            targetPosition = cutoff
-                ? currentEntries !== null
-                    ? currentEntries
-                    : position == 1
-                    ? 2
-                    : 1
-                : position == 1
-                ? 2
-                : 1;
+            targetPosition = cutoff ? currentEntries : position == 1 ? 2 : 1;
         }
     } else {
         for (const driver in bestTimes) {
@@ -494,13 +502,22 @@ function setTargetInfo(
         for (const sectorIndex in sectors) {
             const sector = sectors[sectorIndex];
 
-            if (sector.Value === "" || currentSectorIndex === lastSectorIndex) break;
+            if (sector.Value === "" || sector.Segments.slice(-1)[0] === 0 || currentSectorIndex === lastSectorIndex)
+                break;
 
             currentSectorIndex++;
         }
     }
 
+    if (driverNumber == 16) {
+        console.log(currentSectorIndex);
+        console.log(completedFirstSector);
+        console.log(doesTargetHaveTime);
+        console.log(targetDelta);
+    }
+
     let targetTime = "NO TIME";
+    let targetDisplayTime = "NO TIME";
     let targetColor = getColorFromStatusCodeOrName("gray");
 
     let currentTotalSectorTimes = 0;
@@ -555,7 +572,7 @@ function setCurrentLapTime(driverNumber, diffToLapStart, isPushing) {
     for (const sectorIndex in driverSectorData) {
         const sector = driverSectorData[sectorIndex];
 
-        if (sector.Value === "") break;
+        if (sector.Value === "" || sector.Segments.slice(-1)[0] === 0) break;
 
         const sectorTime = parseLapOrSectorTime(sector.Value);
 
@@ -567,6 +584,11 @@ function setCurrentLapTime(driverNumber, diffToLapStart, isPushing) {
     const lapTimeElement = document.querySelector(`#n${driverNumber} .times .personal p`);
 
     const currentDriverLap = driverTimingData.NumberOfLaps;
+
+    if (driverNumber == 44) {
+        console.log(diffToLapStart);
+        console.log(isPushing);
+    }
 
     if (diffToLapStart) {
         const msPastSector = (diffToLapStart / 1000 - totalSectorTimes) * 1000;
@@ -587,6 +609,8 @@ function setCurrentLapTime(driverNumber, diffToLapStart, isPushing) {
         lapTimeElement.style.color = color;
     } else if (!isPushing) {
         const elementLapTime = parseInt(document.getElementById(`n${driverNumber}`).dataset.lapNumber);
+
+        if (driverNumber == 44) console.log(driverTimingData.Sectors.slice(-1)[0].Segments.slice(-1)[0].Status);
 
         if (driverNumber == 55) {
             console.log(`Removing ${driverNumber} from list`);
@@ -624,9 +648,10 @@ function updateTemplate(driverNumber, pushDrivers) {
 
     const completedFirstSector =
         (sectors[0].Segments.slice(-1)[0].Status !== 0 && lastSector.Value === "") ||
-        (lastSector.Segments.slice(-1)[0].Status !== 0 && lastSector.Value !== "");
-
-    const lapTimeElement = document.querySelector(`#n${driverNumber} .times .personal p`);
+        (lastSector.Segments.slice(-1)[0].Status === 0 &&
+            lastSector.Value !== "" &&
+            sectors[0].Segments.slice(-1)[0].Status !== 0 &&
+            sectors[0].Value !== "");
 
     const driverElement = document.getElementById(`n${driverNumber}`);
 
@@ -648,11 +673,11 @@ function updateTemplate(driverNumber, pushDrivers) {
 
         const [targetPosition, targetDriverNumber] = getTargetPositionAndNumber(driverNumber);
 
-        const targetDelta = setSectors(driverNumber, targetDriverNumber, completedFirstSector);
+        const targetDelta = setSectors(driverNumber, targetDriverNumber, true);
 
         setCurrentLapTime(driverNumber, false, isPushing);
 
-        setTargetInfo(driverNumber, timeDiff, targetPosition, targetDriverNumber, completedFirstSector, targetDelta);
+        setTargetInfo(driverNumber, timeDiff, targetPosition, targetDriverNumber, true, targetDelta);
 
         console.log(`Removing ${driverNumber} from list`);
 
@@ -663,6 +688,10 @@ function updateTemplate(driverNumber, pushDrivers) {
         }, holdEndOfLapDuration);
 
         return;
+    }
+
+    if (sectors.slice(-1)[0].Segments.slice(-1)[0].Status !== 0) {
+        console.log(`${driverNumber} is on a push lap`);
     }
 
     const [targetPosition, targetDriverNumber] = getTargetPositionAndNumber(driverNumber);
