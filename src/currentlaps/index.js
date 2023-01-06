@@ -168,10 +168,12 @@ function formatMsToF1(ms, fixedAmount) {
 
 // Check if the driver is on a push lap or not
 function isDriverOnPushLap(driverNumber) {
-    if (sessionStatus === "Aborted") return false;
+    if (sessionStatus === "Aborted" || sessionStatus === "Inactive") return false;
 
     const driverTimingData = timingData[driverNumber];
     const driverBestTimes = bestTimes[driverNumber];
+
+    if (sessionType === "Race" && driverTimingData.NumberOfLaps <= 1) return false;
 
     if (driverTimingData.InPit) return false;
 
@@ -187,6 +189,13 @@ function isDriverOnPushLap(driverNumber) {
 
     if (sectors.slice(-1)[0].Value !== "" && sectors.slice(-1)[0].Segments.slice(-1)[0].Status !== 0) return false;
 
+    const completedFirstSector =
+        (sectors[0].Segments.slice(-1)[0].Status !== 0 && lastSector.Value === "") ||
+        (lastSector.Segments.slice(-1)[0].Status === 0 &&
+            lastSector.Value !== "" &&
+            sectors[1].Segments[0].Status !== 0 &&
+            sectors[0].Segments.slice(-1)[0].Status !== 0);
+
     let isPushing = false;
     for (let sectorIndex = 0; sectorIndex < driverTimingData.Sectors.length; sectorIndex++) {
         const sector = sectors[sectorIndex];
@@ -196,12 +205,6 @@ function isDriverOnPushLap(driverNumber) {
         const bestSectorTime = parseLapOrSectorTime(bestSector.Value);
 
         // Check if the first sector is completed by checking if the last segment of the first sector has a value meaning he has crossed the last point of that sector and the final sector time does not have a value. The last check is done because sometimes the segment already has a status but the times are not updated yet.
-        const completedFirstSector =
-            (sectors[0].Segments.slice(-1)[0].Status !== 0 && lastSector.Value === "") ||
-            (lastSector.Segments.slice(-1)[0].Status === 0 &&
-                lastSector.Value !== "" &&
-                sectors[1].Segments[0].Status !== 0 &&
-                sectors[0].Segments.slice(-1)[0].Status !== 0);
 
         if (driverNumber == 63) console.log(completedFirstSector);
 
@@ -218,7 +221,7 @@ function isDriverOnPushLap(driverNumber) {
         }
 
         // If the driver has a fastest segment overall it would temporarily set pushing to true because the driver could have still backed out in a later stage
-        if (sector.Segments.some((segment) => segment.Status === 2051)) {
+        if (sector.Segments.some((segment) => segment.Status === 2051) && sessionType !== "Race") {
             isPushing = true;
             continue;
         }
