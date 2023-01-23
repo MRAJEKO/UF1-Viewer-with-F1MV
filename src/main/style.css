@@ -56,7 +56,13 @@ h1 {
     right: 0;
 }
 
-#settings-icon {
+#connection {
+    left: 0;
+    right: auto;
+}
+
+#settings-icon,
+#connection-icon {
     transition: all 0.5s ease;
     width: 40px;
     margin: 20px;
@@ -204,12 +210,6 @@ h2 {
 #reset-icon {
     padding: 15px;
     width: 30px;
-}
-
-.text {
-}
-
-.name {
 }
 
 .description {

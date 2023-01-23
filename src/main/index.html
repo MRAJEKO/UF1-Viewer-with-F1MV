@@ -11,15 +11,16 @@
         <section id="connect" class="shown">
             <h1>Ultimate Formula 1 Viewer for MVF1</h1>
             <div class="text">
-                <h2>
-                    Open the livetiming screen inside of MultiViewer to link UF1
-                </h2>
+                <h2>Open the livetiming screen inside of MultiViewer to link UF1</h2>
             </div>
-            <button onclick="isSynced()" class="link">
+            <button onclick="isConnected()" class="link">
                 <h2>Link MultiViewer</h2>
             </button>
             <button onclick="launchMVF1()" class="link">
                 <h2>Open MultiViewer</h2>
+            </button>
+            <button onclick="ignore()" class="link">
+                <h2>Continue either way</h2>
             </button>
         </section>
         <section id="menu">
@@ -49,35 +50,15 @@
                 <div class="setting">
                     <p>Host</p>
                     <div class="option">
-                        <input
-                            name="host"
-                            type="text"
-                            maxlength="20"
-                            id="host"
-                            class="typ"
-                        />
+                        <input name="host" type="text" maxlength="20" id="host" class="typ" />
                     </div>
                 </div>
-                <div class="setting">
-                    <p>Port</p>
-                    <div class="option">
-                        <input
-                            name="port"
-                            type="text"
-                            maxlength="20"
-                            id="port"
-                            class="typ"
-                        />
-                    </div>
-                </div>
+                <p>Port will be set automatically</p>
             </section>
             <section class="settings-section" id="trackinfo">
                 <h2>Track Information</h2>
                 <div class="setting">
-                    <p>
-                        Dynamic text color on flag color (black text on a yellow
-                        flag)
-                    </p>
+                    <p>Dynamic text color on flag color (black text on a yellow flag)</p>
                     <div class="option">
                         <label class="switch">
                             <input id="dynamic_text_color" type="checkbox" />
@@ -109,10 +90,7 @@
             <section class="settings-section" id="pitinfo">
                 <h2>Pit Information</h2>
                 <div class="setting">
-                    <p>
-                        Dynamic text color on flag color (black text on a yellow
-                        flag)
-                    </p>
+                    <p>Dynamic text color on flag color (black text on a yellow flag)</p>
                     <div class="option">
                         <label class="switch">
                             <input id="dynamic_text_color" type="checkbox" />
@@ -146,13 +124,7 @@
                 <div class="setting">
                     <p>Amount of laps</p>
                     <div class="option">
-                        <input
-                            name="lap_amount"
-                            type="text"
-                            maxlength="2"
-                            id="lap_amount"
-                            class="typ"
-                        />
+                        <input name="lap_amount" type="text" maxlength="2" id="lap_amount" class="typ" />
                     </div>
                 </div>
                 <div class="setting">
@@ -168,202 +140,97 @@
             <section class="settings-section" id="credits">
                 <h2>Credits</h2>
                 <h3>
-                    <a href="https://beta.f1mv.com/" target="_blank"
-                        >MultiViewer for F1</a
-                    ><img
-                        width="12"
-                        height="12"
-                        src="../icons/open-external.png"
-                        alt=""
-                    />
+                    <a href="https://beta.f1mv.com/" target="_blank">MultiViewer for F1</a
+                    ><img width="12" height="12" src="../icons/open-external.png" alt="" />
                 </h3>
                 <p>
                     <a href="discord.gg/f1mv" target="_blank">Discord</a>
-                    <img
-                        width="12"
-                        height="12"
-                        src="../icons/open-external.png"
-                        alt=""
-                    />
+                    <img width="12" height="12" src="../icons/open-external.png" alt="" />
                 </p>
                 <p>
-                    <a
-                        href="https://www.buymeacoffee.com/multiviewer"
-                        target="_blank"
-                        >Support him</a
-                    >
-                    <img
-                        width="12"
-                        height="12"
-                        src="../icons/open-external.png"
-                        alt=""
-                    />
+                    <a href="https://www.buymeacoffee.com/multiviewer" target="_blank">Support him</a>
+                    <img width="12" height="12" src="../icons/open-external.png" alt="" />
                 </p>
                 <p>
-                    <a
-                        href="https://github.com/f1multiviewer/issue-tracker/discussions"
-                        >Requests and ideas</a
-                    ><img
-                        width="12"
-                        height="12"
-                        src="../icons/open-external.png"
-                        alt=""
-                    />
+                    <a href="https://github.com/f1multiviewer/issue-tracker/discussions">Requests and ideas</a
+                    ><img width="12" height="12" src="../icons/open-external.png" alt="" />
                 </p>
                 <br />
                 <h3>Ultimate Formula 1 Viewer</h3>
                 <p>
-                    <a href="https://github.com/MRAJEKO" target="_blank"
-                        >MRAJEKO</a
-                    ><img
-                        width="12"
-                        height="12"
-                        src="../icons/open-external.png"
-                        alt=""
-                    />
+                    <a href="https://github.com/MRAJEKO" target="_blank">MRAJEKO</a
+                    ><img width="12" height="12" src="../icons/open-external.png" alt="" />
                 </p>
                 <br />
                 <h3>
-                    <a
-                        href="https://discord.com/channels/982375740764983366/1025112064945029263"
-                        target="_blank"
+                    <a href="https://discord.com/channels/982375740764983366/1025112064945029263" target="_blank"
                         >More MultiViewer Integrations <i>Soon™</i></a
-                    ><img
-                        width="12"
-                        height="12"
-                        src="../icons/open-external.png"
-                        alt=""
-                    />
+                    ><img width="12" height="12" src="../icons/open-external.png" alt="" />
                 </h3>
                 <p>
-                    <a href="https://github.com/LapsTimeOFF" target="_blank"
-                        >LapsTimeOff</a
-                    ><img
-                        width="12"
-                        height="12"
-                        src="../icons/open-external.png"
-                        alt=""
-                    />
+                    <a href="https://github.com/LapsTimeOFF" target="_blank">LapsTimeOff</a
+                    ><img width="12" height="12" src="../icons/open-external.png" alt="" />
                 </p>
                 <p>
-                    <a href="https://github.com/TheBaconCat" target="_blank"
-                        >TheBaconCat</a
-                    ><img
-                        width="12"
-                        height="12"
-                        src="../icons/open-external.png"
-                        alt=""
-                    />
+                    <a href="https://github.com/TheBaconCat" target="_blank">TheBaconCat</a
+                    ><img width="12" height="12" src="../icons/open-external.png" alt="" />
                 </p>
                 <p>
-                    <a href="https://github.com/JJWatMyself" target="_blank"
-                        >jjwATmyself</a
-                    ><img
-                        width="12"
-                        height="12"
-                        src="../icons/open-external.png"
-                        alt=""
-                    />
+                    <a href="https://github.com/JJWatMyself" target="_blank">jjwATmyself</a
+                    ><img width="12" height="12" src="../icons/open-external.png" alt="" />
                 </p>
                 <p>
-                    <a href="https://github.com/Petarkco" target="_blank"
-                        >Petarkco</a
-                    >
-                    <img
-                        width="12"
-                        height="12"
-                        src="../icons/open-external.png"
-                        alt=""
-                    />
+                    <a href="https://github.com/Petarkco" target="_blank">Petarkco</a>
+                    <img width="12" height="12" src="../icons/open-external.png" alt="" />
                 </p>
                 <br />
                 <h3>Other Formula 1 Resources <i>Soon™</i></h3>
                 <p>
-                    <a href="https://www.formula1.com/" target="_blank"
-                        >Formula 1</a
-                    ><img
-                        width="12"
-                        height="12"
-                        src="../icons/open-external.png"
-                        alt=""
-                    />
+                    <a href="https://www.formula1.com/" target="_blank">Formula 1</a
+                    ><img width="12" height="12" src="../icons/open-external.png" alt="" />
                 </p>
                 <p>
-                    <a
-                        href="https://www.buymeacoffee.com/trackweather"
-                        target="_blank"
-                        >Arjan de Wit</a
-                    ><img
-                        width="12"
-                        height="12"
-                        src="../icons/open-external.png"
-                        alt=""
-                    />
+                    <a href="https://www.buymeacoffee.com/trackweather" target="_blank">Arjan de Wit</a
+                    ><img width="12" height="12" src="../icons/open-external.png" alt="" />
                 </p>
                 <p>
-                    <a href="https://github.com/bacinger" target="_blank"
-                        >bacinger</a
-                    ><img
-                        width="12"
-                        height="12"
-                        src="../icons/open-external.png"
-                        alt=""
-                    />
+                    <a href="https://github.com/bacinger" target="_blank">bacinger</a
+                    ><img width="12" height="12" src="../icons/open-external.png" alt="" />
                 </p>
                 <br />
                 <p style="padding: 15px">
-                    A big thank you to all the members of the MultiViewer for F1
-                    discord server for helping and creating amazing addons to
-                    the already amazing MultiViewer for F1 application.
+                    A big thank you to all the members of the MultiViewer for F1 discord server for helping and creating
+                    amazing addons to the already amazing MultiViewer for F1 application.
                 </p>
                 <br />
-                <img
-                    width="60"
-                    height="60"
-                    alt="Peanut"
-                    src="../icons/green-heart.png"
-                />
-                <img
-                    width="60"
-                    height="60"
-                    alt="Peanut"
-                    src="../icons/peanut.png"
-                />
+                <img width="60" height="60" alt="Peanut" src="../icons/green-heart.png" />
+                <img width="60" height="60" alt="Peanut" src="../icons/peanut.png" />
             </section>
         </section>
         <section id="windows">
             <h1>Ultimate Formula 1 Viewer</h1>
             <button class="window" onclick="launchMVF1()">MultiViewer</button>
             <button class="window" onclick="flagDisplay()">Flag Display</button>
-            <button class="window" onclick="trackTime()">
-                Delayed Track Time (Outdated)
-            </button>
-            <button class="window" onclick="trackInfo()">
-                Track Information
-            </button>
-            <button class="window" onclick="singleRCM()">
-                Single Race Control Message
-            </button>
-            <button class="window" onclick="crashDetection()">
-                Crash Detection
-            </button>
-            <button class="window" onclick="compass()">
-                Track Rotation Compass
-            </button>
+            <button class="window" onclick="trackTime()">Delayed Track Time (Outdated)</button>
+            <button class="window" onclick="trackInfo()">Track Information</button>
+            <button class="window" onclick="singleRCM()">Single Race Control Message</button>
+            <button class="window" onclick="crashDetection()">Crash Detection</button>
+            <button class="window" onclick="compass()">Track Rotation Compass</button>
             <button class="window" onclick="fastest()">Fastest</button>
             <button class="window" onclick="improves()">Improvements</button>
             <button class="window" onclick="currentLaps()">Current Laps</button>
         </section>
         <div class="line"></div>
-        <button class="window" onclick="autoSwitch()">
-            Auto Onboard Camera Switching (Beta)
-        </button>
+        <button class="window" onclick="autoSwitch()">Auto Onboard Camera Switching (Beta)</button>
         <button id="reset-defaults" class="buttons" onclick="restoreAll()">
             <img id="reset-icon" src="../icons/restore.png" alt="" />
             <p>RESTORE DEFAULT SETTINGS</p>
         </button>
         <button id="options" class="buttons" onclick="settings()">
             <img id="settings-icon" src="../icons/settings.png" alt="" />
+        </button>
+        <button id="connection" class="buttons" onclick="isConnected()">
+            <img id="connection-icon" src="../icons/denied.png" alt="" />
         </button>
     </body>
 </html>
