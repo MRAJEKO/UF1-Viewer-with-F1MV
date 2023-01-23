@@ -173,7 +173,10 @@ function isDriverOnPushLap(driverNumber) {
     const driverTimingData = timingData[driverNumber];
     const driverBestTimes = bestTimes[driverNumber];
 
-    if (sessionType === "Race" && driverTimingData.NumberOfLaps <= 1) return false;
+    console.log(driverNumber, driverTimingData.NumberOfLaps);
+
+    if (sessionType === "Race" && (driverTimingData.NumberOfLaps === undefined || driverTimingData.NumberOfLaps <= 1))
+        return false;
 
     if (driverTimingData.InPit) return false;
 
@@ -181,7 +184,7 @@ function isDriverOnPushLap(driverNumber) {
     if (driverTimingData.Sectors[0].Segments[0].Status === 2064) return false;
 
     // Get the threshold to which the sector time should be compared to the best personal sector time.
-    const pushDeltaThreshold = sessionType === "Race" ? 0 : sessionType === "Qualifying" ? 1 : 3;
+    const pushDeltaThreshold = sessionType === "Race" ? 0.2 : sessionType === "Qualifying" ? 1 : 3;
 
     const sectors = driverTimingData.Sectors;
 
