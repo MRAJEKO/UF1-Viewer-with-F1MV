@@ -1,13 +1,14 @@
-const { ensureDir } = require("fs-extra");
 const { ipcRenderer } = require("electron");
 
 const debug = false;
 
+const f1mvApi = require("npm_f1mv_api");
+
 // Top 6 drivers
-// const vipDrivers = [1, 16, 11, 44, 55, 63];
+const vipDrivers = [1, 16, 11, 44, 55, 63];
 
 // Drivers leaving the season and final battles for the standings
-const vipDrivers = [5, 3, 6, 47, 11, 16, 1, 44];
+// const vipDrivers = [5, 3, 6, 47, 11, 16, 1, 44];
 
 // Set sleep
 const sleep = (milliseconds) => {
@@ -34,9 +35,15 @@ document.addEventListener("keydown", (event) => {
 let host;
 let port;
 async function getConfigurations() {
-    const config = (await ipcRenderer.invoke("get_config")).current.network;
-    host = config.host;
-    port = config.port;
+    const configFile = (await ipcRenderer.invoke("get_config")).current.network;
+
+    host = configFile.host;
+    port = (await f1mvApi.discoverF1MVInstances(host)).port;
+
+    config = {
+        host: host,
+        port: port,
+    };
     if (debug) {
         console.log(host);
         console.log(port);
@@ -45,52 +52,30 @@ async function getConfigurations() {
 
 // Receive all the API endpoints
 if (debug) console.log(sessionType);
-let carData;
-let lapCount;
-let driverList;
-let sessionData;
-let sessionInfo;
-let sessionStatus;
-let timingData;
-let timingStats;
-let trackStatus;
 async function apiRequests() {
-    const api = (
-        await (
-            await fetch(`http://${host}:${port}/api/graphql`, {
-                headers: { "content-type": "application/json" },
-                body: JSON.stringify({
-                    query: `query LiveTimingState {
-      liveTimingState {
-        TrackStatus
-        TimingData
-        TimingStats
-        SessionStatus
-        SessionInfo
-        LapCount
-        CarData
-        DriverList
-        SessionData
-      }
-    }`,
-                    operationName: "LiveTimingState",
-                }),
-                method: "POST",
-            })
-        ).json()
-    ).data.liveTimingState;
-    if (debug) console.log(api);
-    carData = api.CarData.Entries;
-    driverList = api.DriverList;
-    sessionData = api.SessionData;
-    sessionInfo = api.SessionInfo;
+    const liveTimingState = await f1mvApi.LiveTimingAPIGraphQL(config, [
+        "CarData",
+        "DriverList",
+        "SessionData",
+        "SessionInfo",
+        "SessionStatus",
+        "TimingData",
+        "TimingStats",
+        "TrackStatus",
+        "LapCount",
+    ]);
+    if (debug) console.log(liveTimingState);
+    carData = liveTimingState.CarData.Entries;
+    driverList = liveTimingState.DriverList;
+    sessionData = liveTimingState.SessionData;
+    sessionInfo = liveTimingState.SessionInfo;
     sessionType = sessionInfo.Type;
-    sessionStatus = api.SessionStatus.Status;
-    timingData = api.TimingData.Lines;
-    timingStats = api.TimingStats.Lines;
-    trackStatus = api.TrackStatus;
+    sessionStatus = liveTimingState.SessionStatus.Status;
+    timingData = liveTimingState.TimingData.Lines;
+    timingStats = liveTimingState.TimingStats.Lines;
+    trackStatus = liveTimingState.TrackStatus;
     if (sessionType == "Race") {
-        lapCount = api.LapCount;
+        lapCount = liveTimingState.LapCount;
     }
     if (debug) {
         console.log(carData);
@@ -109,33 +94,11 @@ async function apiRequests() {
 function getDriverName(number) {
     if (debug) {
     }
-    return (
-        driverList[number].FirstName +
-        " " +
-        driverList[number].LastName.toUpperCase()
-    );
+    return driverList[number].FirstName + " " + driverList[number].LastName.toUpperCase();
 }
 
 async function getPlayerBounds(id) {
-    const response = await fetch(`http://${host}:${port}/api/graphql`, {
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({
-            query: `query Player($playerId: ID!) {
-                player(id: $playerId) {
-                  bounds {
-                    height
-                    width
-                    x
-                    y
-                  }
-                }
-              }`,
-            variables: { playerId: id },
-            operationName: "Player",
-        }),
-        method: "POST",
-    });
-    const data = (await response.json()).data.player.bounds;
+    const data = await f1mvApi.getPlayerBounds(config, id);
     if (debug) console.log(data);
     return data;
 }
@@ -145,27 +108,8 @@ let mainWindow;
 async function getAllPlayers() {
     let shownDrivers = {};
     let playerAmount = 0;
-    const result = await fetch(`http://${host}:${port}/api/graphql`, {
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({
-            query: `query DriverData {
-                    players {
-                      driverData {
-                        driverNumber
-                      }
-                      id
-                      streamData {
-                        contentId
-                        title
-                      }
-                    }
-                  }`,
-            variables: {},
-            operationName: "DriverData",
-        }),
-        method: "POST",
-    });
-    const data = (await result.json()).data.players;
+    const data = await f1mvApi.getAllPlayers(config);
+    console.log(data);
     if (debug) console.log(data);
     for (i in data) {
         if (data[i].driverData != null) {
@@ -188,22 +132,7 @@ async function getAllPlayers() {
 }
 
 async function setSpeedometerVisibility(id) {
-    const response = await fetch(`http://${host}:${port}/api/graphql`, {
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({
-            query: `mutation PlayerSetSpeedometerVisibility($playerSetSpeedometerVisibilityId: ID!, $visible: Boolean) {
-                playerSetSpeedometerVisibility(id: $playerSetSpeedometerVisibilityId, visible: $visible)
-              }`,
-            variables: {
-                playerSetSpeedometerVisibilityId: id,
-                visible: true,
-            },
-            operationName: "PlayerSetSpeedometerVisibility",
-        }),
-        method: "POST",
-    });
-
-    const data = await response.json();
+    const data = await f1mvApi.setSpeedometerVisibility(config, id, true);
 
     if (debug) console.log(data);
 }
@@ -270,7 +199,7 @@ async function createWindow(shownDrivers, oldDriver, newDriver) {
         method: "POST",
     });
 
-    return await response.json();
+    return await f1mvApi.createWindow(config, );
 }
 
 async function showNewWindow(shownDrivers, oldDriver, newId) {
@@ -358,8 +287,7 @@ function primaryDriver(racingNumber) {
     }
     if (
         timingData[racingNumber].IntervalToPositionAhead.Value != "" &&
-        +timingData[racingNumber].IntervalToPositionAhead.Value.substring(1) <=
-            1
+        +timingData[racingNumber].IntervalToPositionAhead.Value.substring(1) <= 1
     ) {
         return true;
     }
@@ -372,8 +300,7 @@ function secondaryDriver(racingNumber) {
         if (
             timingData[racingNumber].Sectors[0].Segments[0].Status == 2064 ||
             timingData[racingNumber].PitOut ||
-            (timingData[racingNumber].InPit &&
-                carData[0].Cars[racingNumber].Channels[2] >= 5)
+            (timingData[racingNumber].InPit && carData[0].Cars[racingNumber].Channels[2] >= 5)
         ) {
             // If the first mini sector is 2064 (pit out) or pitout is true and the driver is not in the pit. The driver will then be on a outlap and is a secondary driver
             return true;
@@ -382,17 +309,12 @@ function secondaryDriver(racingNumber) {
     }
     if (
         timingData[racingNumber].IntervalToPositionAhead.Value != "" ||
-        (+timingData[racingNumber].IntervalToPositionAhead.Value.substring(1) >
-            1 &&
+        (+timingData[racingNumber].IntervalToPositionAhead.Value.substring(1) > 1 &&
             timingData[racingNumber].IntervalToPositionAhead.Catching)
     ) {
         // If the value to the car ahead is not nothing and is bigger than 1 second and the car is catching. The driver will then be a secondary driver (if it is after 3 laps from the start)
         if (lapCount.CurrentLap >= 3) {
-            if (
-                !timingData[
-                    racingNumber
-                ].IntervalToPositionAhead.Value.includes("LAP")
-            ) {
+            if (!timingData[racingNumber].IntervalToPositionAhead.Value.includes("LAP")) {
                 return true;
             } else {
                 return false;
@@ -405,18 +327,14 @@ function secondaryDriver(racingNumber) {
 function tertiaryDriver(racingNumber) {
     if (sessionType != "Race") {
         // If the session is a Practice or Qualifying session
-        if (
-            timingData[racingNumber].InPit &&
-            carData[0].Cars[racingNumber].Channels[2] <= 5
-        ) {
+        if (timingData[racingNumber].InPit && carData[0].Cars[racingNumber].Channels[2] <= 5) {
             return true;
         }
         return false;
     }
     if (
         timingData[racingNumber].IntervalToPositionAhead.Value == "" ||
-        (+timingData[racingNumber].IntervalToPositionAhead.Value.substring(1) >
-            1 &&
+        (+timingData[racingNumber].IntervalToPositionAhead.Value.substring(1) > 1 &&
             !timingData[racingNumber].IntervalToPositionAhead.Catching)
     ) {
         // If the value to the car ahead is not nothing or the gap is more than a second and he is not catching. The driver will then be a tertairy driver (if it is after 3 laps from the start)
@@ -446,11 +364,7 @@ async function setPriorities(players) {
     let prioList = prioLog.drivers;
     // If the session is not a race or the lap that the priolist is set is not equal to the current racing lap or the priolist is empty
     // Create a new list using the vip drivers and all other drivers in timing data (sorted on racing number)
-    if (
-        sessionType != "Race" ||
-        prioLog.lap != lapCount.CurrentLap ||
-        prioList.length == 0
-    ) {
+    if (sessionType != "Race" || prioLog.lap != lapCount.CurrentLap || prioList.length == 0) {
         prioList = [];
         console.log("New list");
         // Put the vipDrivers first
@@ -503,12 +417,7 @@ async function setPriorities(players) {
             continue;
         }
     }
-    prioList = mvpDrivers.concat(
-        primaryDrivers,
-        secondaryDrivers,
-        tertiaryDrivers,
-        hiddenDrivers
-    );
+    prioList = mvpDrivers.concat(primaryDrivers, secondaryDrivers, tertiaryDrivers, hiddenDrivers);
     if (sessionType == "Race") {
         prioLog.lap = lapCount.CurrentLap;
         prioLog.drivers = prioList;
@@ -561,21 +470,15 @@ function whatHappended(racingNumber) {
     // Detect if grid start during inactive (formation lap) during a 'Race' session
     // If the final to last mini sector has a value (is not 0). Check if the session is 'Inactive' and if the session type is 'Race'
     if (
-        timingData[racingNumber].Sectors[
-            +timingData[racingNumber].Sectors.length - 1
-        ].Segments[
-            +timingData[racingNumber].Sectors[
-                +timingData[racingNumber].Sectors.length - 1
-            ].Segments.length - 2
+        timingData[racingNumber].Sectors[+timingData[racingNumber].Sectors.length - 1].Segments[
+            +timingData[racingNumber].Sectors[+timingData[racingNumber].Sectors.length - 1].Segments.length - 2
         ].Status != 0 &&
         ((sessionStatus == "Inactive" && sessionType == "Race") ||
             (sessionStatus == "Finished" && sessionType == "Practice")) &&
         !timingData[racingNumber].PitOut
     ) {
         if (sessionType == "Race") {
-            console.log(
-                racingNumber + " is lining up during the formation lap"
-            );
+            console.log(racingNumber + " is lining up during the formation lap");
             return false;
         }
         console.log(racingNumber + " is doing a practice grid start");
@@ -586,12 +489,8 @@ function whatHappended(racingNumber) {
     if (
         sessionType == "Race" &&
         sessionStatus == "Started" &&
-        timingData[racingNumber].Sectors[
-            +timingData[racingNumber].Sectors.length - 1
-        ].Segments[
-            +timingData[racingNumber].Sectors[
-                +timingData[racingNumber].Sectors.length - 1
-            ].Segments.length - 3
+        timingData[racingNumber].Sectors[+timingData[racingNumber].Sectors.length - 1].Segments[
+            +timingData[racingNumber].Sectors[+timingData[racingNumber].Sectors.length - 1].Segments.length - 3
         ].Status != 0 &&
         lapCount.CurrentLap == 1
     ) {
@@ -607,12 +506,8 @@ function whatHappended(racingNumber) {
     if (
         sessionType == "Race" &&
         sessionStatus == "Finished" &&
-        timingData[racingNumber].Sectors[
-            +timingData[racingNumber].Sectors.length - 2
-        ].Segments[
-            +timingData[racingNumber].Sectors[
-                +timingData[racingNumber].Sectors.length - 2
-            ].Segments.length - 1
+        timingData[racingNumber].Sectors[+timingData[racingNumber].Sectors.length - 2].Segments[
+            +timingData[racingNumber].Sectors[+timingData[racingNumber].Sectors.length - 2].Segments.length - 1
         ].Status != 0
     ) {
         console.log(racingNumber + " is in parc ferme");
@@ -651,12 +546,7 @@ function getCarStatus(data, racingNumber) {
     let speed = data[2];
     let gear = data[3];
     let speedLimit = getSpeedLimit();
-    if (
-        rpm === 0 ||
-        speed <= speedLimit ||
-        gear > 8 ||
-        gear === neutralFilter(racingNumber)
-    ) {
+    if (rpm === 0 || speed <= speedLimit || gear > 8 || gear === neutralFilter(racingNumber)) {
         return true;
     } else {
         return false;
@@ -679,11 +569,7 @@ function getCurrentExceptions(racingNumber) {
         }
         let driverData = timingData[racingNumber];
         if (crashed) {
-            if (
-                (driverData.InPit && sessionType != "Race") ||
-                driverData.Retired ||
-                driverData.Stopped
-            ) {
+            if ((driverData.InPit && sessionType != "Race") || driverData.Retired || driverData.Stopped) {
                 crashed = false;
             }
         } else {

@@ -8,7 +8,7 @@ const loopspeed = 80;
 
 const { ipcRenderer } = require("electron");
 
-const npm_f1mv_api = require("npm_f1mv_api");
+const f1mvApi = require("npm_f1mv_api");
 
 // Set sleep
 const sleep = (milliseconds) => {
@@ -19,7 +19,7 @@ const sleep = (milliseconds) => {
 async function getConfigurations() {
     const config = (await ipcRenderer.invoke("get_config")).current.network;
     host = config.host;
-    port = (await npm_f1mv_api.discoverF1MVInstances(host)).port;
+    port = (await f1mvApi.discoverF1MVInstances(host)).port;
     if (debug) {
         console.log(host);
         console.log(port);
@@ -52,9 +52,9 @@ async function apiRequests() {
         port: port,
     };
 
-    const liveTimingClock = await npm_f1mv_api.LiveTimingClockAPIGraphQL(config, ["trackTime", "systemTime", "paused"]);
+    const liveTimingClock = await f1mvApi.LiveTimingClockAPIGraphQL(config, ["trackTime", "systemTime", "paused"]);
 
-    const liveTimingState = await npm_f1mv_api.LiveTimingAPIGraphQL(config, [
+    const liveTimingState = await f1mvApi.LiveTimingAPIGraphQL(config, [
         "DriverList",
         "TimingAppData",
         "TimingData",

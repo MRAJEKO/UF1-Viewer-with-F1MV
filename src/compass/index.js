@@ -1,20 +1,13 @@
-const { ipcRenderer } = require("electron");
-const { get } = require("request");
-
 const debug = false;
 
-// Function to return the API request
-function httpGet(theUrl) {
-    let xmlHttpReq = new XMLHttpRequest();
-    xmlHttpReq.open("GET", theUrl, false);
-    xmlHttpReq.send(null);
-    return xmlHttpReq.responseText;
-}
+const { ipcRenderer } = require("electron");
+
+const f1mvApi = require("npm_f1mv_api");
 
 async function getConfigurations() {
     const config = (await ipcRenderer.invoke("get_config")).current.network;
     host = config.host;
-    port = config.port;
+    port = (await f1mvApi.discoverF1MVInstances(host)).port;
     if (debug) {
         console.log(host);
         console.log(port);
@@ -23,26 +16,15 @@ async function getConfigurations() {
 
 // Request the session info
 async function apiRequests() {
-    const api = (
-        await (
-            await fetch(`http://${host}:${port}/api/graphql`, {
-                headers: { "content-type": "application/json" },
-                body: JSON.stringify({
-                    query: `query LiveTimingState {
-  liveTimingState {
-    SessionInfo
-  }
-}`,
-                    operationName: "LiveTimingState",
-                }),
-                method: "POST",
-            })
-        ).json()
-    ).data.liveTimingState;
-    sessionInfo = api.SessionInfo;
+    const config = {
+        host: host,
+        port: port,
+    };
+    const liveTimingState = await f1mvApi.LiveTimingAPIGraphQL(config, "SessionInfo");
+    sessionInfo = liveTimingState.SessionInfo;
 }
 
-function rotate() {
+async function rotate() {
     // Get the circuit key
     let circuitKey = sessionInfo.Meeting.Circuit.Key;
 
@@ -50,9 +32,7 @@ function rotate() {
     let season = sessionInfo.StartDate.slice(0, 4);
 
     // Get the rotation of the track map according to the circuit key and current season
-    let trackRotation = JSON.parse(
-        httpGet(`https://api.f1mv.com/api/v1/circuits/${circuitKey}/${season}`)
-    ).rotation;
+    let trackRotation = (await f1mvApi.getCircuitInfo(circuitKey, season)).rotation;
 
     // Set the track rotation to the compass image
     document.getElementById("compass").style.rotate = trackRotation + "deg";
@@ -80,7 +60,7 @@ function toggleBackground() {
 async function run() {
     await getConfigurations();
     await apiRequests();
-    rotate();
+    await rotate();
 }
 
 run();
