@@ -4,32 +4,29 @@
     overflow: hidden;
 }
 
+body {
+    background-color: black;
+}
+
 .move {
     -webkit-app-region: drag;
     width: 100vw;
     height: 100vh;
 }
 
-#chequeredFlag {
-    width: 100%;
-    height: 100%;
-    position: absolute;
-    transition: background-image 3s;
-    transition: all 0.5s ease;
+#chequered {
+    background-image: url(Chequered.png);
+    background-size: cover;
 }
 
-#extra {
+#extra,
+#flag,
+#chequered {
     position: absolute;
-    width: 100%;
-    height: 100%;
+    width: 100vw;
+    height: 100vw;
     transition: all 0.5s ease;
-}
-
-#flag {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    transition: all 0.5s ease;
+    opacity: 1;
 }
 
 .green {
@@ -48,15 +45,10 @@
     background-color: rgb(209, 0, 0) !important;
 }
 
-.chequered {
-    transition: background-image 3s;
-    background-image: url(images/chequered.jpg);
+.fastest-lap {
+    background-color: rgb(185, 0, 185);
 }
 
 .hidden {
-    visibility: hidden;
-}
-
-.fastestLap {
-    background-color: rgb(185, 0, 185);
+    opacity: 0 !important;
 }

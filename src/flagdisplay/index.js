@@ -2,6 +2,8 @@ const debug = false;
 
 const { ipcRenderer } = require("electron");
 
+const f1mvApi = require("npm_f1mv_api");
+
 // Set sleep
 const sleep = (milliseconds) => {
     return new Promise((resolve) => setTimeout(resolve, milliseconds));
@@ -10,187 +12,106 @@ const sleep = (milliseconds) => {
 // Set basic info
 const flag = document.getElementById("flag");
 const extra = document.getElementById("extra");
-let trackStatus;
-let timingData;
+const chequered = document.getElementById("chequered");
 
-let host;
-let port;
 async function getConfigurations() {
-    const config = (await ipcRenderer.invoke("get_config")).current.network;
-    host = config.host;
-    port = config.port;
+    const configfile = (await ipcRenderer.invoke("get_config")).current.network;
+    host = configfile.host;
+    port = (await f1mvApi.discoverF1MVInstances(host)).port;
+    config = {
+        host: host,
+        port: port,
+    };
     if (debug) {
         console.log(host);
         console.log(port);
     }
 }
 
-async function apiRequests() {
-    const api = (
-        await (
-            await fetch(`http://${host}:${port}/api/graphql`, {
-                headers: { "content-type": "application/json" },
-                body: JSON.stringify({
-                    query: `query LiveTimingState {
-      liveTimingState {
-        TimingData
-        TrackStatus
-      }
-    }`,
-                    operationName: "LiveTimingState",
-                }),
-                method: "POST",
-            })
-        ).json()
-    ).data.liveTimingState;
-    timingData = api.TimingData.Lines;
-    trackStatus = api.TrackStatus;
-    if (debug) {
-        console.log(trackStatus);
-        console.log(timingData);
-    }
-}
+let prevTrackStatus;
+let prevSessionStatus;
+let prevFastestLap;
+async function getCurrentStatus() {
+    const data = await f1mvApi.LiveTimingAPIGraphQL(config, ["TrackStatus", "SessionStatus", "TimingData"]);
 
-let safetyCar = 0;
-let virtualSafetyCar = 0;
-let virtualSafetyCarEnding = 0;
-let trackClear = 0;
-let chequeredFlag = 0;
-let fastestLapCounter = 0;
-let fastestLapTime = "";
-let oldFastestLapTime = "";
-
-async function blinking() {
-    let i = 0;
-    while (i != 5) {
-        flag.className = "";
-        flag.classList.add("black");
-        await sleep(500);
-        flag.className = "";
-        flag.classList.add("yellow");
-        await sleep(500);
-        i++;
-    }
-}
-
-// If a Safety Car Occurs
-async function SC() {
-    if (debug) {
-        console.log("Safety Car");
-    }
-    safetyCar = 1;
-    trackClear = 0;
-    await blinking();
-}
-
-// If a Virtual Safety Car Occurs
-async function VSC() {
-    if (debug) {
-        console.log("Virtual Safety Car");
-    }
-    virtualSafetyCar = 1;
-    trackClear = 0;
-    await blinking();
-}
-
-// Update track status
-async function updateStatus() {
-    while (true) {
-        await getConfigurations();
-        await apiRequests();
-        for (i in timingData) {
-            let fastestLap = timingData[i].LastLapTime.OverallFastest;
-            fastestLapTime = timingData[i].LastLapTime.Value;
-            if (debug) {
-                console.log(fastestLapTime);
-                console.log(oldFastestLapTime);
-            }
-            if (
-                (fastestLap === true && fastestLapCounter === 0) ||
-                (fastestLap === true && fastestLapTime !== oldFastestLapTime)
-            ) {
-                oldFastestLapTime = fastestLapTime;
-                fastestLapCounter = 1;
-                trackClear = 1;
-                extra.classList.add("fastestLap");
-                if (debug) console.log("fastestLap");
-                await sleep(2000);
-                extra.classList.remove("fastestLap");
-            }
-            if (debug) {
-                console.log(fastestLap);
-            }
-        }
-
-        flag.className = "black";
-        // Status 1 - Track Clear
-        if (trackStatus.Status === "1") {
-            if (trackClear === 0) {
-                if (debug) {
-                    console.log("Track Clear");
-                }
-                trackClear = 1;
+    const trackStatus = parseInt(data.TrackStatus.Status);
+    if (trackStatus !== prevTrackStatus) {
+        prevTrackStatus = trackStatus;
+        switch (trackStatus) {
+            case 1:
+                flag.classList.remove("red");
+                flag.classList.remove("yellow");
                 flag.classList.add("green");
                 await sleep(5000);
-            }
-
-            safetyCar = 0;
-            virtualSafetyCar = 0;
-            virtualSafetyCarEnding = 0;
-        }
-
-        // Status 2 - Yellow Flag
-        if (trackStatus.Status === "2") {
-            if (debug) {
-                console.log("Yellow Flag");
-            }
-            flag.classList.add("yellow");
-            trackClear = 0;
-        }
-
-        // Status 3 - Unknown
-        if (trackStatus.Status === "3") {
-        }
-
-        //Status 4 - Safety Car
-        if (trackStatus.Status === "4") {
-            if (safetyCar == 0) {
-                SC();
-                await sleep(5000);
-            } else {
+                flag.classList.remove("green");
+                break;
+            case 2:
                 flag.classList.add("yellow");
-            }
+                break;
+            case 4:
+                await blink("yellow", 3, 500);
+                flag.classList.add("yellow");
+                break;
+            case 5:
+                flag.classList.remove("yellow");
+                flag.classList.add("red");
+                break;
+            case 6:
+            case 7:
+                await blink("yellow", 3, 750);
+                flag.classList.add("yellow");
+                break;
+        }
+    }
+
+    const sessionStatus = data.SessionStatus.Status;
+    if (sessionStatus === "Finished" && prevSessionStatus !== sessionStatus) {
+        prevSessionStatus = sessionStatus;
+        chequered.classList.remove("hidden");
+        await sleep(30000);
+        chequered.classList.add("hidden");
+    }
+
+    console.log(trackStatus);
+
+    const timingData = data.TimingData.Lines;
+    for (const driverNumber in timingData) {
+        const driverTimingData = timingData[driverNumber];
+
+        const driverFastestLap = driverTimingData.LastLapTime.OverallFastest;
+        const driverFastestLapTime = driverTimingData.LastLapTime.Value;
+
+        if (driverFastestLap) {
+            console.log(driverFastestLap && driverFastestLapTime !== prevFastestLap);
         }
 
-        // Status 5 - Red Flag
-        if (trackStatus.Status === "5") {
-            if (debug) {
-                console.log("Red Flag");
-            }
-            flag.classList.add("red");
-            safetyCar = 0;
-            virtualSafetyCar = 0;
+        if (driverFastestLap && driverFastestLapTime !== prevFastestLap) {
+            prevFastestLap = driverFastestLapTime;
+            extra.classList.add("fastest-lap");
+            await sleep(3000);
+            extra.classList.remove("fastest-lap");
         }
-
-        // Status 6 - Virtual Safety Car Deployed
-        if (trackStatus.Status === "6") {
-            if (virtualSafetyCar == 0) {
-                VSC();
-                await sleep(5000);
-            } else flag.classList.add("yellow");
-        }
-        // Status 7 - Virtual Safety Car Ending
-        if (trackStatus.Status === "7") {
-            if (virtualSafetyCarEnding === 0) {
-                virtualSafetyCarEnding = 1;
-                VSC();
-                await sleep(5000);
-            } else flag.classList.add("yellow");
-        }
-        await sleep(500);
     }
 }
-updateStatus();
+
+async function blink(color, amount, interval) {
+    for (let count = 0; count < amount; count++) {
+        flag.classList.add(color);
+        await sleep(interval);
+        flag.classList.remove(color);
+        await sleep(interval);
+    }
+}
+
+async function run() {
+    await getConfigurations();
+
+    setInterval(async () => {
+        await getCurrentStatus();
+    }, 250);
+}
+
+run();
 
 // {"Status":"1","Message":"AllClear"}
 // {"Status":"2","Message":"Yellow"}
