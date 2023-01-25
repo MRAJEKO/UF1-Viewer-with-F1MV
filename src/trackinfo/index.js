@@ -2,6 +2,8 @@ const debug = false;
 
 const { ipcRenderer } = require("electron");
 
+const f1mvApi = require("npm_f1mv_api");
+
 const sleep = (milliseconds) => {
     return new Promise((resolve) => setTimeout(resolve, milliseconds));
 };
@@ -13,35 +15,34 @@ function httpGet(theUrl) {
     return xmlHttpReq.responseText;
 }
 
-// Empty global variables
-let api;
-let maxProgress;
-let statusContainer;
-let delayed;
-let headPaddingMaterial;
-let backgroundColor;
-let drsZoneNumber;
-let sessionStartStatus;
-let oldTrackStatus;
-let timer;
-let dynamicTextColor;
-let defaultTextColor;
-let defaultBackgroundColor;
 let transparent = false;
+function toggleBackground() {
+    if (transparent) {
+        document.getElementById("background").className = "";
+        transparent = false;
+    } else {
+        document.getElementById("background").className = "transparent";
+        transparent = true;
+    }
+}
+
+document.addEventListener("keydown", (event) => {
+    if (event.key == "Escape") {
+        toggleBackground();
+    }
+});
 
 // Set global variables
+const qualiPartLengths = ["00:18:00", "00:15:00", "00:12:00"];
 let drsEnabled = true;
 let pastMessages = [];
 let grip = "NORMAL";
 let color = "green";
 let redFlag = false;
 let fullTimerRemaining = 3600000;
-let fullSessionTimer = new Date(fullTimerRemaining).toLocaleTimeString(
-    "en-GB",
-    {
-        timeZone: "UTC",
-    }
-);
+let fullSessionTimer = new Date(fullTimerRemaining).toLocaleTimeString("en-GB", {
+    timeZone: "UTC",
+});
 
 // Global HTML elements
 let sessionStatus;
@@ -70,136 +71,98 @@ let sessionData;
 let clockData;
 
 async function getConfigurations() {
-    const config = (await ipcRenderer.invoke("get_config")).current.trackinfo;
-    const networkConfig = (await ipcRenderer.invoke("get_config")).current
-        .network;
-    dynamicTextColor = config.dynamic_text_color;
-    defaultTextColor = config.default_text_color;
-    defaultBackgroundColor = config.default_background_color;
+    const configFile = (await ipcRenderer.invoke("get_config")).current.trackinfo;
+    const networkConfig = (await ipcRenderer.invoke("get_config")).current.network;
+    dynamicTextColor = configFile.dynamic_text_color;
+    const defaultBackgroundColor = configFile.default_background_color;
+    const orientation = configFile.orientation;
+    const styleType = orientation === "vertical" ? "w" : "h";
+    const h2Elements = document.querySelectorAll("h2");
+    for (const element of h2Elements) {
+        element.classList.add(`h2${styleType}`);
+    }
+    const pElements = document.querySelectorAll("p");
+    for (const element of pElements) {
+        element.classList.add(`p${styleType}`);
+    }
+    pClass = `p${styleType}`;
+    document.getElementById("wrapper").classList.add(`wrapper${styleType}`);
+    document.getElementById("container").classList.add(`container${styleType}`);
+
+    if (orientation === "horizontal") {
+        document.getElementById("session-name-container").style.display = "none";
+    }
+
     host = networkConfig.host;
-    port = networkConfig.port;
+    port = (await f1mvApi.discoverF1MVInstances(host)).port;
     if (debug) {
         console.log(dynamicTextColor);
-        console.log(defaultTextColor);
         console.log(defaultBackgroundColor);
     }
-    if (dynamicTextColor == false && defaultTextColor != "white") {
-        let lines = document.querySelectorAll(".line");
-        let heads = document.querySelectorAll("h1");
-        for (i in lines) {
-            lines[i].className = `line ${defaultTextColor}-background`;
-        }
-        for (i in heads) {
-            heads[i].className = `${defaultTextColor}-text`;
-        }
-    } else {
-        let lines = document.querySelectorAll(".line");
-        let heads = document.querySelectorAll("h1");
-        for (i in lines) {
-            lines[i].className = `line`;
-        }
-        for (i in heads) {
-            heads[i].className = ``;
-        }
-    }
-    if (defaultBackgroundColor == "transparent") {
+    if (defaultBackgroundColor === "transparent") {
         document.getElementById("background").style.backgroundColor = "gray";
         document.getElementById("background").className = "transparent";
         transparent = true;
     } else {
-        document.getElementById("background").style.backgroundColor =
-            defaultBackgroundColor;
+        document.getElementById("background").style.backgroundColor = defaultBackgroundColor;
     }
 }
-
-function toggleBackground() {
-    if (transparent) {
-        document.getElementById("background").className = "";
-        transparent = false;
-    } else {
-        document.getElementById("background").className = "transparent";
-        transparent = true;
-    }
-}
-
-document.addEventListener("keydown", (event) => {
-    if (event.key == "Escape") {
-        toggleBackground();
-    }
-});
 
 let sessionInfo;
 
 // Requesting the information needed from the api
-function apiRequests() {
-    sessionInfo = JSON.parse(
-        httpGet(`http://${host}:${port}/api/v1/live-timing/SessionInfo`)
-    );
-    if (sessionInfo.Type == "Race") {
-        api = JSON.parse(
-            httpGet(
-                `http://${host}:${port}/api/v2/live-timing/state/LapCount,TrackStatus,SessionStatus,TimingData,ExtrapolatedClock,SessionData`
-            )
-        );
-        laps = api.LapCount;
-        trackStatus = api.TrackStatus;
-        sessionStartStatus = api.SessionStatus;
-        timingData = api.TimingData;
-        extraPolatedClock = api.ExtrapolatedClock;
-        sessionData = api.SessionData;
-        RCMs = JSON.parse(
-            httpGet(
-                `http://${host}:${port}/api/v1/live-timing/RaceControlMessages`
-            )
-        );
-        if (debug) {
-            console.log(laps);
-            console.log(trackStatus);
-            console.log(sessionStartStatus);
-            console.log(timingData);
-            console.log(extraPolatedClock);
-            console.log(sessionData);
-            console.log(RCMs);
-        }
-    } else {
-        api = JSON.parse(
-            httpGet(
-                `http://${host}:${port}/api/v2/live-timing/state/TrackStatus,SessionStatus,TimingData,ExtrapolatedClock,SessionData`
-            )
-        );
-        trackStatus = api.TrackStatus;
-        sessionStartStatus = api.SessionStatus;
-        timingData = api.TimingData;
-        extraPolatedClock = api.ExtrapolatedClock;
-        sessionData = api.SessionData;
-        RCMs = JSON.parse(
-            httpGet(
-                `http://${host}:${port}/api/v1/live-timing/RaceControlMessages`
-            )
-        );
-    }
-
-    clockData = JSON.parse(
-        httpGet(`http://${host}:${port}/api/v2/live-timing/Clock`)
-    );
+async function apiRequests() {
+    const config = {
+        host: host,
+        port: port,
+    };
+    const data = await f1mvApi.LiveTimingAPIGraphQL(config, [
+        "LapCount",
+        "TrackStatus",
+        "SessionStatus",
+        "TimingData",
+        "ExtrapolatedClock",
+        "SessionData",
+        "RaceControlMessages",
+        "SessionInfo",
+    ]);
+    lapCount = data.LapCount;
+    trackStatus = data.TrackStatus;
+    sessionStatus = data.SessionStatus.Status;
+    timingData = data.TimingData;
+    extrapolatedClock = data.ExtrapolatedClock;
+    sessionData = data.SessionData;
+    RCMs = data.RaceControlMessages.Messages;
+    sessionInfo = data.SessionInfo;
+    console.log(data);
+    clockData = await f1mvApi.LiveTimingClockAPIGraphQL(config, [
+        "paused",
+        "systemTime",
+        "trackTime",
+        "liveTimingStartTime",
+    ]);
 }
 
-// Adding a list of all the track sectors from a track to the screen
-function addTrackSectors() {
-    let circuitKey = sessionInfo.Meeting.Circuit.Key;
+function parseTime(time) {
+    const [hours, minutes, seconds] = time.split(":");
 
-    let season = sessionInfo.StartDate.slice(0, 4);
+    return (hours * 3600 + minutes * 60 + seconds) * 1000;
+}
 
-    let circuit = JSON.parse(
-        httpGet(`https://api.f1mv.com/api/v1/circuits/${circuitKey}/${season}`)
-    );
+function getTime(ms) {
+    const date = new Date(ms);
 
-    let trackSectors = circuit.marshalSectors;
-    for (i in trackSectors) {
-        let text = `<h1>Sector ${+i + 1}</h1>
-            <p class="green" id="trackSector${+i + 1}">CLEAR</p>`;
-        statusContainer.innerHTML += text;
+    console.log(date);
+
+    const hours = date.getUTCHours().toString().padStart(2, "0");
+    const minutes = date.getUTCMinutes().toString().padStart(2, "0");
+    const seconds = date.getUTCSeconds().toString().padStart(2, "0");
+
+    if (parseInt(hours) === 0) {
+        return `${minutes}:${seconds}`;
     }
+
+    return `${hours}:${minutes}:${seconds}`;
 }
 
 // Get all the HTML elements where information needs to be set
@@ -223,56 +186,88 @@ function getMainHTML() {
 
 // Set the status from the session
 function setSession() {
-    let status = sessionStartStatus.Status;
-    if (status == "Aborted") {
-        status = "SUSPENDED";
-        backgroundColor = "red";
-        delayed = false;
-    } else if (status == "Started") {
-        status = "ONGOING";
-        backgroundColor = "green";
-        delayed = false;
-    } else if (
-        status == "Finished" ||
-        status == "Finalised" ||
-        status == "Ends"
-    ) {
-        status = "FINISHED";
-        backgroundColor = "gray";
-        delayed = false;
-    }
-    if (status == "Inactive" && delayed != true) {
-        if (delayed) {
-            status = "DELAYED";
-            backgroundColor = "orange";
-            delayed = true;
-        } else {
-            for (i in RCMs.Messages) {
-                if (
-                    RCMs.Messages[i].Message.includes("SUSPENDED") ||
-                    RCMs.Messages[i].Message.includes("DELAYED")
-                ) {
-                    status = "DELAYED";
-                    backgroundColor = "orange";
-                    delayed = true;
-                } else {
-                    status = "ONSCHEDULE";
-                    backgroundColor = "gray";
-                }
+    let status = "ONSCHEDULE";
+    let color = "green";
+    switch (sessionStatus) {
+        case "Started":
+            status = "ONGOING";
+            break;
+        case "Aborted":
+            status = "SUSPENDED";
+            color = "red";
+            break;
+        case "Finished":
+        case "Finalised":
+        case "Ends":
+            status = "FINISHED";
+            color = "gray";
+            break;
+        case "Inactive":
+            for (const message of RCMs) {
+                if (!message.Message.includes("DELAYED")) break;
+                status = "DELAYED";
+                color = "orange";
             }
-        }
+            break;
     }
 
-    sessionStatus.innerHTML = status;
-    sessionStatus.className = backgroundColor;
+    const statusElement = document.getElementById("session");
+    statusElement.textContent = status;
+    statusElement.className = `${pClass} ${color}`;
+
+    const sessionNameElement = document.getElementById("session-name");
+    sessionNameElement.textContent = sessionInfo.Name.toUpperCase();
+}
+
+// Setting the timers for the current session
+function setTrackTime() {
+    const now = new Date();
+    const systemTime = clockData.systemTime;
+    const trackTime = clockData.trackTime;
+    const paused = clockData.paused;
+
+    const localTime = parseInt(paused ? trackTime : now - (systemTime - trackTime));
+
+    const displayTime = getTime(localTime);
+
+    const color = paused ? "gray" : "green";
+
+    const trackTimeElement = document.getElementById("time");
+    trackTimeElement.innerHTML = displayTime;
+    trackTimeElement.className = `${pClass} ${color}`;
+}
+
+function setSessionTimer() {
+    const now = new Date();
+    const paused = clockData.paused;
+    const extrapolatedClockStart = new Date(extrapolatedClock.Utc);
+    const extrapolatedTime = extrapolatedClock.Remaining;
+    const systemTime = clockData.systemTime;
+    const trackTime = clockData.trackTime;
+    const extrapolating = extrapolatedClock.Extrapolating;
+
+    let sessionDuration = new Date(sessionInfo.EndDate) - new Date(sessionInfo.StartDate);
+    if (sessionInfo.SessionType === "Qualifying")
+        sessionDuration = parseTime(qualiPartLengths[timingData.SessionPart - 1]);
+
+    const timer = extrapolating
+        ? paused
+            ? getTime(sessionDuration - (trackTime - extrapolatedClockStart))
+            : getTime(sessionDuration - (now - (systemTime - trackTime) - extrapolatedClockStart))
+        : extrapolatedTime;
+
+    const color = paused ? "gray" : extrapolating ? "green" : "gray";
+
+    const sessionTimerElement = document.getElementById("session-timer");
+    sessionTimerElement.textContent = timer;
+    sessionTimerElement.className = `${pClass} ${color}`;
+
+    return timer;
 }
 
 // Set the color of head padding needed to be used for the session
 function setHeadPadding(message) {
-    if (
-        message.Category == "Other" &&
-        message.Message.includes("HEAD PADDING MATERIAL")
-    ) {
+    if (message.Category == "Other" && message.Message.includes("HEAD PADDING MATERIAL")) {
         let color;
         if (message.Message.includes("BLUE")) {
             color = "BLUE";
@@ -299,9 +294,7 @@ function setManTyres(message) {
         if (message.Message.includes("USE OF WET WEATHER")) {
             tyres = "INTERMEDIATES";
             backgroundColor = "green";
-        } else if (
-            message.Message.includes("EXTREME TIRES" || "EXTREME TYRES")
-        ) {
+        } else if (message.Message.includes("EXTREME TIRES" || "EXTREME TYRES")) {
             tyres = "FULL WETS";
             backgroundColor = "blue";
         } else {
@@ -444,9 +437,7 @@ function setTrackSectors(message) {
     if (message.OriginalCategory == "Flag") {
         if (/\d/.test(message.Message)) {
             let sectorNumber = +message.Message.match(/\d+/)[0];
-            let trackSector = document.querySelector(
-                `#trackSector${sectorNumber}`
-            );
+            let trackSector = document.querySelector(`#trackSector${sectorNumber}`);
             if (message.Flag == "YELLOW") {
                 trackSector.innerHTML = "YELLOW";
                 trackSector.className = "yellow";
@@ -486,30 +477,30 @@ function setGrip(message) {
 
 // Setting the progress of the current session including custom progress per session
 function setProgress() {
+    const now = new Date();
+    const trackTime = clockData.trackTime;
+    const systemTime = clockData.systemTime;
+    const paused = clockData.paused;
+
+    const localTime = paused ? trackTime : now - (systemTime - trackTime);
+
+    console.log(localTime);
+
     // General information
     let color = "gray";
     // let timer = "00:15:00";
     let sessionDuration;
     let currentSessionPercentage;
     let maxSessionPercentage;
-    let timerSeconds =
-        +timer.split(":")[0] * 60 * 60 +
-        +timer.split(":")[1] * 60 +
-        +timer.split(":")[2];
-    let totalTimerSeconds =
-        +timer.split(":")[0] * 60 * 60 +
-        +timer.split(":")[1] * 60 +
-        +timer.split(":")[2];
+    let timerSeconds = +timer.split(":")[0] * 60 * 60 + +timer.split(":")[1] * 60 + +timer.split(":")[2];
+    let totalTimerSeconds = +timer.split(":")[0] * 60 * 60 + +timer.split(":")[1] * 60 + +timer.split(":")[2];
     sessionDuration = new Date(
-        new Date(sessionInfo.EndDate).getTime() -
-            new Date(sessionInfo.StartDate).getTime()
+        new Date(sessionInfo.EndDate).getTime() - new Date(sessionInfo.StartDate).getTime()
     ).toLocaleTimeString("en-GB", {
         timeZone: "UTC",
     });
     let sessionDurationSeconds =
-        +sessionDuration.split(":")[0] * 60 * 60 +
-        +sessionDuration.split(":")[1] * 60 +
-        +sessionDuration.split(":")[2];
+        +sessionDuration.split(":")[0] * 60 * 60 + +sessionDuration.split(":")[1] * 60 + +sessionDuration.split(":")[2];
     if (debug) {
         console.log("Session type: " + sessionInfo.Type);
     }
@@ -552,10 +543,7 @@ function setProgress() {
                 currentSessionPercentage = "0%";
             } else {
                 color = "green";
-                currentSessionPercentage =
-                    Math.round(
-                        ((currentLap - 1 - totalLaps) / totalLaps) * 100 + 100
-                    ) + "%";
+                currentSessionPercentage = Math.round(((currentLap - 1 - totalLaps) / totalLaps) * 100 + 100) + "%";
             }
 
             maxSessionPercentage = "100%";
@@ -573,13 +561,8 @@ function setProgress() {
             }
         } else {
             let totalMaxLaps = maxLaps + currentLap;
-            currentSessionPercentage =
-                Math.round(((currentLap - totalLaps) / totalLaps) * 100 + 100) +
-                "%";
-            maxSessionPercentage =
-                Math.round(
-                    ((totalMaxLaps - totalLaps) / totalLaps) * 100 + 100
-                ) + "%";
+            currentSessionPercentage = Math.round(((currentLap - totalLaps) / totalLaps) * 100 + 100) + "%";
+            maxSessionPercentage = Math.round(((totalMaxLaps - totalLaps) / totalLaps) * 100 + 100) + "%";
             if (maxSessionPercentage >= "75%") {
                 color = "orange";
             } else {
@@ -588,8 +571,7 @@ function setProgress() {
             if (currentSessionPercentage == "0%") {
                 color = "gray";
             }
-            let lapCounter =
-                "Lap: " + currentLap + "/" + (Math.floor(totalMaxLaps) + 1);
+            let lapCounter = "Lap: " + currentLap + "/" + (Math.floor(totalMaxLaps) + 1);
             lapCount.className = color;
             lapCount.innerHTML = lapCounter;
             if (debug) {
@@ -599,18 +581,10 @@ function setProgress() {
                 console.log("Current lap: " + currentLap);
                 console.log("Max lap: " + maxLaps);
             }
-            if (
-                currentSessionPercentage == maxSessionPercentage &&
-                (timerSeconds != "0" || currentLap != maxLaps)
-            ) {
-                currentSessionPercentage =
-                    +currentSessionPercentage.slice(0, -1) - 1 + "%";
+            if (currentSessionPercentage == maxSessionPercentage && (timerSeconds != "0" || currentLap != maxLaps)) {
+                currentSessionPercentage = +currentSessionPercentage.slice(0, -1) - 1 + "%";
             }
-            if (
-                currentSessionPercentage == maxSessionPercentage &&
-                timerSeconds == "0" &&
-                currentLap == maxLaps
-            ) {
+            if (currentSessionPercentage == maxSessionPercentage && timerSeconds == "0" && currentLap == maxLaps) {
                 currentProgress.innerHTML = "COMPLETED";
                 currentProgress.className = "gray";
                 return;
@@ -619,14 +593,10 @@ function setProgress() {
     } else if (sessionInfo.Type == "Qualifying") {
         // If the session is qualifying
         if (debug) {
-            console.log(
-                sessionData.Series[sessionData.Series.length - 1].QualifyingPart
-            );
+            console.log(sessionData.Series[sessionData.Series.length - 1].QualifyingPart);
         }
         let sessionDurationSeconds = 0;
-        switch (
-            sessionData.Series[sessionData.Series.length - 1].QualifyingPart
-        ) {
+        switch (sessionData.Series[sessionData.Series.length - 1].QualifyingPart) {
             case 3:
                 sessionDurationSeconds = 720;
             case 2:
@@ -635,13 +605,7 @@ function setProgress() {
                 sessionDurationSeconds = 1080;
         }
         currentSessionPercentage =
-            Math.round(
-                100 -
-                    ((totalTimerSeconds - sessionDurationSeconds) /
-                        sessionDurationSeconds) *
-                        100 -
-                    100
-            ) + "%";
+            Math.round(100 - ((totalTimerSeconds - sessionDurationSeconds) / sessionDurationSeconds) * 100 - 100) + "%";
         let Q;
         for (i in sessionData.Series) {
             if (debug) {
@@ -686,13 +650,7 @@ function setProgress() {
         }
         maxSessionPercentage = "100%";
         currentSessionPercentage =
-            Math.round(
-                100 -
-                    ((timerSeconds - sessionDurationSeconds) /
-                        sessionDurationSeconds) *
-                        100 -
-                    100
-            ) + "%";
+            Math.round(100 - ((timerSeconds - sessionDurationSeconds) / sessionDurationSeconds) * 100 - 100) + "%";
         if (currentSessionPercentage == "0%") {
             color = "gray";
         } else {
@@ -710,40 +668,8 @@ function setProgress() {
     if (debug) {
         console.log(color);
     }
-    currentProgress.innerHTML =
-        currentSessionPercentage + " - " + maxSessionPercentage;
+    currentProgress.innerHTML = currentSessionPercentage + " - " + maxSessionPercentage;
     currentProgress.className = color;
-}
-
-// Setting the timers for the current session
-function setTrackTime() {
-    let systemTime = clockData.systemTime;
-    let trackTime = clockData.trackTime;
-    let now = Date.now();
-    let trackTimeLiveMs = (now -= systemTime -= trackTime);
-    let offsetMs =
-        (+sessionInfo.GmtOffset.split(":")[0] * 60 * 60 +
-            +sessionInfo.GmtOffset.split(":")[1] * 60 +
-            +sessionInfo.GmtOffset.split(":")[2]) *
-        1000;
-    let trackTimeLive = new Date(trackTimeLiveMs + offsetMs).toLocaleTimeString(
-        "en-GB",
-        {
-            timeZone: "UTC",
-        }
-    );
-
-    if (debug) {
-        console.log("Now: " + now);
-        console.log("UTC Offset: " + sessionInfo.GmtOffset);
-        console.log("UTC Offset ms: " + offsetMs);
-        console.log(systemTime);
-        console.log(trackTime);
-        console.log(trackTimeLiveMs);
-        console.log(trackTimeLive);
-    }
-    trackTimeElement.innerHTML = trackTimeLive;
-    trackTimeElement.className = "green";
 }
 
 // Get the history of aborts
@@ -767,33 +693,19 @@ function getOldAborts() {
         if (debug) {
             console.log(statusSeriesIndexes[i]);
         }
-        if (
-            sessionData.StatusSeries[statusSeriesIndexes[i]].SessionStatus ==
-            "Aborted"
-        ) {
+        if (sessionData.StatusSeries[statusSeriesIndexes[i]].SessionStatus == "Aborted") {
             if (debug) {
-                console.log(
-                    sessionData.StatusSeries[statusSeriesIndexes[i]].Utc
-                );
+                console.log(sessionData.StatusSeries[statusSeriesIndexes[i]].Utc);
             }
-            let startAbort =
-                sessionData.StatusSeries[statusSeriesIndexes[i]].Utc;
+            let startAbort = sessionData.StatusSeries[statusSeriesIndexes[i]].Utc;
             let endAbort;
-            if (
-                sessionData.StatusSeries[statusSeriesIndexes[+i + 1]] !=
-                undefined
-            ) {
-                endAbort =
-                    sessionData.StatusSeries[statusSeriesIndexes[+i + 1]].Utc;
+            if (sessionData.StatusSeries[statusSeriesIndexes[+i + 1]] != undefined) {
+                endAbort = sessionData.StatusSeries[statusSeriesIndexes[+i + 1]].Utc;
             }
             if (startAbort != undefined && endAbort != undefined) {
-                usedTime =
-                    new Date(endAbort).getTime() -
-                    new Date(startAbort).getTime();
+                usedTime = new Date(endAbort).getTime() - new Date(startAbort).getTime();
                 fullTimerRemaining -= usedTime;
-                fullSessionTimer = new Date(
-                    fullTimerRemaining
-                ).toLocaleTimeString("en-GB", {
+                fullSessionTimer = new Date(fullTimerRemaining).toLocaleTimeString("en-GB", {
                     timeZone: "UTC",
                 });
             }
@@ -807,12 +719,9 @@ function getOldAborts() {
                 console.log("Remaining time: " + fullTimerRemaining);
                 console.log(
                     "Remaining timer: " +
-                        new Date(fullTimerRemaining).toLocaleTimeString(
-                            "en-GB",
-                            {
-                                timeZone: "UTC",
-                            }
-                        )
+                        new Date(fullTimerRemaining).toLocaleTimeString("en-GB", {
+                            timeZone: "UTC",
+                        })
                 );
             }
         }
@@ -843,11 +752,12 @@ function setTimers() {
         let systemTime = clockData.systemTime;
         let timerStart = new Date(extraPolatedClock.Utc).getTime();
         let now = Date.now();
-        timer = new Date(
-            sessionDuration - ((now -= systemTime -= trackTime) - timerStart)
-        ).toLocaleTimeString("en-GB", {
-            timeZone: "UTC",
-        });
+        timer = new Date(sessionDuration - ((now -= systemTime -= trackTime) - timerStart)).toLocaleTimeString(
+            "en-GB",
+            {
+                timeZone: "UTC",
+            }
+        );
 
         // .toLocaleTimeString("en-GB", { timeZone: "UTC" });
         if (debug) {
@@ -872,8 +782,7 @@ function setTimers() {
             let timerStart = new Date(extraPolatedClock.Utc).getTime();
             let now = Date.now();
             fullSessionTimer = new Date(
-                fullTimerRemaining -
-                    ((now -= systemTime -= trackTime) - timerStart)
+                fullTimerRemaining - ((now -= systemTime -= trackTime) - timerStart)
             ).toLocaleTimeString("en-GB", {
                 timeZone: "UTC",
             });
@@ -909,23 +818,17 @@ function addDrsZones() {}
 let count = 0;
 async function run() {
     await getConfigurations();
-    apiRequests();
-    getMainHTML();
-    addTrackSectors();
-    getOldAborts();
+    await apiRequests();
     while (true) {
-        apiRequests();
+        await apiRequests();
         setSession();
-        forRaceControlMessages();
-        setDRS();
-        setTimers();
+        // setProgress();
         setTrackTime();
-        setTrackStatus();
-        setProgress();
+        const timer = setSessionTimer();
         if (debug) {
             console.log(count++);
         }
-        await sleep(250);
+        await sleep(1000);
     }
 }
 
