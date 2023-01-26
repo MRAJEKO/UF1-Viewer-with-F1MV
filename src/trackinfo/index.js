@@ -34,6 +34,8 @@ document.addEventListener("keydown", (event) => {
 
 // Set global variables
 const qualiPartLengths = ["00:18:00", "00:15:00", "00:12:00"];
+const extraTime = "01:00:00";
+
 let drsEnabled = true;
 let pastMessages = [];
 let grip = "NORMAL";
@@ -144,7 +146,7 @@ async function apiRequests() {
 }
 
 function parseTime(time) {
-    const [hours, minutes, seconds] = time.split(":");
+    const [hours, minutes, seconds] = time.split(":").map((number) => parseInt(number));
 
     return (hours * 3600 + minutes * 60 + seconds) * 1000;
 }
@@ -246,9 +248,9 @@ function setSessionTimer() {
     const trackTime = clockData.trackTime;
     const extrapolating = extrapolatedClock.Extrapolating;
 
-    let sessionDuration = new Date(sessionInfo.EndDate) - new Date(sessionInfo.StartDate);
-    if (sessionInfo.SessionType === "Qualifying")
-        sessionDuration = parseTime(qualiPartLengths[timingData.SessionPart - 1]);
+    const sessionDuration = parseTime(extrapolatedTime);
+
+    console.log(sessionDuration);
 
     const timer = extrapolating
         ? paused
@@ -263,6 +265,52 @@ function setSessionTimer() {
     sessionTimerElement.className = `${pClass} ${color}`;
 
     return timer;
+}
+
+function setExtraTimer() {
+    if (sessionInfo.Type !== "Race") return;
+
+    const extraTimerElement = document.getElementById("extra-timer");
+    let color = "gray";
+    let displayTime;
+
+    const now = new Date();
+    const paused = clockData.paused;
+    const systemTime = clockData.systemTime;
+    const trackTime = clockData.trackTime;
+    const extrapolatedClockStart = new Date(extrapolatedClock.Utc);
+
+    let extraTimeUsed = 0;
+    let aborted = false;
+    let startTime = 0;
+    for (const status of sessionData.StatusSeries) {
+        if (aborted && status.SessionStatus === "Started") {
+            extraTimeUsed = new Date(status.Utc) - startTime;
+            aborted = false;
+            continue;
+        }
+
+        if (status.SessionStatus === "Aborted") {
+            startTime = new Date(status.Utc);
+            aborted = true;
+        }
+    }
+
+    const extraTimeMs = parseTime(extraTime);
+
+    const remaining = extraTimeMs - extraTimeUsed;
+
+    if (sessionStatus === "Aborted" && !extrapolatedClock.Extrapolating) {
+        displayTime = paused
+            ? getTime(remaining - (trackTime - extrapolatedClockStart))
+            : getTime(remaining - (now - (systemTime - trackTime) - extrapolatedClockStart));
+        color = "green";
+    } else {
+        displayTime = remaining > 0 ? getTime(remaining) : getTime(0);
+    }
+
+    extraTimerElement.textContent = displayTime;
+    extraTimerElement.className = `${pClass} ${color}`;
 }
 
 // Set the color of head padding needed to be used for the session
@@ -824,6 +872,7 @@ async function run() {
         setSession();
         // setProgress();
         setTrackTime();
+        setExtraTimer();
         const timer = setSessionTimer();
         if (debug) {
             console.log(count++);
