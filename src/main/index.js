@@ -60,7 +60,6 @@ function launchMVF1() {
 }
 
 async function ignore() {
-    console.log("Ignore");
     document.getElementById("connect").className = "animation";
 }
 
@@ -256,8 +255,8 @@ async function restoreAll() {
 
 // Link MV
 async function isConnected() {
-    await getConfigurations();
     try {
+        await getConfigurations();
         const api = (
             await (
                 await fetch(`http://${host}:${port}/api/graphql`, {
@@ -280,6 +279,7 @@ async function isConnected() {
             document.getElementById("connect").className = "shown";
             document.getElementById("connect").classList.add("animation");
         } else {
+            await getConfigurations();
             if (rpc) {
                 require("./RPC.js");
             }
@@ -289,6 +289,7 @@ async function isConnected() {
     } catch (error) {
         console.log(error);
         document.getElementById("connect").className = "shown";
+        isConnected();
     }
 }
 
