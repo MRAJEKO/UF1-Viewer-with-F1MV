@@ -441,18 +441,27 @@ function setProgress(timer) {
 }
 
 function setPitlane(message) {
-    if (!(message.SubCategory === "PitEntry" || message.SubCategory === "PitExit" || message.Flag === "RED")) return;
-
-    if (message.Flag === "RED") {
-        const pitEntryElement = document.getElementById(`pit-entry`);
-        const pitExitElement = document.getElementById(`pit-exit`);
-
-        pitEntryElement.textContent = "OPEN";
-        pitEntryElement.className = `${pClass} green`;
-        pitExitElement.textContent = "CLOSED";
-        pitExitElement.className = `${pClass} red`;
-
+    if (
+        !(
+            message.SubCategory === "PitEntry" ||
+            message.SubCategory === "PitExit" ||
+            message.Flag === "RED" ||
+            (message.Flag === "CLEAR" && sessionStatus === "Aborted")
+        )
+    )
         return;
+
+    const pitExitElement = document.getElementById(`pit-exit`);
+
+    switch (message.Flag) {
+        case "RED":
+            pitExitElement.textContent = "CLOSED";
+            pitExitElement.className = `${pClass} red`;
+            return;
+        case "CLEAR":
+            pitExitElement.textContent = "OPEN";
+            pitExitElement.className = `${pClass} green`;
+            return;
     }
 
     const type = message.SubCategory === "PitEntry" ? "entry" : "exit";
