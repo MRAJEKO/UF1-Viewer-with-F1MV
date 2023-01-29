@@ -3,6 +3,7 @@ const debug = false;
 const { ipcRenderer } = require("electron");
 
 const f1mvApi = require("npm_f1mv_api");
+const { stat } = require("original-fs");
 
 const sleep = (milliseconds) => {
     return new Promise((resolve) => setTimeout(resolve, milliseconds));
@@ -37,7 +38,6 @@ const qualiPartLengths = ["00:18:00", "00:15:00", "00:12:00"];
 const extraTime = "01:00:00";
 
 let drsEnabled = true;
-let pastMessages = [];
 let grip = "NORMAL";
 let color = "green";
 let redFlag = false;
@@ -123,6 +123,7 @@ async function apiRequests() {
         "TrackStatus",
         "SessionStatus",
         "TimingData",
+        "TimingStats",
         "ExtrapolatedClock",
         "SessionData",
         "RaceControlMessages",
@@ -132,9 +133,10 @@ async function apiRequests() {
     trackStatus = data.TrackStatus;
     sessionStatus = data.SessionStatus.Status;
     timingData = data.TimingData;
+    timingStats = data.TimingStats.Lines;
     extrapolatedClock = data.ExtrapolatedClock;
     sessionData = data.SessionData;
-    RCMs = data.RaceControlMessages.Messages;
+    raceControlMessages = data.RaceControlMessages.Messages;
     sessionInfo = data.SessionInfo;
     console.log(data);
     clockData = await f1mvApi.LiveTimingClockAPIGraphQL(config, [
@@ -146,9 +148,27 @@ async function apiRequests() {
 }
 
 function parseTime(time) {
-    const [hours, minutes, seconds] = time.split(":").map((number) => parseInt(number));
+    console.log(time);
+    const [seconds, minutes, hours] = time
+        .split(":")
+        .reverse()
+        .map((number) => parseInt(number));
+
+    if (hours === undefined) return (minutes * 60 + seconds) * 1000;
 
     return (hours * 3600 + minutes * 60 + seconds) * 1000;
+}
+
+function parseLapTime(lapTime) {
+    const [minutes, seconds, milliseconds] = lapTime
+        .split(/[:.]/)
+        .map((number) => parseInt(number.replace(/^0+/, "") || "0", 10));
+
+    if (milliseconds === undefined) {
+        return minutes + seconds / 1000;
+    }
+
+    return minutes * 60 + seconds + milliseconds / 1000;
 }
 
 function getTime(ms) {
@@ -171,7 +191,6 @@ function getTime(ms) {
 function getMainHTML() {
     statusContainer = document.getElementById("statuses");
     sessionStatus = document.querySelector("#session-status");
-    lapCount = document.querySelector("#lap-count");
     sessionTimerElement = document.querySelector("#timer1");
     fullSessionTimerElement = document.querySelector("#timer2");
     headPadding = document.querySelector("#head-material p");
@@ -205,7 +224,7 @@ function setSession() {
             color = "gray";
             break;
         case "Inactive":
-            for (const message of RCMs) {
+            for (const message of raceControlMessages) {
                 if (!message.Message.includes("DELAYED")) break;
                 status = "DELAYED";
                 color = "orange";
@@ -228,7 +247,15 @@ function setTrackTime() {
     const trackTime = clockData.trackTime;
     const paused = clockData.paused;
 
-    const localTime = parseInt(paused ? trackTime : now - (systemTime - trackTime));
+    const offset = parseTime(sessionInfo.GmtOffset);
+
+    console.log(offset);
+
+    console.log(now.getTime());
+    console.log(systemTime);
+    console.log(trackTime);
+
+    const localTime = parseInt(paused ? trackTime : now - (systemTime - trackTime)) + offset;
 
     const displayTime = getTime(localTime);
 
@@ -248,7 +275,7 @@ function setSessionTimer() {
     const trackTime = clockData.trackTime;
     const extrapolating = extrapolatedClock.Extrapolating;
 
-    const sessionDuration = parseTime(extrapolatedTime);
+    const sessionDuration = parseTime(extrapolatedTime) + 1000;
 
     console.log(sessionDuration);
 
@@ -264,11 +291,15 @@ function setSessionTimer() {
     sessionTimerElement.textContent = timer;
     sessionTimerElement.className = `${pClass} ${color}`;
 
-    return timer;
+    return parseTime(timer);
 }
 
 function setExtraTimer() {
-    if (sessionInfo.Type !== "Race") return;
+    if (sessionInfo.Type !== "Race") {
+        const extraTimerContainerElement = document.getElementById("extra-timer-container");
+        extraTimerContainerElement.className = "hidden";
+        return;
+    }
 
     const extraTimerElement = document.getElementById("extra-timer");
     let color = "gray";
@@ -313,554 +344,232 @@ function setExtraTimer() {
     extraTimerElement.className = `${pClass} ${color}`;
 }
 
-// Set the color of head padding needed to be used for the session
-function setHeadPadding(message) {
-    if (message.Category == "Other" && message.Message.includes("HEAD PADDING MATERIAL")) {
-        let color;
-        if (message.Message.includes("BLUE")) {
-            color = "BLUE";
-            backgroundColor = "blue";
-        } else if (message.Message.includes("LIGHT BLUE")) {
-            color = "LIGHT BLUE";
-            backgroundColor = "light-blue";
-        } else if (message.Message.includes("PINK")) {
-            color = "PINK";
-            backgroundColor = "pink";
-        } else {
-            color = "UNKNOWN";
-            backgroundColor = "white";
+function setProgress(timer) {
+    const sessionLength = new Date(sessionInfo.EndDate) - new Date(sessionInfo.StartDate);
+
+    const progressElement = document.getElementById("progress");
+
+    let totalTimers = sessionLength;
+
+    if (sessionInfo.Type === "Race") {
+        const qualiPartContainerElement = document.getElementById("quali-part-container");
+        qualiPartContainerElement.className = "hidden";
+
+        let fastestLap = 0;
+        for (const driverNumber in timingStats) {
+            const driverTimingStats = timingStats[driverNumber];
+
+            if (driverTimingStats.PersonalBestLapTime.Position === 1) {
+                fastestLap = parseLapTime(driverTimingStats.PersonalBestLapTime.Value);
+                break;
+            }
         }
-        headPadding.innerHTML = color;
-        headPadding.className = backgroundColor;
-    }
-}
 
-// Set the manditory tires needed to be used for the session
-function setManTyres(message) {
-    let tyres;
-    if (message.Message.includes("TYRES" || "TIRES")) {
-        if (message.Message.includes("USE OF WET WEATHER")) {
-            tyres = "INTERMEDIATES";
-            backgroundColor = "green";
-        } else if (message.Message.includes("EXTREME TIRES" || "EXTREME TYRES")) {
-            tyres = "FULL WETS";
-            backgroundColor = "blue";
-        } else {
-            tyres = "NONE";
-            backgroundColor = "white";
-        }
-        manTyres.innerHTML = tyres;
-        manTyres.className = backgroundColor;
-    }
-}
+        console.log(timer);
 
-// Get the current DRS status (excluding different zones)
-function getDRS(message) {
-    if (message.Category == "Drs") {
-        if (message.Message.includes("ENABLED")) {
-            drsEnabled = true;
-        } else drsEnabled = false;
-    }
-}
+        const finished = sessionStatus === "Finished" || sessionStatus === "Finalised" || sessionStatus === "Ends";
 
-// function getDRS(message) {
-//     if (message.Category == "Drs") {
-//         if (message.Message.includes("ZONE")) {
-//             drsZoneNumber = +message.Message.match(/(\d+)/)[0];
-//             console.log(drsZoneNumber);
-//         }
-//     }
-// }
+        const maxLaps =
+            fastestLap === 0
+                ? lapCount.TotalLaps
+                : finished
+                ? lapCount.CurrentLap
+                : Math.ceil(timer / (fastestLap * 1000) + lapCount.CurrentLap + 1);
 
-// Setting the DRS status to the information screen
-function setDRS() {
-    if (drsEnabled) {
-        drs.innerHTML = "ENABLED";
-        drs.className = "green";
+        const maxLapPercentage = Math.floor((maxLaps / lapCount.TotalLaps) * 100);
+        const color = finished
+            ? "gray"
+            : maxLaps < lapCount.TotalLaps
+            ? maxLapPercentage <= 75
+                ? "red"
+                : "orange"
+            : "green";
+
+        console.log(lapCount.CurrentLap / lapCount.TotalLaps);
+
+        const lapPercentage = Math.floor((lapCount.CurrentLap / lapCount.TotalLaps) * 100);
+
+        progressElement.textContent =
+            maxLapPercentage === 100 && finished
+                ? "CONCLUDED"
+                : `${lapPercentage === 100 ? "99" : lapPercentage}% - ${
+                      maxLapPercentage > 100 ? "100" : maxLapPercentage
+                  }%`;
+        progressElement.className = `${pClass} ${color}`;
+
+        const displayLapCount = `${lapCount.CurrentLap}/${maxLaps > lapCount.TotalLaps ? lapCount.TotalLaps : maxLaps}`;
+
+        const lapCountElement = document.getElementById("lapcount");
+
+        lapCountElement.textContent = displayLapCount;
+        lapCountElement.className = `${pClass} ${color}`;
     } else {
-        drs.innerHTML = "DISABLED";
-        drs.className = "red";
+        const lapCountContainerElement = document.getElementById("lapcount-container");
+        lapCountContainerElement.className = "hidden";
+
+        if (sessionInfo.Type === "Qualifying") {
+            const qualiPartElement = document.getElementById("quali-part");
+
+            const qualiPart = timingData.SessionPart;
+            totalTimers = parseTime(qualiPartLengths[qualiPart - 1]);
+
+            qualiPartElement.textContent = `Q${qualiPart} - Q${qualiPartLengths.length}`;
+            qualiPartElement.classList = `${pClass} ${timer === 0 && qualiPart === 3 ? "gray" : "green"}`;
+        } else {
+            const qualiPartContainerElement = document.getElementById("quali-part-container");
+            qualiPartContainerElement.className = "hidden";
+        }
+
+        const timerProgress = totalTimers - timer;
+
+        const progress = Math.floor((timerProgress / totalTimers) * 100);
+
+        const max = 100;
+
+        const sessionEnded = timer === 0;
+
+        const displayProgress = sessionEnded ? "CONCLUDED" : `${progress}% - ${max}%`;
+
+        progressElement.textContent = displayProgress;
+        progressElement.className = `${pClass} ${sessionEnded ? "gray" : "green"}`;
+
+        console.log(progress);
+
+        console.log(timer);
+        console.log(totalTimers);
     }
 }
 
-// Setting the pit entry status to the information screen
-function setPitEntry(message) {
-    if (message.SubCategory == "PitEntry") {
-        if (message.Flag == "OPEN") {
-            pitEntry.innerHTML = "OPEN";
-            pitEntry.className = "green";
-        }
-        if (message.Flag == "CLOSED") {
-            pitEntry.innerHTML = "CLOSED";
-            pitEntry.className = "red";
-        }
-    }
-}
+function setPitlane(message) {
+    if (!(message.SubCategory === "PitEntry" || message.SubCategory === "PitExit" || message.Flag === "RED")) return;
 
-// Setting the pit exit status to the information screen
-function setPitExit(message) {
-    if (debug) console.log(message);
-    if (message.SubCategory == "PitExit") {
-        if (message.Flag == "OPEN") {
-            pitExit.innerHTML = "OPEN";
-            pitExit.className = "green";
-        }
-        if (message.Flag == "CLOSED") {
-            pitExit.innerHTML = "CLOSED";
-            pitExit.className = "red";
-        }
-    }
-}
+    if (message.Flag === "RED") {
+        const pitEntryElement = document.getElementById(`pit-entry`);
+        const pitExitElement = document.getElementById(`pit-exit`);
 
-// Setting the full track status to the information screen
-function setTrackStatus() {
-    let status;
-    let color;
-    let topColor = "white";
-    let lines = document.querySelectorAll(".line");
-    let heads = document.querySelectorAll("h1");
-    switch (+trackStatus.Status) {
-        case 1:
-            status = "TRACK CLEAR";
+        pitEntryElement.textContent = "OPEN";
+        pitEntryElement.className = `${pClass} green`;
+        pitExitElement.textContent = "CLOSED";
+        pitExitElement.className = `${pClass} red`;
+
+        return;
+    }
+
+    const type = message.SubCategory === "PitEntry" ? "entry" : "exit";
+
+    let status = "CLOSED";
+    let color = "red";
+    switch (message.Flag) {
+        case "OPEN":
+            status = "OPEN";
             color = "green";
-            if (redFlag == true) {
-                pitExit.innerHTML = "OPEN";
-                pitExit.className = "green";
-            }
             break;
-        case 2:
-            status = "YELLOW FLAG";
-            color = "yellow";
-            topColor = "black";
-            break;
-        case 4:
-            status = "SAFETY CAR";
-            color = "orange";
-            topColor = "black";
-            break;
-        case 5:
-            status = "RED FLAG";
+        case "CLOSED":
+            status = "CLOSED";
             color = "red";
-            pitExit.innerHTML = "CLOSED";
-            pitExit.className = "red";
-            redFlag = true;
-            break;
-        case 6:
-            status = "VIRTUAL SAFETY CAR";
-            color = "orange";
-            topColor = "black";
-            break;
-        case 7:
-            status = "VIRTUAL SAFETY CAR ENDING";
-            color = "orange";
-            topColor = "black";
             break;
     }
-    if (oldTrackStatus != +trackStatus.Status) {
-        fullTrackStatus.innerHTML = status;
-        fullTrackStatus.className = color;
-        if (dynamicTextColor) {
-            for (i in lines) {
-                lines[i].className = "line " + topColor + "-background";
-            }
-            for (i in heads) {
-                heads[i].className = topColor + "-text";
-            }
-        }
-        oldTrackStatus = +trackStatus.Status;
-    }
-}
 
-// {"Status":"1","Message":"AllClear"}
-// {"Status":"2","Message":"Yellow"}
-// {Status: "3", Message: ""}
-// {Status: "4", Message: "SCDeployed"}
-// {"Status":"5","Message":"Red"}
-// {"Status":"6","Message":"VSCDeployed"}
-// {"Status":"7","Message":"VSCEnding"}
-
-// Set all the track sector statuses to the information screen
-function setTrackSectors(message) {
-    if (debug) console.log(message.OriginalCategory);
-    if (message.OriginalCategory == "Flag") {
-        if (/\d/.test(message.Message)) {
-            let sectorNumber = +message.Message.match(/\d+/)[0];
-            let trackSector = document.querySelector(`#trackSector${sectorNumber}`);
-            if (message.Flag == "YELLOW") {
-                trackSector.innerHTML = "YELLOW";
-                trackSector.className = "yellow";
-            }
-            if (message.Flag == "DOUBLE YELLOW") {
-                trackSector.innerHTML = "DOUBLE YELLOW";
-                trackSector.className = "orange";
-            }
-            if (message.Flag == "CLEAR") {
-                trackSector.innerHTML = "CLEAR";
-                trackSector.className = "green";
-            }
-        }
-    }
-    if (message.SubCategory == "TrackSurfaceSlippery") {
-        let sectorNumber = +message.Message.match(/\d+/)[0];
-        let trackSector = document.querySelector(`#trackSector${sectorNumber}`);
-        trackSector.innerHTML = "SLIPPERY";
-        trackSector.className = "slippery";
-    }
+    const pitLaneElement = document.getElementById(`pit-${type}`);
+    pitLaneElement.textContent = status;
+    pitLaneElement.className = `${pClass} ${color}`;
 }
 
 // Setting the grip status to the information screen
 function setGrip(message) {
-    if (message.SubCategory == "LowGripConditions") {
-        grip = "LOW";
-        color = "orange";
+    switch (message.SubCategory) {
+        case "LowGripConditions":
+            grip = "LOW";
+            color = "orange";
+            break;
+        case "NormalGripConditions":
+            grip = "NORMAL";
+            color = "green";
+            break;
     }
 
-    if (message.SubCategory == "NormalGripConditions") {
-        grip = "NORMAL";
-        color = "green";
-    }
-    gripConditions.innerHTML = grip;
-    gripConditions.className = color;
+    const gripElement = document.getElementById("grip");
+    gripElement.textContent = grip;
+    gripElement.className = `${pClass} ${color}`;
 }
 
-// Setting the progress of the current session including custom progress per session
-function setProgress() {
-    const now = new Date();
-    const trackTime = clockData.trackTime;
-    const systemTime = clockData.systemTime;
-    const paused = clockData.paused;
+function setHeadPadding(message) {
+    if (!(message.Category === "Other" && message.Message.includes("HEAD PADDING MATERIAL"))) return;
 
-    const localTime = paused ? trackTime : now - (systemTime - trackTime);
-
-    console.log(localTime);
-
-    // General information
-    let color = "gray";
-    // let timer = "00:15:00";
-    let sessionDuration;
-    let currentSessionPercentage;
-    let maxSessionPercentage;
-    let timerSeconds = +timer.split(":")[0] * 60 * 60 + +timer.split(":")[1] * 60 + +timer.split(":")[2];
-    let totalTimerSeconds = +timer.split(":")[0] * 60 * 60 + +timer.split(":")[1] * 60 + +timer.split(":")[2];
-    sessionDuration = new Date(
-        new Date(sessionInfo.EndDate).getTime() - new Date(sessionInfo.StartDate).getTime()
-    ).toLocaleTimeString("en-GB", {
-        timeZone: "UTC",
-    });
-    let sessionDurationSeconds =
-        +sessionDuration.split(":")[0] * 60 * 60 + +sessionDuration.split(":")[1] * 60 + +sessionDuration.split(":")[2];
-    if (debug) {
-        console.log("Session type: " + sessionInfo.Type);
+    let padding = "UNKNOWN";
+    let color = "white";
+    if (message.Message.includes("BLUE")) {
+        padding = "BLUE";
+        color = "blue";
+    } else if (message.Message.includes("LIGHT BLUE")) {
+        padding = "LIGHT BLUE";
+        color = "light-blue";
+    } else if (message.Message.includes("PINK")) {
+        padding = "PINK";
+        color = "pink";
     }
-    if (sessionInfo.Type == "Race") {
-        // If the session is a race
-        let currentLap = laps.CurrentLap;
-        let totalLaps = laps.TotalLaps;
-        let bestLapP1;
-        for (i in timingData.Lines) {
-            if (debug) {
-                console.log(timingData.Lines[i].Position);
-            }
-            if (timingData.Lines[i].Position == "1") {
-                if (debug) {
-                    console.log(timingData.Lines[i].BestLapTime.Value);
-                }
-                if (timingData.Lines[i].BestLapTime.Value === "") {
-                    bestLapP1 = "00:01";
-                } else {
-                    bestLapP1 = timingData.Lines[i].BestLapTime.Value;
-                }
-            }
-        }
-        let bestLapMinutes = +bestLapP1.split(":")[0];
-        let bestLapSeconds = +bestLapP1.split(":")[1] + bestLapMinutes * 60;
-        let lapsRemaining = totalLaps - currentLap;
-        let maxLaps = timerSeconds / bestLapSeconds;
-        if (debug) {
-            console.log(bestLapP1);
-            console.log(bestLapSeconds);
-            console.log("Timer seconds: " + timerSeconds);
-            console.log("Last lap seconds: " + bestLapSeconds);
-            console.log("Maximal laps: " + maxLaps);
-            console.log("Laps Remaining: " + lapsRemaining);
-        }
-        if (maxLaps > lapsRemaining) {
-            if (sessionStartStatus.Status == "Inactive") {
-                currentLap = 0;
-                color = "gray";
-                currentSessionPercentage = "0%";
-            } else {
-                color = "green";
-                currentSessionPercentage = Math.round(((currentLap - 1 - totalLaps) / totalLaps) * 100 + 100) + "%";
-            }
+    const headPaddingElement = document.getElementById("head-padding");
 
-            maxSessionPercentage = "100%";
-            let lapCounter = "Lap: " + currentLap + "/" + totalLaps;
-            lapCount.className = color;
-            lapCount.innerHTML = lapCounter;
-            if (currentSessionPercentage == "100%" && currentLap != totalLaps) {
-                currentSessionPercentage = "99%";
-            }
-            if (sessionStartStatus.Status == "Finished") {
-                currentProgress.innerHTML = "COMPLETED";
-                currentProgress.className = "gray";
-                lapCount.className = "gray";
-                return;
-            }
-        } else {
-            let totalMaxLaps = maxLaps + currentLap;
-            currentSessionPercentage = Math.round(((currentLap - totalLaps) / totalLaps) * 100 + 100) + "%";
-            maxSessionPercentage = Math.round(((totalMaxLaps - totalLaps) / totalLaps) * 100 + 100) + "%";
-            if (maxSessionPercentage >= "75%") {
-                color = "orange";
-            } else {
+    headPaddingElement.textContent = padding;
+    headPaddingElement.className = `${pClass} ${color}`;
+}
+
+function setDrs(message) {
+    const category = message.Category;
+
+    if (!(category === "Drs" || message.Flag === "RED")) return;
+
+    let status = "DISABLED";
+    let color = "red";
+    if (message.Category === "Drs") {
+        switch (message.Status) {
+            case "DISABLED":
+                status = message.Status;
                 color = "red";
-            }
-            if (currentSessionPercentage == "0%") {
-                color = "gray";
-            }
-            let lapCounter = "Lap: " + currentLap + "/" + (Math.floor(totalMaxLaps) + 1);
-            lapCount.className = color;
-            lapCount.innerHTML = lapCounter;
-            if (debug) {
-                console.log("Session: " + currentSessionPercentage);
-                console.log("Session max: " + maxSessionPercentage);
-                console.log("Timerseconds: " + timerSeconds);
-                console.log("Current lap: " + currentLap);
-                console.log("Max lap: " + maxLaps);
-            }
-            if (currentSessionPercentage == maxSessionPercentage && (timerSeconds != "0" || currentLap != maxLaps)) {
-                currentSessionPercentage = +currentSessionPercentage.slice(0, -1) - 1 + "%";
-            }
-            if (currentSessionPercentage == maxSessionPercentage && timerSeconds == "0" && currentLap == maxLaps) {
-                currentProgress.innerHTML = "COMPLETED";
-                currentProgress.className = "gray";
-                return;
-            }
+                break;
+            case "ENABLED":
+                status = message.Status;
+                color = "green";
+                break;
         }
-    } else if (sessionInfo.Type == "Qualifying") {
-        // If the session is qualifying
-        if (debug) {
-            console.log(sessionData.Series[sessionData.Series.length - 1].QualifyingPart);
-        }
-        let sessionDurationSeconds = 0;
-        switch (sessionData.Series[sessionData.Series.length - 1].QualifyingPart) {
-            case 3:
-                sessionDurationSeconds = 720;
-            case 2:
-                sessionDurationSeconds = 900;
-            case 1:
-                sessionDurationSeconds = 1080;
-        }
-        currentSessionPercentage =
-            Math.round(100 - ((totalTimerSeconds - sessionDurationSeconds) / sessionDurationSeconds) * 100 - 100) + "%";
-        let Q;
-        for (i in sessionData.Series) {
-            if (debug) {
-                console.log(sessionData.Series[i]);
-            }
-            Q = "Q" + sessionData.Series[i].QualifyingPart;
-        }
-        if (debug) {
-            console.log("Qualifying");
-            console.log(currentSessionPercentage);
-            console.log(totalTimerSeconds);
-            console.log(sessionDurationSeconds);
-            console.log(Q);
-        }
-        if (currentSessionPercentage == "0%") {
-            color = "gray";
-        } else {
-            color = "green";
-        }
-        let maxQ = "Q3";
-        maxSessionPercentage = "100%";
-        if (Q == maxQ) {
-            totalQProgressElement.innerHTML = Q + " - " + maxQ;
-            totalQProgressElement.className = "gray";
-        } else {
-            totalQProgressElement.className = "green";
-        }
-        totalQProgressElement.innerHTML = Q + " - " + maxQ;
+    }
 
-        if (currentSessionPercentage == "100%" && totalTimerSeconds != "0") {
-            currentSessionPercentage = "99%";
-        }
-        if (currentSessionPercentage == "100%" && totalTimerSeconds == "0") {
-            currentProgress.innerHTML = "COMPLETED";
-            currentProgress.className = "gray";
-            return;
-        }
-    } else {
-        // If the session is a practice session
-        if (debug) {
-            console.log(sessionDuration);
-        }
-        maxSessionPercentage = "100%";
-        currentSessionPercentage =
-            Math.round(100 - ((timerSeconds - sessionDurationSeconds) / sessionDurationSeconds) * 100 - 100) + "%";
-        if (currentSessionPercentage == "0%") {
-            color = "gray";
-        } else {
-            color = "green";
-        }
-        if (currentSessionPercentage == "100%" && timerSeconds != "0") {
-            currentSessionPercentage = "99%";
-        }
-        if (currentSessionPercentage == "100%" && timerSeconds == "0") {
-            currentProgress.innerHTML = "COMPLETED";
-            currentProgress.className = "gray";
-            return;
-        }
-    }
-    if (debug) {
-        console.log(color);
-    }
-    currentProgress.innerHTML = currentSessionPercentage + " - " + maxSessionPercentage;
-    currentProgress.className = color;
+    const drsElement = document.getElementById("drs");
+    drsElement.textContent = status;
+    drsElement.className = `${pClass} ${color}`;
 }
 
-// Get the history of aborts
-function getOldAborts() {
-    let statusSeriesIndexes = [];
-    let usedTime;
-    for (i in sessionData.StatusSeries) {
-        if (
-            sessionData.StatusSeries[i].SessionStatus != undefined &&
-            (sessionData.StatusSeries[i].SessionStatus == "Started" ||
-                sessionData.StatusSeries[i].SessionStatus == "Aborted")
-        ) {
-            if (debug) {
-                console.log(sessionData.StatusSeries[i].SessionStatus);
-                console.log(i);
-            }
-            statusSeriesIndexes.push(i);
-        }
+function setManTires(message) {
+    if (!message.Message.includes("TYRES" || "TIRES")) return;
+
+    let tires = "NONE";
+    let color = "white";
+
+    if (message.Message.includes("USE OF WET WEATHER")) {
+        tires = "INTERMEDIATES";
+        backgroundColor = "green";
+    } else if (message.Message.includes("EXTREME TIRES" || "EXTREME TYRES")) {
+        tires = "FULL WETS";
+        backgroundColor = "blue";
     }
-    for (i in statusSeriesIndexes) {
-        if (debug) {
-            console.log(statusSeriesIndexes[i]);
-        }
-        if (sessionData.StatusSeries[statusSeriesIndexes[i]].SessionStatus == "Aborted") {
-            if (debug) {
-                console.log(sessionData.StatusSeries[statusSeriesIndexes[i]].Utc);
-            }
-            let startAbort = sessionData.StatusSeries[statusSeriesIndexes[i]].Utc;
-            let endAbort;
-            if (sessionData.StatusSeries[statusSeriesIndexes[+i + 1]] != undefined) {
-                endAbort = sessionData.StatusSeries[statusSeriesIndexes[+i + 1]].Utc;
-            }
-            if (startAbort != undefined && endAbort != undefined) {
-                usedTime = new Date(endAbort).getTime() - new Date(startAbort).getTime();
-                fullTimerRemaining -= usedTime;
-                fullSessionTimer = new Date(fullTimerRemaining).toLocaleTimeString("en-GB", {
-                    timeZone: "UTC",
-                });
-            }
-            if (debug) {
-                console.log("Start Abort: " + startAbort);
-                console.log("End Abort: " + endAbort);
-                console.log("Old remaining time: ");
-                console.log(fullTimerRemaining);
-                console.log("Used time ms: ");
-                console.log(usedTime);
-                console.log("Remaining time: " + fullTimerRemaining);
-                console.log(
-                    "Remaining timer: " +
-                        new Date(fullTimerRemaining).toLocaleTimeString("en-GB", {
-                            timeZone: "UTC",
-                        })
-                );
-            }
-        }
-    }
+
+    const manTiresElement = document.getElementById("tires");
+    manTiresElement.textContent = tires;
+    manTiresElement.className = `${pClass} ${color}`;
 }
 
-function setTimers() {
-    let color = "gray";
-    let fullColor = "gray";
-    let sessionDuration;
-    if (debug) {
-        console.log(fullSessionTimer);
-        console.log(fullTimerRemaining);
-    }
-    if (extraPolatedClock.Extrapolating) {
-        color = "green";
-        sessionDuration = new Date(
-            (+extraPolatedClock.Remaining.split(":")[0] * 60 * 60 +
-                +extraPolatedClock.Remaining.split(":")[1] * 60 +
-                +extraPolatedClock.Remaining.split(":")[2]) *
-                1000 +
-                1000
-        );
-        let test = new Date().toLocaleTimeString("en-GB", {
-            timeZone: "UTC",
-        });
-        let trackTime = clockData.trackTime;
-        let systemTime = clockData.systemTime;
-        let timerStart = new Date(extraPolatedClock.Utc).getTime();
-        let now = Date.now();
-        timer = new Date(sessionDuration - ((now -= systemTime -= trackTime) - timerStart)).toLocaleTimeString(
-            "en-GB",
-            {
-                timeZone: "UTC",
-            }
-        );
-
-        // .toLocaleTimeString("en-GB", { timeZone: "UTC" });
-        if (debug) {
-            console.log(extraPolatedClock.Utc);
-            console.log(extraPolatedClock.Extrapolating);
-            // console.log(Remaining);
-            console.log(test);
-            console.log(sessionDuration);
-            console.log(systemTime);
-            console.log(timerStart);
-            console.log(timer);
-        }
-    } else {
-        timer = extraPolatedClock.Remaining;
-        if (
-            (timer != "02:00:00" && sessionInfo.Name == "Race") ||
-            (timer != "01:00:00" && sessionInfo.Name == "Sprint")
-        ) {
-            fullColor = "yellow";
-            let trackTime = clockData.trackTime;
-            let systemTime = clockData.systemTime;
-            let timerStart = new Date(extraPolatedClock.Utc).getTime();
-            let now = Date.now();
-            fullSessionTimer = new Date(
-                fullTimerRemaining - ((now -= systemTime -= trackTime) - timerStart)
-            ).toLocaleTimeString("en-GB", {
-                timeZone: "UTC",
-            });
-            if (debug) {
-                console.log((now -= systemTime -= trackTime) - timerStart);
-                console.log(fullSessionTimer);
-                console.log(fullTimerRemaining);
-            }
-        }
-
-        if (fullTimerRemaining < 0) {
-            fullSessionTimer = "00:00:00";
-        }
-        if (timer == "00:00:00") {
-            color = "gray";
-        }
-    }
-    if (sessionInfo.Type == "Race") {
-        sessionTimerElement.innerHTML = timer;
-        fullSessionTimerElement.innerHTML = fullSessionTimer;
-        sessionTimerElement.className = color;
-        fullSessionTimerElement.className = fullColor;
-    } else {
-        sessionTimerElement.innerHTML = timer;
-        sessionTimerElement.className = color;
+const pastMessages = [];
+function forRaceControlMessages() {
+    for (const message of raceControlMessages) {
+        if (pastMessages.includes(JSON.stringify(message))) continue;
+        pastMessages.push(JSON.stringify(message));
+        console.log(message);
+        setGrip(message);
+        setHeadPadding(message);
+        setDrs(message);
+        setPitlane(message);
     }
 }
-
-// Adding the DRS zones
-function addDrsZones() {}
 
 // Running all the functions
 let count = 0;
@@ -870,33 +579,15 @@ async function run() {
     while (true) {
         await apiRequests();
         setSession();
-        // setProgress();
         setTrackTime();
-        setExtraTimer();
         const timer = setSessionTimer();
+        setExtraTimer();
+        setProgress(timer);
+        forRaceControlMessages();
         if (debug) {
             console.log(count++);
         }
         await sleep(1000);
-    }
-}
-
-// Running all the funtions that sessionData.StatusSeries[i].Utc a for (i in RCMs.Messages) loop
-function forRaceControlMessages() {
-    for (i in RCMs.Messages) {
-        let message = RCMs.Messages[i];
-        if (debug) console.log(message);
-        if (pastMessages.includes(JSON.stringify(message))) {
-        } else {
-            pastMessages += JSON.stringify(message);
-            setHeadPadding(message);
-            setManTyres(message);
-            getDRS(message);
-            setTrackSectors(message);
-            setPitEntry(message);
-            setPitExit(message);
-            setGrip(message);
-        }
     }
 }
 
