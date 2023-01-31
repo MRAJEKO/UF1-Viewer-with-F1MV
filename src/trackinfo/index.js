@@ -3,7 +3,6 @@ const debug = false;
 const { ipcRenderer } = require("electron");
 
 const f1mvApi = require("npm_f1mv_api");
-const { stat } = require("original-fs");
 
 const sleep = (milliseconds) => {
     return new Promise((resolve) => setTimeout(resolve, milliseconds));
@@ -36,41 +35,6 @@ document.addEventListener("keydown", (event) => {
 // Set global variables
 const qualiPartLengths = ["00:18:00", "00:15:00", "00:12:00"];
 const extraTime = "01:00:00";
-
-let drsEnabled = true;
-let grip = "NORMAL";
-let color = "green";
-let redFlag = false;
-let fullTimerRemaining = 3600000;
-let fullSessionTimer = new Date(fullTimerRemaining).toLocaleTimeString("en-GB", {
-    timeZone: "UTC",
-});
-
-// Global HTML elements
-let sessionStatus;
-let lapCount;
-let raceTimer;
-let sessionTimer;
-let headPadding;
-let drs;
-let manTyres;
-let pitEntry;
-let pitExit;
-let currentProgress;
-let fullTrackStatus;
-let gripConditions;
-let trackTimeElement;
-let qProgressElement;
-let totalQProgressElement;
-
-// API requests
-let RCMs;
-let laps;
-let trackStatus;
-let timingData;
-let extraPolatedClock;
-let sessionData;
-let clockData;
 
 async function getConfigurations() {
     const configFile = (await ipcRenderer.invoke("get_config")).current.trackinfo;
@@ -185,24 +149,6 @@ function getTime(ms) {
     }
 
     return `${hours}:${minutes}:${seconds}`;
-}
-
-// Get all the HTML elements where information needs to be set
-function getMainHTML() {
-    statusContainer = document.getElementById("statuses");
-    sessionStatus = document.querySelector("#session-status");
-    sessionTimerElement = document.querySelector("#timer1");
-    fullSessionTimerElement = document.querySelector("#timer2");
-    headPadding = document.querySelector("#head-material p");
-    drs = document.querySelector("#drs p");
-    manTyres = document.querySelector("#tyres p");
-    pitEntry = document.querySelector("#pit-entry p");
-    pitExit = document.querySelector("#pit-exit p");
-    currentProgress = document.querySelector("#percentage-count");
-    fullTrackStatus = document.querySelector("#sector-info #head p");
-    gripConditions = document.querySelector("#grip p");
-    trackTimeElement = document.querySelector("#track-time");
-    totalQProgressElement = document.querySelector("#total-q-progress");
 }
 
 // Set the status from the session
