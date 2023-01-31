@@ -1,0 +1,123 @@
+* {
+    margin: 0;
+    padding: 0;
+    font-family: "SFBold", Arial, Helvetica, sans-serif;
+}
+
+.transparent {
+    background-color: transparent !important;
+    -webkit-app-region: no-drag;
+}
+
+body {
+    overflow: hidden;
+    background-color: gray;
+    -webkit-app-region: drag;
+}
+
+.container {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    grid-template-rows: 100vh;
+    background-color: #0a0a0faf;
+    padding: 0 5vw;
+    border-radius: 10vw;
+    column-gap: 5vw;
+}
+
+.graphs {
+    display: grid;
+    grid-template-rows: calc(45vh - 2.5vw) 10vh calc(45vh - 2.5vw);
+    margin-top: 2.5vw;
+}
+
+.graph {
+    height: 100% !important;
+}
+
+.buttons {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 2vw;
+}
+
+.buttons button {
+    width: 50px;
+    padding: 7px 10px;
+    border-radius: 10px;
+    background-color: transparent;
+    transition: all 0.3s ease;
+    outline: none;
+}
+
+.big-decrease {
+    border: 2px solid rgba(196, 0, 0, 0.774);
+    color: rgba(196, 0, 0, 0.774);
+}
+
+.big-decrease:hover {
+    background-color: rgba(196, 0, 0, 0.774);
+    color: black;
+}
+
+.small-decrease {
+    border: 2px solid rgba(255, 0, 0, 0.774);
+    color: rgba(255, 0, 0, 0.774);
+}
+
+.small-decrease:hover {
+    background-color: rgba(255, 0, 0, 0.774);
+    color: black;
+}
+
+.reset {
+    width: 60px !important;
+    border: 2px solid #0069d9ab;
+    color: #0069d9ab;
+}
+
+.reset:hover {
+    background-color: #0069d9ab;
+    color: black;
+}
+
+.small-increase {
+    border: 2px solid #00ff3cab;
+    color: #00ff3cab;
+}
+
+.small-increase:hover {
+    background-color: #00ff3cab;
+    color: black;
+}
+
+.big-increase {
+    border: 2px solid #00b82bab;
+    color: #00b82bab;
+}
+
+.big-increase:hover {
+    background-color: #00b82bab;
+    color: black;
+}
+
+.info {
+    margin-top: 2.5vw;
+    height: 95vh;
+    display: grid;
+    grid-template-rows: 5fr 1fr 5fr;
+}
+
+.bullet {
+    height: 40vh;
+    display: flex;
+}
+
+.wind-direction {
+    height: 45vh;
+}
+
+.wind-direction img {
+    height: 80%;
+}
