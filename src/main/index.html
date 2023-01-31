@@ -79,7 +79,7 @@
                 </div>
             </section>
             <section class="settings-section" id="statuses">
-                <h2>Track Information</h2>
+                <h2>Sector Statuses</h2>
                 <div class="setting">
                     <p>Default background color</p>
                     <div class="option">
@@ -107,6 +107,26 @@
                             <input id="always_on_top" type="checkbox" />
                             <span class="slider round"></span>
                         </label>
+                    </div>
+                </div>
+            </section>
+            <section class="settings-section" id="weather">
+                <h2>Weather Information</h2>
+                <div class="setting">
+                    <p>Default background color</p>
+                    <div class="option">
+                        <select class="selector" id="default_background_color">
+                            <option value="gray">Gray</option>
+                            <option value="transparent">Transparent</option>
+                            <option value="black">Black</option>
+                            <option value="white">White</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="setting">
+                    <p>Amount of data points</p>
+                    <div class="option">
+                        <input name="datapoints" type="text" maxlength="2" id="datapoints" class="typ" />
                     </div>
                 </div>
             </section>
@@ -193,6 +213,7 @@
             <button class="window" onclick="fastest()">Fastest</button>
             <button class="window" onclick="improves()">Improvements</button>
             <button class="window" onclick="currentLaps()">Current Laps</button>
+            <button class="window" onclick="weather()">Weather</button>
         </section>
         <div class="line"></div>
         <button class="window" onclick="autoSwitch()">Auto Onboard Camera Switching (Beta)</button>

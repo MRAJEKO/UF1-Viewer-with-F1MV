@@ -137,6 +137,10 @@ async function currentLaps() {
     );
 }
 
+async function weather() {
+    await ipcRenderer.invoke("window", "weather/index.html", 1000, 300, false, true, true, false, alwaysOnTop);
+}
+
 async function autoSwitch() {
     await ipcRenderer.invoke("window", "autoswitch/index.html", 400, 600, false, true, true, false, alwaysOnTop);
 }
