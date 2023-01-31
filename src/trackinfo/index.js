@@ -441,6 +441,8 @@ function setGrip(message) {
             grip = "NORMAL";
             color = "green";
             break;
+        default:
+            return;
     }
 
     const gripElement = document.getElementById("grip");
