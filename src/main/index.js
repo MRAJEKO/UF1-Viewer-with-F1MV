@@ -67,10 +67,10 @@ async function setAlwaysOnTop() {
     while (true) {
         const config = (await ipcRenderer.invoke("get_config")).current;
         alwaysOnTop = config.general.always_on_top;
-        alwaysOnTopImprovements = config.improvements.always_on_top_improvements;
+        alwaysOnTopPush = config.current_laps.always_on_top;
         if (debug) {
             console.log(alwaysOnTop);
-            console.log(alwaysOnTopImprovements);
+            console.log(alwaysOnTopPush);
         }
         await sleep(2000);
     }
@@ -109,32 +109,8 @@ async function fastest() {
     await ipcRenderer.invoke("window", "fastest/index.html", 1000, 300, false, true, true, false, alwaysOnTop);
 }
 
-async function improves() {
-    await ipcRenderer.invoke(
-        "window",
-        "improves/index.html",
-        300,
-        500,
-        false,
-        true,
-        true,
-        false,
-        alwaysOnTopImprovements
-    );
-}
-
 async function currentLaps() {
-    await ipcRenderer.invoke(
-        "window",
-        "currentlaps/index.html",
-        300,
-        500,
-        false,
-        true,
-        true,
-        false,
-        alwaysOnTopImprovements
-    );
+    await ipcRenderer.invoke("window", "currentlaps/index.html", 300, 500, false, true, true, false, alwaysOnTopPush);
 }
 
 async function weather() {
