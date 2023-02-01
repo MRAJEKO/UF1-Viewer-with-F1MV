@@ -4,22 +4,25 @@
     overflow: hidden;
 }
 
-button {
-    width: 100%;
-    height: 100%;
-    -webkit-app-region: drag;
-    font-size: 17vw;
-    font-weight: bold;
-    text-align: center;
-    color: white;
-    font-family: "F1Bold";
-    position: absolute;
-    top: 50%;
-    -ms-transform: translateY(-50%);
-    transform: translateY(-50%);
-    -webkit-text-stroke: 2px black;
-    border: none;
+body {
     background-color: gray;
+    -webkit-app-region: drag;
+}
+
+.container {
+    background-color: #0a0a0faf;
+    height: 100vh;
+    border-radius: 7vw;
+    display: grid;
+    place-items: center;
+}
+
+p {
+    text-align: center;
+    font-size: 18vw;
+    padding: 5vw;
+    color: white;
+    font-family: "SFBold";
 }
 
 .transparent {
