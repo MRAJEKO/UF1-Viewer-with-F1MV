@@ -208,7 +208,7 @@ function setTrackTime() {
     const color = paused ? "gray" : "green";
 
     const trackTimeElement = document.getElementById("time");
-    trackTimeElement.innerHTML = displayTime;
+    trackTimeElement.textContent = displayTime;
     trackTimeElement.className = `${pClass} ${color}`;
 }
 
