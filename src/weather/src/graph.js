@@ -4,6 +4,9 @@ import { ResponsiveBullet } from "@nivo/bullet";
 
 import { modifyData } from "./modifyData";
 
+import { trackRotation } from "./trackRotation";
+import { config } from "webpack";
+
 const { ipcRenderer } = require("electron");
 
 const f1mvApi = require("npm_f1mv_api");
@@ -24,7 +27,7 @@ const intervalTime = 10000;
 let limit = 30;
 let defaultLimit = 30;
 
-const CustomTooltip = ({ point }) => (
+const TempToolTip = ({ point }) => (
     <div style={{ background: "white", padding: "10px", borderRadius: "20px " }}>
         <strong>{point.serieId}</strong>
         <br />
@@ -32,11 +35,46 @@ const CustomTooltip = ({ point }) => (
     </div>
 );
 
+const WindToolTip = ({ point }) => (
+    <div style={{ background: "white", padding: "10px", borderRadius: "20px " }}>
+        <strong>{point.serieId}</strong>
+        <br />
+        <strong>{point.data.xFormatted}</strong> - {String(point.data.yFormatted)} km/h
+    </div>
+);
+
+let rotation = 0;
+
+function getWindDirection(dir) {
+    if (dir >= 337.5 || dir < 22.5) {
+        return "N";
+    } else if (dir >= 22.5 && dir < 67.5) {
+        return "NE";
+    } else if (dir >= 67.5 && dir < 112.5) {
+        return "E";
+    } else if (dir >= 112.5 && dir < 157.5) {
+        return "SE";
+    } else if (dir >= 157.5 && dir < 202.5) {
+        return "S";
+    } else if (dir >= 202.5 && dir < 247.5) {
+        return "SW";
+    } else if (dir >= 247.5 && dir < 292.5) {
+        return "W";
+    } else if (dir >= 292.5 && dir < 337.5) {
+        return "NW";
+    }
+}
+
 function Graph() {
     const [tempData, setTempData] = useState([]);
     const [windData, setWindData] = useState([]);
     const [humidityData, setHumidityData] = useState([]);
     const [pressureData, setPressureData] = useState([]);
+    const [windDirection, setWindDirection] = useState(0);
+    const [windSpeed, setWindSpeed] = useState(0);
+
+    const [raining, setRaining] = useState(false);
+
     const [intervalId, setIntervalId] = useState(null);
 
     const [localValue, setLocalValue] = useState(limit);
@@ -58,6 +96,7 @@ function Graph() {
         const configFile = (await ipcRenderer.invoke("get_config")).current.weather;
         const networkConfig = (await ipcRenderer.invoke("get_config")).current.network;
         const defaultBackgroundColor = configFile.default_background_color;
+        const useTrackRotation = configFile.use_trackmap_rotation;
 
         host = networkConfig.host;
         port = (await f1mvApi.discoverF1MVInstances(host)).port;
@@ -73,6 +112,8 @@ function Graph() {
         setLocalValue(parseInt(configFile.datapoints));
         defaultLimit = parseInt(configFile.datapoints);
 
+        if (useTrackRotation) rotation = await trackRotation({ host: host, port: port });
+
         fetchData();
     }
 
@@ -81,19 +122,31 @@ function Graph() {
             host: host,
             port: port,
         };
-        f1mvApi
-            .LiveTimingAPIGraphQL(config, ["WeatherData", "WeatherDataSeries", "SessionInfo"])
-            .then((response) => {
-                const modifiedData = modifyData(response);
-                if (modifiedData[0] !== tempData) setTempData(modifiedData[0]);
+        console.log(config);
+        if (config.port !== undefined) {
+            f1mvApi
+                .LiveTimingAPIGraphQL(config, ["WeatherData", "WeatherDataSeries", "SessionInfo"])
+                .then((response) => {
+                    const modifiedData = modifyData(response);
+                    if (modifiedData[0] !== tempData) setTempData(modifiedData[0]);
 
-                if (modifiedData[1] !== windData) setWindData(modifiedData[1]);
+                    if (modifiedData[1] !== windData) setWindData(modifiedData[1]);
 
-                if (modifiedData[2] !== humidityData) setHumidityData(modifiedData[2]);
+                    if (modifiedData[2] !== humidityData) setHumidityData(modifiedData[2]);
 
-                if (modifiedData[3] !== pressureData) setPressureData(modifiedData[3]);
-            })
-            .catch((error) => console.error(error));
+                    if (modifiedData[3] !== pressureData) setPressureData(modifiedData[3]);
+
+                    if (parseInt(response.WeatherData.WindDirection) !== windDirection)
+                        setWindDirection(parseInt(response.WeatherData.WindDirection));
+
+                    if ((response.WeatherData.Rainfall === "0" ? false : true) !== windDirection)
+                        setRaining(response.WeatherData.Rainfall === "0" ? false : true);
+
+                    if (parseFloat(response.WeatherData.WindSpeed) !== windSpeed)
+                        setWindSpeed(parseFloat(response.WeatherData.WindSpeed));
+                })
+                .catch((error) => console.error(error));
+        }
     }
 
     const handleClick = (newLimit) => {
@@ -105,6 +158,23 @@ function Graph() {
 
     return (
         <div className="container">
+            <div className="buttons">
+                <button className="big-decrease" onClick={() => handleClick(localValue - 10)}>
+                    -10
+                </button>
+                <button className="small-decrease" onClick={() => handleClick(localValue - 1)}>
+                    -1
+                </button>
+                <button className="reset" onClick={() => handleClick(defaultLimit)}>
+                    Reset
+                </button>
+                <button className="small-increase" onClick={() => handleClick(localValue + 1)}>
+                    +1
+                </button>
+                <button className="big-increase" onClick={() => handleClick(localValue + 10)}>
+                    +10
+                </button>
+            </div>
             <div className="graphs">
                 <div className="graph">
                     <ResponsiveLine
@@ -192,26 +262,10 @@ function Graph() {
                                 ],
                             },
                         ]}
-                        tooltip={CustomTooltip}
+                        tooltip={TempToolTip}
                     />
                 </div>
-                <div className="buttons">
-                    <button className="big-decrease" onClick={() => handleClick(localValue - 10)}>
-                        -10
-                    </button>
-                    <button className="small-decrease" onClick={() => handleClick(localValue - 1)}>
-                        -1
-                    </button>
-                    <button className="reset" onClick={() => handleClick(defaultLimit)}>
-                        Reset
-                    </button>
-                    <button className="small-increase" onClick={() => handleClick(localValue + 1)}>
-                        +1
-                    </button>
-                    <button className="big-increase" onClick={() => handleClick(localValue + 10)}>
-                        +10
-                    </button>
-                </div>
+
                 <div className="graph">
                     <ResponsiveLine
                         data={windData}
@@ -298,7 +352,7 @@ function Graph() {
                                 ],
                             },
                         ]}
-                        tooltip={CustomTooltip}
+                        tooltip={WindToolTip}
                     />
                 </div>
             </div>
@@ -353,11 +407,15 @@ function Graph() {
                         minValue={925}
                     />
                 </div>
-                <div className="rain">
-                    <p>NO RAIN</p>
+                <div className={"rain " + (raining ? "red" : "blue")}>
+                    <p>{raining ? "RAINING" : "NO RAIN"}</p>
                 </div>
                 <div className="wind-direction">
-                    <img src="./src/compass.png" />
+                    <p>
+                        {getWindDirection(windDirection)} | {windDirection}° | {windSpeed} km/h
+                    </p>
+                    <img style={{ transform: `rotate(${windDirection + rotation}deg)` }} src="./src/compass.png" />
+                    <p>WIND DIRECTION</p>
                 </div>
             </div>
         </div>

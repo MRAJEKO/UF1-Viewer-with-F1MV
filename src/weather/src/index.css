@@ -17,18 +17,18 @@ body {
 
 .container {
     display: grid;
-    grid-template-columns: 2fr 1fr;
+    grid-template-columns: 1fr 10fr 5fr;
     grid-template-rows: 100vh;
     background-color: #0a0a0faf;
-    padding: 0 5vw;
-    border-radius: 10vw;
-    column-gap: 5vw;
+    padding: 0 10px;
+    border-radius: 40px;
 }
 
 .graphs {
     display: grid;
-    grid-template-rows: calc(45vh - 2.5vw) 10vh calc(45vh - 2.5vw);
+    grid-template-rows: calc(45vh) calc(45vh) 10vh;
     margin-top: 2.5vw;
+    margin-right: 5vw;
 }
 
 .graph {
@@ -38,13 +38,13 @@ body {
 .buttons {
     display: flex;
     align-items: center;
-    justify-content: center;
-    gap: 2vw;
+    flex-direction: column;
+    justify-content: space-evenly;
 }
 
 .buttons button {
     width: 50px;
-    padding: 7px 10px;
+    padding: 8px 8px;
     border-radius: 10px;
     background-color: transparent;
     transition: all 0.3s ease;
@@ -107,17 +107,42 @@ body {
     height: 95vh;
     display: grid;
     grid-template-rows: 5fr 1fr 5fr;
+    place-items: center;
 }
 
 .bullet {
     height: 40vh;
     display: flex;
+    width: 100%;
+}
+
+.rain {
+    padding: 2vh;
+    border-radius: 2vh;
+    place-self: start;
+}
+
+.blue {
+    background-color: #1e90ff;
+}
+
+.red {
+    background-color: #ff4500;
 }
 
 .wind-direction {
-    height: 45vh;
+    height: 40vh;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    align-items: center;
 }
 
 .wind-direction img {
-    height: 80%;
+    height: 65%;
+}
+
+.wind-direction p {
+    color: white;
 }
