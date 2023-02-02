@@ -31,11 +31,6 @@ document.addEventListener("keydown", (event) => {
         toggleBackground();
     }
 });
-
-// Set global variables
-const qualiPartLengths = ["00:18:00", "00:15:00", "00:12:00"];
-const extraTime = "01:00:00";
-
 async function getConfigurations() {
     const configFile = (await ipcRenderer.invoke("get_config")).current.statuses;
     const networkConfig = (await ipcRenderer.invoke("get_config")).current.network;
