@@ -86,11 +86,11 @@ async function trackTime() {
 }
 
 async function trackInfo() {
-    await ipcRenderer.invoke("window", "trackinfo/index.html", 250, 800, false, true, true, false, false);
+    await ipcRenderer.invoke("window", "trackinfo/index.html", 250, 800, false, true, true, false, alwaysOnTop);
 }
 
 async function statuses() {
-    await ipcRenderer.invoke("window", "statuses/index.html", 250, 800, false, true, true, false, false);
+    await ipcRenderer.invoke("window", "statuses/index.html", 250, 800, false, true, true, false, alwaysOnTop);
 }
 
 async function singleRCM() {
