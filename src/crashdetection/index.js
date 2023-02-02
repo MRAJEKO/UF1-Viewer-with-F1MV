@@ -64,19 +64,50 @@ document.addEventListener("keydown", (event) => {
     }
 });
 
+function getCarData(driverNumber) {
+    try {
+        carData[0].Cars[driverNumber].Channels;
+    } catch (error) {
+        return "error";
+    }
+    return carData[0].Cars[driverNumber].Channels;
+}
+
 function getSpeedThreshold() {
     if (
         sessionType === "Qualifying" ||
         sessionType === "Practice" ||
-        sessionStatus === "Inactive" ||
-        sessionStatus === "Aborted" ||
         trackStatus.Status === "4" ||
         trackStatus.Status === "6" ||
         trackStatus.Status === "7"
-    ) {
+    )
         return 10;
-    }
+    if (sessionStatus === "Inactive" || sessionStatus === "Aborted") return 0;
     return 30;
+}
+
+function weirdCarBehaviour(driverCarData, racingNumber) {
+    const driverTimingData = timingData[racingNumber];
+
+    const rpm = driverCarData[0];
+
+    const speed = driverCarData[2];
+
+    const gear = driverCarData[3];
+
+    const speedLimit = getSpeedThreshold();
+
+    return (
+        rpm === 0 ||
+        speed <= speedLimit ||
+        gear > 8 ||
+        gear ===
+            (sessionStatus === "Inactive" ||
+            sessionStatus === "Aborted" ||
+            (sessionType !== "Race" && driverTimingData.PitOut)
+                ? ""
+                : 0)
+    );
 }
 
 function overwriteCrashedStatus(racingNumber) {
@@ -92,7 +123,7 @@ function overwriteCrashedStatus(racingNumber) {
 
     // Detect if grid start during inactive (formation lap) during a 'Race' session
     // If the final to last mini sector has a value (is not 0). Check if the session is 'Inactive' and if the session type is 'Race'
-    if (lastSectorSegments.slice(-2, -1)[0].Status !== 0 && sessionInactive && !timingData[racingNumber].PitOut) {
+    if (lastSectorSegments.slice(-2, -1)[0].Status !== 0 && sessionInactive && !driverTimingData.PitOut) {
         console.log(racingNumber + " is lining up for a race start");
         return true;
     }
@@ -127,39 +158,6 @@ function overwriteCrashedStatus(racingNumber) {
     }
 
     return false;
-}
-
-function weirdCarBehaviour(driverCarData, racingNumber) {
-    const driverTimingData = timingData[racingNumber];
-
-    const rpm = driverCarData[0];
-
-    const speed = driverCarData[2];
-
-    const gear = driverCarData[3];
-
-    const speedLimit = getSpeedThreshold();
-
-    return (
-        rpm === 0 ||
-        speed <= speedLimit ||
-        gear > 8 ||
-        gear ===
-            (sessionStatus === "Inactive" ||
-            sessionStatus === "Aborted" ||
-            (sessionType !== "Race" && driverTimingData.PitOut)
-                ? ""
-                : 0)
-    );
-}
-
-function getCarData(driverNumber) {
-    try {
-        carData[0].Cars[driverNumber].Channels;
-    } catch (error) {
-        return "error";
-    }
-    return carData[0].Cars[driverNumber].Channels;
 }
 
 function driverHasCrashed(driverNumber) {
