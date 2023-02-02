@@ -9,11 +9,18 @@
         <link rel="stylesheet" href="style.css" />
     </head>
     <body id="background">
-        <div class="container">
-            <h1>
-                You can make this window as small as you want but it need to be
-                visible all the time for it to work.
-            </h1>
+        <div id="container">
+            <div class="wrapper">
+                <h1>Auto Onboard Switcher</h1>
+                <h1 class="status">Enabled</h1>
+                <h2>Currently connected onboards:</h2>
+                <p class="status" id="onboard-count"></p>
+                <button onclick="hide()">Hide</button>
+                <p class="disclamer">
+                    Important: This window may never be minimized and should always be on to in order for it to function
+                    properly hiding it will not disable the script.
+                </p>
+            </div>
         </div>
         <script src="index.js"></script>
     </body>

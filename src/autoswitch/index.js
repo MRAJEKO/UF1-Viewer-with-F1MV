@@ -16,6 +16,7 @@ let transparent = false;
 function toggleBackground() {
     if (transparent) {
         document.querySelector("body").className = "";
+        document.getElementById("container").className = "";
         transparent = false;
     } else {
         document.querySelector("body").className = "transparent";
@@ -28,6 +29,10 @@ document.addEventListener("keydown", (event) => {
         toggleBackground();
     }
 });
+
+function hide() {
+    document.getElementById("container").className = "hidden";
+}
 
 async function getConfigurations() {
     const configFile = (await ipcRenderer.invoke("get_config")).current;
@@ -86,6 +91,8 @@ async function getAllPlayers() {
         }
     }
 
+    if (data.length === 0) return false;
+
     if (mainWindow === null) console.log("Could not find main window. Using onboards to sync instead.");
 
     const contentId = parseInt(data[0].streamData.contentId);
@@ -115,7 +122,7 @@ async function replaceWindow(oldWindowId, newDriverNumber, contentId, mainWindow
 
         if (mainWindow === null) mainWindow = oldWindowId;
 
-        console.log(await f1mvApi.syncPlayers(config, mainWindow));
+        await f1mvApi.syncPlayers(config, mainWindow);
 
         await sleep(2000);
 
@@ -459,7 +466,15 @@ async function run() {
         await getConfigurations();
         await apiRequests();
         const videoData = await getAllPlayers();
+        if (videoData === false) {
+            document.getElementById("onboard-count").textContent = "0";
+            continue;
+        }
+
         const windowAmount = videoData[0];
+
+        document.getElementById("onboard-count").textContent = windowAmount;
+
         if (windowAmount === 0) continue;
 
         const shownDrivers = videoData[1];
