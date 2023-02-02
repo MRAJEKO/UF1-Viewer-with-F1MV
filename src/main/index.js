@@ -86,11 +86,11 @@ async function trackTime() {
 }
 
 async function trackInfo() {
-    await ipcRenderer.invoke("window", "trackinfo/index.html", 1000, 800, false, true, true, false, false);
+    await ipcRenderer.invoke("window", "trackinfo/index.html", 250, 800, false, true, true, false, false);
 }
 
 async function statuses() {
-    await ipcRenderer.invoke("window", "statuses/index.html", 1000, 800, false, true, true, false, false);
+    await ipcRenderer.invoke("window", "statuses/index.html", 250, 800, false, true, true, false, false);
 }
 
 async function singleRCM() {
@@ -114,11 +114,11 @@ async function currentLaps() {
 }
 
 async function weather() {
-    await ipcRenderer.invoke("window", "weather/index.html", 1000, 300, false, true, true, false, alwaysOnTop);
+    await ipcRenderer.invoke("window", "weather/index.html", 1000, 530, false, true, true, false, alwaysOnTop);
 }
 
 async function autoSwitch() {
-    await ipcRenderer.invoke("window", "autoswitch/index.html", 400, 600, false, true, true, false, alwaysOnTop);
+    await ipcRenderer.invoke("window", "autoswitch/index.html", 400, 480, false, true, true, false, alwaysOnTop);
 }
 
 // Settings
