@@ -116,7 +116,7 @@ async function replaceWindow(oldWindowId, newDriverNumber, contentId, mainWindow
     if (!newWindow.errors) {
         const newWindowId = newWindow.data.playerCreate;
 
-        await sleep(1000);
+        await sleep(2500);
 
         await f1mvApi.setSpeedometerVisibility(config, newWindowId, true);
 
@@ -124,7 +124,7 @@ async function replaceWindow(oldWindowId, newDriverNumber, contentId, mainWindow
 
         await f1mvApi.syncPlayers(config, mainWindow);
 
-        await sleep(2000);
+        await sleep(3000);
 
         await f1mvApi.setPlayerBounds(config, newWindowId, { x: x, y: y });
 
@@ -329,9 +329,7 @@ function weirdCarBehaviour(driverCarData, racingNumber) {
 function overwriteCrashedStatus(racingNumber) {
     const driverTimingData = timingData[racingNumber];
 
-    if (driverTimingData.InPit === true) return true;
-    if (driverTimingData.Retired === true) return true;
-    if (driverTimingData.Stopped === true) return true;
+    if (driverTimingData.InPit || driverTimingData.Retired || driverTimingData.Stopped) return true;
 
     const lastSectorSegments = driverTimingData.Sectors.slice(-1)[0].Segments;
 
@@ -370,6 +368,9 @@ function overwriteCrashedStatus(racingNumber) {
 }
 
 function driverIsImportant(driverNumber) {
+    const driverTimingData = timingData[driverNumber];
+    if (driverTimingData.InPit && !driverTimingData.Retired && !driverTimingData.Stopped) return true;
+
     const driverCarData = getCarData(driverNumber);
 
     if (driverCarData === "error") return false;
