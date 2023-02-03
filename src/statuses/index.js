@@ -152,16 +152,28 @@ function setFullStatus() {
 let pastRaceControlMessages = [];
 function setTrackSector() {
     for (const message of raceControlMessages) {
-        if (message.Category !== "Flag" || message.Scope !== "Sector") continue;
+        if (
+            (message.Category !== "Flag" || message.Scope !== "Sector") &&
+            message.SubCategory !== "TrackSurfaceSlippery"
+        )
+            continue;
 
         if (pastRaceControlMessages.includes(JSON.stringify(message))) continue;
 
+        console.log(message);
+
         pastRaceControlMessages.push(JSON.stringify(message));
 
-        const sector = message.Sector;
+        let sector = message.Sector;
+
+        let flag = message.Flag;
+
+        if (sector === undefined) {
+            sector = message.Message.match(/(\d+)/)[0];
+            flag = "SLIPPERY";
+        }
 
         let color = "green";
-        const flag = message.Flag;
         switch (flag) {
             case "YELLOW":
                 color = "yellow";
@@ -169,6 +181,8 @@ function setTrackSector() {
             case "DOUBLE YELLOW":
                 color = "orange";
                 break;
+            case "SLIPPERY":
+                color = "slippery";
         }
 
         const sectorElement = document.getElementById(`sector${sector}`);

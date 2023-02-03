@@ -91,21 +91,6 @@ p {
     background-color: rgb(209, 0, 0) !important;
 }
 
-.pink {
-    background-color: pink !important;
-    color: black;
-}
-
-.blue {
-    background-color: rgb(0, 0, 199) !important;
-    color: white;
-}
-
-.light-blue {
-    background-color: rgb(53, 201, 251);
-    color: black;
-}
-
 .white {
     background-color: white;
     color: black;
@@ -122,4 +107,10 @@ p {
 
 .black-text {
     color: black !important;
+}
+
+.slippery {
+    background-image: url(./slippery.png);
+    background-size: cover;
+    color: black;
 }
