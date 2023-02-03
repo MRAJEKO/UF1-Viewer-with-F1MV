@@ -254,7 +254,7 @@ function tertiaryDriver(racingNumber) {
     const driverCarData = carData[0].Cars[racingNumber];
     if (sessionType !== "Race") {
         // If the session is a Practice or Qualifying session
-        if (driverTimingData.InPit && driverCarData.Channels[2] <= 5) return true;
+        if (driverTimingData.InPit && driverCarData.Channels[0] <= 5) return true;
 
         return false;
     }
