@@ -5,6 +5,10 @@ copyright: "Copyright © 2023 MRAJEKO"
 generateUpdatesFilesForAllChannels: true
 asar: true
 
+npmRebuild: false
+nodeGypRebuild: false
+buildDependenciesFromSource: false
+
 directories:
     output: "out"
 
