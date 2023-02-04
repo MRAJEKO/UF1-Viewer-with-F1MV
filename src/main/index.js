@@ -27,7 +27,7 @@ async function getConfigurations() {
 
 function launchMVF1() {
     if (navigator.appVersion.includes("Win") || navigator.appVersion.includes("Mac")) {
-        location = "f1mv://";
+        location = "muvi://";
     } else if (navigator.appVersion.includes("X11") || navigator.appVersion.includes("Linux")) {
         alert("Opening MultiViewer for Linux is not supported yet.");
     } else {
