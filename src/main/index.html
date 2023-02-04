@@ -10,18 +10,19 @@
     <body>
         <section id="connect" class="shown">
             <h1>Ultimate Formula 1 Viewer for MVF1</h1>
-            <div class="text">
-                <h2>Open the livetiming screen inside of MultiViewer to link UF1</h2>
+
+            <div class="wrapper">
+                <div class="connections">
+                    <h2 id="mv-connection" class="red">Not connected to Multiviewer</h2>
+                    <h2 id="timing-connection" class="red">No live timing running</h2>
+                </div>
+                <button onclick="launchMVF1()" class="link">
+                    <h2>Open MultiViewer</h2>
+                </button>
+                <button onclick="ignore()" class="link">
+                    <h2>Continue either way</h2>
+                </button>
             </div>
-            <button onclick="isConnected()" class="link">
-                <h2>Link MultiViewer</h2>
-            </button>
-            <button onclick="launchMVF1()" class="link">
-                <h2>Open MultiViewer</h2>
-            </button>
-            <button onclick="ignore()" class="link">
-                <h2>Continue either way</h2>
-            </button>
         </section>
         <section id="menu">
             <section class="settings-section" id="general">
@@ -213,8 +214,8 @@
         <button id="options" class="buttons" onclick="settings()">
             <img id="settings-icon" src="../icons/settings.png" alt="" />
         </button>
-        <button id="connection" class="buttons" onclick="isConnected()">
+        <div id="connection" class="buttons">
             <img id="connection-icon" src="../icons/denied.png" alt="" />
-        </button>
+        </div>
     </body>
 </html>

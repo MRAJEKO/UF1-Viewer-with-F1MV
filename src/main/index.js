@@ -10,15 +10,12 @@ const sleep = (milliseconds) => {
     return new Promise((resolve) => setTimeout(resolve, milliseconds));
 };
 
-async function getConfigurations() {
-    const configFile = (await ipcRenderer.invoke("get_config")).current;
-    host = configFile.network.host;
-    port = (await f1mvApi.discoverF1MVInstances(host)).port;
+async function getConfigurations(host, port, file) {
     config = {
         host: host,
         port: port,
     };
-    rpc = configFile.general.discord_rpc;
+    rpc = file.general.discord_rpc;
     if (debug) {
         console.log(host);
         console.log(port);
@@ -36,7 +33,7 @@ function launchMVF1() {
 }
 
 async function ignore() {
-    document.getElementById("connect").className = "animation";
+    isConnected(true);
 }
 
 async function setAlwaysOnTop() {
@@ -324,41 +321,43 @@ async function restoreAll() {
 }
 
 // Link MV
-async function isConnected() {
+async function isConnected(ignore) {
+    if (ignore) {
+        document.getElementById("connect").className = "animation";
+        return;
+    }
+    const configFile = (await ipcRenderer.invoke("get_config")).current;
+    const host = configFile.network.host;
     try {
-        await getConfigurations();
-        const api = (
-            await (
-                await fetch(`http://${host}:${port}/api/graphql`, {
-                    headers: { "content-type": "application/json" },
-                    body: JSON.stringify({
-                        query: `query LiveTimingClock {
-                            liveTimingClock {
-                              liveTimingStartTime
-                            }
-                          }`,
-                        operationName: "LiveTimingClock",
-                    }),
-                    method: "POST",
-                })
-            ).json()
-        ).data.liveTimingClock;
+        const port = (await f1mvApi.discoverF1MVInstances(host)).port;
 
-        console.log(api);
-        if (api == null) {
-            document.getElementById("connect").className = "shown";
-            document.getElementById("connect").classList.add("animation");
-        } else {
-            await getConfigurations();
+        document.getElementById("mv-connection").textContent = "Connected to MultiViewer";
+        document.getElementById("mv-connection").className = "green";
+
+        await getConfigurations(host, port, configFile);
+
+        if ((await f1mvApi.LiveTimingAPIGraphQL(config, "SessionInfo")) !== null) {
             if (rpc) {
                 require("./RPC.js");
             }
+
+            console.log("Connected to MultiViewer and live timing session found");
+
+            document.getElementById("timing-connection").textContent = "Connected to Live Timing";
+            document.getElementById("timing-connection").className = "green";
+
             document.getElementById("connect").className = "animation";
             document.getElementById("connection-icon").src = "../icons/checkmark.png";
+        } else {
+            console.log("No live timing session found");
+
+            await sleep(500);
+            isConnected();
         }
     } catch (error) {
-        console.log(error);
-        document.getElementById("connect").className = "shown";
+        console.log("No MultiViewer instance found");
+
+        await sleep(500);
         isConnected();
     }
 }
