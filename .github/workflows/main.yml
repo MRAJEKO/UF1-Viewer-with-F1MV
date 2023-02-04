@@ -17,10 +17,11 @@ jobs:
             - name: Check out Git repository
               uses: actions/checkout@v1
 
-            - name: Add msbuild to PATH
-              uses: microsoft/setup-msbuild@v1.1
-              with:
-                  vs-version: "[16.4,16.5)"
+            - if: matrix.os == "windows-latest"
+                - name: Add msbuild to PATH
+                uses: microsoft/setup-msbuild@v1.1
+                with:
+                    vs-version: "[16.4,16.5)"
 
             - name: Install Node.js, NPM and Yarn
               uses: actions/setup-node@v1
