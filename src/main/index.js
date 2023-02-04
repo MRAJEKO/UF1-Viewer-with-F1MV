@@ -78,43 +78,153 @@ async function setAlwaysOnTop() {
 setAlwaysOnTop();
 
 async function flagDisplay() {
-    await ipcRenderer.invoke("window", "flagdisplay/index.html", 800, 600, false, true, false, false, false);
+    await ipcRenderer.invoke(
+        "window",
+        "flagdisplay/index.html",
+        800,
+        600,
+        false,
+        true,
+        false,
+        false,
+        false,
+        "flag.ico"
+    );
 }
 
 async function trackTime() {
-    await ipcRenderer.invoke("window", "tracktime/index.html", 400, 140, false, true, true, false, alwaysOnTop);
+    await ipcRenderer.invoke(
+        "window",
+        "tracktime/index.html",
+        400,
+        140,
+        false,
+        true,
+        true,
+        false,
+        alwaysOnTop,
+        "time.ico"
+    );
 }
 
 async function trackInfo() {
-    await ipcRenderer.invoke("window", "trackinfo/index.html", 250, 800, false, true, true, false, alwaysOnTop);
+    await ipcRenderer.invoke(
+        "window",
+        "trackinfo/index.html",
+        250,
+        800,
+        false,
+        true,
+        true,
+        false,
+        alwaysOnTop,
+        "info.ico"
+    );
 }
 
 async function statuses() {
-    await ipcRenderer.invoke("window", "statuses/index.html", 250, 800, false, true, true, false, alwaysOnTop);
+    await ipcRenderer.invoke(
+        "window",
+        "statuses/index.html",
+        250,
+        800,
+        false,
+        true,
+        true,
+        false,
+        alwaysOnTop,
+        "checkmark.ico"
+    );
 }
 
 async function singleRCM() {
-    await ipcRenderer.invoke("window", "singlercm/index.html", 1000, 100, false, true, true, false, alwaysOnTop);
+    await ipcRenderer.invoke(
+        "window",
+        "singlercm/index.html",
+        1000,
+        100,
+        false,
+        true,
+        true,
+        false,
+        alwaysOnTop,
+        "messages.ico"
+    );
 }
 
 async function crashDetection() {
-    await ipcRenderer.invoke("window", "crashdetection/index.html", 400, 400, false, true, true, false, alwaysOnTop);
+    await ipcRenderer.invoke(
+        "window",
+        "crashdetection/index.html",
+        400,
+        400,
+        false,
+        true,
+        true,
+        false,
+        alwaysOnTop,
+        "crash.ico"
+    );
 }
 
 async function compass() {
-    await ipcRenderer.invoke("window", "compass/index.html", 100, 100, false, true, true, false, alwaysOnTop);
+    await ipcRenderer.invoke(
+        "window",
+        "compass/index.html",
+        100,
+        100,
+        false,
+        true,
+        true,
+        false,
+        alwaysOnTop,
+        "compass.ico"
+    );
 }
 
 async function fastest() {
-    await ipcRenderer.invoke("window", "fastest/index.html", 1000, 300, false, true, true, false, alwaysOnTop);
+    await ipcRenderer.invoke(
+        "window",
+        "fastest/index.html",
+        1000,
+        300,
+        false,
+        true,
+        true,
+        false,
+        alwaysOnTop,
+        "currentlaps.ico"
+    );
 }
 
 async function currentLaps() {
-    await ipcRenderer.invoke("window", "currentlaps/index.html", 300, 500, false, true, true, false, alwaysOnTopPush);
+    await ipcRenderer.invoke(
+        "window",
+        "currentlaps/index.html",
+        300,
+        500,
+        false,
+        true,
+        true,
+        false,
+        alwaysOnTopPush,
+        "currentlaps.ico"
+    );
 }
 
 async function weather() {
-    await ipcRenderer.invoke("window", "weather/index.html", 1000, 530, false, true, true, false, alwaysOnTop);
+    await ipcRenderer.invoke(
+        "window",
+        "weather/index.html",
+        1000,
+        530,
+        false,
+        true,
+        true,
+        false,
+        alwaysOnTop,
+        "weather.ico"
+    );
 }
 
 async function autoSwitch() {

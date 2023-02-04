@@ -24,6 +24,7 @@ const createWindow = () => {
             nodeIntegration: true,
             contextIsolation: false,
         },
+        icon: path.join(__dirname, "icons/windows/logo.ico"),
     });
 
     // Load main window (main/index.html)
@@ -65,7 +66,8 @@ ipcMain.handle(
         hideMenuBar,
         transparent,
         hasShadow,
-        alwaysOnTop
+        alwaysOnTop,
+        icon
     ) => {
         // Create the new window with all arguments
         const newWindow = new BrowserWindow({
@@ -82,6 +84,7 @@ ipcMain.handle(
                 nodeIntegration: true,
                 contextIsolation: false,
             },
+            icon: path.join(__dirname, "icons/windows/" + icon),
         });
         newWindow.loadFile(path.join(__dirname, pathToHTML));
         return "Opening: " + pathToHTML + alwaysOnTop;
