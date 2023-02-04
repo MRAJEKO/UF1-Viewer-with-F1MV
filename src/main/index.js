@@ -26,36 +26,12 @@ async function getConfigurations() {
 }
 
 function launchMVF1() {
-    let LOCALAPPDATA = process.env.LOCALAPPDATA;
-    if (navigator.appVersion.indexOf("Win") != -1) {
-        if (!fs.existsSync(`${LOCALAPPDATA}\\MultiViewerForF1`)) {
-            alert(
-                "Cannot run MultiViewer because of invalid path. Please put your MultiViewer folder under '%APPDATA%'"
-            );
-            return;
-        }
-        let mvPath = `${LOCALAPPDATA}\\MultiViewerForF1\\MultiViewer for F1.exe`;
-        console.log("Launching MultiViewer");
-        spawn(mvPath, [], { detached: true });
-    } else if (navigator.appVersion.indexOf("Mac") != -1) {
-        // alert("Launching MultiViewer is not compatible with MacOS yet.");
-        if (!fs.existsSync(`/Applications/MultiViewer for F1.app`)) {
-            alert(
-                "Cannot run MultiViewer because of invalid path. Please put your MultiViewer folder under '/Applications'"
-            );
-            return;
-        }
-        let mvPath = "/Applications/MultiViewer for F1.app/Contents/MacOS/MultiViewer for F1";
-        console.log("Launching MultiViewer");
-        spawn("open", [mvPath], { detached: true });
-    } else if (navigator.appVersion.indexOf("X11") != -1) {
-        alert("Launching MultiViewer is not compatible with Unix OS yet.");
-    } else if (navigator.appVersion.indexOf("Linux") != -1) {
-        alert("Launching MultiViewer is not compatible with Linux OS yet.");
+    if (navigator.appVersion.includes("Win") || navigator.appVersion.includes("Mac")) {
+        location = "f1mv://";
+    } else if (navigator.appVersion.includes("X11") || navigator.appVersion.includes("Linux")) {
+        alert("Opening MultiViewer for Linux is not supported yet.");
     } else {
-        {
-            alert("Cannot run MultiViewer because OS is unknown.");
-        }
+        alert("Cannot run MultiViewer because OS is unknown.");
     }
 }
 
