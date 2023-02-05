@@ -155,21 +155,6 @@ async function compass() {
     );
 }
 
-async function fastest() {
-    await ipcRenderer.invoke(
-        "window",
-        "fastest/index.html",
-        1000,
-        300,
-        false,
-        true,
-        true,
-        false,
-        alwaysOnTop,
-        "currentlaps.ico"
-    );
-}
-
 async function currentLaps() {
     await ipcRenderer.invoke(
         "window",
