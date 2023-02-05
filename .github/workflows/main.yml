@@ -43,4 +43,3 @@ jobs:
                     out/*.dmg
                     out/*.AppImage
                     out/*.exe
-                    out/mac/*
