@@ -17,6 +17,11 @@ function toggleBackground() {
     if (transparent) {
         document.querySelector("body").className = "";
         document.getElementById("container").className = "";
+        document.getElementById("wrapper1").className = "wrapper";
+        document.getElementById("wrapper2").className = "hidden";
+        document.getElementById("hide").style.margin = "Inherited";
+        document.getElementById("onboard-count2").style.fontSize = "Inherited";
+        window.resizeTo(400, 480);
         transparent = false;
     } else {
         document.querySelector("body").className = "transparent";
@@ -32,6 +37,14 @@ document.addEventListener("keydown", (event) => {
 
 function hide() {
     document.getElementById("container").className = "hidden";
+}
+
+function small() {
+    window.resizeTo(150, 150);
+    document.getElementById("wrapper1").className = "hidden";
+    document.getElementById("wrapper2").className = "wrapper";
+    document.getElementById("hide").style.margin = "0";
+    document.getElementById("onboard-count2").style.fontSize = "25px";
 }
 
 async function getConfigurations() {
@@ -469,12 +482,15 @@ async function run() {
         const videoData = await getAllPlayers();
         if (videoData === false) {
             document.getElementById("onboard-count").textContent = "0";
+            document.getElementById("onboard-count2").textContent = "0";
             continue;
         }
 
         const windowAmount = videoData[0];
 
         document.getElementById("onboard-count").textContent = windowAmount;
+
+        document.getElementById("onboard-count2").textContent = windowAmount;
 
         if (windowAmount === 0) continue;
 
