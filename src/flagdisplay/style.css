@@ -24,7 +24,7 @@ body {
 #chequered {
     position: absolute;
     width: 100vw;
-    height: 100vw;
+    height: 100vh;
     transition: all 0.5s ease;
     opacity: 1;
 }
