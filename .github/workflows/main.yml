@@ -38,8 +38,8 @@ jobs:
               with:
                   name: build
                   path: |
-                    out/win-unpacked
-                    out/linux-unpacked
-                    out/*.dmg
-                    out/*.AppImage
-                    out/*.exe
+                      out/win-unpacked
+                      out/linux-unpacked
+                      out/*.dmg
+                      out/*.AppImage
+                      out/*.exe
