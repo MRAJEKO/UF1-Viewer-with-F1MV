@@ -251,6 +251,10 @@ h2 {
     font-size: 20px;
 }
 
+#thanks {
+    margin-bottom: 50px;
+}
+
 #credits * {
     text-decoration: none;
 }
