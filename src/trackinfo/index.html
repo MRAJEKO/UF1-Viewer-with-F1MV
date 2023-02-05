@@ -9,66 +9,63 @@
         <link rel="stylesheet" href="../fonts/fonts.css" />
     </head>
     <body id="background">
-        <div id="container">
-            <div id="main-info">
-                <div id="session">
-                    <h1>Session</h1>
-                    <div class="line"></div>
-                    <p id="session-status">Onschedule</p>
-                    <p id="track-time" class="red">99:99:99</p>
-                </div>
-                <div id="timers">
-                    <h1>Timers</h1>
-                    <div class="line"></div>
-                    <p class="red" id="timer1">99:99:99</p>
-                    <p class="hidden" id="timer2">99:99:99</p>
-                </div>
-                <div id="grip">
-                    <h1>Grip</h1>
-                    <div class="line"></div>
-                    <p>NORMAL</p>
-                </div>
-                <div id="head-material">
-                    <h1>Padding</h1>
-                    <div class="line"></div>
-                    <p class="white">UNKNOWN</p>
-                </div>
-                <div id="drs">
-                    <h1>DRS</h1>
-                    <div class="line"></div>
-                    <p class="green">ENABLED</p>
-                </div>
-                <div id="tyres">
-                    <h1>Manditory Tyres</h1>
-                    <div class="line"></div>
-                    <p class="white">NONE</p>
-                </div>
-                <div id="pit-entry">
-                    <h1>Pit Entry</h1>
-                    <div class="line"></div>
-                    <p class="green">OPEN</p>
-                </div>
-                <div id="pit-exit">
-                    <h1>Pit Exit</h1>
-                    <div class="line"></div>
-                    <p class="green">OPEN</p>
-                </div>
-                <div id="percentage">
-                    <h1>Progress</h1>
-                    <div class="line"></div>
-                    <p id="percentage-count" class="green">90% - 100%</p>
-                    <p class="hidden" id="lap-count">Lap: 99/99</p>
-                    <p class="hidden" id="total-q-progress">Q3 - Q3</p>
-                </div>
-            </div>
-            <div id="sector-info">
-                <div id="head">
-                    <h1>Track Status</h1>
-                    <div class="line"></div>
-                    <p class="green">Track Clear</p>
-                    <div class="line"></div>
-                </div>
-                <div id="statuses"></div>
+        <div id="container" class="container">
+            <div id="wrapper" class="wrapper">
+                <span id="session-name-container">
+                    <h1 id="session-name">QUALIFYING</h1>
+                </span>
+                <span id="session-container">
+                    <h2>Session Status</h2>
+                    <p id="session" class="green">ONSCHEDULE</p>
+                </span>
+                <span id="time-container">
+                    <h2>Track Time</h2>
+                    <p class="red" id="time">12:34:56</p>
+                </span>
+                <span id="session-timer-container">
+                    <h2>Session timer</h2>
+                    <p class="gray" id="session-timer">12:34:56</p>
+                </span>
+                <span id="extra-timer-container">
+                    <h2>Extra timer</h2>
+                    <p class="green" id="extra-timer">12:34:56</p>
+                </span>
+                <span id="lapcount-container">
+                    <h2>Lap Count</h2>
+                    <p class="orange" id="lapcount">56/93</p>
+                </span>
+                <span id="quali-part-container">
+                    <h2>Qualifying Part</h2>
+                    <p class="green" id="quali-part">Q1/Q3</p>
+                </span>
+                <span id="progress-container">
+                    <h2>Session Progress</h2>
+                    <p class="orange" id="progress">43% - 56%</p>
+                </span>
+                <span id="grip-container">
+                    <h2>Grip</h2>
+                    <p class="green" id="grip">NORMAL</p>
+                </span>
+                <span id="padding-container">
+                    <h2>Head Padding</h2>
+                    <p class="pink" id="head-padding">PINK</p>
+                </span>
+                <span id="drs-container">
+                    <h2>DRS</h2>
+                    <p class="red" id="drs">DISABLED</p>
+                </span>
+                <span id="tires-container">
+                    <h2>Mandatory Tires</h2>
+                    <p class="white" id="tires">NONE</p>
+                </span>
+                <span id="pit-entry-container">
+                    <h2>Pit Entry</h2>
+                    <p class="green" id="pit-entry">OPEN</p>
+                </span>
+                <span id="pit-exit-container">
+                    <h2>Pit Exit</h2>
+                    <p class="red" id="pit-exit">CLOSED</p>
+                </span>
             </div>
         </div>
         <script src="index.js"></script>

@@ -5,27 +5,78 @@
     color: white;
 }
 
-/* Make body full window height and dragable with gray background */
 body {
     height: 100vh;
     background-color: gray;
     -webkit-app-region: drag;
 }
 
-/* When used the background will be set to transparent (used for transparent window on body) */
+#container {
+    background-color: #0a0a0faf;
+    border-radius: 20px;
+    height: 100vh;
+}
+
+.wrapper {
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-evenly;
+    height: calc(100vh - 20px);
+}
+
 .transparent {
     background-color: transparent;
 }
 
-/* Setup styling (not be used in final product) */
-.container {
-    display: grid;
-    grid-template-columns: 45vw 45vw;
-    gap: 10vw;
+button {
+    -webkit-app-region: no-drag;
 }
 
 h1 {
-    border: 3px solid white;
     text-align: center;
-    font-family: "F1Regular", Arial, Helvetica, sans-serif;
+    font-family: "SFBold", Arial, Helvetica, sans-serif;
+}
+
+h2 {
+    font-family: "SFRegular", Arial, Helvetica, sans-serif;
+}
+
+.status {
+    border: 2px solid rgb(0, 175, 0);
+    color: rgb(0, 175, 0);
+    background-color: transparent;
+    width: fit-content;
+    padding: 5px;
+    border-radius: 10px;
+}
+
+p {
+    font-family: "SFRegular", Arial, Helvetica, sans-serif;
+    width: 50px !important;
+    font-size: 30px;
+    text-align: center;
+}
+
+.disclamer {
+    font-size: 12px;
+    width: 100% !important;
+    position: absolute;
+    bottom: 10px;
+    color: gray;
+}
+
+button {
+    border: 2px solid red;
+    color: red;
+    background-color: transparent;
+    padding: 10px 20px;
+    font-family: "SFRegular", Arial, Helvetica, sans-serif;
+    border-radius: 10px;
+    outline: none;
+}
+
+.hidden {
+    display: none;
 }

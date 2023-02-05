@@ -2,6 +2,9 @@ const { ipcRenderer } = require("electron");
 
 const debug = false;
 
+const f1mvApi = require("npm_f1mv_api");
+const { get } = require("request");
+
 // Set sleep
 const sleep = (milliseconds) => {
     return new Promise((resolve) => setTimeout(resolve, milliseconds));
@@ -72,204 +75,163 @@ WANTED_CATEGORIES = [
 
 WANTED_FLAGS = ["BLACK AND ORANGE", "BLACK AND WHITE", "CHEQUERED"];
 
-WANTED_SAFETYCAR = [
-    "SAFETY CAR WILL USE START/FINISH STRAIGHT",
-    "SAFETY CAR THROUGH THE PIT LANE",
-];
+WANTED_SAFETYCAR = ["SAFETY CAR WILL USE START/FINISH STRAIGHT", "SAFETY CAR THROUGH THE PIT LANE"];
 
 let rcms;
 let lastRCM;
 let lastRCMstring;
 let oldRCM;
-let lastMessage;
 let category;
-let queue = [];
 let running = false;
 
-let host;
-let port;
 async function getConfigurations() {
-    const config = (await ipcRenderer.invoke("get_config")).current.network;
-    host = config.host;
-    port = config.port;
-    if (debug) {
-        console.log(host);
-        console.log(port);
+    const configFile = (await ipcRenderer.invoke("get_config")).current.network;
+    const host = configFile.host;
+    const port = (await f1mvApi.discoverF1MVInstances(host)).port;
+    config = {
+        host: host,
+        port: port,
+    };
+}
+
+let queue = [];
+let oldRaceControlMessages = [];
+async function getRaceControlMessages() {
+    const raceControlMessages = (await f1mvApi.LiveTimingAPIGraphQL(config, "RaceControlMessages")).RaceControlMessages
+        .Messages;
+    for (const message of raceControlMessages) {
+        const stringMessage = JSON.stringify(message);
+        if (!oldRaceControlMessages.includes(stringMessage)) {
+            oldRaceControlMessages.push(stringMessage);
+            console.log(message);
+            queue.push(stringMessage);
+        }
     }
 }
 
-async function getLastRCM() {
-    rcms = JSON.parse(
-        httpGet(`http://${host}:${port}/api/v1/live-timing/RaceControlMessages`)
-    );
-    lastRCM = rcms.Messages[rcms.Messages.length - 1];
-    if (newMessage(lastRCM)) {
-        if (await filterCategories(lastRCM)) {
-            await addToQueue();
-            return;
-        }
-        return;
+async function runQueue() {
+    for (const message of queue) {
+        const jsonMessage = JSON.parse(message);
+        if (isMessageWanted(jsonMessage)) await showMessage(jsonMessage);
     }
-    return;
+    queue = [];
 }
 
 async function run() {
+    await getConfigurations();
     while (true) {
-        await getConfigurations();
-        getLastRCM();
-        showLastMessage();
+        await getRaceControlMessages();
+        await runQueue();
         await sleep(1000);
     }
 }
-
 run();
 
-function addToQueue() {
-    queue.push(JSON.stringify(lastRCM));
+async function showMessage(raceControlMessage) {
+    const category = raceControlMessage.SubCategory ? raceControlMessage.SubCategory : raceControlMessage.Category;
+    const message = raceControlMessage.Message;
+    const image = getImage(raceControlMessage, category);
+    const path = "../icons/" + image;
+
+    icon.src = path;
+    text.textContent = message;
+
+    bar.className = "shown";
+
+    await sleep(10000);
+
+    bar.className = "hidden";
+
+    await sleep(2000);
 }
 
-function newMessage(lastRCM) {
-    lastRCMstring = JSON.stringify(lastRCM);
-    if (
-        queue.includes(JSON.stringify(lastRCM)) ||
-        JSON.stringify(oldRCM) == JSON.stringify(lastRCM)
-    ) {
-        return false;
-    }
-    oldRCM = lastRCM;
-    return true;
-}
+function isMessageWanted(message) {
+    const category = message.SubCategory ? message.SubCategory : message.Category;
 
-async function showLastMessage() {
-    console.log(queue);
-    if (queue != "" && running == false) {
-        running = true;
-        lastRCM = JSON.parse(queue[0]);
-        let message = JSON.parse(queue[0]).Message;
-        let image = getImage();
-        icon.src = "images/icons/" + image;
-        text.innerHTML = message;
-        bar.className = "shown";
-        queue.pop();
-        await sleep(10000);
-        bar.className = "hidden";
-        await sleep(2000);
-        running = false;
-    }
-}
-
-async function filterCategories(lastRC) {
-    category = lastRC.SubCategory;
-    if (category == undefined) {
-        category = lastRC.OriginalCategory;
-    }
     console.log(category);
+
     if (WANTED_CATEGORIES.includes(category)) {
-        if (category == "Flag") {
-            if (WANTED_FLAGS.includes(lastRCM.Flag)) {
+        switch (category) {
+            case "Flag":
+                return WANTED_FLAGS.includes(message.Flag);
+            case "SafetyCar":
+                return WANTED_SAFETYCAR.includes(message.Message);
+            default:
                 return true;
-            }
-            return false;
         }
-        if (category == "SafetyCar") {
-            for (i in WANTED_SAFETYCAR) {
-                if (WANTED_SAFETYCAR[i] == lastRC.Message) {
-                    return true;
-                } else return false;
-            }
-        }
-        return true;
     }
     return false;
 }
 
-function getImage() {
+function getImage(message, category) {
     switch (WANTED_CATEGORIES.indexOf(category)) {
         case 0:
-            if (lastRCM.Flag == "BLACK AND ORANGE") {
-                return "flag_blackandorange.png";
+            if (message.Flag === "BLACK AND ORANGE") {
+                return "flags/flag_blackandorange.png";
             }
-            if (lastRCM.Flag == "BLACK AND WHITE") {
-                return "flag_blackandwhite.png";
+            if (message.Flag === "BLACK AND WHITE") {
+                return "flags/flag_blackandwhite.png";
             }
-            if (lastRCM.Flag == "CHEQUERED") {
-                return "flag_chequered.png";
+            if (message.Flag === "CHEQUERED") {
+                return "flags/flag_chequered.png";
             }
         case 1:
-            return "incident_noted.png";
+            return "messages/incident_noted.png";
         case 2:
-            return "incident_underinvestigation.png";
+            return "messages/incident_underinvestigation.png";
         case 3:
-            return "incident_nofurther_investigation.png";
+            return "messages/incident_nofurther_investigation.png";
         case 4:
-            return "Incident_nofurther_action.png";
+            return "messages/Incident_nofurther_action.png";
         case 5:
-            return "car_tracklimits.png";
+            return "messages/car_tracklimits.png";
         case 6:
-            return "car_offtrack.png";
+            return "messages/car_offtrack.png";
         case 7:
-            return "car_spun.png";
+            return "messages/car_spun.png";
         case 8:
-            return "car_missedapex.png";
+            return "messages/car_missedapex.png";
         case 9:
-            return "car_stopped.png";
+            return "messages/car_stopped.png";
         case 10:
-            return "grip_low.png";
+            return "messages/grip_low.png";
         case 11:
-            return "penalty_time.png";
+            return "messages/penalty_time.png";
         case 12:
-            return "penalty_stopandgo.png";
+            return "messages/penalty_stopandgo.png";
         case 14:
-            return "grip_slippery.png";
+            return "messages/grip_slippery.png";
         case 15:
-            return "session_resume.png";
+            return "messages/session_resume.png";
         case 16:
-            return "session_startdelayed.png";
+            return "messages/session_startdelayed.png";
         case 17:
-            return "session_durationchanged.png";
+            return "messages/session_durationchanged.png";
         case 18:
-            return "correction.png";
+            return "messages/correction.png";
         case 19:
-            return "weather.png";
+            return "messages/weather.png";
         case 20:
-            if (lastRCM.Flag == "OPEN") {
-                return "pit_entry_open.png";
-            }
-            if (lastRCM.Flag == "CLOSED") {
-                return "pit_entry_closed.png";
-            }
+            if (message.Flag === "OPEN") return "messages/pit_entry_open.png";
+            if (message.Flag === "CLOSED") return "messages/pit_entry_closed.png";
         case 21:
-            if (lastRCM.Flag == "OPEN") {
-                return "pit_exit_open.png";
-            }
-            if (lastRCM.Flag == "CLOSED") {
-                return "pit_exit_closed.png";
-            }
+            if (message.Flag === "OPEN") return "messages/pit_exit_open.png";
+            if (message.Flag === "CLOSED") return "messages/pit_exit_closed.png";
         case 22:
-            return "grip_normal.png";
+            return "messages/grip_normal.png";
         case 23:
-            if (lastRCM.Message == "SAFETY CAR THROUGH THE PIT LANE") {
-                return "safetycar_pitlane.png";
-            }
-            if (
-                lastRCM.Message == "SAFETY CAR WILL USE START/FINISH STRAIGHT"
-            ) {
-                return "safetycar_startfinish.png";
-            }
+            if (message.Message === "SAFETY CAR THROUGH THE PIT LANE") return "messages/safetycar_pitlane.png";
+            if (message.Message === "SAFETY CAR WILL USE START/FINISH STRAIGHT")
+                return "messages/safetycar_startfinish.png";
         case 24:
-            console.log(lastRCM.Flag);
-            if (lastRCM.Flag == "ENABLED") {
-                return "drs_enabled.png";
-            }
-            if (lastRCM.Flag == "DISABLED") {
-                return "drs_disabled.png";
-            }
+            if (message.Flag == "ENABLED") return "messages/drs_enabled.png";
+            if (message.Flag == "DISABLED") return "messages/drs_disabled.png";
         case 25:
-            return "lappedcars_overtake.png";
+            return "messages/lappedcars_overtake.png";
         case 26:
-            return "lappedcars_notovertake.png";
+            return "messages/lappedcars_notovertake.png";
         case 27:
-            return "incident_investigationafterthesession.png";
+            return "messages/incident_investigationafterthesession.png";
         default:
             return "blank.png";
     }

@@ -4,18 +4,18 @@ const { ipcRenderer } = require("electron");
 
 const debug = false;
 
+const f1mvApi = require("npm_f1mv_api");
+
 const sleep = (milliseconds) => {
     return new Promise((resolve) => setTimeout(resolve, milliseconds));
 };
 
-let host;
-let port;
-let rpc;
-async function getConfigurations() {
-    const config = (await ipcRenderer.invoke("get_config")).current;
-    host = config.network.host;
-    port = config.network.port;
-    rpc = config.general.discord_rpc;
+async function getConfigurations(host, port, file) {
+    config = {
+        host: host,
+        port: port,
+    };
+    rpc = file.general.discord_rpc;
     if (debug) {
         console.log(host);
         console.log(port);
@@ -23,51 +23,27 @@ async function getConfigurations() {
 }
 
 function launchMVF1() {
-    let LOCALAPPDATA = process.env.LOCALAPPDATA;
-    if (navigator.appVersion.indexOf("Win") != -1) {
-        if (!fs.existsSync(`${LOCALAPPDATA}\\MultiViewerForF1`)) {
-            alert(
-                "Cannot run MultiViewer because of invalid path. Please put your MultiViewer folder under '%APPDATA%'"
-            );
-            return;
-        }
-        let mvPath = `${LOCALAPPDATA}\\MultiViewerForF1\\MultiViewer for F1.exe`;
-        console.log("Launching MultiViewer");
-        spawn(mvPath, [], { detached: true });
-    } else if (navigator.appVersion.indexOf("Mac") != -1) {
-        // alert("Launching MultiViewer is not compatible with MacOS yet.");
-        if (!fs.existsSync(`/Applications/MultiViewer for F1.app`)) {
-            alert(
-                "Cannot run MultiViewer because of invalid path. Please put your MultiViewer folder under '/Applications'"
-            );
-            return;
-        }
-        let mvPath =
-            "/Applications/MultiViewer for F1.app/Contents/MacOS/MultiViewer for F1";
-        console.log("Launching MultiViewer");
-        spawn("open", [mvPath], { detached: true });
-    } else if (navigator.appVersion.indexOf("X11") != -1) {
-        alert("Launching MultiViewer is not compatible with Unix OS yet.");
-    } else if (navigator.appVersion.indexOf("Linux") != -1) {
-        alert("Launching MultiViewer is not compatible with Linux OS yet.");
+    if (navigator.appVersion.includes("Win") || navigator.appVersion.includes("Mac")) {
+        location = "muvi://";
+    } else if (navigator.appVersion.includes("X11") || navigator.appVersion.includes("Linux")) {
+        alert("Opening MultiViewer for Linux is not supported yet.");
     } else {
-        {
-            alert("Cannot run MultiViewer because OS is unknown.");
-        }
+        alert("Cannot run MultiViewer because OS is unknown.");
     }
 }
 
-let alwaysOnTop;
-let alwaysOnTopImprovements;
+async function ignore() {
+    isConnected(true);
+}
+
 async function setAlwaysOnTop() {
     while (true) {
         const config = (await ipcRenderer.invoke("get_config")).current;
         alwaysOnTop = config.general.always_on_top;
-        alwaysOnTopImprovements =
-            config.improvements.always_on_top_improvements;
+        alwaysOnTopPush = config.current_laps.always_on_top;
         if (debug) {
             console.log(alwaysOnTop);
-            console.log(alwaysOnTopImprovements);
+            console.log(alwaysOnTopPush);
         }
         await sleep(2000);
     }
@@ -84,7 +60,8 @@ async function flagDisplay() {
         true,
         false,
         false,
-        false
+        false,
+        "flag.ico"
     );
 }
 
@@ -98,7 +75,8 @@ async function trackTime() {
         true,
         true,
         false,
-        alwaysOnTop
+        alwaysOnTop,
+        "time.ico"
     );
 }
 
@@ -106,13 +84,29 @@ async function trackInfo() {
     await ipcRenderer.invoke(
         "window",
         "trackinfo/index.html",
-        1000,
+        250,
         800,
         false,
         true,
         true,
         false,
-        false
+        alwaysOnTop,
+        "info.ico"
+    );
+}
+
+async function statuses() {
+    await ipcRenderer.invoke(
+        "window",
+        "statuses/index.html",
+        250,
+        800,
+        false,
+        true,
+        true,
+        false,
+        alwaysOnTop,
+        "checkmark.ico"
     );
 }
 
@@ -126,7 +120,8 @@ async function singleRCM() {
         true,
         true,
         false,
-        alwaysOnTop
+        alwaysOnTop,
+        "messages.ico"
     );
 }
 
@@ -140,7 +135,8 @@ async function crashDetection() {
         true,
         true,
         false,
-        alwaysOnTop
+        alwaysOnTop,
+        "crash.ico"
     );
 }
 
@@ -154,50 +150,43 @@ async function compass() {
         true,
         true,
         false,
-        alwaysOnTop
+        alwaysOnTop,
+        "compass.ico"
     );
 }
 
-async function fastest() {
+async function currentLaps() {
     await ipcRenderer.invoke(
         "window",
-        "fastest/index.html",
-        1000,
-        300,
-        false,
-        true,
-        true,
-        false,
-        alwaysOnTop
-    );
-}
-
-async function improves() {
-    await ipcRenderer.invoke(
-        "window",
-        "improves/index.html",
+        "currentlaps/index.html",
         300,
         500,
         false,
         true,
         true,
         false,
-        alwaysOnTopImprovements
+        alwaysOnTopPush,
+        "currentlaps.ico"
+    );
+}
+
+async function weather() {
+    await ipcRenderer.invoke(
+        "window",
+        "weather/index.html",
+        1000,
+        530,
+        false,
+        true,
+        true,
+        false,
+        alwaysOnTop,
+        "weather.ico"
     );
 }
 
 async function autoSwitch() {
-    await ipcRenderer.invoke(
-        "window",
-        "autoswitch/index.html",
-        400,
-        600,
-        false,
-        true,
-        true,
-        false,
-        alwaysOnTop
-    );
+    await ipcRenderer.invoke("window", "autoswitch/index.html", 400, 480, false, true, true, false, alwaysOnTop);
 }
 
 // Settings
@@ -205,15 +194,13 @@ let rotated = false;
 async function settings() {
     if (rotated) {
         rotated = false;
-        document.getElementById("settings-icon").style.transform =
-            "rotate(-45deg)";
+        document.getElementById("settings-icon").style.transform = "rotate(-45deg)";
         document.getElementById("menu").className = "";
         document.getElementById("reset-defaults").classList.remove("show");
         saveSettings();
     } else {
         rotated = true;
-        document.getElementById("settings-icon").style.transform =
-            "rotate(45deg)";
+        document.getElementById("settings-icon").style.transform = "rotate(45deg)";
         document.getElementById("menu").className = "shown";
         document.getElementById("reset-defaults").classList.add("show");
         await sleep(700);
@@ -226,22 +213,21 @@ async function saveSettings() {
     if (debug) console.log(config);
     for (index in config) {
         for (i in config[index]) {
-            console.log(i);
             if (debug) {
                 console.log(i);
                 console.log(index);
                 console.log(config[index]);
                 console.log(config[index][i]);
-                console.log(document.getElementById(i));
-                console.log(document.getElementById(i).value);
-                console.log(document.getElementById(i).checked);
-                console.log(document.getElementById(i).type == "checkbox");
+                console.log(document.querySelector("#" + index + " " + "#" + i));
+                console.log(document.querySelector("#" + index + " " + "#" + i).value);
+                console.log(document.querySelector("#" + index + " " + "#" + i).checked);
+                console.log(document.querySelector("#" + index + " " + "#" + i).type == "checkbox");
             }
-            let value = document.getElementById(i).value;
+            let value = document.querySelector("#" + index + " " + "#" + i).value;
             if (debug) console.log(value);
-            if (document.getElementById(i).type == "checkbox") {
+            if (document.querySelector("#" + index + " " + "#" + i).type == "checkbox") {
                 if (debug) console.log("Checkbox");
-                value = document.getElementById(i).checked;
+                value = document.querySelector("#" + index + " " + "#" + i).checked;
             }
             await ipcRenderer.invoke("write_config", index, i, value);
         }
@@ -253,35 +239,29 @@ async function setSettings() {
     if (debug) console.log(config);
     for (index in config) {
         for (i in config[index]) {
-            console.log(i);
             if (debug) {
                 console.log(i);
                 console.log(config[index]);
                 console.log(config[index][i]);
-                console.log(document.getElementById(i));
             }
-            if (document.getElementById(i).type == "checkbox") {
+            if (document.querySelector("#" + index + " " + "#" + i).type == "checkbox") {
                 if (debug) {
                     console.log("Switch");
-                    console.log(document.getElementById(i).checked);
+                    console.log(document.querySelector("#" + index + " " + "#" + i).checked);
                 }
-                document.getElementById(i).checked = config[index][i];
+                document.querySelector("#" + index + " " + "#" + i).checked = config[index][i];
             }
-            if (document.getElementById(i).classList.contains("selector")) {
-                document.getElementById(i).value = config[index][i];
+            if (document.querySelector("#" + index + " " + "#" + i).classList.contains("selector")) {
+                document.querySelector("#" + index + " " + "#" + i).value = config[index][i];
                 if (debug) {
-                    console.log(
-                        (document.getElementById(i).value = config[index][i])
-                    );
+                    console.log((document.querySelector("#" + index + " " + "#" + i).value = config[index][i]));
                     console.log("Selector");
                 }
             }
-            if (document.getElementById(i).type == "text") {
-                document.getElementById(i).value = config[index][i];
+            if (document.querySelector("#" + index + " " + "#" + i).type == "text") {
+                document.querySelector("#" + index + " " + "#" + i).value = config[index][i];
                 if (debug) {
-                    console.log(
-                        (document.getElementById(i).value = config[index][i])
-                    );
+                    console.log((document.querySelector("#" + index + " " + "#" + i).value = config[index][i]));
                     console.log("Text");
                 }
             }
@@ -300,29 +280,23 @@ async function restoreAll() {
         for (i in currentConfig[index]) {
             if (debug) {
             }
-            if (document.getElementById(i).type == "checkbox") {
+            if (document.querySelector("#" + index + " " + "#" + i).type == "checkbox") {
                 if (debug) {
                     console.log("Switch");
                 }
-                document.getElementById(i).checked = defaultConfig[index][i];
+                document.querySelector("#" + index + " " + "#" + i).checked = defaultConfig[index][i];
             }
-            if (document.getElementById(i).classList.contains("selector")) {
-                document.getElementById(i).value = defaultConfig[index][i];
+            if (document.querySelector("#" + index + " " + "#" + i).classList.contains("selector")) {
+                document.querySelector("#" + index + " " + "#" + i).value = defaultConfig[index][i];
                 if (debug) {
-                    console.log(
-                        (document.getElementById(i).value =
-                            defaultConfig[index][i])
-                    );
+                    console.log((document.querySelector("#" + index + " " + "#" + i).value = defaultConfig[index][i]));
                     console.log("Selector");
                 }
             }
-            if (document.getElementById(i).type == "text") {
-                document.getElementById(i).value = defaultConfig[index][i];
+            if (document.querySelector("#" + index + " " + "#" + i).type == "text") {
+                document.querySelector("#" + index + " " + "#" + i).value = defaultConfig[index][i];
                 if (debug) {
-                    console.log(
-                        (document.getElementById(i).value =
-                            defaultConfig[index][i])
-                    );
+                    console.log((document.querySelector("#" + index + " " + "#" + i).value = defaultConfig[index][i]));
                     console.log("Text");
                 }
             }
@@ -332,40 +306,45 @@ async function restoreAll() {
 }
 
 // Link MV
-async function isSynced() {
-    await getConfigurations();
+async function isConnected(ignore) {
+    if (ignore) {
+        document.getElementById("connect").className = "animation";
+        return;
+    }
+    const configFile = (await ipcRenderer.invoke("get_config")).current;
+    const host = configFile.network.host;
     try {
-        const api = (
-            await (
-                await fetch(`http://${host}:${port}/api/graphql`, {
-                    headers: { "content-type": "application/json" },
-                    body: JSON.stringify({
-                        query: `query LiveTimingClock {
-                            liveTimingClock {
-                              liveTimingStartTime
-                            }
-                          }`,
-                        operationName: "LiveTimingClock",
-                    }),
-                    method: "POST",
-                })
-            ).json()
-        ).data.liveTimingClock;
+        const port = (await f1mvApi.discoverF1MVInstances(host)).port;
 
-        console.log(api);
-        if (api == null) {
-            document.getElementById("connect").className = "shown";
-            document.getElementById("connect").classList.add("animation");
-        } else {
+        document.getElementById("mv-connection").textContent = "Connected to MultiViewer";
+        document.getElementById("mv-connection").className = "green";
+
+        await getConfigurations(host, port, configFile);
+
+        if ((await f1mvApi.LiveTimingAPIGraphQL(config, "SessionInfo")) !== null) {
             if (rpc) {
                 require("./RPC.js");
             }
+
+            console.log("Connected to MultiViewer and live timing session found");
+
+            document.getElementById("timing-connection").textContent = "Connected to Live Timing";
+            document.getElementById("timing-connection").className = "green";
+
             document.getElementById("connect").className = "animation";
+            document.getElementById("connection-icon").src = "../icons/checkmark.png";
+        } else {
+            console.log("No live timing session found");
+
+            await sleep(500);
+            isConnected();
         }
     } catch (error) {
-        console.log(error);
-        document.getElementById("connect").className = "shown";
+        console.log("No MultiViewer instance found");
+
+        await sleep(500);
+        isConnected();
     }
 }
 
-isSynced();
+isConnected();

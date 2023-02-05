@@ -1,82 +1,89 @@
 * {
     margin: 0;
     padding: 0;
-    color: white;
     transition: 0.5s all ease;
+    font-family: "SFBold";
+    color: white;
 }
 
 body {
     -webkit-app-region: drag;
     height: 100vh;
-}
-
-#main-info {
-    display: flex;
-    gap: 0.7vw;
-    text-align: center;
     width: 100vw;
-    justify-content: space-between;
 }
 
-#main-info div {
-    min-width: fit-content;
+.container {
+    background-color: #0a0a0faf;
+}
+
+.containerw {
+    padding: 3vw;
+    height: calc(100vh - 6vw);
+    border-radius: 10vw;
+}
+
+.containerh {
+    padding: 3vh;
+    width: calc(100vw - 6vh);
+    border-radius: 10vh;
+}
+
+.wrapper {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+}
+
+.wrapperh {
+    flex-direction: row;
+}
+
+.wrapperw {
+    flex-direction: column;
+}
+
+span {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 h1 {
-    font-family: "F1Regular", Arial, Helvetica, sans-serif;
-    font-size: 15px;
-    font-size: 1.5vw;
+    padding: 5vw;
+    color: gray;
+    font-size: 15vw;
+}
+
+h2 {
     text-align: center;
 }
 
-.line {
-    margin: 5px 0px;
-    height: 1px;
-    width: 100%;
-    background-color: white;
+.h2w {
+    font-size: 8vw;
 }
 
-#pit-entry {
-    min-width: fit-content;
+.h2h {
+    font-size: 8vh;
 }
 
 p {
-    font-family: "F1Bold", Arial, Helvetica, sans-serif;
-    font-size: 15px;
-    font-size: 1.4vw;
-    text-align: center;
-    padding: 2px 4px;
-    margin: 2px;
-    border-radius: 10px;
-    border: 0.5px solid black;
-    margin-bottom: 4px;
+    width: fit-content;
 }
 
-#container {
-    display: flex;
-    gap: 1vw;
-    text-align: center;
-    width: 100%;
+.pw {
+    font-size: 6vw;
+    padding: 2vw;
+    border-radius: 3vw;
+    margin-top: 2vw;
 }
 
-#statuses {
-    display: grid;
-    grid-template-columns: 8vw auto;
-    min-width: fit-content;
-}
-
-#statuses h1 {
-    padding: 2px 4px;
-    margin: 2px;
-}
-
-#statuses p {
-    padding: 2px 4px;
-    margin: 2px;
-    border-radius: 10px;
-    width: 12vw;
-    background-size: cover;
-    border: 0.5px solid black;
+.ph {
+    font-size: 6vh;
+    padding: 2vh;
+    border-radius: 3vh;
+    margin-top: 2vh;
 }
 
 .hidden {
@@ -105,11 +112,6 @@ p {
 
 .red {
     background-color: rgb(209, 0, 0) !important;
-}
-
-.slippery {
-    background-image: url(images/red_yellow_flag.png);
-    color: black;
 }
 
 .pink {

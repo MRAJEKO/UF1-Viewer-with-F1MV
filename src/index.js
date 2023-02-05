@@ -8,8 +8,8 @@ const fs = require("fs");
 // Create the browser window.
 const createWindow = () => {
     const mainDisplayHeight = screen.getPrimaryDisplay().size.height;
-    let height = 800;
-    if (mainDisplayHeight < 800) {
+    let height = 1000;
+    if (mainDisplayHeight < height) {
         height = mainDisplayHeight;
     }
     const mainWindow = new BrowserWindow({
@@ -24,6 +24,7 @@ const createWindow = () => {
             nodeIntegration: true,
             contextIsolation: false,
         },
+        icon: path.join(__dirname, "icons/windows/logo.ico"),
     });
 
     // Load main window (main/index.html)
@@ -65,7 +66,8 @@ ipcMain.handle(
         hideMenuBar,
         transparent,
         hasShadow,
-        alwaysOnTop
+        alwaysOnTop,
+        icon
     ) => {
         // Create the new window with all arguments
         const newWindow = new BrowserWindow({
@@ -82,6 +84,7 @@ ipcMain.handle(
                 nodeIntegration: true,
                 contextIsolation: false,
             },
+            icon: path.join(__dirname, "icons/windows/" + icon),
         });
         newWindow.loadFile(path.join(__dirname, pathToHTML));
         return "Opening: " + pathToHTML + alwaysOnTop;
@@ -108,4 +111,22 @@ ipcMain.handle("write_config", async (event, category, key, value) => {
 ipcMain.handle("get_config", async (event, args) => {
     const config = require("./config.json");
     return config;
+});
+
+// Get the correct team icon from the team name
+ipcMain.handle("get_icon", async (event, teamName) => {
+    const icons = {
+        "Red Bull Racing": "../icons/teams/red-bull.png",
+        McLaren: "../icons/teams/mclaren-white.png",
+        "Aston Martin": "../icons/teams/aston-martin.png",
+        Williams: "../icons/teams/williams-white.png",
+        AlphaTauri: "../icons/teams/alpha-tauri.png",
+        Alpine: "../icons/teams/alpine.png",
+        Ferrari: "../icons/teams/ferrari.png",
+        "Haas F1 Team": "../icons/teams/haas-red.png",
+        "Alfa Romeo": "../icons/teams/alfa-romeo.png",
+        Mercedes: "../icons/teams/mercedes.png",
+    };
+
+    return icons[teamName];
 });

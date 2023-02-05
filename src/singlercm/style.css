@@ -1,7 +1,6 @@
 * {
     margin: 0;
     padding: 0;
-    font-family: "F1Bold";
     transition: 1s all ease;
     overflow: hidden;
 }
@@ -17,29 +16,47 @@ h1 {
     text-align: center;
     font-size: 21px;
     color: white;
-    width: 850px;
-    padding-left: 110px;
-    padding-right: 10px;
+    width: 750px;
+    font-family: "SFBold", Arial, Helvetica, sans-serif;
 }
 
-img {
-    width: 60px;
-    padding: 25px;
-}
-
-div {
+.icons-container {
     display: flex;
     justify-content: center;
-    word-wrap: break-word;
     align-items: center;
-    width: 100%;
-    height: 100%;
-    background-image: url(images/rcm6.png);
-    /* background-repeat: no-repeat; */
-    background-size: 100%;
-    /* background-color: rgb(129, 129, 129); */
-    border-radius: 0px 0px 25px 25px;
-    margin: auto;
+    width: 100px !important;
+    height: 80px;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.logo-container {
+    left: 0;
+    border-right: 1px solid rgb(90, 90, 90);
+}
+
+.icon-container {
+    right: 0;
+    border-left: 1px solid rgb(90, 90, 90);
+}
+
+#RCM {
+    width: 100vw;
+    height: 100px;
+    background-color: #0a0a0faf;
+    border-radius: 0 0 40px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.logo {
+    width: 60px;
+}
+
+#icon {
+    width: 60px;
 }
 
 .shown {
