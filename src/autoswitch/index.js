@@ -51,6 +51,7 @@ async function getConfigurations() {
     const configFile = (await ipcRenderer.invoke("get_config")).current;
     const networkConfig = configFile.network;
     mainWindowName = configFile.autoswitcher.main_window_name;
+    enableSpeedometer = configFile.autoswitcher.speedometer;
 
     host = networkConfig.host;
     port = (await f1mvApi.discoverF1MVInstances(host)).port;
@@ -59,6 +60,15 @@ async function getConfigurations() {
         host: host,
         port: port,
     };
+}
+
+async function enableSpeedometers() {
+    const data = await f1mvApi.getAllPlayers(config);
+    for (const window of data) {
+        if (window.driverData !== null) {
+            await f1mvApi.setSpeedometerVisibility(config, window.id, true);
+        }
+    }
 }
 
 // Receive all the API endpoints
@@ -131,7 +141,7 @@ async function replaceWindow(oldWindowId, newDriverNumber, contentId, mainWindow
 
         await sleep(2500);
 
-        await f1mvApi.setSpeedometerVisibility(config, newWindowId, true);
+        if (enableSpeedometer) await f1mvApi.setSpeedometerVisibility(config, newWindowId, true);
 
         if (mainWindow === null) mainWindow = oldWindowId;
 
@@ -480,7 +490,11 @@ async function setPriorities() {
 
 // Runing all function to add the funtionality
 async function run() {
+    await getConfigurations();
+    if (enableSpeedometer) await enableSpeedometers();
+
     while (true) {
+        await sleep(500);
         await getConfigurations();
         await apiRequests();
         const videoData = await getAllPlayers();
@@ -526,7 +540,6 @@ async function run() {
                 break;
             }
         }
-        await sleep(500);
     }
 }
 
