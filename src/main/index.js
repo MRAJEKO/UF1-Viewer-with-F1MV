@@ -80,6 +80,21 @@ async function trackTime() {
     );
 }
 
+async function sessionLog() {
+    await ipcRenderer.invoke(
+        "window",
+        "sessionlog/index.html",
+        250,
+        800,
+        false,
+        true,
+        true,
+        false,
+        alwaysOnTop,
+        "info.ico"
+    );
+}
+
 async function trackInfo() {
     await ipcRenderer.invoke(
         "window",

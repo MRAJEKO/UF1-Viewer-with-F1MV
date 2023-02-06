@@ -1,0 +1,18 @@
+* {
+    margin: 0;
+    padding: 0;
+    font-family: "SFBold";
+    color: white;
+}
+
+body {
+    -webkit-app-region: drag;
+    height: 100vh;
+    width: 100vw;
+}
+
+.container {
+    background-color: #0a0a0faf;
+    height: 100vh;
+    width: 100vw;
+}
