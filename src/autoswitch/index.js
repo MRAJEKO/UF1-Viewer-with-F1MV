@@ -273,12 +273,12 @@ function tertiaryDriver(racingNumber) {
     }
     // If the value to the car ahead is not nothing or the gap is more than a second and he is not catching. The driver will then be a tertairy driver (if it is after 3 laps from the start)
     if (
-        driverIntervalAhead.Value.includes("LAP") ||
-        (parseFloat(driverIntervalAhead.Value.substring(1)) > 1 &&
-            !driverIntervalAhead.Catching &&
-            lapCount.CurrentLap >= 3)
-    )
+        (driverIntervalAhead.Value.includes("LAP") ||
+            (parseFloat(driverIntervalAhead.Value.substring(1)) > 1 && !driverIntervalAhead.Catching)) &&
+        lapCount.CurrentLap >= 3
+    ) {
         return true;
+    }
 
     return false;
 }
@@ -382,7 +382,8 @@ function overwriteCrashedStatus(racingNumber) {
 
 function driverIsImportant(driverNumber) {
     const driverTimingData = timingData[driverNumber];
-    if (driverTimingData.InPit && !driverTimingData.Retired && !driverTimingData.Stopped) return true;
+    if (driverTimingData.InPit && sessionStatus === "Started" && !driverTimingData.Retired && !driverTimingData.Stopped)
+        return true;
 
     const driverCarData = getCarData(driverNumber);
 
@@ -440,9 +441,12 @@ async function setPriorities() {
             }
         }
         // Fill the rest of the prio list with all drivers inside of timing data that are not already in the list (are vip drivers)
-        for (const driver in timingData) {
-            if (!prioList.includes(driver)) {
-                prioList.push(driver);
+        for (position = 1; position <= Object.values(timingData).length; position++) {
+            for (const driver in timingData) {
+                const driverTimingData = timingData[driver];
+                console.log(driver, driverTimingData.Position, position);
+                if (parseInt(driverTimingData.Position) === parseInt(position) && !prioList.includes(driver))
+                    prioList.push(driver);
             }
         }
     }
@@ -499,9 +503,9 @@ async function run() {
         const contentId = videoData[3];
 
         const prioList = await setPriorities();
+        console.log(prioList);
         loop1: for (const prioIndex in prioList) {
             const driver = prioList[prioIndex];
-            console.log(prioList.slice(0, 1));
             if (prioIndex < windowAmount) {
                 if (!shownDrivers[driver]) {
                     for (const shownDriver in shownDrivers) {
