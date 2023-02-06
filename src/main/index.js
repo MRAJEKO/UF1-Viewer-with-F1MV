@@ -186,7 +186,7 @@ async function weather() {
 }
 
 async function autoSwitch() {
-    await ipcRenderer.invoke("window", "autoswitch/index.html", 400, 480, false, true, true, false, alwaysOnTop);
+    await ipcRenderer.invoke("window", "autoswitch/index.html", 400, 480, false, true, true, false, true);
 }
 
 // Settings
