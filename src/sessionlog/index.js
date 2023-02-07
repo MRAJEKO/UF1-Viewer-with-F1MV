@@ -680,8 +680,6 @@ function removeLogs() {
 
         logs.removeChild(logs.firstChild);
     }
-
-    console.log(logCount);
 }
 
 async function run() {
