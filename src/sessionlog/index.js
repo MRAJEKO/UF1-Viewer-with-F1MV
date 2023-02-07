@@ -502,6 +502,7 @@ async function addNewBoardRadioLog(time, lap, count) {
 }
 
 let fastestLapTime = null;
+let fastestLapLap = null;
 async function addFastestLapLog(time, lap, count) {
     for (const driver in timingStats) {
         const driverTimingData = timingData[driver];
@@ -513,7 +514,10 @@ async function addFastestLapLog(time, lap, count) {
 
         if (driverBestLap.Position !== 1 || driverBestLap.Value === fastestLapTime) continue;
 
+        if (driverBestLap.Lap <= fastestLapLap) continue;
+
         fastestLapTime = driverBestLap.Value;
+        fastestLapLap = driverBestLap.Lap;
 
         if (count === 0) continue;
 
@@ -521,7 +525,7 @@ async function addFastestLapLog(time, lap, count) {
 
         const color = "purple";
 
-        await addLog(driver, "fastestlap", "times", message, color, time, lap);
+        await addLog(driver, "fastestlap", "Times", message, color, time, lap);
     }
 }
 
@@ -560,9 +564,7 @@ async function addPitstopLog(time, lap, count) {
             driverPitInfo.Duration,
         ];
 
-        const color = "green";
-
-        await addLog(driver, "pitstop", "Pitstop", message, color, time, lap);
+        await addLog(driver, "pitstop", "Pitstop", message, "white", time, lap);
 
         console.log(driverPitInfo);
     }
