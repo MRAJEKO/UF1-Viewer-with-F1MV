@@ -56,7 +56,7 @@ async function apiRequests() {
     driverList = api.DriverList;
     extrapolatedClock = api.ExtrapolatedClock;
     lapCount = api.LapCount;
-    pitLaneTimeCollection = api.PitLaneTimeCollection.PitTimes;
+    pitLaneTimeCollection = api.PitLaneTimeCollection ? api.PitLaneTimeCollection.PitTimes : null;
     raceControlMessages = api.RaceControlMessages.Messages;
     sessionData = api.SessionData;
     sessionInfo = api.SessionInfo;
@@ -156,43 +156,147 @@ function getTime(ms) {
     return `${hours}:${minutes}:${seconds}`;
 }
 
-async function addLog(driverNumber, category, message, color, time, lap) {
+async function addLog(driverNumber, type, category, message, color, time, lap) {
     const logs = document.getElementById("logs");
 
     let newLog = `<div class="log"><div class="type"><p>${category}</p></div><div class="status ${color}"><p>${message}</p></div><div class="time"><p>${time}</p><p>${lap}</p></div></div>`;
+    switch (type) {
+        case "driver": {
+            const driverInfo = driverList[driverNumber];
+
+            const teamColor = driverInfo.TeamColour;
+            const firstName = driverInfo.FirstName;
+            const lastName = driverInfo.LastName;
+
+            newLog = `<div class="log">
+            <div class="type">
+                <p>${category}</p>
+            </div>
+            <div class="status double">
+                <div
+                    class="left"
+                    style="
+                        background: linear-gradient(
+                            to bottom,
+                            transparent 0%,
+                            #${teamColor}BF 100%
+                        );
+                    ">
+                    <p class="driver-first-name">${firstName}</p>
+                    <p class="driver-last-name">${lastName}</p>
+                </div>
+                <div class="right ${color}">
+                    <p>${message}</p>
+                </div>
+            </div>
+            <div class="time">
+                <p>${time}</p>
+                <p>${lap}</p>
+            </div>
+        </div>`;
+            break;
+        }
+        case "double": {
+            newLog = `<div class="log">
+            <div class="type">
+                <p>${category}</p>
+            </div>
+            <div class="status double">
+                <div class="left ${color[0]}">
+                    <p>${message[0]}</p>
+                </div>
+                <div class="right ${color[1]}">
+                    <p>${message[1]}</p>
+                </div>
+            </div>
+            <div class="time">
+                <p>${time}</p>
+                <p>${lap}</p>
+            </div>
+        </div>`;
+            break;
+        }
+        case "doubleTeamColor": {
+            const driverInfo = driverList[driverNumber];
+
+            const teamColor = driverInfo.TeamColour;
+            const firstName = driverInfo.FirstName;
+            const lastName = driverInfo.LastName;
+
+            newLog = `<div class="log">
+            <div class="type">
+                <p>${category}</p>
+            </div>
+            <div class="status double">
+                <div class="left"style="background: linear-gradient(to bottom,transparent 0%,#${teamColor}BF 100%);"><p class="driver-first-name">${firstName}</p><p class="driver-last-name">${lastName}</p></div><div class="right" style="background: linear-gradient(to bottom,transparent 0%,#${teamColor}BF 100%);"><p>${message}</p></div></div><div class="time"><p>${time}</p><p>${lap}</p></div></div>`;
+            break;
+        }
+        case "fastestlap": {
+            const driverInfo = driverList[driverNumber];
+
+            const teamColor = driverInfo.TeamColour;
+            const firstName = driverInfo.FirstName;
+            const lastName = driverInfo.LastName;
+
+            newLog = `<div class="log">
+            <div class="type">
+                <p>${category}</p>
+            </div>
+            <div class="status double">
+                <div class="left"style="background: linear-gradient(to bottom,transparent 0%,#${teamColor}BF 100%);"><p class="driver-first-name">${firstName}</p><p class="driver-last-name">${lastName}</p></div><div class="right ${color}"><p class="small-text">${message[0]}</p><p>${message[1]}</p></div></div><div class="time"><p>${time}</p><p>${lap}</p></div></div>`;
+            break;
+        }
+        case "penalty": {
+            const driverInfo = driverList[driverNumber];
+
+            const teamColor = driverInfo.TeamColour;
+            const firstName = driverInfo.FirstName;
+            const lastName = driverInfo.LastName;
+
+            newLog = `<div class="log"><div class="type"><p>${category}</p></div><div class="status double"><div class="left"style="background: linear-gradient(to bottom,transparent 0%,#${teamColor}BF 100%);"><p class="driver-first-name">${firstName}</p><p class="driver-last-name">${lastName}</p></div><div class="right ${color}"><p>${message[0]}</p><p class="small-text">${message[1]}</p></div></div><div class="time"><p>${time}</p><p>${lap}</p></div></div>`;
+            break;
+        }
+        case "pitstop": {
+            const driverInfo = driverList[driverNumber];
+
+            const teamColor = driverInfo.TeamColour;
+            const firstName = driverInfo.FirstName;
+            const lastName = driverInfo.LastName;
+
+            console.log(message[3]);
+
+            newLog = `<div class="log">
+            <div class="type">
+                <p>${category}</p>
+            </div>
+            <div class="status double">
+            <div class="left"style="background: linear-gradient(to bottom,transparent 0%,#${teamColor}BF 100%);"><p class="driver-first-name">${firstName}</p><p class="driver-last-name">${lastName}</p>
+                </div>
+                <div class="right ${color}">
+                    <div class="tires">
+                        <div class="prevtires">
+                            <img src="${message[0]}" alt="" />
+                        </div>
+                        <div class="arrow">
+                            <img src="${message[1]}" alt="" />
+                        </div>
+                        <div class="newtires">
+                            <img src="${message[2]}" alt="" />
+                        </div>
+                    </div>
+                    <p class="stoptime">${message[3]}</p>
+                </div>
+            </div>
+            <div class="time">
+                <p>${time}</p>
+                <p>${lap}</p>
+            </div>
+        </div>`;
+            break;
+        }
+    }
+
     if (driverNumber) {
-        const driverInfo = driverList[driverNumber];
-
-        const teamColor = driverInfo.TeamColour;
-        const firstName = driverInfo.FirstName;
-        const lastName = driverInfo.LastName;
-
-        newLog = `<div class="log">
-        <div class="type">
-            <p>${category}</p>
-        </div>
-        <div class="status double">
-            <div
-                class="left"
-                style="
-                    background: linear-gradient(
-                        to bottom,
-                        transparent 0%,
-                        #${teamColor}BF 100%
-                    );
-                ">
-                <p class="driver-first-name">${firstName}</p>
-                <p class="driver-last-name">${lastName}</p>
-            </div>
-            <div class="right ${color}">
-                <p>${message}</p>
-            </div>
-        </div>
-        <div class="time">
-            <p>${time}</p>
-            <p>${lap}</p>
-        </div>
-    </div>`;
     }
 
     const newWrapper = document.createElement("div");
@@ -230,8 +334,6 @@ async function addSessionStatusLog(time, lap, count) {
 
     if (count === 0) return;
 
-    const logs = document.getElementById("logs");
-
     let color = "white";
     switch (sessionStatus) {
         case "Started":
@@ -242,7 +344,7 @@ async function addSessionStatusLog(time, lap, count) {
             break;
     }
 
-    await addLog(null, "Session Status", sessionStatus, color, time, lap);
+    await addLog(null, "single", "Session Status", sessionStatus, color, time, lap);
 }
 
 let oldTrackStatus = null;
@@ -279,7 +381,7 @@ async function addTrackStatusLog(time, lap, count) {
             break;
     }
 
-    await addLog(null, "Track Status", message, color, time, lap);
+    await addLog(null, "single", "Track Status", message, color, time, lap);
 }
 
 let oldLap = null;
@@ -292,7 +394,7 @@ async function addLapCountLog(time, lap, count) {
 
     if (count === 0) return;
 
-    await addLog(null, "Lap Count", `Lap ${currentLap}`, "white", time, lap);
+    await addLog(null, "single", "Lap Count", `Lap ${currentLap}`, "white", time, lap);
 }
 
 let oldWeather = null;
@@ -309,7 +411,7 @@ async function addWeatherLog(time, lap, count) {
 
     const color = rain ? "blue" : "green";
 
-    await addLog(null, "Weather", message, color, time, lap);
+    await addLog(null, "single", "Weather", message, color, time, lap);
 }
 
 let oldPitlane = {};
@@ -329,7 +431,7 @@ async function addPitlaneLog(time, lap, count) {
 
         const color = driverTimingData.InPit ? "red" : "green";
 
-        await addLog(driver, "Pitlane", message, color, time, lap);
+        await addLog(driver, "driver", "Pitlane", message, color, time, lap);
     }
 }
 
@@ -339,8 +441,6 @@ async function addRetirementLog(time, lap, count) {
         const driverTimingData = timingData[driver];
 
         const retired = driverTimingData.Retired || driverTimingData.Stopped;
-
-        console.log(retired);
 
         if (!retired || retired === oldRetirement[driver]) continue;
 
@@ -352,7 +452,208 @@ async function addRetirementLog(time, lap, count) {
 
         const color = "red";
 
-        await addLog(driver, "Retirement", message, color, time, lap);
+        await addLog(driver, "driver", "Retirement", message, color, time, lap);
+    }
+}
+
+let oldLapped = {};
+async function addLappedLog(time, lap, count) {
+    for (const driver in timingData) {
+        const driverTimingData = timingData[driver];
+
+        const retired = driverTimingData.Retired || driverTimingData.Stopped;
+
+        const lapped =
+            parseInt(driverTimingData.Position) !== 1 && !retired && driverTimingData.GapToLeader.slice(-1) === "L";
+
+        if (!lapped) continue;
+
+        const lappedCount = parseInt(driverTimingData.GapToLeader.slice(0, 1));
+
+        if (!lapped || lappedCount === oldLapped[driver]) continue;
+
+        oldLapped[driver] = lappedCount;
+
+        if (count === 0) continue;
+
+        const message = "Lapped";
+
+        const color = "white";
+
+        await addLog(driver, "driver", "Position", message, color, time, lap);
+    }
+}
+
+let oldRadioMessages = [];
+async function addNewBoardRadioLog(time, lap, count) {
+    for (const radio of teamRadio) {
+        const radioString = JSON.stringify(radio);
+
+        if (oldRadioMessages.includes(radioString)) continue;
+
+        oldRadioMessages.push(radioString);
+
+        if (count === 0) continue;
+
+        const message = "New Radio";
+
+        await addLog(radio.RacingNumber, "doubleTeamColor", "Team Radio's", message, "", time, lap);
+    }
+}
+
+let fastestLapTime = null;
+async function addFastestLapLog(time, lap, count) {
+    for (const driver in timingStats) {
+        const driverTimingData = timingData[driver];
+        const driverTimingStats = timingStats[driver];
+
+        if (driverTimingData.Retired || driverTimingData.Stopped) continue;
+
+        const driverBestLap = driverTimingStats.PersonalBestLapTime;
+
+        if (driverBestLap.Position !== 1 || driverBestLap.Value === fastestLapTime) continue;
+
+        fastestLapTime = driverBestLap.Value;
+
+        if (count === 0) continue;
+
+        const message = ["Fastest Lap", driverBestLap.Value];
+
+        const color = "purple";
+
+        await addLog(driver, "fastestlap", "times", message, color, time, lap);
+    }
+}
+
+let oldPitstops = [];
+async function addPitstopLog(time, lap, count) {
+    for (const driver in pitLaneTimeCollection) {
+        const driverPitInfo = pitLaneTimeCollection[driver];
+
+        const pitstopString = JSON.stringify(driverPitInfo);
+
+        if (oldPitstops.includes(pitstopString)) continue;
+
+        const driverStints = timingAppData[driver].Stints;
+
+        const lastStint = driverStints.slice(-1)[0];
+
+        if (lastStint.StartLaps !== lastStint.TotalLaps) continue;
+
+        oldPitstops.push(pitstopString);
+
+        if (count === 0) continue;
+
+        console.log(timingAppData[driver].Stints.slice(-2));
+
+        const oldTires = driverStints.slice(-2)[0].Compound.toLowerCase();
+
+        const newtires = driverStints.slice(-1)[0].Compound.toLowerCase();
+
+        console.log(oldTires);
+        console.log(newtires);
+
+        const message = [
+            `../icons/tires/${oldTires}.png`,
+            "../icons/arrowright.png",
+            `../icons/tires/${newtires}.png`,
+            driverPitInfo.Duration,
+        ];
+
+        const color = "green";
+
+        await addLog(driver, "pitstop", "Pitstop", message, color, time, lap);
+
+        console.log(driverPitInfo);
+    }
+}
+
+let oldRaceControlMessages = [];
+async function addRaceControlMessageLogs(time, lap, count) {
+    for (const raceControlMessage of raceControlMessages) {
+        const raceControlMessageString = JSON.stringify(raceControlMessage);
+
+        if (oldRaceControlMessages.includes(raceControlMessageString)) continue;
+
+        oldRaceControlMessages.push(raceControlMessageString);
+
+        if (count === 0) continue;
+
+        const category = raceControlMessage.SubCategory ? raceControlMessage.SubCategory : raceControlMessage.Category;
+
+        console.log(lap);
+
+        switch (category) {
+            case "LapTimeDeleted": {
+                const driver = raceControlMessage.Message.match(/\d+/)[0];
+
+                await addLog(driver, "penalty", "Penalty", ["Warning", "Track Limits"], "orange", time, lap);
+                break;
+            }
+            case "TimePenalty": {
+                const amount = raceControlMessage.Message.match(/\d+/)[0];
+                const driver = raceControlMessage.Message.split("CAR")[1].match(/\d+/)[0];
+
+                console.log(driver);
+
+                console.log(raceControlMessage.Message.match(/\d+/));
+
+                await addLog(driver, "penalty", "Penalty", [`${amount} Seconds`, "Time Penalty"], "red", time, lap);
+                break;
+            }
+            case "TrackSurfaceSlippery": {
+                const words = raceControlMessage.Message.split("IN")[1].split(" ");
+
+                console.log(words);
+
+                let message = "Slippery ";
+                for (const word of words) {
+                    if (word === "") continue;
+                    message += `${word[0].toUpperCase() + word.slice(1).toLowerCase()} `;
+                }
+
+                await addLog(null, "single", "Track Status", message, "orange", time, lap);
+
+                console.log(message);
+
+                break;
+            }
+            case "PitEntry": {
+                let message = "Open";
+                let color = "green";
+                if (raceControlMessage.Flag === "CLOSED") {
+                    message = "Closed";
+                    color = "red";
+                }
+
+                await addLog(null, "double", "Pitlane", ["Pit Entry", message], ["blue", color], time, lap);
+                break;
+            }
+
+            case "PitExit": {
+                let message = "Open";
+                let color = "green";
+                if (raceControlMessage.Flag === "CLOSED") {
+                    message = "Closed";
+                    color = "red";
+                }
+
+                await addLog(null, "double", "Pitlane", ["Pit Exit", message], ["blue", color], time, lap);
+                break;
+            }
+            case "Drs": {
+                let message = "Enabled";
+                let color = "green";
+
+                if (raceControlMessage.Flag === "DISABLED") {
+                    message = "Disabled";
+                    color = "red";
+                }
+
+                await addLog(null, "double", "Track Information", ["DRS", message], ["green", color], time, lap);
+                break;
+            }
+        }
     }
 }
 
@@ -366,10 +667,15 @@ async function run() {
         const lap = sessionType === "Race" ? `LAP ${lapCount.CurrentLap}` : "";
         await addSessionStatusLog(time, lap, count);
         await addTrackStatusLog(time, lap, count);
-        await addLapCountLog(time, lap, count);
+        if (sessionType === "Race") await addLapCountLog(time, lap, count);
         await addWeatherLog(time, lap, count);
         await addPitlaneLog(time, lap, count);
         await addRetirementLog(time, lap, count);
+        if (sessionType === "Race") await addLappedLog(time, lap, count);
+        await addNewBoardRadioLog(time, lap, count);
+        await addFastestLapLog(time, lap, count);
+        if (sessionType === "Race") await addPitstopLog(time, lap, count);
+        await addRaceControlMessageLogs(time, lap, count);
         count++;
     }
 }

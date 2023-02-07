@@ -103,10 +103,16 @@ body {
     display: flex;
     width: 100%;
     justify-content: space-evenly;
+    align-items: center;
 }
 
 .tires img {
     height: 6vw;
+}
+
+.arrow img {
+    height: 4vw;
+    width: 7vw;
 }
 
 .stoptime {
