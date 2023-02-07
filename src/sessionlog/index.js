@@ -586,11 +586,9 @@ async function addRaceControlMessageLogs(time, lap, count) {
 
         oldRaceControlMessages.push(raceControlMessageString);
 
-        if (count === 0) continue;
+        // if (count === 0) continue;
 
         const category = raceControlMessage.SubCategory ? raceControlMessage.SubCategory : raceControlMessage.Category;
-
-        console.log(lap);
 
         switch (category) {
             case "LapTimeDeleted": {
@@ -666,6 +664,26 @@ async function addRaceControlMessageLogs(time, lap, count) {
     }
 }
 
+function removeLogs() {
+    const logs = document.getElementById("logs");
+
+    const logHeight = logs.firstChild.offsetHeight;
+
+    const windowHeight = window.innerHeight;
+
+    const windowCount = Math.ceil(windowHeight / logHeight);
+
+    const logCount = logs.childElementCount;
+
+    for (let logIndex = windowCount; logIndex < logCount; logIndex++) {
+        const logs = document.getElementById("logs");
+
+        logs.removeChild(logs.firstChild);
+    }
+
+    console.log(logCount);
+}
+
 async function run() {
     await getConfigurations();
     let count = 0;
@@ -685,6 +703,7 @@ async function run() {
         await addFastestLapLog(time, lap, count);
         if (sessionType === "Race" && showPitstops) await addPitstopLog(time, lap, count);
         await addRaceControlMessageLogs(time, lap, count);
+        await removeLogs();
         count++;
     }
 }
