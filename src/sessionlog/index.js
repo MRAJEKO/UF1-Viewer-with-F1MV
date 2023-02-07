@@ -26,9 +26,16 @@ document.addEventListener("keydown", (event) => {
 });
 
 async function getConfigurations() {
-    const configFile = (await ipcRenderer.invoke("get_config")).current.network;
-    const host = configFile.host;
+    const configFile = (await ipcRenderer.invoke("get_config")).current;
+    const networkConfig = configFile.network;
+    const logConfig = configFile.session_log;
+    const host = networkConfig.host;
     const port = (await f1mvApi.discoverF1MVInstances(host)).port;
+    showLappedDrivers = logConfig.lapped_drivers;
+    showRetiredDrivers = logConfig.retired_drivers;
+    showRain = logConfig.rain;
+    showTeamRadios = logConfig.team_radios;
+    showPitstops = logConfig.pitstops;
     config = {
         host: host,
         port: port,
@@ -670,13 +677,13 @@ async function run() {
         await addSessionStatusLog(time, lap, count);
         await addTrackStatusLog(time, lap, count);
         if (sessionType === "Race") await addLapCountLog(time, lap, count);
-        await addWeatherLog(time, lap, count);
+        if (showRain) await addWeatherLog(time, lap, count);
         await addPitlaneLog(time, lap, count);
-        await addRetirementLog(time, lap, count);
-        if (sessionType === "Race") await addLappedLog(time, lap, count);
-        await addNewBoardRadioLog(time, lap, count);
+        if (showRetiredDrivers) await addRetirementLog(time, lap, count);
+        if (sessionType === "Race" && showLappedDrivers) await addLappedLog(time, lap, count);
+        if (showTeamRadios) await addNewBoardRadioLog(time, lap, count);
         await addFastestLapLog(time, lap, count);
-        if (sessionType === "Race") await addPitstopLog(time, lap, count);
+        if (sessionType === "Race" && showPitstops) await addPitstopLog(time, lap, count);
         await addRaceControlMessageLogs(time, lap, count);
         count++;
     }
