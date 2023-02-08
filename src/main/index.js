@@ -91,7 +91,7 @@ async function sessionLog() {
         true,
         false,
         alwaysOnTop,
-        "info.ico"
+        "list.ico"
     );
 }
 
@@ -182,6 +182,21 @@ async function currentLaps() {
         false,
         alwaysOnTopPush,
         "currentlaps.ico"
+    );
+}
+
+async function battlemode() {
+    await ipcRenderer.invoke(
+        "window",
+        "battlemode/index.html",
+        300,
+        500,
+        false,
+        true,
+        true,
+        false,
+        alwaysOnTop,
+        "battle.ico"
     );
 }
 
