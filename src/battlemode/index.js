@@ -518,6 +518,19 @@ async function setData() {
                     ? "NO GAP"
                     : bestNextDriverTime - bestCurrentDriverTime;
             } else {
+                if (currentShownDriverPosition !== 1) {
+                    const currentTimeToFastest = parseFloat(currentDriverTimingData.TimeDiffToFastest.slice(1));
+
+                    const nextTimeToFastest = parseFloat(nextDriverTimingData.TimeDiffToFastest.slice(1));
+
+                    gap = isNaN(nextTimeToFastest - currentTimeToFastest)
+                        ? "NO GAP"
+                        : nextTimeToFastest - currentTimeToFastest;
+                } else {
+                    const nextTimeToFastest = parseFloat(nextDriverTimingData.TimeDiffToFastest.slice(1));
+
+                    gap = isNaN(nextTimeToFastest) ? "NO GAP" : nextTimeToFastest;
+                }
             }
 
             const gapElement = document.querySelector(`#gap${currentDriver}`);

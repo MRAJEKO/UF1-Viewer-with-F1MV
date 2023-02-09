@@ -29,7 +29,7 @@ body {
     border-radius: 25px;
     padding: 4vh 8vh;
     height: calc(55% - 8vh);
-    width: calc(100% - 8vh);
+    width: calc(100% - 16vh);
     display: flex;
     justify-content: space-between;
     position: absolute;
