@@ -189,8 +189,8 @@ async function battlemode() {
     await ipcRenderer.invoke(
         "window",
         "battlemode/index.html",
-        300,
-        500,
+        1300,
+        200,
         false,
         true,
         true,
