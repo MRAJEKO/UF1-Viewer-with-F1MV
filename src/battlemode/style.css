@@ -123,7 +123,7 @@ body {
     font-family: "OF1Bold";
     border: 2px solid red;
     color: red;
-    width: 100%;
+    width: 10vh;
     padding: 1vh;
     border-radius: 3vh;
     display: grid;
@@ -231,6 +231,7 @@ body {
 .gap .gap-time-time {
     font-family: "OF1Bold";
     font-size: 10vh;
+    transform: skew(-10deg);
 }
 
 .gap .gap-time-format {
@@ -250,7 +251,7 @@ body {
     background-color: #1d1d25af;
     height: 18vh;
     border-radius: 5vh;
-    opacity: 1;
+    opacity: 0;
     transition: all 0.5s ease;
     display: flex;
     justify-content: space-evenly;
@@ -287,6 +288,10 @@ body {
 
 .personal-best {
     color: #4caf50;
+}
+
+.red-text {
+    color: red;
 }
 
 .slow {
