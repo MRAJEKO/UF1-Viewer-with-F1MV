@@ -276,7 +276,11 @@ function addDriver(driver) {
     <div class="driver-headshot">
             <img
             id="driver-headshot"
-                src="${driverList[driver].HeadshotUrl ? driverList[driver].HeadshotUrl.replace("1col", "12col") : ""}"
+                src="${
+                    driverList[driver].HeadshotUrl
+                        ? driverList[driver].HeadshotUrl.replace("1col", "12col")
+                        : "../icons/unknowndriver.png"
+                }"
                 alt="" />
                 </div>
                 <div class="driver-name">
