@@ -27,7 +27,7 @@ body {
 #wrapper {
     background-color: #1d1d25af;
     border-radius: 25px;
-    padding: 4vh;
+    padding: 4vh 8vh;
     height: calc(55% - 8vh);
     width: calc(100% - 8vh);
     display: flex;
@@ -204,6 +204,7 @@ body {
 }
 
 .pedal div {
+    width: 0;
     height: 100%;
     transition: all 0.2s ease;
 }
@@ -230,6 +231,7 @@ body {
 
 .gap .gap-time-time {
     font-family: "OF1Bold";
+    white-space: nowrap;
     font-size: 10vh;
     transform: skew(-10deg);
 }
@@ -300,4 +302,8 @@ body {
 
 .red {
     background-color: red;
+}
+
+.gray {
+    color: rgba(255, 255, 255, 0.233);
 }

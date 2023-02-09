@@ -68,11 +68,23 @@ async function apiRequests() {
     driverList = liveTimingState.DriverList;
     tireData = liveTimingState.TimingAppData.Lines;
     timingData = liveTimingState.TimingData.Lines;
+    sessionTimingData = liveTimingState.TimingData;
     timingStats = liveTimingState.TimingStats.Lines;
     sessionInfo = liveTimingState.SessionInfo;
     sessionType = sessionInfo.Type;
 
     clockData = liveTimingClock;
+}
+
+function parseTime(time) {
+    // Split the input into 3 variables by checking if there is a : or a . in the time. Then replace any starting 0's by nothing and convert them to numbers using parseInt.
+    const [minutes, seconds, milliseconds] = time
+        .split(/[:.]/)
+        .map((number) => parseInt(number.replace(/^0+/, "") || "0", 10));
+
+    if (milliseconds === undefined) return minutes + seconds / 1000;
+
+    return minutes * 60 + seconds + milliseconds / 1000;
 }
 
 function sortDrivers() {
@@ -121,8 +133,41 @@ function toggleDriver(driver) {
         removeDriver(driver);
         return;
     }
+
+    const shownDriverElements = [...document.querySelectorAll(".driver")];
+
+    const windowWidth = window.innerWidth;
+    const margin = window.innerHeight;
+    const gap = (window.innerHeight / 100) * 7;
+    const telemetryWidth = (window.innerHeight / 100) * 50 + gap;
+    const timeWidth = (window.innerHeight / 100) * 40 + gap;
+
+    const telemetryShown = document.querySelectorAll(".telemetry")[0]
+        ? document.querySelectorAll(".telemetry")[0].style.display === "none"
+            ? false
+            : true
+        : true;
+    const timesShown = document.querySelectorAll(".times")[0]
+        ? document.querySelectorAll(".times")[0].style.display === "none"
+            ? false
+            : true
+        : true;
+
+    if (shownDriverElements.length > 0) {
+        const driverElementWidth = shownDriverElements[0].offsetWidth;
+
+        const driversWidths = driverElementWidth * shownDriverElements.length;
+        const marginWidths = margin * (shownDriverElements.length - 1);
+        const telemetryWidths = telemetryShown ? telemetryWidth * shownDriverElements.length : 0;
+        const timeWidths = timesShown ? timeWidth * shownDriverElements.length : 0;
+
+        const newTotalWidth = driversWidths + marginWidths - telemetryWidths - timeWidths + driverElementWidth + margin;
+
+        if (windowWidth < newTotalWidth) return;
+    }
     driverButton.style.opacity = 1;
     driverButton.style.borderWidth = "1vh";
+
     addDriver(driver);
 }
 
@@ -176,30 +221,11 @@ function addButtons() {
 }
 
 function toggleMisc(type) {
-    const miscButton = document.getElementById(type);
-
-    const miscButtonsContainer = document.querySelector("#buttons");
-
-    const miscButtons = [...document.querySelectorAll(".misc-button")];
-
     const parts = document.querySelectorAll(`.${type}`);
-    if (miscButtons.includes(miscButton)) {
-        for (const part of parts) part.style.display = "inherit";
 
-        miscButton.remove();
-        return;
+    for (const part of parts) {
+        part.style.display === "none" ? (part.style.display = "inherit") : (part.style.display = "none");
     }
-
-    for (const part of parts) part.style.display = "none";
-
-    const button = document.createElement("button");
-    button.id = type;
-    button.className = "button misc-button";
-    button.style.borderColor = "green";
-    button.style.color = "green";
-    button.textContent = type;
-    button.onclick = () => toggleMisc(type);
-    miscButtonsContainer.appendChild(button);
 }
 
 function ordinalForm(num) {
@@ -224,17 +250,20 @@ function addDriver(driver) {
 
     const shownDriverElements = document.querySelectorAll(".driver");
 
-    const times = document.querySelectorAll(".times")[0]
-        ? document.querySelectorAll(".times")[0].style.display === "none"
-            ? "none"
-            : "inherit"
-        : "inherit";
-
-    const telemetry = document.querySelectorAll(".telemetry")[0]
+    const telemetryShown = document.querySelectorAll(".telemetry")[0]
         ? document.querySelectorAll(".telemetry")[0].style.display === "none"
-            ? "none"
-            : "inherit"
-        : "inherit";
+            ? false
+            : true
+        : true;
+    const timesShown = document.querySelectorAll(".times")[0]
+        ? document.querySelectorAll(".times")[0].style.display === "none"
+            ? false
+            : true
+        : true;
+
+    const times = timesShown ? "inherit" : "none";
+
+    const telemetry = telemetryShown ? "inherit" : "none";
 
     const newElement = document.createElement("div");
 
@@ -273,7 +302,7 @@ function addDriver(driver) {
         <p id="pit" class="off">P</p>
         </div>
     </div>
-    <div class="times Time" style="display: ${times};" id="times" onclick="toggleMisc('Time')">
+    <div class="times" style="display: ${times};" id="times">
         <div class="best-time">
         <p class="time-name">Best</p>
             <p class="time-time fastest-time" id="fastest-time">1.25.652</p>
@@ -283,12 +312,12 @@ function addDriver(driver) {
             <p class="time-time slow" id="current-time">1.26.723</p>
         </div>
     </div>
-    <div class="telemetry Tel" style="display: ${telemetry};" id="telemetry" onclick="toggleMisc('Tel')">
+    <div class="telemetry" style="display: ${telemetry};" id="telemetry">
         <div class="drs">
         <p class="off" id="drs">DRS</p>
         </div>
         <div class="speed">
-            <p class="speed-number" id="speed">256</p>
+            <p class="speed-number" id="speed">0</p>
             <p class="metric" id="metric">km/h</p>
         </div>
         <div class="pedals">
@@ -342,8 +371,6 @@ function reorderDrivers(shownDriverElements) {
 }
 
 let oldData = "";
-let telemetryWidth = 0;
-let timeWidth = 0;
 async function setData() {
     const shownDriverElements = document.querySelectorAll(".driver");
 
@@ -357,10 +384,6 @@ async function setData() {
         const timeWidth = (window.innerHeight / 100) * 40 + gap;
 
         const driverElementWidth = shownDriverElements[0].offsetWidth;
-
-        const amountOfDriversFit = Math.floor((windowWidth - margin) / (driverElementWidth + margin));
-
-        console.log(amountOfDriversFit);
 
         // Variable telemetry and times that are true or false depending on if they are shown or not
         const telemetry = document.querySelectorAll(".telemetry")[0]
@@ -380,20 +403,17 @@ async function setData() {
         const timeWidths = timeWidth * shownDriverElements.length;
         // if (!telemetry && driverElementWidth * shownDriverElements.length)
 
-        console.log(!telemetry && driversWidths + marginWidths + telemetryWidths < windowWidth);
-        console.log(!times && driversWidths + marginWidths + timeWidths < windowWidth);
-
         if (windowWidth < driverElementWidth * shownDriverElements.length + margin * (shownDriverElements.length - 1)) {
             if (telemetry) {
-                toggleMisc("Tel");
+                toggleMisc("telemetry");
             } else if (times) {
-                toggleMisc("Time");
+                toggleMisc("times");
             }
         } else {
-            if (!telemetry && driversWidths + marginWidths + telemetryWidth + timeWidths < windowWidth) {
-                toggleMisc("Tel");
-            } else if (!times && driversWidths + marginWidths + timeWidths < windowWidth) {
-                toggleMisc("Time");
+            if (!times && driversWidths + marginWidths + timeWidths < windowWidth) {
+                toggleMisc("times");
+            } else if (!telemetry && driversWidths + marginWidths + telemetryWidth + timeWidths < windowWidth) {
+                toggleMisc("telemetry");
             }
         }
     }
@@ -422,6 +442,7 @@ async function setData() {
 
         gapElement.id = `gap${shownDriverElements[gapElementIndex].id.replace("driver", "")}`;
     }
+
     for (
         let shownDriverElementIndex = 0;
         shownDriverElementIndex < shownDriverElements.length;
@@ -439,6 +460,8 @@ async function setData() {
 
         const nextShownDriverElement = shownDriverElements[shownDriverElementIndex + 1];
 
+        // console.log(currentDriver, nextShownDriverElement);
+
         if (nextShownDriverElement) {
             const nextDriver = parseInt(nextShownDriverElement.id.replace("driver", ""));
 
@@ -446,45 +469,53 @@ async function setData() {
 
             const nextDriverTimingData = timingData[sortedDrivers[nextShownDriverPosition - 1]];
 
-            let gap = nextDriverTimingData.IntervalToPositionAhead.Value.includes("L") ? "LAPPED" : 0;
+            let gap = 0;
+            if (sessionType === "Race") {
+                gap = nextDriverTimingData.IntervalToPositionAhead.Value.includes("L") ? "LAPPED" : 0;
 
-            if (currentShownDriverPosition === 1) {
-                if (
-                    !currentDriverTimingData.GapToLeader.includes("L") &&
-                    !nextDriverTimingData.GapToLeader.includes("L")
-                ) {
-                    gap = parseInt(nextDriverTimingData.GapToLeader) - parseInt(currentDriverTimingData.GapToLeader);
-                } else {
-                    gap = parseFloat(nextDriverTimingData.GapToLeader.slice(1));
-                }
-            } else if (!nextDriverTimingData.IntervalToPositionAhead.Value.includes("L")) {
-                for (let position = nextShownDriverPosition; position > currentShownDriverPosition; position--) {
-                    const driverGapPosAhead = timingData[sortedDrivers[position - 1]].IntervalToPositionAhead.Value;
-
-                    if (driverGapPosAhead.includes("L")) {
-                        gap = "LAPPED";
-                        break;
-                    }
-
+                if (currentShownDriverPosition === 1) {
                     if (
-                        driverGapPosAhead === "" &&
-                        (timingData[sortedDrivers[position - 1]].Retired ||
-                            timingData[sortedDrivers[position - 1]].Stopped)
+                        !currentDriverTimingData.GapToLeader.includes("L") &&
+                        !nextDriverTimingData.GapToLeader.includes("L")
                     ) {
-                        gap = "RETIRED";
-                        break;
+                        gap =
+                            parseInt(nextDriverTimingData.GapToLeader) - parseInt(currentDriverTimingData.GapToLeader);
+                    } else {
+                        gap = parseFloat(nextDriverTimingData.GapToLeader.slice(1));
                     }
+                } else if (!nextDriverTimingData.IntervalToPositionAhead.Value.includes("L")) {
+                    for (let position = nextShownDriverPosition; position > currentShownDriverPosition; position--) {
+                        const driverTimingData = timingData[sortedDrivers[position - 1]];
 
-                    if (driverGapPosAhead === "") {
-                        gap = "UNKNOWN";
-                        break;
+                        const driverGapPosAhead = driverTimingData.IntervalToPositionAhead.Value;
+
+                        if (driverGapPosAhead.includes("L")) {
+                            gap = "LAPPED";
+                            break;
+                        }
+
+                        if (driverGapPosAhead === "") {
+                            gap = "NO GAP";
+                            break;
+                        }
+
+                        const selectedDriverGapAhead = parseFloat(driverGapPosAhead.slice(1));
+
+                        gap += selectedDriverGapAhead;
                     }
-
-                    const selectedDriverGapAhead = parseFloat(driverGapPosAhead.slice(1));
-
-                    gap += selectedDriverGapAhead;
                 }
+            } else if (sessionType === "Qualifying") {
+                const sessionPart = sessionTimingData.SessionPart;
+
+                const bestCurrentDriverTime = parseTime(currentDriverTimingData.BestLapTimes[sessionPart - 1].Value);
+                const bestNextDriverTime = parseTime(nextDriverTimingData.BestLapTimes[sessionPart - 1].Value);
+
+                gap = isNaN(bestNextDriverTime - bestCurrentDriverTime)
+                    ? "NO GAP"
+                    : bestNextDriverTime - bestCurrentDriverTime;
+            } else {
             }
+
             const gapElement = document.querySelector(`#gap${currentDriver}`);
 
             gapElement.querySelector(".gap-time-time").textContent = isNaN(gap)
@@ -497,11 +528,11 @@ async function setData() {
                 "gap-time-time " + (isNaN(gap) ? "red-text" : gap > 1 ? "" : "personal-best");
         }
 
-        const currentTire = tireData[currentDriver].Stints.slice(-1)[0];
+        const currentTire = tireData[currentDriver].Stints ? tireData[currentDriver].Stints.slice(-1)[0] : null;
 
-        const currentTirePath = `../icons/tires/${currentTire.Compound.toLowerCase()}.png`;
+        const currentTirePath = `../icons/tires/${currentTire ? currentTire.Compound.toLowerCase() : "unknown"}.png`;
 
-        const currentTireAge = currentTire.TotalLaps;
+        const currentTireAge = currentTire ? currentTire.TotalLaps : "?";
 
         document.querySelector(`#driver${currentDriver} #current-tire`).src = currentTirePath;
 
@@ -517,24 +548,30 @@ async function setData() {
             ? (document.querySelector(`#driver${currentDriver} #pit`).className = "")
             : (document.querySelector(`#driver${currentDriver} #pit`).className = "off");
 
-        if (document.getElementById("times").display === "none") return;
+        if (document.getElementById("times").display === "none") continue;
         // Set lap times
         const bestLap = timingStats[currentDriver].PersonalBestLapTime;
 
-        document.querySelector(`#driver${currentDriver} #fastest-time`).textContent = bestLap.Value;
+        document.querySelector(`#driver${currentDriver} #fastest-time`).textContent =
+            bestLap.Value === "" ? "NO TIME" : bestLap.Value;
         document.querySelector(`#driver${currentDriver} #fastest-time`).className =
-            (bestLap.Position === 1 ? "fastest-time" : "personal-best") + " time-time";
+            bestLap.Value === ""
+                ? "gray time-time"
+                : (bestLap.Position === 1 ? "fastest-time" : "personal-best") + " time-time";
 
         const lastLap = timingData[currentDriver].LastLapTime;
 
-        document.querySelector(`#driver${currentDriver} #current-time`).textContent = lastLap.Value;
+        document.querySelector(`#driver${currentDriver} #current-time`).textContent =
+            lastLap.Value === "" ? "NO TIME" : lastLap.Value;
         document.querySelector(`#driver${currentDriver} #current-time`).className =
-            (lastLap.OverallFastest ? "fastest-time" : lastLap.PersonalFastest ? "personal-best" : "slow") +
-            " time-time";
+            lastLap.Value === ""
+                ? "gray time-time"
+                : (lastLap.OverallFastest ? "fastest-time" : lastLap.PersonalFastest ? "personal-best" : "slow") +
+                  " time-time";
 
-        if (document.getElementById("telemetry").display === "none") return;
+        if (document.getElementById("telemetry").display === "none") continue;
         // Set car data
-        if (oldData === carData[0].Utc) break;
+        if (oldData === carData[0].Utc) continue;
 
         const drsData = carData[0].Cars[currentDriver].Channels[45];
 
@@ -560,7 +597,7 @@ async function setData() {
                     currentData.Cars[driver].Channels[4] + "%";
 
                 document.querySelector(`#driver${driver} #brake`).style.width =
-                    currentData.Cars[driver].Channels[5] * 100 + "%";
+                    currentData.Cars[driver].Channels[5] + "%";
             } catch (e) {
                 console.log("Driver has been removed");
                 return;
