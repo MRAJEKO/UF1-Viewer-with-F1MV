@@ -2,6 +2,44 @@ const debug = false;
 
 const f1mvApi = require("npm_f1mv_api");
 
+let goveeConnected = false;
+let goveeDevices = [];
+
+const goveeEnabled = require("../settings/config.json").current.flag_display.govee;
+
+if (goveeEnabled) {
+    const goveePanel = window.open(
+        "govee/index.html",
+        "_blank",
+        "width=150,height=150,frame=false,transparent=true, hideMenuBar=true,hasShadow=false"
+    );
+
+    const Govee = require("govee-lan-control");
+    const govee = new Govee.default();
+
+    govee.on("deviceAdded", async (device) => {
+        console.log("Connected to Govee device: " + device.model);
+
+        goveeDevices.push(device);
+
+        goveePanel.document.getElementById("connected").textContent = goveeDevices.length;
+
+        goveeConnected = true;
+    });
+
+    govee.on("deviceRemoved", async (device) => {
+        console.log("Govee device disconnected: " + device.model);
+
+        const deviceIndex = goveeDevices.indexOf(device);
+
+        goveeDevices.splice(deviceIndex, 1);
+
+        goveePanel.document.getElementById("connected").textContent = goveeDevices.length;
+
+        if (goveeDevices.length === 0) goveeConnected = false;
+    });
+}
+
 // Set sleep
 const sleep = (milliseconds) => {
     return new Promise((resolve) => setTimeout(resolve, milliseconds));
@@ -26,6 +64,41 @@ async function getConfigurations() {
     }
 }
 
+async function setGoveeLight(color) {
+    let rgbColor = [255, 255, 255];
+
+    switch (color) {
+        case "green":
+            rgbColor = [0, 175, 0];
+            break;
+        case "yellow":
+            rgbColor = [255, 230, 0];
+            break;
+        case "red":
+            rgbColor = [209, 0, 0];
+            break;
+        case "purple":
+            rgbColor = [185, 0, 185];
+            break;
+        case "black":
+            rgbColor = [0, 0, 0];
+            break;
+    }
+
+    console.log("Set govee light to: " + color);
+
+    console.log(goveeDevices);
+    for (const device of goveeDevices) {
+        await device.actions.fadeColor({
+            time: 500,
+            color: {
+                rgb: rgbColor,
+            },
+            brightness: 100,
+        });
+    }
+}
+
 let prevTrackStatus;
 let prevSessionStatus;
 let prevFastestLap;
@@ -37,26 +110,32 @@ async function getCurrentStatus() {
         prevTrackStatus = trackStatus;
         switch (trackStatus) {
             case 1:
+                if (goveeConnected) setGoveeLight("green");
                 flag.classList.remove("red");
                 flag.classList.remove("yellow");
                 flag.classList.add("green");
                 await sleep(5000);
+                if (goveeConnected) setGoveeLight("default");
                 flag.classList.remove("green");
                 break;
             case 2:
+                if (goveeConnected) setGoveeLight("yellow");
                 flag.classList.add("yellow");
                 break;
             case 4:
                 await blink("yellow", 3, 500);
+                if (goveeConnected) setGoveeLight("yellow");
                 flag.classList.add("yellow");
                 break;
             case 5:
+                if (goveeConnected) setGoveeLight("red");
                 flag.classList.remove("yellow");
                 flag.classList.add("red");
                 break;
             case 6:
             case 7:
                 await blink("yellow", 3, 750);
+                if (goveeConnected) setGoveeLight("yellow");
                 flag.classList.add("yellow");
                 break;
         }
@@ -94,8 +173,10 @@ async function getCurrentStatus() {
 
 async function blink(color, amount, interval) {
     for (let count = 0; count < amount; count++) {
+        if (goveeConnected) setGoveeLight(color);
         flag.classList.add(color);
         await sleep(interval);
+        if (goveeConnected) setGoveeLight("black");
         flag.classList.remove(color);
         await sleep(interval);
     }

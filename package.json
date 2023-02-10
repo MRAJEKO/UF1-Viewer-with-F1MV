@@ -52,6 +52,7 @@
         "discord-rpc": "^4.0.1",
         "electron-squirrel-startup": "^1.0.0",
         "fs-extra": "^8.1.0",
+        "govee-lan-control": "^2.1.0",
         "npm_f1mv_api": "^1.4.1-rc1",
         "react": "^18.2.0",
         "react-dom": "^18.2.0",
