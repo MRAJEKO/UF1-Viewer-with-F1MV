@@ -16,7 +16,7 @@
         "postinstall": "electron-builder install-app-deps"
     },
     "keywords": [],
-    "author": "Aiden",
+    "author": "MR. AJEKO",
     "license": "MIT",
     "config": {
         "forge": {
