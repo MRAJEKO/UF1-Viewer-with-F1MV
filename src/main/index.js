@@ -285,7 +285,7 @@ async function restoreAll() {
     const defaultConfig = config.default;
     const currentConfig = config.current;
     for (const category in currentConfig) {
-        for (const setting in currentConfig[index]) {
+        for (const setting in currentConfig[category]) {
             const settingElement = document.querySelector(`#${category} #${setting}`);
 
             if (settingElement.type === "checkbox") settingElement.checked = defaultConfig[category][setting];
