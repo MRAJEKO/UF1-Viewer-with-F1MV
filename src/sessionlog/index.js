@@ -586,7 +586,7 @@ async function addRaceControlMessageLogs(time, lap, count) {
 
         oldRaceControlMessages.push(raceControlMessageString);
 
-        // if (count === 0) continue;
+        if (count === 0) continue;
 
         const category = raceControlMessage.SubCategory ? raceControlMessage.SubCategory : raceControlMessage.Category;
 
