@@ -64,26 +64,9 @@ async function getConfigurations() {
     }
 }
 
+const ledColors = require("../settings/led_colors.json");
 async function setGoveeLight(color) {
-    let rgbColor = [255, 255, 255];
-
-    switch (color) {
-        case "green":
-            rgbColor = [0, 175, 0];
-            break;
-        case "yellow":
-            rgbColor = [255, 230, 0];
-            break;
-        case "red":
-            rgbColor = [209, 0, 0];
-            break;
-        case "purple":
-            rgbColor = [185, 0, 185];
-            break;
-        case "black":
-            rgbColor = [0, 0, 0];
-            break;
-    }
+    const rgbColor = ledColors[color];
 
     console.log("Set govee light to: " + color);
 
