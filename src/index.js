@@ -92,41 +92,41 @@ ipcMain.handle(
 );
 
 // Receive request on 'write_config' to write all the settings to 'config.json'
-ipcMain.handle("write_config", async (event, category, key, value) => {
-    const config = require("./config.json");
-    config.current[category][key] = value;
-    const data = JSON.stringify(config);
-    // Write the data to 'config.json'
-    fs.writeFile(__dirname + "/config.json", data, (err) => {
-        if (err) {
-            console.log("Error writing file", err);
-        } else {
-            console.log("Successfully wrote file");
-        }
-    });
-    return require("./config.json");
-});
+// ipcMain.handle("write_config", async (event, category, key, value) => {
+//     const config = require("./config.json");
+//     config.current[category][key] = value;
+//     const data = JSON.stringify(config);
+//     // Write the data to 'config.json'
+//     fs.writeFile(__dirname + "/config.json", data, (err) => {
+//         if (err) {
+//             console.log("Error writing file", err);
+//         } else {
+//             console.log("Successfully wrote file");
+//         }
+//     });
+//     return require("./config.json");
+// });
 
 // Receive request on 'get_config' to get all the current values inside of 'config.json'
-ipcMain.handle("get_config", async (event, args) => {
-    const config = require("./config.json");
-    return config;
-});
+// ipcMain.handle("get_config", async (event, args) => {
+//     const config = require("./config.json");
+//     return config;
+// });
 
 // Get the correct team icon from the team name
-ipcMain.handle("get_icon", async (event, teamName) => {
-    const icons = {
-        "Red Bull Racing": "../icons/teams/red-bull.png",
-        McLaren: "../icons/teams/mclaren-white.png",
-        "Aston Martin": "../icons/teams/aston-martin.png",
-        Williams: "../icons/teams/williams-white.png",
-        AlphaTauri: "../icons/teams/alpha-tauri.png",
-        Alpine: "../icons/teams/alpine.png",
-        Ferrari: "../icons/teams/ferrari.png",
-        "Haas F1 Team": "../icons/teams/haas-red.png",
-        "Alfa Romeo": "../icons/teams/alfa-romeo.png",
-        Mercedes: "../icons/teams/mercedes.png",
-    };
+// ipcMain.handle("get_icon", async (event, teamName) => {
+//     const icons = {
+//         "Red Bull Racing": "../icons/teams/red-bull.png",
+//         McLaren: "../icons/teams/mclaren-white.png",
+//         "Aston Martin": "../icons/teams/aston-martin.png",
+//         Williams: "../icons/teams/williams-white.png",
+//         AlphaTauri: "../icons/teams/alpha-tauri.png",
+//         Alpine: "../icons/teams/alpine.png",
+//         Ferrari: "../icons/teams/ferrari.png",
+//         "Haas F1 Team": "../icons/teams/haas-red.png",
+//         "Alfa Romeo": "../icons/teams/alfa-romeo.png",
+//         Mercedes: "../icons/teams/mercedes.png",
+//     };
 
-    return icons[teamName];
-});
+//     return icons[teamName];
+// });

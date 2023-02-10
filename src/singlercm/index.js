@@ -85,7 +85,7 @@ let category;
 let running = false;
 
 async function getConfigurations() {
-    const configFile = (await ipcRenderer.invoke("get_config")).current.network;
+    const configFile = require("../settings/config.json").current.network;
     const host = configFile.host;
     const port = (await f1mvApi.discoverF1MVInstances(host)).port;
     config = {

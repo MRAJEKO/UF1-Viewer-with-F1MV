@@ -1,7 +1,5 @@
 const debug = false;
 
-const { ipcRenderer } = require("electron");
-
 const f1mvApi = require("npm_f1mv_api");
 
 // Set sleep
@@ -15,8 +13,8 @@ const extra = document.getElementById("extra");
 const chequered = document.getElementById("chequered");
 
 async function getConfigurations() {
-    const configfile = (await ipcRenderer.invoke("get_config")).current.network;
-    host = configfile.host;
+    const configfile = require("../settings/config.json").current;
+    host = configfile.network.host;
     port = (await f1mvApi.discoverF1MVInstances(host)).port;
     config = {
         host: host,

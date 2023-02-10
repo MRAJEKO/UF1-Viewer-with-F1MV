@@ -1,15 +1,9 @@
 const debug = false;
 
-// The duration of the sector times being show when completing a sector
 // (All times are in MS)
-const holdSectorTimeDuration = 4000;
-const holdEndOfLapDuration = 4000;
-const loopspeed = 80;
-
-const { ipcRenderer } = require("electron");
+const loopspeed = 100;
 
 const f1mvApi = require("npm_f1mv_api");
-const { createElement } = require("react");
 
 // Set sleep
 const sleep = (milliseconds) => {
@@ -18,8 +12,8 @@ const sleep = (milliseconds) => {
 
 // Apply any configuration from the config.json file
 async function getConfigurations() {
-    const config = (await ipcRenderer.invoke("get_config")).current.network;
-    host = config.host;
+    const configFile = require("../settings/config.json").current;
+    host = configFile.network.host;
     port = (await f1mvApi.discoverF1MVInstances(host)).port;
     if (debug) {
         console.log(host);
@@ -636,7 +630,7 @@ async function run() {
     await apiRequests();
     addButtons();
     while (true) {
-        await sleep(100);
+        await sleep(loopspeed);
         await apiRequests();
         sortDrivers();
         await setData();

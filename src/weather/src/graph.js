@@ -93,8 +93,8 @@ function Graph() {
     }, []);
 
     async function getConfigurations() {
-        const configFile = (await ipcRenderer.invoke("get_config")).current.weather;
-        const networkConfig = (await ipcRenderer.invoke("get_config")).current.network;
+        const configFile = require("../settings/config.json").current.weather;
+        const networkConfig = require("../settings/config.json").current.network;
         const defaultBackgroundColor = configFile.default_background_color;
         const useTrackRotation = configFile.use_trackmap_rotation;
 

@@ -1,5 +1,3 @@
-const { ipcRenderer } = require("electron");
-
 const debug = false;
 
 const f1mvApi = require("npm_f1mv_api");
@@ -48,7 +46,7 @@ function small() {
 }
 
 async function getConfigurations() {
-    const configFile = (await ipcRenderer.invoke("get_config")).current;
+    const configFile = require("../settings/config.json").current;
     const networkConfig = configFile.network;
     mainWindowName = configFile.autoswitcher.main_window_name;
     enableSpeedometer = configFile.autoswitcher.speedometer;

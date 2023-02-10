@@ -1,4 +1,3 @@
-const { spawn, exec } = require("child_process");
 const fs = require("fs");
 const { ipcRenderer } = require("electron");
 
@@ -38,7 +37,7 @@ async function ignore() {
 
 async function setAlwaysOnTop() {
     while (true) {
-        const config = (await ipcRenderer.invoke("get_config")).current;
+        const config = require("../settings/config.json").current;
         alwaysOnTop = config.general.always_on_top;
         alwaysOnTopPush = config.current_laps.always_on_top;
         if (debug) {
@@ -239,62 +238,41 @@ async function settings() {
 }
 
 async function saveSettings() {
-    const config = (await ipcRenderer.invoke("get_config")).current;
-    if (debug) console.log(config);
-    for (index in config) {
-        for (i in config[index]) {
-            if (debug) {
-                console.log(i);
-                console.log(index);
-                console.log(config[index]);
-                console.log(config[index][i]);
-                console.log(document.querySelector("#" + index + " " + "#" + i));
-                console.log(document.querySelector("#" + index + " " + "#" + i).value);
-                console.log(document.querySelector("#" + index + " " + "#" + i).checked);
-                console.log(document.querySelector("#" + index + " " + "#" + i).type == "checkbox");
-            }
-            let value = document.querySelector("#" + index + " " + "#" + i).value;
-            if (debug) console.log(value);
-            if (document.querySelector("#" + index + " " + "#" + i).type == "checkbox") {
-                if (debug) console.log("Checkbox");
-                value = document.querySelector("#" + index + " " + "#" + i).checked;
-            }
-            await ipcRenderer.invoke("write_config", index, i, value);
+    const config = require("../settings/config.json");
+    for (const category in config.current) {
+        for (const setting in config.current[category]) {
+            const settingElement = document.querySelector(`#${category} #${setting}`);
+
+            let value = settingElement.value;
+
+            if (settingElement.type === "checkbox") value = settingElement.checked;
+
+            config.current[category][setting] = value;
+
+            console.log(config);
+            const data = JSON.stringify(config);
+            fs.writeFile(__dirname + "/../settings/config.json", data, (err) => {
+                if (err) {
+                    console.log("Error writing file", err);
+                } else {
+                    console.log("Successfully wrote file");
+                }
+            });
         }
     }
 }
 
 async function setSettings() {
-    const config = (await ipcRenderer.invoke("get_config")).current;
-    if (debug) console.log(config);
-    for (index in config) {
-        for (i in config[index]) {
-            if (debug) {
-                console.log(i);
-                console.log(config[index]);
-                console.log(config[index][i]);
-            }
-            if (document.querySelector("#" + index + " " + "#" + i).type == "checkbox") {
-                if (debug) {
-                    console.log("Switch");
-                    console.log(document.querySelector("#" + index + " " + "#" + i).checked);
-                }
-                document.querySelector("#" + index + " " + "#" + i).checked = config[index][i];
-            }
-            if (document.querySelector("#" + index + " " + "#" + i).classList.contains("selector")) {
-                document.querySelector("#" + index + " " + "#" + i).value = config[index][i];
-                if (debug) {
-                    console.log((document.querySelector("#" + index + " " + "#" + i).value = config[index][i]));
-                    console.log("Selector");
-                }
-            }
-            if (document.querySelector("#" + index + " " + "#" + i).type == "text") {
-                document.querySelector("#" + index + " " + "#" + i).value = config[index][i];
-                if (debug) {
-                    console.log((document.querySelector("#" + index + " " + "#" + i).value = config[index][i]));
-                    console.log("Text");
-                }
-            }
+    const config = require("../settings/config.json").current;
+    for (const category in config) {
+        for (const setting in config[category]) {
+            const settingElement = document.querySelector(`#${category} #${setting}`);
+
+            if (settingElement.type === "checkbox") settingElement.checked = config[category][setting];
+
+            if (settingElement.classList.contains("selector")) settingElement.value = config[category][setting];
+
+            if (settingElement.type === "text") settingElement.value = config[category][setting];
         }
     }
 }
@@ -303,33 +281,18 @@ setSettings();
 
 async function restoreAll() {
     if (debug) console.log("Restoring all settings");
-    const config = await ipcRenderer.invoke("get_config");
+    const config = require("../settings/config.json");
     const defaultConfig = config.default;
     const currentConfig = config.current;
-    for (index in currentConfig) {
-        for (i in currentConfig[index]) {
-            if (debug) {
-            }
-            if (document.querySelector("#" + index + " " + "#" + i).type == "checkbox") {
-                if (debug) {
-                    console.log("Switch");
-                }
-                document.querySelector("#" + index + " " + "#" + i).checked = defaultConfig[index][i];
-            }
-            if (document.querySelector("#" + index + " " + "#" + i).classList.contains("selector")) {
-                document.querySelector("#" + index + " " + "#" + i).value = defaultConfig[index][i];
-                if (debug) {
-                    console.log((document.querySelector("#" + index + " " + "#" + i).value = defaultConfig[index][i]));
-                    console.log("Selector");
-                }
-            }
-            if (document.querySelector("#" + index + " " + "#" + i).type == "text") {
-                document.querySelector("#" + index + " " + "#" + i).value = defaultConfig[index][i];
-                if (debug) {
-                    console.log((document.querySelector("#" + index + " " + "#" + i).value = defaultConfig[index][i]));
-                    console.log("Text");
-                }
-            }
+    for (const category in currentConfig) {
+        for (const setting in currentConfig[index]) {
+            const settingElement = document.querySelector(`#${category} #${setting}`);
+
+            if (settingElement.type === "checkbox") settingElement.checked = defaultConfig[category][setting];
+
+            if (settingElement.classList.contains("selector")) settingElement.value = defaultConfig[category][setting];
+
+            if (settingElement.type === "text") settingElement.value = defaultConfig[category][setting];
         }
     }
     saveSettings();
@@ -341,7 +304,8 @@ async function isConnected(ignore) {
         document.getElementById("connect").className = "animation";
         return;
     }
-    const configFile = (await ipcRenderer.invoke("get_config")).current;
+    const configFile = require("../settings/config.json").current;
+    console.log(configFile);
     const host = configFile.network.host;
     try {
         const port = (await f1mvApi.discoverF1MVInstances(host)).port;
