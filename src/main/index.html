@@ -291,9 +291,21 @@
             <button class="window" onclick="currentLaps()">Current Laps</button>
             <button class="window" onclick="battlemode()">Battle Mode</button>
             <button class="window" onclick="weather()">Weather</button>
+            <div class="layout">
+                <button class="window load" onclick="restoreLayout(1)">Layout 1</button>
+                <button class="window save" onclick="saveLayout(1)"><img src="../icons/save.png" alt="" /></button>
+            </div>
+            <div class="layout">
+                <button class="window load" onclick="restoreLayout(2)">Layout 2</button>
+                <button class="window save" onclick="saveLayout(2)"><img src="../icons/save.png" alt="" /></button>
+            </div>
+            <div class="layout">
+                <button class="window load" onclick="restoreLayout(3)">Layout 3</button>
+                <button class="window save" onclick="saveLayout(3)"><img src="../icons/save.png" alt="" /></button>
+            </div>
+            <div class="line"></div>
+            <button class="window" onclick="autoSwitch()">Auto Onboard Camera Switching (Beta)</button>
         </section>
-        <div class="line"></div>
-        <button class="window" onclick="autoSwitch()">Auto Onboard Camera Switching (Beta)</button>
         <button id="reset-defaults" class="buttons" onclick="restoreAll()">
             <img id="reset-icon" src="../icons/restore.png" alt="" />
             <p>RESTORE DEFAULT SETTINGS</p>

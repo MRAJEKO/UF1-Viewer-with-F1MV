@@ -87,9 +87,81 @@ ipcMain.handle(
             icon: path.join(__dirname, "icons/windows/" + icon),
         });
         newWindow.loadFile(path.join(__dirname, pathToHTML));
+
         return "Opening: " + pathToHTML + alwaysOnTop;
     }
 );
+
+ipcMain.handle("saveLayout", (event, layoutId) => {
+    const windows = BrowserWindow.getAllWindows().sort((a, b) => a.id - b.id);
+
+    let formattedWindows = [];
+    for (const window of windows) {
+        console.log(window.id);
+        console.log(window.title);
+        if (window.id === 1) continue;
+        const path = window.getURL().split("src")[1];
+        if (!path.split("/")[2].includes(".")) continue;
+        const bounds = window.getBounds();
+        const hideMenuBar = !window.isMenuBarVisible();
+        const frame = !hideMenuBar;
+        const transparent = window.getOpacity() === 0;
+        const hasShadow = window.hasShadow();
+        const alwaysOnTop = window.isAlwaysOnTop();
+        const icon = path.split("/")[1] + ".ico";
+
+        formattedWindows.push({ path, bounds, hideMenuBar, frame, transparent, hasShadow, alwaysOnTop, icon });
+    }
+
+    console.log(formattedWindows);
+
+    const layoutConfig = require("./settings/layout.json");
+
+    const layout = layoutConfig[layoutId];
+
+    layout.windows = formattedWindows;
+
+    const data = JSON.stringify(layoutConfig);
+
+    fs.writeFile(__dirname + "/settings/layout.json", data, (err) => {
+        if (err) {
+            console.log("Error saving layout", err);
+        } else {
+            console.log("Saved layout");
+        }
+    });
+
+    // return ids;
+});
+
+ipcMain.handle("restoreLayout", (event, layoutId) => {
+    const layoutConfig = require("./settings/layout.json");
+
+    const layout = layoutConfig[layoutId];
+
+    for (const window of layout.windows) {
+        const newWindow = new BrowserWindow({
+            autoHideMenuBar: window.hideMenuBar,
+            width: window.bounds.width,
+            height: window.bounds.height,
+            x: window.bounds.x,
+            y: window.bounds.y,
+            frame: window.frame,
+            hideMenuBar: window.hideMneuBar,
+            transparent: window.transparent,
+            hasShadow: window.hasShadow,
+            alwaysOnTop: window.alwaysOnTop,
+            webPreferences: {
+                preload: path.join(__dirname, "preload.js"),
+                nodeIntegration: true,
+                contextIsolation: false,
+            },
+            icon: path.join(__dirname, "icons/windows/" + window.icon),
+        });
+
+        newWindow.loadFile(__dirname + window.path);
+    }
+});
 
 // Receive request on 'write_config' to write all the settings to 'config.json'
 // ipcMain.handle("write_config", async (event, category, key, value) => {

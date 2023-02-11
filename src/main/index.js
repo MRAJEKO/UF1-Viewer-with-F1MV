@@ -60,7 +60,7 @@ async function flagDisplay() {
         false,
         false,
         false,
-        "flag.ico"
+        "flagdisplay.ico"
     );
 }
 
@@ -75,7 +75,7 @@ async function trackTime() {
         true,
         false,
         alwaysOnTop,
-        "time.ico"
+        "tracktime.ico"
     );
 }
 
@@ -90,7 +90,7 @@ async function sessionLog() {
         true,
         false,
         alwaysOnTop,
-        "list.ico"
+        "sessionlog.ico"
     );
 }
 
@@ -105,7 +105,7 @@ async function trackInfo() {
         true,
         false,
         alwaysOnTop,
-        "info.ico"
+        "trackinfo.ico"
     );
 }
 
@@ -120,7 +120,7 @@ async function statuses() {
         true,
         false,
         alwaysOnTop,
-        "checkmark.ico"
+        "statuses.ico"
     );
 }
 
@@ -135,7 +135,7 @@ async function singleRCM() {
         true,
         false,
         alwaysOnTop,
-        "messages.ico"
+        "singlercm.ico"
     );
 }
 
@@ -150,7 +150,7 @@ async function crashDetection() {
         true,
         false,
         alwaysOnTop,
-        "crash.ico"
+        "crashdetection.ico"
     );
 }
 
@@ -195,7 +195,7 @@ async function battlemode() {
         true,
         false,
         alwaysOnTop,
-        "battle.ico"
+        "battlemode.ico"
     );
 }
 
@@ -212,6 +212,14 @@ async function weather() {
         alwaysOnTop,
         "weather.ico"
     );
+}
+
+async function saveLayout(layoutId) {
+    await ipcRenderer.invoke("saveLayout", layoutId);
+}
+
+async function restoreLayout(layoutId) {
+    await ipcRenderer.invoke("restoreLayout", layoutId);
 }
 
 async function autoSwitch() {

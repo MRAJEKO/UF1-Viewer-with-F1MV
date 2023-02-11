@@ -8,10 +8,12 @@ let goveeDevices = [];
 const goveeEnabled = require("../settings/config.json").current.flag_display.govee;
 
 if (goveeEnabled) {
+    console.log(window);
+
     const goveePanel = window.open(
         "govee/index.html",
         "_blank",
-        "width=150,height=150,frame=false,transparent=true, hideMenuBar=true,hasShadow=false"
+        `width=150,height=150,frame=false,transparent=true,hideMenuBar=true,hasShadow=false`
     );
 
     const Govee = require("govee-lan-control");
