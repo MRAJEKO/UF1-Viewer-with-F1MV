@@ -226,6 +226,12 @@ async function autoSwitch() {
     await ipcRenderer.invoke("window", "autoswitch/index.html", 400, 480, false, true, true, false, true);
 }
 
+function openLayouts() {
+    const element = document.getElementById("layout");
+
+    element.classList.toggle("shown");
+}
+
 // Settings
 let rotated = false;
 async function settings() {

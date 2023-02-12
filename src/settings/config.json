@@ -2,7 +2,7 @@
     "current": {
         "general": { "always_on_top": true, "discord_rpc": true },
         "network": { "host": "localhost" },
-        "flag_display": { "govee": false, "fullscreen": false },
+        "flag_display": { "govee": false },
         "session_log": {
             "lapped_drivers": true,
             "retired_drivers": true,
@@ -19,7 +19,7 @@
     "default": {
         "general": { "always_on_top": true, "discord_rpc": true },
         "network": { "host": "localhost" },
-        "flag_display": { "govee": false, "fullscreen": false },
+        "flag_display": { "govee": false },
         "session_log": {
             "lapped_drivers": true,
             "retired_drivers": true,

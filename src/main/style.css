@@ -36,12 +36,26 @@ body {
     width: 100%;
 }
 
-#windows {
+.windows {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: space-evenly;
     min-height: 100vh;
+}
+
+.layouts {
+    height: 0vh;
+    width: 100vw;
+    backdrop-filter: blur(1.5rem);
+    background-color: #000000b4;
+    position: fixed;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    overflow: hidden;
+    transition: all 0.7s ease;
+    justify-content: center;
 }
 
 .window {
@@ -120,13 +134,20 @@ h1 {
     right: 0;
 }
 
+#layout-button {
+    left: 0;
+    right: auto;
+    bottom: 60px !important;
+}
+
 #connection {
     left: 0;
     right: auto;
 }
 
 #settings-icon,
-#connection-icon {
+#connection-icon,
+#layout-icon {
     transition: all 0.5s ease;
     width: 40px;
     margin: 20px;
