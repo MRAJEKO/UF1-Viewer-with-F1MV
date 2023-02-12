@@ -95,11 +95,15 @@ async function sessionLog() {
 }
 
 async function trackInfo() {
+    const width = require("../settings/config.json").current.trackinfo.orientation === "horizontal" ? 900 : 250;
+
+    const height = require("../settings/config.json").current.trackinfo.orientation === "horizontal" ? 200 : 800;
+
     await ipcRenderer.invoke(
         "window",
         "trackinfo/index.html",
-        250,
-        800,
+        width,
+        height,
         false,
         true,
         true,

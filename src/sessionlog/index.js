@@ -667,6 +667,8 @@ async function addRaceControlMessageLogs(time, lap, count) {
 function removeLogs() {
     const logs = document.getElementById("logs");
 
+    if (logs.children.length === 0) return;
+
     const logHeight = logs.firstChild.offsetHeight;
 
     const windowHeight = window.innerHeight;

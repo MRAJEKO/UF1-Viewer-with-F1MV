@@ -410,7 +410,7 @@ async function setData() {
         } else {
             if (!times && driversWidths + marginWidths + timeWidths < windowWidth) {
                 toggleMisc("times");
-            } else if (!telemetry && driversWidths + marginWidths + telemetryWidth + timeWidths < windowWidth) {
+            } else if (!telemetry && driversWidths + marginWidths + telemetryWidths + timeWidths < windowWidth) {
                 toggleMisc("telemetry");
             }
         }
@@ -479,7 +479,7 @@ async function setData() {
                         gap =
                             parseInt(nextDriverTimingData.GapToLeader) - parseInt(currentDriverTimingData.GapToLeader);
                     } else {
-                        gap = parseFloat(nextDriverTimingData.GapToLeader.slice(1));
+                        gap = parseFloat(nextDriverTimingData.GapToLeader.slice(1)) || "NO GAP";
                     }
                 } else if (!nextDriverTimingData.IntervalToPositionAhead.Value.includes("L")) {
                     for (let position = nextShownDriverPosition; position > currentShownDriverPosition; position--) {
@@ -501,6 +501,8 @@ async function setData() {
 
                         gap += selectedDriverGapAhead;
                     }
+                } else {
+                    gap = "NO GAP";
                 }
             } else if (sessionType === "Qualifying") {
                 const sessionPart = sessionTimingData.SessionPart;
