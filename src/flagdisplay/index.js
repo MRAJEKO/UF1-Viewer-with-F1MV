@@ -149,8 +149,10 @@ async function getCurrentStatus() {
 
         if (driverFastestLap && driverFastestLapTime !== prevFastestLap) {
             prevFastestLap = driverFastestLapTime;
+            if (goveeConnected) setGoveeLight("purple");
             extra.classList.add("fastest-lap");
             await sleep(3000);
+            if (goveeConnected) setGoveeLight("default");
             extra.classList.remove("fastest-lap");
         }
     }
