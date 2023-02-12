@@ -44,6 +44,11 @@ body {
     width: 100vw;
 }
 
+.danger {
+    background-color: #b60000 !important;
+    color: white !important;
+}
+
 .icon {
     display: flex;
     justify-content: center;
@@ -62,6 +67,7 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
+    border-right: 1px solid #2d2d33;
 }
 
 .position p {

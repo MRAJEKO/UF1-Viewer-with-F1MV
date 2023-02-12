@@ -329,11 +329,22 @@ function saveTimeOfNewLap(driverNumber) {
 function setPosition(driverNumber) {
     const driverTimingData = timingData[driverNumber];
 
-    const position = driverTimingData.Position;
+    const position = parseInt(driverTimingData.Position);
 
-    let displayedPosition = document.querySelector(`#n${driverNumber} .position p`).innerHTML;
+    const displayedPosition = document.querySelector(`#n${driverNumber} .position p`).textContent;
 
-    if (displayedPosition != position) document.querySelector(`#n${driverNumber} .position p`).innerHTML = position;
+    if (sessionType === "Qualifying") {
+        console.log("Qualifying");
+        const sessionPart = qualiTimingData.SessionPart;
+
+        const entries = qualiTimingData.NoEntries[sessionPart] || null;
+
+        const headerElement = document.querySelector(`#n${driverNumber} .position`);
+
+        position > entries ? (headerElement.className = "position danger") : (headerElement.className = "position");
+    }
+
+    if (displayedPosition != position) document.querySelector(`#n${driverNumber} .position p`).textContent = position;
 }
 
 function setSectors(driverNumber, targetDriverNumber, completedFirstSector) {
