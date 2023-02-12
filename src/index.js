@@ -97,15 +97,13 @@ ipcMain.handle("saveLayout", (event, layoutId) => {
 
     let formattedWindows = [];
     for (const window of windows) {
-        console.log(window.id);
-        console.log(window.title);
         if (window.id === 1) continue;
         const path = window.getURL().split("src")[1];
         if (!path.split("/")[2].includes(".")) continue;
         const bounds = window.getBounds();
         const hideMenuBar = !window.isMenuBarVisible();
         const frame = !hideMenuBar;
-        const transparent = window.getOpacity() === 0;
+        const transparent = true;
         const hasShadow = window.hasShadow();
         const alwaysOnTop = window.isAlwaysOnTop();
         const icon = path.split("/")[1] + ".ico";
@@ -147,7 +145,8 @@ ipcMain.handle("restoreLayout", (event, layoutId) => {
             x: window.bounds.x,
             y: window.bounds.y,
             frame: window.frame,
-            hideMenuBar: window.hideMneuBar,
+            hideMenuBar: window.hideMenuBar,
+            useContentSize: true,
             transparent: window.transparent,
             hasShadow: window.hasShadow,
             alwaysOnTop: window.alwaysOnTop,
@@ -158,6 +157,8 @@ ipcMain.handle("restoreLayout", (event, layoutId) => {
             },
             icon: path.join(__dirname, "icons/windows/" + window.icon),
         });
+
+        newWindow.setContentSize(window.bounds.width, window.bounds.height, true);
 
         newWindow.loadFile(__dirname + window.path);
     }
