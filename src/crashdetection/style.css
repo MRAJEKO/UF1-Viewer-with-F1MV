@@ -7,10 +7,10 @@
 
 h1 {
     font-family: "SFBold", Arial, Helvetica, sans-serif;
-    padding: 20px;
+    padding: 5vw;
     background-color: #0a0a0faf;
     border-radius: 15px;
-    font-size: 6vw;
+    font-size: 8vw;
     text-align: center;
     color: white;
 }
@@ -23,9 +23,9 @@ h1 {
 }
 
 .line {
-    margin: 10px 0px 5px 0px;
+    margin: 3vw 0;
     width: 100vw;
-    height: 4px;
+    height: 2px;
     background-color: #0a0a0faf;
 }
 
@@ -33,7 +33,6 @@ h1 {
     font-family: "SFRegular", Arial, Helvetica, sans-serif;
     font-size: 5vw;
     padding: 15px;
-    margin: 5px 0px;
     overflow: hidden;
     max-height: 0;
     background-color: #0a0a0faf;
@@ -41,7 +40,7 @@ h1 {
 }
 
 li.show {
-    margin-top: 0.5rem;
+    margin-bottom: 3vw;
     max-height: 3rem !important;
 }
 
