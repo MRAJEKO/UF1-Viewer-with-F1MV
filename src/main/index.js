@@ -78,7 +78,7 @@ function livetimingButton() {
 
 async function sessionLive() {
     while (true) {
-        const response = await (await fetch("https://api.joost.systems/api/v2/f1tv/checklivesession")).json();
+        const response = await (await fetch("https://api.joost.systems/api/v2/f1tv/live-session")).json();
 
         response.liveSessionFound ? (liveSession = true) : (liveSession = false);
 
