@@ -1,8 +1,10 @@
 // Create all needed variables
 const { app, BrowserWindow, ipcMain, screen } = require("electron");
-const { url } = require("inspector");
+const electron = require("electron");
 const path = require("path");
 const fs = require("fs");
+
+require("electron-reload")(__dirname);
 
 // Get main display height
 // Create the browser window.
