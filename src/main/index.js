@@ -64,6 +64,32 @@ async function flagDisplay() {
     );
 }
 
+let liveSession = false;
+function livetiming() {
+    if (liveSession) {
+        location = "f1mv://app/livetiming";
+    }
+}
+
+function livetimingButton() {
+    if (liveSession) document.getElementById("livetiming-button").classList.remove("disabled");
+    else document.getElementById("livetiming-button").classList.add("disabled");
+}
+
+async function sessionLive() {
+    while (true) {
+        const response = await (await fetch("https://api.joost.systems/api/v2/f1tv/checklivesession")).json();
+
+        response.liveSessionFound ? (liveSession = true) : (liveSession = false);
+
+        livetimingButton();
+
+        await sleep(60000);
+    }
+}
+
+sessionLive();
+
 async function trackTime() {
     await ipcRenderer.invoke(
         "window",

@@ -56,6 +56,7 @@ body {
     overflow: hidden;
     transition: all 0.7s ease;
     justify-content: center;
+    z-index: 1;
 }
 
 .window {
@@ -73,6 +74,18 @@ body {
 
 .window:hover {
     transform: translate(4px, 4px);
+    box-shadow: 0 0 #000000;
+}
+
+.disabled {
+    background-color: #e8040462;
+    color: #ffffff54;
+    box-shadow: 0 0 #000000;
+    transform: translate(0, 0);
+}
+
+.disabled:hover {
+    transform: translate(0, 0);
     box-shadow: 0 0 #000000;
 }
 
@@ -132,6 +145,7 @@ h1 {
     position: fixed !important;
     bottom: 0;
     right: 0;
+    z-index: 4;
 }
 
 #layout-button {
@@ -168,6 +182,7 @@ h1 {
     align-items: center;
     flex-direction: column;
     overflow: hidden;
+    z-index: 3;
 }
 
 #connect .text {
@@ -225,6 +240,7 @@ h1 {
     width: 100vw;
     backdrop-filter: blur(1rem);
     background-color: #0f0f0f50;
+    z-index: 2;
 }
 
 #menu * {
