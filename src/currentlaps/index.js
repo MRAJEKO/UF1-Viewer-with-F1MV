@@ -727,7 +727,7 @@ function removeDriver(driverNumber) {
         driverElement.remove();
         const driverNumberIndex = removingDrivers.indexOf(driverNumber);
         removingDrivers.splice(driverNumberIndex, 1);
-    }, 400);
+    }, 500);
 }
 
 // Initiate HTML element for a driver's pushlap
