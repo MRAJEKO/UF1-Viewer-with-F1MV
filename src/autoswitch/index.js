@@ -288,6 +288,14 @@ function tertiaryDriver(racingNumber) {
         return true;
     }
 
+    if (sessionType === "Race") {
+        const numberOfLaps = driverIntervalAhead.Value.includes("L")
+            ? driverIntervalAhead.Value.split(" ")[0] + driverTimingData.NumberOfLaps
+            : driverTimingData.NumberOfLaps;
+        console.log(racingNumber, numberOfLaps, lapCount.CurrentLap);
+        if (sessionStatus === "Finished" && numberOfLaps === lapCount.CurrentLap) return true;
+    }
+
     return false;
 }
 
@@ -432,7 +440,12 @@ async function setPriorities() {
 
     // If the session is not a race or the lap that the priolist is set is not equal to the current racing lap or the priolist is empty
     // Create a new list using the vip drivers and all other drivers in timing data (sorted on racing number)
-    if (sessionType !== "Race" || prioLog.lap !== lapCount.CurrentLap || prioList.length === 0) {
+    if (
+        sessionType !== "Race" ||
+        sessionStatus === "Finished" ||
+        prioLog.lap !== lapCount.CurrentLap ||
+        prioList.length === 0
+    ) {
         prioList = [];
         for (const vip of vipDrivers) {
             for (const driver in driverList) {
@@ -458,6 +471,7 @@ async function setPriorities() {
             }
         }
     }
+    console.log(prioList);
 
     let mvpDrivers = [];
     let primaryDrivers = [];
@@ -475,6 +489,8 @@ async function setPriorities() {
             else if (primaryDriver(driverNumber)) primaryDrivers.push(driverNumber);
         }
     }
+
+    console.log(tertiaryDrivers);
 
     const newList = [...mvpDrivers, ...primaryDrivers, ...secondaryDrivers, ...tertiaryDrivers, ...hiddenDrivers];
 
@@ -515,7 +531,7 @@ async function run() {
         const contentId = videoData[3];
 
         const prioList = await setPriorities();
-        console.log(prioList);
+        // console.log(prioList);
         loop1: for (const prioIndex in prioList) {
             const driver = prioList[prioIndex];
             if (prioIndex < windowAmount) {
