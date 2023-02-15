@@ -2,44 +2,50 @@ const debug = false;
 
 const f1mvApi = require("npm_f1mv_api");
 
+const { ipcRenderer } = require("electron");
+
 let goveeConnected = false;
 let goveeDevices = [];
 
 const goveeEnabled = require("../settings/config.json").current.flag_display.govee;
 
-if (goveeEnabled) {
-    console.log(window);
+async function goveeHandler() {
+    if (goveeEnabled) {
+        console.log(window);
 
-    const goveePanel = window.open(
-        "govee/index.html",
-        "_blank",
-        `width=150,height=150,frame=false,transparent=true,hideMenuBar=true,hasShadow=false`
-    );
+        if (await ipcRenderer.invoke("checkGoveeWindowExistence")) return;
 
-    const Govee = require("govee-lan-control");
-    const govee = new Govee.default();
+        const goveePanel = window.open(
+            "govee/index.html",
+            "_blank",
+            `width=150,height=150,frame=false,transparent=true,hideMenuBar=true,hasShadow=false`
+        );
 
-    govee.on("deviceAdded", async (device) => {
-        console.log("Connected to Govee device: " + device.model);
+        const Govee = require("govee-lan-control");
+        const govee = new Govee.default();
 
-        goveeDevices.push(device);
+        govee.on("deviceAdded", async (device) => {
+            console.log("Connected to Govee device: " + device.model);
 
-        goveePanel.document.getElementById("connected").textContent = goveeDevices.length;
+            goveeDevices.push(device);
 
-        goveeConnected = true;
-    });
+            goveePanel.document.getElementById("connected").textContent = goveeDevices.length;
 
-    govee.on("deviceRemoved", async (device) => {
-        console.log("Govee device disconnected: " + device.model);
+            goveeConnected = true;
+        });
 
-        const deviceIndex = goveeDevices.indexOf(device);
+        govee.on("deviceRemoved", async (device) => {
+            console.log("Govee device disconnected: " + device.model);
 
-        goveeDevices.splice(deviceIndex, 1);
+            const deviceIndex = goveeDevices.indexOf(device);
 
-        goveePanel.document.getElementById("connected").textContent = goveeDevices.length;
+            goveeDevices.splice(deviceIndex, 1);
 
-        if (goveeDevices.length === 0) goveeConnected = false;
-    });
+            goveePanel.document.getElementById("connected").textContent = goveeDevices.length;
+
+            if (goveeDevices.length === 0) goveeConnected = false;
+        });
+    }
 }
 
 // Set sleep
@@ -170,6 +176,7 @@ async function blink(color, amount, interval) {
 }
 
 async function run() {
+    await goveeHandler();
     await getConfigurations();
 
     setInterval(async () => {

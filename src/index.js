@@ -94,6 +94,19 @@ ipcMain.handle(
     }
 );
 
+ipcMain.handle("checkGoveeWindowExistence", (event) => {
+    const windows = BrowserWindow.getAllWindows();
+
+    for (const window of windows) {
+        const path = window.getURL().split("src")[1];
+        if (path.split("/")[2].includes("govee")) {
+            return true;
+        }
+    }
+
+    return false;
+});
+
 ipcMain.handle("saveLayout", (event, layoutId) => {
     const windows = BrowserWindow.getAllWindows().sort((a, b) => a.id - b.id);
 
