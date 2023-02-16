@@ -33,6 +33,8 @@ const createWindow = () => {
     mainWindow.loadFile(path.join(__dirname, "main/index.html"));
     // Disable the menu bar
     mainWindow.setMenuBarVisibility(false);
+
+    mainWindow.on("closed", () => app.quit());
 };
 
 // Create the main window when the app is ready to launch
