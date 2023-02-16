@@ -199,6 +199,21 @@ async function compass() {
     );
 }
 
+async function tirestats() {
+    await ipcRenderer.invoke(
+        "window",
+        "tirestats/index.html",
+        800,
+        600,
+        false,
+        true,
+        true,
+        false,
+        alwaysOnTop,
+        "tirestats.ico"
+    );
+}
+
 async function currentLaps() {
     await ipcRenderer.invoke(
         "window",
