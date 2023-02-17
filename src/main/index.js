@@ -440,7 +440,8 @@ showLayouts();
 function newLayout() {
     const layouts = require("../settings/layout.json");
 
-    const newId = parseInt(Object.keys(layouts)[Object.keys(layouts).length - 1]) + 1;
+    const newId =
+        Object.keys(layouts).length > 0 ? parseInt(Object.keys(layouts)[Object.keys(layouts).length - 1]) + 1 : 0;
 
     layouts[newId] = { name: "New Layout", uf1Windows: [], mvWindows: [] };
 
