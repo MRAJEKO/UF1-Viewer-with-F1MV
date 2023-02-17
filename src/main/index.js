@@ -76,11 +76,14 @@ function livetimingButton() {
     else document.getElementById("livetiming-button").classList.add("disabled");
 }
 
+let liveSessionInfo = null;
 async function sessionLive() {
     while (true) {
         const response = await (await fetch("https://api.joost.systems/api/v2/f1tv/live-session")).json();
 
-        response.liveSessionFound ? (liveSession = true) : (liveSession = false);
+        liveSession = response.liveSessionFound;
+
+        liveSessionInfo = response;
 
         livetimingButton();
 
@@ -265,7 +268,8 @@ async function saveLayout(layoutId) {
 }
 
 async function restoreLayout(layoutId) {
-    await ipcRenderer.invoke("restoreLayout", layoutId);
+    const contentIdField = document.getElementById("content-id-field").value;
+    await ipcRenderer.invoke("restoreLayout", layoutId, liveSessionInfo, contentIdField);
 }
 
 async function autoSwitch() {

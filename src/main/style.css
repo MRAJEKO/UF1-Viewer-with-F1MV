@@ -20,9 +20,9 @@ body {
 
 .layout {
     display: flex;
-    justify-content: space-between;
     width: 70%;
     margin: 10px;
+    position: relative;
 }
 
 .layout .window {
@@ -68,14 +68,13 @@ body {
     height: 0vh;
     width: 100vw;
     backdrop-filter: blur(1.5rem);
-    background-color: #000000b4;
+    background-color: rgb(50, 50, 50);
     position: fixed;
     display: flex;
     align-items: center;
     flex-direction: column;
     overflow: hidden;
     transition: all 0.7s ease;
-    justify-content: center;
     z-index: 1;
 }
 
@@ -434,6 +433,14 @@ input:checked + .slider:before {
 /* Settings typer */
 .typ {
     width: 100%;
+}
+
+#content-id-field {
+    padding: 10px;
+    border-radius: 10px;
+    border: none;
+    position: absolute;
+    bottom: 100px;
 }
 
 #tooltip {

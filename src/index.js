@@ -150,7 +150,7 @@ ipcMain.handle("saveLayout", async (event, layoutId) => {
         formattedMvWindows.push({
             title: window.streamData.title,
             bounds: bounds,
-            driverData: window.driverData ?? false,
+            driverData: window.driverData,
             alwaysOnTop: false,
             maintainAspectRatio: false,
         });
@@ -175,7 +175,7 @@ ipcMain.handle("saveLayout", async (event, layoutId) => {
     });
 });
 
-ipcMain.handle("restoreLayout", async (event, layoutId) => {
+ipcMain.handle("restoreLayout", async (event, layoutId, liveSessionInfo, contentIdField) => {
     const layoutConfig = require("./settings/layout.json");
 
     const layout = layoutConfig[layoutId];
@@ -215,7 +215,9 @@ ipcMain.handle("restoreLayout", async (event, layoutId) => {
         port: port,
     };
 
-    const contentId = "1000003972";
+    const contentId = liveSessionInfo.liveSessionFound ? liveSessionInfo.contentInfo.contentId : contentIdField ?? null;
+
+    if (!contentId) return;
 
     const driverList = (await f1mvApi.LiveTimingAPIGraphQL(config, "DriverList")).DriverList;
 
@@ -224,7 +226,7 @@ ipcMain.handle("restoreLayout", async (event, layoutId) => {
         if (window.driverData && !Object.keys(driverList).includes(driverNumber ? driverNumber.toString() : null))
             continue;
 
-        const response = await f1mvApi.createPlayer(
+        await f1mvApi.createPlayer(
             config,
             window.driverData?.driverNumber ?? null,
             contentId,
@@ -232,8 +234,6 @@ ipcMain.handle("restoreLayout", async (event, layoutId) => {
             window.maintainAspectRatio,
             window.title
         );
-
-        console.log(response);
     }
 });
 
