@@ -4,7 +4,10 @@ const electron = require("electron");
 const path = require("path");
 const fs = require("fs");
 
-require("electron-reload")(__dirname);
+const f1mvApi = require("npm_f1mv_api");
+const { config } = require("process");
+
+// require("electron-reload")(__dirname);
 
 // Get main display height
 // Create the browser window.
@@ -109,11 +112,11 @@ ipcMain.handle("checkGoveeWindowExistence", (event) => {
     return false;
 });
 
-ipcMain.handle("saveLayout", (event, layoutId) => {
-    const windows = BrowserWindow.getAllWindows().sort((a, b) => a.id - b.id);
+ipcMain.handle("saveLayout", async (event, layoutId) => {
+    const browserwindows = BrowserWindow.getAllWindows().sort((a, b) => a.id - b.id);
 
-    let formattedWindows = [];
-    for (const window of windows) {
+    let formattedUf1Windows = [];
+    for (const window of browserwindows) {
         if (window.id === 1) continue;
         const path = window.getURL().split("src")[1];
         if (!path.split("/")[2].includes(".")) continue;
@@ -125,16 +128,41 @@ ipcMain.handle("saveLayout", (event, layoutId) => {
         const alwaysOnTop = window.isAlwaysOnTop();
         const icon = path.split("/")[1] + ".ico";
 
-        formattedWindows.push({ path, bounds, hideMenuBar, frame, transparent, hasShadow, alwaysOnTop, icon });
+        formattedUf1Windows.push({ path, bounds, hideMenuBar, frame, transparent, hasShadow, alwaysOnTop, icon });
     }
 
-    console.log(formattedWindows);
+    const configFile = require("./settings/config.json");
+    const host = configFile.current.network.host;
+    const port = (await f1mvApi.discoverF1MVInstances(host)).port;
+
+    const config = {
+        host: host,
+        port: port,
+    };
+
+    const f1mvWindows = await f1mvApi.getAllPlayers(config);
+
+    let formattedMvWindows = [];
+    for (const window of f1mvWindows) {
+        const windowId = window.id;
+        const bounds = await f1mvApi.getPlayerBounds(config, windowId);
+
+        formattedMvWindows.push({
+            title: window.streamData.title,
+            bounds: bounds,
+            driverData: window.driverData ?? false,
+            alwaysOnTop: false,
+            maintainAspectRatio: false,
+        });
+    }
 
     const layoutConfig = require("./settings/layout.json");
 
     const layout = layoutConfig[layoutId];
 
-    layout.windows = formattedWindows;
+    layout.uf1Windows = formattedUf1Windows;
+
+    layout.mvWindows = formattedMvWindows;
 
     const data = JSON.stringify(layoutConfig);
 
@@ -145,16 +173,14 @@ ipcMain.handle("saveLayout", (event, layoutId) => {
             console.log("Saved layout");
         }
     });
-
-    // return ids;
 });
 
-ipcMain.handle("restoreLayout", (event, layoutId) => {
+ipcMain.handle("restoreLayout", async (event, layoutId) => {
     const layoutConfig = require("./settings/layout.json");
 
     const layout = layoutConfig[layoutId];
 
-    for (const window of layout.windows) {
+    for (const window of layout.uf1Windows) {
         const newWindow = new BrowserWindow({
             autoHideMenuBar: window.hideMenuBar,
             width: window.bounds.width,
@@ -178,6 +204,36 @@ ipcMain.handle("restoreLayout", (event, layoutId) => {
         newWindow.setContentSize(window.bounds.width, window.bounds.height, true);
 
         newWindow.loadFile(__dirname + window.path);
+    }
+
+    const configFile = require("./settings/config.json");
+    const host = configFile.current.network.host;
+    const port = (await f1mvApi.discoverF1MVInstances(host)).port;
+
+    const config = {
+        host: host,
+        port: port,
+    };
+
+    const contentId = "1000003972";
+
+    const driverList = (await f1mvApi.LiveTimingAPIGraphQL(config, "DriverList")).DriverList;
+
+    for (const window of layout.mvWindows) {
+        const driverNumber = window.driverData?.driverNumber ?? null;
+        if (window.driverData && !Object.keys(driverList).includes(driverNumber ? driverNumber.toString() : null))
+            continue;
+
+        const response = await f1mvApi.createPlayer(
+            config,
+            window.driverData?.driverNumber ?? null,
+            contentId,
+            window.bounds,
+            window.maintainAspectRatio,
+            window.title
+        );
+
+        console.log(response);
     }
 });
 

@@ -261,6 +261,7 @@ async function weather() {
 
 async function saveLayout(layoutId) {
     await ipcRenderer.invoke("saveLayout", layoutId);
+    tooltip("Layout saved!", "#83FF83");
 }
 
 async function restoreLayout(layoutId) {
@@ -338,7 +339,7 @@ async function setSettings() {
 
 setSettings();
 
-async function restoreAll() {
+function restoreAll() {
     if (debug) console.log("Restoring all settings");
     const config = require("../settings/config.json");
     const defaultConfig = config.default;
@@ -355,6 +356,106 @@ async function restoreAll() {
         }
     }
     saveSettings();
+}
+
+async function tooltip(text, color) {
+    document.getElementById("tooltip").children[0].textContent = text;
+    document.getElementById("tooltip").style.backgroundColor = color;
+    document.getElementById("tooltip").classList.add("show");
+
+    await sleep(5000);
+
+    document.getElementById("tooltip").classList.remove("show");
+}
+
+function popup(value, id) {
+    document.querySelector("#popup #name").value = value;
+    document.querySelector("#popup #name").name = id;
+    document.getElementById("popup").classList.add("show");
+}
+
+function confirm() {
+    const id = document.querySelector("#popup #name").name;
+    const name = document.querySelector("#popup #name").value;
+
+    const layouts = require("../settings/layout.json");
+    layouts[id].name = name;
+
+    const data = JSON.stringify(layouts);
+    fs.writeFile(__dirname + "/../settings/layout.json", data, (err) => {
+        if (err) {
+            console.log("Error writing file", err);
+        } else {
+            console.log("Successfully wrote file");
+        }
+    });
+    document.getElementById("popup").classList.remove("show");
+    document.getElementById("layouts-container").innerHTML = "";
+    showLayouts();
+}
+
+function cancel() {
+    document.getElementById("popup").classList.remove("show");
+}
+
+function remove() {
+    const id = document.querySelector("#popup #name").name;
+
+    const layouts = require("../settings/layout.json");
+    delete layouts[id];
+
+    const data = JSON.stringify(layouts);
+    fs.writeFile(__dirname + "/../settings/layout.json", data, (err) => {
+        if (err) {
+            console.log("Error writing file", err);
+        } else {
+            console.log("Successfully wrote file");
+        }
+    });
+    document.getElementById("popup").classList.remove("show");
+    document.getElementById("layouts-container").innerHTML = "";
+    showLayouts();
+}
+
+function editLayout(layoutId) {
+    const layouts = require("../settings/layout.json");
+    popup(layouts[layoutId].name, layoutId);
+}
+
+function showLayouts() {
+    const layouts = require("../settings/layout.json");
+
+    for (const layout in layouts) {
+        const layoutName = layouts[layout].name;
+        document.getElementById("layouts-container").innerHTML += `<div class="layout">
+    <button class="window edit" onclick="editLayout(${layout})"><img src="../icons/edit.png" alt="" /></button>
+    <button class="window load" onclick="restoreLayout(${layout})">${layoutName}</button>
+    <button class="window save" onclick="saveLayout(${layout})"><img src="../icons/save.png" alt="" /></button>
+</div>`;
+    }
+}
+
+showLayouts();
+
+function newLayout() {
+    const layouts = require("../settings/layout.json");
+
+    const newId = parseInt(Object.keys(layouts)[Object.keys(layouts).length - 1]) + 1;
+
+    layouts[newId] = { name: "New Layout", uf1Windows: [], mvWindows: [] };
+
+    const data = JSON.stringify(layouts);
+    fs.writeFile(__dirname + "/../settings/layout.json", data, (err) => {
+        if (err) {
+            console.log("Error writing file", err);
+        } else {
+            console.log("Successfully wrote file");
+        }
+    });
+
+    document.getElementById("layouts-container").innerHTML = "";
+    showLayouts();
+    tooltip("New layout created, press the save icon to save your current layout", "#83FF83");
 }
 
 // Link MV

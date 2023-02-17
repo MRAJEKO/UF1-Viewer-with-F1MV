@@ -11,6 +11,13 @@ body {
     height: 100vh;
 }
 
+#layouts-container {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
 .layout {
     display: flex;
     justify-content: space-between;
@@ -23,17 +30,30 @@ body {
 }
 
 .load {
-    width: 85% !important;
+    width: 75% !important;
     height: fit-content;
 }
 
-.save {
+.save,
+.edit {
     width: 40px !important;
     padding: 5px !important;
+    display: grid;
+    place-items: center;
 }
 
 .save img {
-    width: 100%;
+    width: 90%;
+}
+
+.edit img {
+    width: 70%;
+}
+
+.new {
+    width: 100% !important;
+    background-color: rgb(0, 173, 231) !important;
+    color: black;
 }
 
 .windows {
@@ -414,4 +434,91 @@ input:checked + .slider:before {
 /* Settings typer */
 .typ {
     width: 100%;
+}
+
+#tooltip {
+    width: 70%;
+    position: fixed;
+    bottom: -100px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 10px;
+    border-radius: 10px;
+    border: 2px solid black;
+    transition: all 0.5s ease;
+    z-index: 4;
+    display: grid;
+    place-items: center;
+    color: black;
+}
+
+#tooltip.show {
+    bottom: 20px !important;
+}
+
+#popup {
+    height: 200px;
+    width: 80%;
+    background-color: rgb(0, 0, 0);
+    border-radius: 30px;
+    position: fixed;
+    z-index: 5;
+    top: 100%;
+    left: 50%;
+    transform: translate(-50%);
+    display: flex;
+    flex-direction: column;
+    transition: all 0.7s ease;
+}
+
+#popup form {
+    height: 65%;
+    display: grid;
+    place-items: center;
+}
+
+#popup input {
+    height: 30px;
+    width: 70%;
+    border: none;
+    border-radius: 20px;
+    padding: 15px;
+    font-size: 4vw;
+}
+
+#popup .buttons {
+    width: 100%;
+    display: flex;
+    justify-content: space-evenly;
+    bottom: 20px;
+}
+
+#popup .buttons button {
+    height: 50px;
+    border: none;
+    border-radius: 10px;
+    background-color: #1f1f1f;
+    color: white;
+    font-size: 20px;
+    width: 30%;
+}
+
+#popup .buttons button:nth-child(1) {
+    background-color: rgb(255, 111, 111);
+    color: rgb(0, 0, 0);
+}
+
+#popup .buttons button:nth-child(2) {
+    background-color: rgba(128, 128, 128, 0.342);
+    color: gray;
+}
+
+#popup .buttons button:nth-child(3) {
+    background-color: rgb(111, 255, 118);
+    color: rgb(0, 0, 0);
+}
+
+#popup.show {
+    transform: translate(-50%, -50%) !important;
+    top: 50%;
 }

@@ -26,18 +26,15 @@
         </section>
         <section id="layout" class="layouts">
             <h1>Saved Layouts</h1>
+            <div id="layouts-container"></div>
             <div class="layout">
-                <button class="window load" onclick="restoreLayout(1)">Layout 1</button>
-                <button class="window save" onclick="saveLayout(1)"><img src="../icons/save.png" alt="" /></button>
+                <button class="window new" onclick="newLayout()">Add new layout</button>
             </div>
-            <div class="layout">
-                <button class="window load" onclick="restoreLayout(2)">Layout 2</button>
-                <button class="window save" onclick="saveLayout(2)"><img src="../icons/save.png" alt="" /></button>
-            </div>
-            <div class="layout">
-                <button class="window load" onclick="restoreLayout(3)">Layout 3</button>
+            <!-- <div class="layout">
+                <button class="window edit" onclick="saveLayout(3)"><img src="../icons/edit.png" alt="" /></button>
+                <button class="window load" onclick="restoreLayout(3)">Add new layout</button>
                 <button class="window save" onclick="saveLayout(3)"><img src="../icons/save.png" alt="" /></button>
-            </div>
+            </div> -->
         </section>
         <section id="menu">
             <section class="settings-section" id="general">
@@ -330,6 +327,19 @@
         </div>
         <div id="connection" class="buttons">
             <img id="connection-icon" src="../icons/denied.png" alt="" />
+        </div>
+        <div id="tooltip" style="background-color: rgb(0, 183, 255)">
+            <p></p>
+        </div>
+        <div id="popup" class="">
+            <form>
+                <input type="text" id="name" value="" name="" />
+            </form>
+            <div class="buttons">
+                <button onclick="remove()">Delete</button>
+                <button onclick="cancel()">Cancel</button>
+                <button onclick="confirm()">Confirm</button>
+            </div>
         </div>
     </body>
 </html>
