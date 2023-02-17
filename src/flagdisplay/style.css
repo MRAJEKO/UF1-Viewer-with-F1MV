@@ -14,11 +14,6 @@ body {
     height: 100vh;
 }
 
-#chequered {
-    background-image: url(Chequered.png);
-    background-size: cover;
-}
-
 #extra,
 #flag,
 #chequered {
@@ -27,6 +22,14 @@ body {
     height: 100vh;
     transition: all 0.5s ease;
     opacity: 1;
+}
+
+#chequered {
+    background-color: transparent;
+}
+
+.white {
+    background-color: rgb(255, 255, 255) !important;
 }
 
 .green {
@@ -47,8 +50,4 @@ body {
 
 .fastest-lap {
     background-color: rgb(185, 0, 185);
-}
-
-.hidden {
-    opacity: 0 !important;
 }

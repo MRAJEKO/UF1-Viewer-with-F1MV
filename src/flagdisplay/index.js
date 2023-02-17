@@ -31,6 +31,12 @@ async function goveeHandler() {
 
             goveePanel.document.getElementById("connected").textContent = goveeDevices.length;
 
+            setGoveeLight("green");
+
+            await sleep(1000);
+
+            setGoveeLight("default");
+
             goveeConnected = true;
         });
 
@@ -135,9 +141,8 @@ async function getCurrentStatus() {
     const sessionStatus = data.SessionStatus.Status;
     if (sessionStatus === "Finished" && prevSessionStatus !== sessionStatus) {
         prevSessionStatus = sessionStatus;
-        chequered.classList.remove("hidden");
-        await sleep(30000);
-        chequered.classList.add("hidden");
+        await finishBlink("white", 5, 1000);
+        if (goveeConnected) setGoveeLight("default");
     }
 
     console.log(trackStatus);
@@ -164,6 +169,17 @@ async function getCurrentStatus() {
     }
 }
 
+async function finishBlink(color, amount, interval) {
+    for (let count = 0; count < amount; count++) {
+        if (goveeConnected) setGoveeLight(color);
+        chequered.classList.add(color);
+        await sleep(interval);
+        if (goveeConnected) setGoveeLight("black");
+        chequered.classList.remove(color);
+        await sleep(interval);
+    }
+}
+
 async function blink(color, amount, interval) {
     for (let count = 0; count < amount; count++) {
         if (goveeConnected) setGoveeLight(color);
@@ -179,9 +195,10 @@ async function run() {
     await goveeHandler();
     await getConfigurations();
 
-    setInterval(async () => {
+    while (true) {
         await getCurrentStatus();
-    }, 250);
+        await sleep(2500);
+    }
 }
 
 run();
