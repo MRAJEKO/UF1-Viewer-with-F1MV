@@ -124,6 +124,30 @@ body {
     font-size: 2.5vw;
 }
 
+.unknown {
+    background-color: rgba(0, 0, 0, 0.3);
+}
+
+.soft {
+    color: red;
+}
+
+.medium {
+    color: yellow;
+}
+
+.hard {
+    color: white;
+}
+
+.intermediate {
+    color: green;
+}
+
+.wet {
+    color: blue;
+}
+
 .fastest {
     background-color: rgba(128, 0, 128, 0.3);
 }
