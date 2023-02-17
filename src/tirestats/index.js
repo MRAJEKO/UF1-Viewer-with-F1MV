@@ -92,8 +92,6 @@ function getTireStats() {
         const driverTireData = tireData[driver].Stints;
 
         for (const stint of driverTireData) {
-            console.log(pastTireData);
-
             const driverIsTop = tireStats[stint.Compound].toptimes.some((topDriver) => topDriver.driver === driver);
 
             if (driverIsTop) continue;
@@ -139,19 +137,26 @@ function getTireStats() {
     }
 
     tireOrder.sort((a, b) => {
+        console.log(a);
+        console.log(b);
         const aTimeAverage =
-            tireStats[a].times.reduce(function (accumulator, curValue) {
-                return accumulator + curValue;
+            tireStats[a].times.reduce(function (aa, ab) {
+                return aa + ab;
             }, 0) / tireStats[a].times.length;
         const bTimeAverage =
-            tireStats[b].times.reduce(function (accumulator, curValue) {
-                return accumulator + curValue;
+            tireStats[b].times.reduce(function (ba, bb) {
+                return ba + bb;
             }, 0) / tireStats[b].times.length;
+        console.log(aTimeAverage);
+        console.log(bTimeAverage);
         if (aTimeAverage === bTimeAverage) return 0;
         if (aTimeAverage < bTimeAverage) return -1;
+        if (isNaN(aTimeAverage)) return 1;
+        if (isNaN(bTimeAverage)) return -1;
         return 1;
     });
 
+    console.log(tireOrder);
     console.log(tireStats);
 }
 
@@ -168,7 +173,7 @@ function setTireStats() {
         // Set compount name and image
         const tireImageElement = compoundElement.querySelector(".tire-image");
         tireImageElement.children[0].src = `../icons/tires/${compound.toLowerCase()}_real.png`;
-        tireImageElement.children[1].textContent = compound;
+        tireImageElement.children[1].textContent = compound === "INTERMEDIATE" ? "INTERS" : compound;
         tireImageElement.children[1].className = compound.toLowerCase();
 
         // Set top times
