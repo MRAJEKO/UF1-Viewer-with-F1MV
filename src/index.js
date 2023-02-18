@@ -213,6 +213,8 @@ ipcMain.handle("restoreLayout", async (event, layoutId, liveSessionInfo, content
         newWindow.setContentSize(window.bounds.width, window.bounds.height, true);
 
         newWindow.loadFile(__dirname + window.path);
+
+        await sleep(1000);
     }
 
     const configFile = require("./settings/config.json");
@@ -246,6 +248,8 @@ ipcMain.handle("restoreLayout", async (event, layoutId, liveSessionInfo, content
             window.title,
             window.alwaysOnTop
         );
+
+        await sleep(1000);
     }
 });
 
