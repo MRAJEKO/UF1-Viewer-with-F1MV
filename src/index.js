@@ -155,7 +155,7 @@ ipcMain.handle("saveLayout", async (event, layoutId) => {
             title: window.streamData.title,
             bounds: bounds,
             driverData: window.driverData,
-            alwaysOnTop: false,
+            alwaysOnTop: true,
             maintainAspectRatio: false,
         });
     }
@@ -243,7 +243,8 @@ ipcMain.handle("restoreLayout", async (event, layoutId, liveSessionInfo, content
             contentId,
             window.bounds,
             window.maintainAspectRatio,
-            window.title
+            window.title,
+            window.alwaysOnTop
         );
     }
 });
