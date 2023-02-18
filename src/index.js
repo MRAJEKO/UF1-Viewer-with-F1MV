@@ -9,6 +9,10 @@ const { config } = require("process");
 
 // require("electron-reload")(__dirname);
 
+const sleep = (milliseconds) => {
+    return new Promise((resolve) => setTimeout(resolve, milliseconds));
+};
+
 // Get main display height
 // Create the browser window.
 const createWindow = () => {
@@ -180,6 +184,11 @@ ipcMain.handle("restoreLayout", async (event, layoutId, liveSessionInfo, content
 
     const layout = layoutConfig[layoutId];
 
+    if (liveSessionInfo.liveSessionFound) {
+        location = "multiviewer://app/livetiming";
+        await sleep(5000);
+    }
+
     for (const window of layout.uf1Windows) {
         const newWindow = new BrowserWindow({
             autoHideMenuBar: window.hideMenuBar,
@@ -218,6 +227,8 @@ ipcMain.handle("restoreLayout", async (event, layoutId, liveSessionInfo, content
     const contentId = liveSessionInfo.liveSessionFound ? liveSessionInfo.contentInfo.contentId : contentIdField ?? null;
 
     if (!contentId) return;
+
+    await sleep(5000);
 
     const driverList = (await f1mvApi.LiveTimingAPIGraphQL(config, "DriverList")).DriverList;
 
