@@ -132,7 +132,7 @@ async function replaceWindow(oldWindowId, newDriverNumber, contentId, mainWindow
 
     const newBounds = { height: height, width: width, x: 0, y: -5000 };
 
-    const newWindow = await f1mvApi.createPlayer(config, newDriverNumber, contentId, newBounds, false);
+    const newWindow = await f1mvApi.createPlayer(config, newDriverNumber, contentId, newBounds, false, null, true);
 
     if (!newWindow.errors) {
         const newWindowId = newWindow.data.playerCreate;
