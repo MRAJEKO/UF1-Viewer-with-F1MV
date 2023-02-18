@@ -87,3 +87,6 @@ typings/
 
 # Electron-Forge
 out/
+
+# Config files (custom)
+src/settings/
