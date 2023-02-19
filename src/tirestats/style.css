@@ -1,0 +1,161 @@
+* {
+    margin: 0;
+    padding: 0;
+    font-family: "SFBold";
+    color: white;
+    overflow: hidden;
+}
+
+body {
+    -webkit-app-region: drag;
+    height: 100vh;
+    width: 100vw;
+    background-color: gray;
+}
+
+.transparent {
+    background-color: transparent;
+}
+
+.container {
+    background-color: #0a0a0faf;
+    height: 100vh;
+    width: 100vw;
+    display: flex;
+    border-radius: 6vw;
+}
+
+.wrapper {
+    padding: 4vw;
+    text-align: center;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.header h1 {
+    font-size: 4vw;
+}
+
+.info {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    column-gap: 4vw;
+    height: 100%;
+    margin-top: 3vw;
+}
+
+.tire {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.tire-image img {
+    width: 70%;
+}
+
+.tire-image p {
+    font-size: 3.5vw;
+    font-family: "OF1Bold";
+    transform: skew(-10deg);
+    text-shadow: 0.25vw 0.25vw 0.25vw black;
+    margin-top: 1.5vw;
+}
+
+.title {
+    font-size: 3vw;
+    font-family: "OF1Bold";
+    color: red;
+    transform: skew(-10deg);
+    text-shadow: 0.25vw 0.25vw 0.25vw black;
+}
+
+.row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 0.8vw 0;
+    background-color: rgba(255, 255, 255, 0.048);
+    border-radius: 1vw;
+    padding: 0.5vw 1vw;
+}
+
+.row p {
+    opacity: 0.8;
+}
+
+.split {
+    width: 0.2vw;
+    margin: auto;
+    background-color: white;
+    height: 80%;
+    align-items: center;
+}
+
+.driver {
+    display: flex;
+    align-items: center;
+    gap: 1vw;
+}
+
+.driver p {
+    font-size: 2.2vw;
+    font-family: "OF1Bold";
+}
+
+.time p {
+    font-size: 2vw;
+}
+
+.delta-time {
+    padding: 1vw;
+}
+
+.delta-time p {
+    font-size: 3vw;
+    padding: 0.5vw 2vw;
+    border-radius: 3vw;
+    display: inline;
+}
+
+.stats .row p {
+    font-size: 2.5vw;
+}
+
+.unknown {
+    background-color: rgba(0, 0, 0, 0.3);
+}
+
+.soft {
+    color: red;
+}
+
+.medium {
+    color: yellow;
+}
+
+.hard {
+    color: white;
+}
+
+.intermediate {
+    color: green;
+}
+
+.wet {
+    color: blue;
+}
+
+.fastest {
+    background-color: rgba(128, 0, 128, 0.3);
+}
+
+.good {
+    background-color: rgba(0, 128, 0, 0.3);
+}
+
+.bad {
+    background-color: rgba(255, 102, 0, 0.3);
+}

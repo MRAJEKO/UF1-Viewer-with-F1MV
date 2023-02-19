@@ -1,5 +1,3 @@
-const { ipcRenderer } = require("electron");
-
 const debug = false;
 
 const f1mvApi = require("npm_f1mv_api");
@@ -17,6 +15,11 @@ function toggleBackground() {
     if (transparent) {
         document.querySelector("body").className = "";
         document.getElementById("container").className = "";
+        document.getElementById("wrapper1").className = "wrapper";
+        document.getElementById("wrapper2").className = "hidden";
+        document.getElementById("hide").style.margin = "Inherited";
+        document.getElementById("onboard-count2").style.fontSize = "Inherited";
+        window.resizeTo(400, 480);
         transparent = false;
     } else {
         document.querySelector("body").className = "transparent";
@@ -34,10 +37,19 @@ function hide() {
     document.getElementById("container").className = "hidden";
 }
 
+function small() {
+    window.resizeTo(150, 150);
+    document.getElementById("wrapper1").className = "hidden";
+    document.getElementById("wrapper2").className = "wrapper";
+    document.getElementById("hide").style.margin = "0";
+    document.getElementById("onboard-count2").style.fontSize = "25px";
+}
+
 async function getConfigurations() {
-    const configFile = (await ipcRenderer.invoke("get_config")).current;
+    const configFile = require("../settings/config.json").current;
     const networkConfig = configFile.network;
     mainWindowName = configFile.autoswitcher.main_window_name;
+    enableSpeedometer = configFile.autoswitcher.speedometer;
 
     host = networkConfig.host;
     port = (await f1mvApi.discoverF1MVInstances(host)).port;
@@ -46,6 +58,15 @@ async function getConfigurations() {
         host: host,
         port: port,
     };
+}
+
+async function enableSpeedometers() {
+    const data = await f1mvApi.getAllPlayers(config);
+    for (const window of data) {
+        if (window.driverData !== null) {
+            await f1mvApi.setSpeedometerVisibility(config, window.id, true);
+        }
+    }
 }
 
 // Receive all the API endpoints
@@ -111,14 +132,14 @@ async function replaceWindow(oldWindowId, newDriverNumber, contentId, mainWindow
 
     const newBounds = { height: height, width: width, x: 0, y: -5000 };
 
-    const newWindow = await f1mvApi.createPlayer(config, newDriverNumber, contentId, newBounds, false);
+    const newWindow = await f1mvApi.createPlayer(config, newDriverNumber, contentId, newBounds, false, null, true);
 
     if (!newWindow.errors) {
         const newWindowId = newWindow.data.playerCreate;
 
         await sleep(2500);
 
-        await f1mvApi.setSpeedometerVisibility(config, newWindowId, true);
+        if (enableSpeedometer) await f1mvApi.setSpeedometerVisibility(config, newWindowId, true);
 
         if (mainWindow === null) mainWindow = oldWindowId;
 
@@ -260,12 +281,20 @@ function tertiaryDriver(racingNumber) {
     }
     // If the value to the car ahead is not nothing or the gap is more than a second and he is not catching. The driver will then be a tertairy driver (if it is after 3 laps from the start)
     if (
-        driverIntervalAhead.Value.includes("LAP") ||
-        (parseFloat(driverIntervalAhead.Value.substring(1)) > 1 &&
-            !driverIntervalAhead.Catching &&
-            lapCount.CurrentLap >= 3)
-    )
+        (driverIntervalAhead.Value.includes("LAP") ||
+            (parseFloat(driverIntervalAhead.Value.substring(1)) > 1 && !driverIntervalAhead.Catching)) &&
+        lapCount.CurrentLap >= 3
+    ) {
         return true;
+    }
+
+    if (sessionType === "Race") {
+        const numberOfLaps = driverIntervalAhead.Value.includes("L")
+            ? driverIntervalAhead.Value.split(" ")[0] + driverTimingData.NumberOfLaps
+            : driverTimingData.NumberOfLaps;
+        console.log(racingNumber, numberOfLaps, lapCount.CurrentLap);
+        if (sessionStatus === "Finished" && numberOfLaps === lapCount.CurrentLap) return true;
+    }
 
     return false;
 }
@@ -369,7 +398,8 @@ function overwriteCrashedStatus(racingNumber) {
 
 function driverIsImportant(driverNumber) {
     const driverTimingData = timingData[driverNumber];
-    if (driverTimingData.InPit && !driverTimingData.Retired && !driverTimingData.Stopped) return true;
+    if (driverTimingData.InPit && sessionStatus === "Started" && !driverTimingData.Retired && !driverTimingData.Stopped)
+        return true;
 
     const driverCarData = getCarData(driverNumber);
 
@@ -410,7 +440,12 @@ async function setPriorities() {
 
     // If the session is not a race or the lap that the priolist is set is not equal to the current racing lap or the priolist is empty
     // Create a new list using the vip drivers and all other drivers in timing data (sorted on racing number)
-    if (sessionType !== "Race" || prioLog.lap !== lapCount.CurrentLap || prioList.length === 0) {
+    if (
+        sessionType !== "Race" ||
+        sessionStatus === "Finished" ||
+        prioLog.lap !== lapCount.CurrentLap ||
+        prioList.length === 0
+    ) {
         prioList = [];
         for (const vip of vipDrivers) {
             for (const driver in driverList) {
@@ -427,12 +462,16 @@ async function setPriorities() {
             }
         }
         // Fill the rest of the prio list with all drivers inside of timing data that are not already in the list (are vip drivers)
-        for (const driver in timingData) {
-            if (!prioList.includes(driver)) {
-                prioList.push(driver);
+        for (position = 1; position <= Object.values(timingData).length; position++) {
+            for (const driver in timingData) {
+                const driverTimingData = timingData[driver];
+                console.log(driver, driverTimingData.Position, position);
+                if (parseInt(driverTimingData.Position) === parseInt(position) && !prioList.includes(driver))
+                    prioList.push(driver);
             }
         }
     }
+    console.log(prioList);
 
     let mvpDrivers = [];
     let primaryDrivers = [];
@@ -451,6 +490,8 @@ async function setPriorities() {
         }
     }
 
+    console.log(tertiaryDrivers);
+
     const newList = [...mvpDrivers, ...primaryDrivers, ...secondaryDrivers, ...tertiaryDrivers, ...hiddenDrivers];
 
     if (sessionType === "Race") {
@@ -463,18 +504,25 @@ async function setPriorities() {
 
 // Runing all function to add the funtionality
 async function run() {
+    await getConfigurations();
+    if (enableSpeedometer) await enableSpeedometers();
+
     while (true) {
+        await sleep(500);
         await getConfigurations();
         await apiRequests();
         const videoData = await getAllPlayers();
         if (videoData === false) {
             document.getElementById("onboard-count").textContent = "0";
+            document.getElementById("onboard-count2").textContent = "0";
             continue;
         }
 
         const windowAmount = videoData[0];
 
         document.getElementById("onboard-count").textContent = windowAmount;
+
+        document.getElementById("onboard-count2").textContent = windowAmount;
 
         if (windowAmount === 0) continue;
 
@@ -483,9 +531,9 @@ async function run() {
         const contentId = videoData[3];
 
         const prioList = await setPriorities();
+        // console.log(prioList);
         loop1: for (const prioIndex in prioList) {
             const driver = prioList[prioIndex];
-            console.log(prioList.slice(0, 1));
             if (prioIndex < windowAmount) {
                 if (!shownDrivers[driver]) {
                     for (const shownDriver in shownDrivers) {
@@ -506,7 +554,6 @@ async function run() {
                 break;
             }
         }
-        await sleep(500);
     }
 }
 

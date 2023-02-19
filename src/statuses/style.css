@@ -89,6 +89,7 @@ p {
 
 .red {
     background-color: rgb(209, 0, 0) !important;
+    color: white;
 }
 
 .white {

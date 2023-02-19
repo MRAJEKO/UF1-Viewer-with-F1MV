@@ -1,8 +1,8 @@
 {
     "name": "uf1",
-    "productName": "uf1",
+    "productName": "Ultimate-F1Viewer-With-F1MV",
     "version": "1.4.0",
-    "description": "My Electron application description",
+    "description": "A integration with multiple windows to enchance your F1TV experience using the MultiViewer for F1 app.",
     "main": "./src/index.js",
     "scripts": {
         "start": "electron .",
@@ -16,7 +16,7 @@
         "postinstall": "electron-builder install-app-deps"
     },
     "keywords": [],
-    "author": "Aiden",
+    "author": "MR. AJEKO",
     "license": "MIT",
     "config": {
         "forge": {
@@ -50,8 +50,10 @@
         "@nivo/line": "^0.80.0",
         "adm-zip": "^0.5.9",
         "discord-rpc": "^4.0.1",
+        "electron-reload": "^2.0.0-alpha.1",
         "electron-squirrel-startup": "^1.0.0",
         "fs-extra": "^8.1.0",
+        "govee-lan-control": "^2.1.0",
         "npm_f1mv_api": "^1.4.1-rc1",
         "react": "^18.2.0",
         "react-dom": "^18.2.0",

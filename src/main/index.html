@@ -24,6 +24,19 @@
                 </button>
             </div>
         </section>
+        <section id="layout" class="layouts">
+            <h1>Saved Layouts</h1>
+            <div id="layouts-container"></div>
+            <div class="layout">
+                <button class="window new" onclick="newLayout()">Add new layout</button>
+            </div>
+            <input id="content-id-field" type="text" value="" placeholder="Load custom content ID" />
+            <!-- <div class="layout">
+                <button class="window edit" onclick="saveLayout(3)"><img src="../icons/edit.png" alt="" /></button>
+                <button class="window load" onclick="restoreLayout(3)">Add new layout</button>
+                <button class="window save" onclick="saveLayout(3)"><img src="../icons/save.png" alt="" /></button>
+            </div> -->
+        </section>
         <section id="menu">
             <section class="settings-section" id="general">
                 <h2>General</h2>
@@ -55,6 +68,66 @@
                     </div>
                 </div>
                 <p>Port will be set automatically</p>
+            </section>
+            <section class="settings-section" id="flag_display">
+                <h2>Flag Display</h2>
+                <div class="setting">
+                    <p>Enable Govee lights integration</p>
+                    <div class="option">
+                        <label class="switch">
+                            <input id="govee" type="checkbox" />
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                </div>
+            </section>
+            <section class="settings-section" id="session_log">
+                <h2>Session Log</h2>
+                <div class="setting">
+                    <p>Lapped Drivers</p>
+                    <div class="option">
+                        <label class="switch">
+                            <input id="lapped_drivers" type="checkbox" />
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                </div>
+                <div class="setting">
+                    <p>Retired Drivers</p>
+                    <div class="option">
+                        <label class="switch">
+                            <input id="retired_drivers" type="checkbox" />
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                </div>
+                <div class="setting">
+                    <p>Rain Status</p>
+                    <div class="option">
+                        <label class="switch">
+                            <input id="rain" type="checkbox" />
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                </div>
+                <div class="setting">
+                    <p>Team Radio's</p>
+                    <div class="option">
+                        <label class="switch">
+                            <input id="team_radios" type="checkbox" />
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                </div>
+                <div class="setting">
+                    <p>Pitstops</p>
+                    <div class="option">
+                        <label class="switch">
+                            <input id="pitstops" type="checkbox" />
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                </div>
             </section>
             <section class="settings-section" id="trackinfo">
                 <h2>Track Information</h2>
@@ -146,6 +219,15 @@
                         </select>
                     </div>
                 </div>
+                <div class="setting">
+                    <p>Always enable speedometer</p>
+                    <div class="option">
+                        <label class="switch">
+                            <input id="speedometer" type="checkbox" />
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                </div>
             </section>
             <section class="settings-section" id="credits">
                 <h2>Credits</h2>
@@ -171,6 +253,19 @@
                     <a href="https://github.com/MRAJEKO" target="_blank">MRAJEKO</a
                     ><img width="12" height="12" src="../icons/open-external.png" alt="" />
                 </p>
+                <br />
+                <h3>Live Timing</h3>
+                <p>
+                    <a href="https://github.com/JustJoostNL" target="_blank">JustJoostNL</a
+                    ><img width="12" height="12" src="../icons/open-external.png" alt="" />
+                </p>
+                <br />
+                <h3>Lights Integrations</h3>
+                <p>
+                    <a href="https://govee.com/" target="_blank">Govee</a
+                    ><img width="12" height="12" src="../icons/open-external.png" alt="" />
+                </p>
+                <br />
             </section>
             <section class="settings-section" id="credits">
                 <h2>Powered by</h2>
@@ -182,7 +277,7 @@
                 <br />
                 <h3>Packaging</h3>
                 <p>
-                    <a href="https://github.com/LapsTimeOFF" target="_blank">JustJoostNL</a
+                    <a href="https://github.com/JustJoostNL" target="_blank">JustJoostNL</a
                     ><img width="12" height="12" src="../icons/open-external.png" alt="" />
                 </p>
                 <br />
@@ -202,21 +297,25 @@
                 <img width="60" height="60" alt="Peanut" src="../icons/peanut.png" />
             </section>
         </section>
-        <section id="windows">
+        <section id="windows" class="windows">
             <h1>Ultimate Formula 1 Viewer</h1>
             <button class="window" onclick="launchMVF1()">MultiViewer</button>
+            <button id="livetiming-button" class="window disabled" onclick="livetiming()">Live Timing</button>
             <button class="window" onclick="flagDisplay()">Flag Display</button>
             <button class="window" onclick="trackTime()">Delayed Track Time</button>
+            <button class="window" onclick="sessionLog()">Session Log</button>
             <button class="window" onclick="trackInfo()">Track Information</button>
             <button class="window" onclick="statuses()">Sector Statuses</button>
             <button class="window" onclick="singleRCM()">Single Race Control Message</button>
             <button class="window" onclick="crashDetection()">Crash Detection</button>
             <button class="window" onclick="compass()">Track Rotation Compass</button>
+            <button class="window" onclick="tirestats()">Tire Statistics</button>
             <button class="window" onclick="currentLaps()">Current Laps</button>
-            <button class="window" onclick="weather()">Weather</button>
+            <button class="window" onclick="battlemode()">Battle Mode</button>
+            <button class="window" onclick="weather()">Weather Information</button>
+            <div class="line"></div>
+            <button class="window" onclick="autoSwitch()">Auto Onboard Camera Switching (Beta)</button>
         </section>
-        <div class="line"></div>
-        <button class="window" onclick="autoSwitch()">Auto Onboard Camera Switching (Beta)</button>
         <button id="reset-defaults" class="buttons" onclick="restoreAll()">
             <img id="reset-icon" src="../icons/restore.png" alt="" />
             <p>RESTORE DEFAULT SETTINGS</p>
@@ -224,8 +323,24 @@
         <button id="options" class="buttons" onclick="settings()">
             <img id="settings-icon" src="../icons/settings.png" alt="" />
         </button>
+        <div id="layout-button" class="buttons" onclick="openLayouts()">
+            <img id="layout-icon" src="../icons/layout.png" alt="" />
+        </div>
         <div id="connection" class="buttons">
             <img id="connection-icon" src="../icons/denied.png" alt="" />
+        </div>
+        <div id="tooltip" style="background-color: rgb(0, 183, 255)">
+            <p></p>
+        </div>
+        <div id="popup" class="">
+            <form>
+                <input type="text" id="name" value="" name="" />
+            </form>
+            <div class="buttons">
+                <button onclick="remove()">Delete</button>
+                <button onclick="cancel()">Cancel</button>
+                <button onclick="confirm()">Confirm</button>
+            </div>
         </div>
     </body>
 </html>

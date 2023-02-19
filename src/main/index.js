@@ -1,4 +1,3 @@
-const { spawn, exec } = require("child_process");
 const fs = require("fs");
 const { ipcRenderer } = require("electron");
 
@@ -38,7 +37,7 @@ async function ignore() {
 
 async function setAlwaysOnTop() {
     while (true) {
-        const config = (await ipcRenderer.invoke("get_config")).current;
+        const config = require("../settings/config.json").current;
         alwaysOnTop = config.general.always_on_top;
         alwaysOnTopPush = config.current_laps.always_on_top;
         if (debug) {
@@ -61,9 +60,38 @@ async function flagDisplay() {
         false,
         false,
         false,
-        "flag.ico"
+        "flagdisplay.ico"
     );
 }
+
+let liveSession = false;
+function livetiming() {
+    if (liveSession) {
+        location = "multiviewer://app/livetiming";
+    }
+}
+
+function livetimingButton() {
+    if (liveSession) document.getElementById("livetiming-button").classList.remove("disabled");
+    else document.getElementById("livetiming-button").classList.add("disabled");
+}
+
+let liveSessionInfo = null;
+async function sessionLive() {
+    while (true) {
+        const response = await (await fetch("https://api.joost.systems/api/v2/f1tv/live-session")).json();
+
+        liveSession = response.liveSessionFound;
+
+        liveSessionInfo = response;
+
+        livetimingButton();
+
+        await sleep(60000);
+    }
+}
+
+sessionLive();
 
 async function trackTime() {
     await ipcRenderer.invoke(
@@ -76,14 +104,14 @@ async function trackTime() {
         true,
         false,
         alwaysOnTop,
-        "time.ico"
+        "tracktime.ico"
     );
 }
 
-async function trackInfo() {
+async function sessionLog() {
     await ipcRenderer.invoke(
         "window",
-        "trackinfo/index.html",
+        "sessionlog/index.html",
         250,
         800,
         false,
@@ -91,7 +119,26 @@ async function trackInfo() {
         true,
         false,
         alwaysOnTop,
-        "info.ico"
+        "sessionlog.ico"
+    );
+}
+
+async function trackInfo() {
+    const width = require("../settings/config.json").current.trackinfo.orientation === "horizontal" ? 900 : 250;
+
+    const height = require("../settings/config.json").current.trackinfo.orientation === "horizontal" ? 200 : 800;
+
+    await ipcRenderer.invoke(
+        "window",
+        "trackinfo/index.html",
+        width,
+        height,
+        false,
+        true,
+        true,
+        false,
+        alwaysOnTop,
+        "trackinfo.ico"
     );
 }
 
@@ -106,7 +153,7 @@ async function statuses() {
         true,
         false,
         alwaysOnTop,
-        "checkmark.ico"
+        "statuses.ico"
     );
 }
 
@@ -121,7 +168,7 @@ async function singleRCM() {
         true,
         false,
         alwaysOnTop,
-        "messages.ico"
+        "singlercm.ico"
     );
 }
 
@@ -136,7 +183,7 @@ async function crashDetection() {
         true,
         false,
         alwaysOnTop,
-        "crash.ico"
+        "crashdetection.ico"
     );
 }
 
@@ -155,6 +202,21 @@ async function compass() {
     );
 }
 
+async function tirestats() {
+    await ipcRenderer.invoke(
+        "window",
+        "tirestats/index.html",
+        800,
+        600,
+        false,
+        true,
+        true,
+        false,
+        alwaysOnTop,
+        "tirestats.ico"
+    );
+}
+
 async function currentLaps() {
     await ipcRenderer.invoke(
         "window",
@@ -167,6 +229,21 @@ async function currentLaps() {
         false,
         alwaysOnTopPush,
         "currentlaps.ico"
+    );
+}
+
+async function battlemode() {
+    await ipcRenderer.invoke(
+        "window",
+        "battlemode/index.html",
+        1300,
+        200,
+        false,
+        true,
+        true,
+        false,
+        alwaysOnTop,
+        "battlemode.ico"
     );
 }
 
@@ -185,8 +262,24 @@ async function weather() {
     );
 }
 
+async function saveLayout(layoutId) {
+    await ipcRenderer.invoke("saveLayout", layoutId);
+    tooltip("Layout saved!", "#83FF83");
+}
+
+async function restoreLayout(layoutId) {
+    const contentIdField = document.getElementById("content-id-field").value;
+    await ipcRenderer.invoke("restoreLayout", layoutId, liveSessionInfo, contentIdField);
+}
+
 async function autoSwitch() {
-    await ipcRenderer.invoke("window", "autoswitch/index.html", 400, 480, false, true, true, false, alwaysOnTop);
+    await ipcRenderer.invoke("window", "autoswitch/index.html", 400, 480, false, true, true, false, true);
+}
+
+function openLayouts() {
+    const element = document.getElementById("layout");
+
+    element.classList.toggle("shown");
 }
 
 // Settings
@@ -209,100 +302,165 @@ async function settings() {
 }
 
 async function saveSettings() {
-    const config = (await ipcRenderer.invoke("get_config")).current;
-    if (debug) console.log(config);
-    for (index in config) {
-        for (i in config[index]) {
-            if (debug) {
-                console.log(i);
-                console.log(index);
-                console.log(config[index]);
-                console.log(config[index][i]);
-                console.log(document.querySelector("#" + index + " " + "#" + i));
-                console.log(document.querySelector("#" + index + " " + "#" + i).value);
-                console.log(document.querySelector("#" + index + " " + "#" + i).checked);
-                console.log(document.querySelector("#" + index + " " + "#" + i).type == "checkbox");
-            }
-            let value = document.querySelector("#" + index + " " + "#" + i).value;
-            if (debug) console.log(value);
-            if (document.querySelector("#" + index + " " + "#" + i).type == "checkbox") {
-                if (debug) console.log("Checkbox");
-                value = document.querySelector("#" + index + " " + "#" + i).checked;
-            }
-            await ipcRenderer.invoke("write_config", index, i, value);
+    const config = require("../settings/config.json");
+    for (const category in config.current) {
+        for (const setting in config.current[category]) {
+            const settingElement = document.querySelector(`#${category} #${setting}`);
+
+            let value = settingElement.value;
+
+            if (settingElement.type === "checkbox") value = settingElement.checked;
+
+            config.current[category][setting] = value;
+
+            console.log(config);
+            const data = JSON.stringify(config);
+            fs.writeFile(__dirname + "/../settings/config.json", data, (err) => {
+                if (err) {
+                    console.log("Error writing file", err);
+                } else {
+                    console.log("Successfully wrote file");
+                }
+            });
         }
     }
 }
 
 async function setSettings() {
-    const config = (await ipcRenderer.invoke("get_config")).current;
-    if (debug) console.log(config);
-    for (index in config) {
-        for (i in config[index]) {
-            if (debug) {
-                console.log(i);
-                console.log(config[index]);
-                console.log(config[index][i]);
-            }
-            if (document.querySelector("#" + index + " " + "#" + i).type == "checkbox") {
-                if (debug) {
-                    console.log("Switch");
-                    console.log(document.querySelector("#" + index + " " + "#" + i).checked);
-                }
-                document.querySelector("#" + index + " " + "#" + i).checked = config[index][i];
-            }
-            if (document.querySelector("#" + index + " " + "#" + i).classList.contains("selector")) {
-                document.querySelector("#" + index + " " + "#" + i).value = config[index][i];
-                if (debug) {
-                    console.log((document.querySelector("#" + index + " " + "#" + i).value = config[index][i]));
-                    console.log("Selector");
-                }
-            }
-            if (document.querySelector("#" + index + " " + "#" + i).type == "text") {
-                document.querySelector("#" + index + " " + "#" + i).value = config[index][i];
-                if (debug) {
-                    console.log((document.querySelector("#" + index + " " + "#" + i).value = config[index][i]));
-                    console.log("Text");
-                }
-            }
+    const config = require("../settings/config.json").current;
+    for (const category in config) {
+        for (const setting in config[category]) {
+            const settingElement = document.querySelector(`#${category} #${setting}`);
+
+            if (settingElement.type === "checkbox") settingElement.checked = config[category][setting];
+
+            if (settingElement.classList.contains("selector")) settingElement.value = config[category][setting];
+
+            if (settingElement.type === "text") settingElement.value = config[category][setting];
         }
     }
 }
 
 setSettings();
 
-async function restoreAll() {
+function restoreAll() {
     if (debug) console.log("Restoring all settings");
-    const config = await ipcRenderer.invoke("get_config");
+    const config = require("../settings/config.json");
     const defaultConfig = config.default;
     const currentConfig = config.current;
-    for (index in currentConfig) {
-        for (i in currentConfig[index]) {
-            if (debug) {
-            }
-            if (document.querySelector("#" + index + " " + "#" + i).type == "checkbox") {
-                if (debug) {
-                    console.log("Switch");
-                }
-                document.querySelector("#" + index + " " + "#" + i).checked = defaultConfig[index][i];
-            }
-            if (document.querySelector("#" + index + " " + "#" + i).classList.contains("selector")) {
-                document.querySelector("#" + index + " " + "#" + i).value = defaultConfig[index][i];
-                if (debug) {
-                    console.log((document.querySelector("#" + index + " " + "#" + i).value = defaultConfig[index][i]));
-                    console.log("Selector");
-                }
-            }
-            if (document.querySelector("#" + index + " " + "#" + i).type == "text") {
-                document.querySelector("#" + index + " " + "#" + i).value = defaultConfig[index][i];
-                if (debug) {
-                    console.log((document.querySelector("#" + index + " " + "#" + i).value = defaultConfig[index][i]));
-                    console.log("Text");
-                }
-            }
+    for (const category in currentConfig) {
+        for (const setting in currentConfig[category]) {
+            const settingElement = document.querySelector(`#${category} #${setting}`);
+
+            if (settingElement.type === "checkbox") settingElement.checked = defaultConfig[category][setting];
+
+            if (settingElement.classList.contains("selector")) settingElement.value = defaultConfig[category][setting];
+
+            if (settingElement.type === "text") settingElement.value = defaultConfig[category][setting];
         }
     }
     saveSettings();
+}
+
+async function tooltip(text, color) {
+    document.getElementById("tooltip").children[0].textContent = text;
+    document.getElementById("tooltip").style.backgroundColor = color;
+    document.getElementById("tooltip").classList.add("show");
+
+    await sleep(5000);
+
+    document.getElementById("tooltip").classList.remove("show");
+}
+
+function popup(value, id) {
+    document.querySelector("#popup #name").value = value;
+    document.querySelector("#popup #name").name = id;
+    document.getElementById("popup").classList.add("show");
+}
+
+function confirm() {
+    const id = document.querySelector("#popup #name").name;
+    const name = document.querySelector("#popup #name").value;
+
+    const layouts = require("../settings/layout.json");
+    layouts[id].name = name;
+
+    const data = JSON.stringify(layouts);
+    fs.writeFile(__dirname + "/../settings/layout.json", data, (err) => {
+        if (err) {
+            console.log("Error writing file", err);
+        } else {
+            console.log("Successfully wrote file");
+        }
+    });
+    document.getElementById("popup").classList.remove("show");
+    document.getElementById("layouts-container").innerHTML = "";
+    showLayouts();
+}
+
+function cancel() {
+    document.getElementById("popup").classList.remove("show");
+}
+
+function remove() {
+    const id = document.querySelector("#popup #name").name;
+
+    const layouts = require("../settings/layout.json");
+    delete layouts[id];
+
+    const data = JSON.stringify(layouts);
+    fs.writeFile(__dirname + "/../settings/layout.json", data, (err) => {
+        if (err) {
+            console.log("Error writing file", err);
+        } else {
+            console.log("Successfully wrote file");
+        }
+    });
+    document.getElementById("popup").classList.remove("show");
+    document.getElementById("layouts-container").innerHTML = "";
+    showLayouts();
+}
+
+function editLayout(layoutId) {
+    const layouts = require("../settings/layout.json");
+    popup(layouts[layoutId].name, layoutId);
+}
+
+function showLayouts() {
+    const layouts = require("../settings/layout.json");
+
+    for (const layout in layouts) {
+        const layoutName = layouts[layout].name;
+        document.getElementById("layouts-container").innerHTML += `<div class="layout">
+    <button class="window edit" onclick="editLayout(${layout})"><img src="../icons/edit.png" alt="" /></button>
+    <button class="window load" onclick="restoreLayout(${layout})">${layoutName}</button>
+    <button class="window save" onclick="saveLayout(${layout})"><img src="../icons/save.png" alt="" /></button>
+</div>`;
+    }
+}
+
+showLayouts();
+
+function newLayout() {
+    const layouts = require("../settings/layout.json");
+
+    const newId =
+        Object.keys(layouts).length > 0 ? parseInt(Object.keys(layouts)[Object.keys(layouts).length - 1]) + 1 : 0;
+
+    layouts[newId] = { name: "New Layout", uf1Windows: [], mvWindows: [] };
+
+    const data = JSON.stringify(layouts);
+    fs.writeFile(__dirname + "/../settings/layout.json", data, (err) => {
+        if (err) {
+            console.log("Error writing file", err);
+        } else {
+            console.log("Successfully wrote file");
+        }
+    });
+
+    document.getElementById("layouts-container").innerHTML = "";
+    showLayouts();
+    tooltip("New layout created, press the save icon to save your current layout", "#83FF83");
 }
 
 // Link MV
@@ -311,7 +469,8 @@ async function isConnected(ignore) {
         document.getElementById("connect").className = "animation";
         return;
     }
-    const configFile = (await ipcRenderer.invoke("get_config")).current;
+    const configFile = require("../settings/config.json").current;
+    console.log(configFile);
     const host = configFile.network.host;
     try {
         const port = (await f1mvApi.discoverF1MVInstances(host)).port;

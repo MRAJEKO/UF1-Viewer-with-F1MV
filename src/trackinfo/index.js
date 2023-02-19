@@ -8,13 +8,6 @@ const sleep = (milliseconds) => {
     return new Promise((resolve) => setTimeout(resolve, milliseconds));
 };
 
-function httpGet(theUrl) {
-    let xmlHttpReq = new XMLHttpRequest();
-    xmlHttpReq.open("GET", theUrl, false);
-    xmlHttpReq.send(null);
-    return xmlHttpReq.responseText;
-}
-
 let transparent = false;
 function toggleBackground() {
     if (transparent) {
@@ -37,8 +30,8 @@ const qualiPartLengths = ["00:18:00", "00:15:00", "00:12:00"];
 const extraTime = "01:00:00";
 
 async function getConfigurations() {
-    const configFile = (await ipcRenderer.invoke("get_config")).current.trackinfo;
-    const networkConfig = (await ipcRenderer.invoke("get_config")).current.network;
+    const configFile = require("../settings/config.json").current.trackinfo;
+    const networkConfig = require("../settings/config.json").current.network;
     dynamicTextColor = configFile.dynamic_text_color;
     const defaultBackgroundColor = configFile.default_background_color;
     const orientation = configFile.orientation;

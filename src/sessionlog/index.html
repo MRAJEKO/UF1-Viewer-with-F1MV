@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Session Log</title>
+        <link rel="stylesheet" href="../fonts/fonts.css" />
+        <link rel="stylesheet" href="style.css" />
+
+        <script defer src="index.js"></script>
+    </head>
+    <body id="background">
+        <div class="container">
+            <div class="wrapper">
+                <div class="header">
+                    <h1>Session Log</h1>
+                </div>
+            </div>
+            <div class="line"></div>
+            <div id="logs"></div>
+        </div>
+    </body>
+</html>
+
+<!-- <div id="logs">
+    <div class="wrapper">
+        <div class="log">
+            <div class="type">
+                <p>Session status</p>
+            </div>
+            <div class="status red">
+                <p>Aborted</p>
+            </div>
+            <div class="time">
+                <p>12:00:00 EST</p>
+                <p>LAP 5</p>
+            </div>
+        </div>
+    </div>
+    <div class="wrapper">
+        <div class="log">
+            <div class="type">
+                <p>Track information</p>
+            </div>
+            <div class="status double">
+                <div class="left green">
+                    <p>DRS</p>
+                </div>
+                <div class="right green">
+                    <p>Enabled</p>
+                </div>
+            </div>
+            <div class="time">
+                <p>12:00:00 EST</p>
+                <p>LAP 5</p>
+            </div>
+        </div>
+    </div>
+    <div class="wrapper">
+        <div class="log">
+            <div class="type">
+                <p>Pitlane</p>
+            </div>
+            <div class="status double">
+                <div
+                    class="left"
+                    style="
+                        background: linear-gradient(
+                            to bottom,
+                            transparent 0%,
+                            rgba(0, 62, 179, 0.438) 100%
+                        );
+                    ">
+                    <p class="driver-first-name">Max</p>
+                    <p class="driver-last-name">Verstappen</p>
+                </div>
+                <div class="right green">
+                    <p>Entered</p>
+                </div>
+            </div>
+            <div class="time">
+                <p>12:00:00 EST</p>
+                <p>LAP 5</p>
+            </div>
+        </div>
+    </div>
+    <div class="wrapper">
+        <div class="log">
+            <div class="type">
+                <p>Pitstop</p>
+            </div>
+            <div class="status double">
+                <div
+                    class="left"
+                    style="
+                        background: linear-gradient(
+                            to bottom,
+                            transparent 0%,
+                            rgba(0, 179, 149, 0.438) 100%
+                        );
+                    ">
+                    <p class="driver-first-name">Lewis</p>
+                    <p class="driver-last-name">Hamilton</p>
+                </div>
+                <div class="right yellow">
+                    <div class="tires">
+                        <div class="prevtires">
+                            <img src="../icons/tires/soft.png" alt="" />
+                        </div>
+                        <div class="arrow">
+                            <img src="../icons/arrowright.png" alt="" />
+                        </div>
+                        <div class="newtires">
+                            <img src="../icons/tires/medium.png" alt="" />
+                        </div>
+                    </div>
+                    <p class="stoptime">21.6s</p>
+                </div>
+            </div>
+            <div class="time">
+                <p>12:00:00 EST</p>
+                <p>LAP 5</p>
+            </div>
+        </div>
+    </div>
+    <div class="wrapper">
+        <div class="log">
+            <div class="type">
+                <p>Fastest lap</p>
+            </div>
+            <div class="status double">
+                <div
+                    class="left"
+                    style="
+                        background: linear-gradient(
+                            to bottom,
+                            transparent 0%,
+                            rgba(180, 180, 180, 0.438) 100%
+                        );
+                    ">
+                    <p class="driver-first-name">Kevin</p>
+                    <p class="driver-last-name">Magnussen</p>
+                </div>
+                <div class="right purple">
+                    <p>1.41.696</p>
+                </div>
+            </div>
+            <div class="time">
+                <p>12:00:00 EST</p>
+                <p>LAP 5</p>
+            </div>
+        </div>
+    </div>
+    <div class="wrapper">
+        <div class="log">
+            <div class="type">
+                <p>Weather status</p>
+            </div>
+            <div class="status blue">
+                <p>Raining</p>
+            </div>
+            <div class="time">
+                <p>12:00:00 EST</p>
+                <p>LAP 5</p>
+            </div>
+        </div>
+    </div>
+    <div class="wrapper">
+        <div class="log">
+            <div class="type">
+                <p>Position</p>
+            </div>
+            <div class="status double">
+                <div
+                    class="left"
+                    style="
+                        background: linear-gradient(
+                            to bottom,
+                            transparent 0%,
+                            rgba(0, 159, 187, 0.438) 100%
+                        );
+                    ">
+                    <p class="driver-first-name">Nicholas</p>
+                    <p class="driver-last-name">Latifi</p>
+                </div>
+                <div class="right white">
+                    <p>Lapped</p>
+                </div>
+            </div>
+            <div class="time">
+                <p>12:00:00 EST</p>
+                <p>LAP 5</p>
+            </div>
+        </div>
+    </div>
+    <div class="wrapper">
+        <div class="log">
+            <div class="type">
+                <p>Position</p>
+            </div>
+            <div class="status double">
+                <div
+                    class="left"
+                    style="
+                        background: linear-gradient(to bottom, transparent 0%, rgba(144, 0, 0, 0.438) 100%);
+                    ">
+                    <p class="driver-first-name">Valtteri</p>
+                    <p class="driver-last-name">Bottas</p>
+                </div>
+                <div class="right red">
+                    <p>Retired</p>
+                </div>
+            </div>
+            <div class="time">
+                <p>12:00:00 EST</p>
+                <p>LAP 5</p>
+            </div>
+        </div>
+    </div>
+    <div class="wrapper">
+        <div class="log">
+            <div class="type">
+                <p>Track</p>
+            </div>
+            <div class="status orange">
+                <p>Slippery track turn 15</p>
+            </div>
+            <div class="time">
+                <p>12:00:00 EST</p>
+                <p>LAP 5</p>
+            </div>
+        </div>
+    </div>
+    <div class="wrapper">
+        <div class="log">
+            <div class="type">
+                <p>Penalty</p>
+            </div>
+            <div class="status double">
+                <div
+                    class="left"
+                    style="
+                        background: linear-gradient(
+                            to bottom,
+                            transparent 0%,
+                            rgba(0, 144, 96, 0.438) 100%
+                        );
+                    ">
+                    <p class="driver-first-name">Lance</p>
+                    <p class="driver-last-name">Stroll</p>
+                </div>
+                <div class="right red">
+                    <div class="penalty">
+                        <p>5 Seconds</p>
+                        <p class="small-text">Stop and Go</p>
+                    </div>
+                </div>
+            </div>
+            <div class="time">
+                <p>12:00:00 EST</p>
+                <p>LAP 5</p>
+            </div>
+        </div>
+    </div>
+    <div class="wrapper">
+        <div class="log">
+            <div class="type">
+                <p>Team radio's</p>
+            </div>
+            <div class="status double">
+                <div
+                    class="left"
+                    style="
+                        background: linear-gradient(
+                            to bottom,
+                            transparent 0%,
+                            rgba(144, 106, 0, 0.438) 100%
+                        );
+                    ">
+                    <p class="driver-first-name">Lando</p>
+                    <p class="driver-last-name">Norris</p>
+                </div>
+                <div
+                    class="right"
+                    style="
+                        background: linear-gradient(
+                            to bottom,
+                            transparent 0%,
+                            rgba(144, 106, 0, 0.438) 100%
+                        );
+                    ">
+                    <p>New Radio</p>
+                </div>
+            </div>
+            <div class="time">
+                <p>12:00:00 EST</p>
+                <p>LAP 5</p>
+            </div>
+        </div>
+    </div>
+    <div class="wrapper">
+        <div class="log">
+            <div class="type">
+                <p>Lap count</p>
+            </div>
+            <div class="status white">
+                <p>Lap 10</p>
+            </div>
+            <div class="time">
+                <p>12:00:00 EST</p>
+                <p>LAP 5</p>
+            </div>
+        </div>
+    </div>
+</div> -->

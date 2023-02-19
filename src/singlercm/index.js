@@ -85,7 +85,7 @@ let category;
 let running = false;
 
 async function getConfigurations() {
-    const configFile = (await ipcRenderer.invoke("get_config")).current.network;
+    const configFile = require("../settings/config.json").current.network;
     const host = configFile.host;
     const port = (await f1mvApi.discoverF1MVInstances(host)).port;
     config = {
@@ -109,7 +109,8 @@ async function getRaceControlMessages() {
     }
 }
 
-async function runQueue() {
+async function runQueue(count) {
+    if (count === 0) queue = [];
     for (const message of queue) {
         const jsonMessage = JSON.parse(message);
         if (isMessageWanted(jsonMessage)) await showMessage(jsonMessage);
@@ -119,10 +120,12 @@ async function runQueue() {
 
 async function run() {
     await getConfigurations();
+    let count = 0;
     while (true) {
         await getRaceControlMessages();
-        await runQueue();
+        await runQueue(count);
         await sleep(1000);
+        count++;
     }
 }
 run();
