@@ -1,5 +1,4 @@
 productName: "Ultimate-F1Viewer-With-F1MV"
-artifactName: uf1-${os}-${version}.${ext}
 appId: "com.mrajeko.uf1"
 copyright: "Copyright © 2023 MRAJEKO"
 
