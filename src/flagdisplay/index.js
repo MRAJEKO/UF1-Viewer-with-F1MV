@@ -78,9 +78,8 @@ async function getConfigurations() {
     }
 }
 
-const ledColors = async () => (await ipcRenderer.invoke("get_store")).led_colors;
-
 async function setGoveeLight(color) {
+    const ledColors = (await ipcRenderer.invoke("get_store")).led_colors;
     const rgbColor = ledColors[color];
 
     console.log("Set govee light to: " + color);
