@@ -13,7 +13,7 @@ directories:
     output: "out"
 
 win:
-    icon: "icons/windows/logo.png"
+    icon: "src/icons/windows/logo.png"
     target:
         - target: "nsis"
           arch:
@@ -23,7 +23,7 @@ win:
 mac:
     category: "public.app-category.utilities"
     minimumSystemVersion: "10.12.0"
-    icon: "icons/windows/logo.png"
+    icon: "src/icons/windows/logo.png"
     target:
         - target: "dmg"
           arch:
@@ -31,7 +31,7 @@ mac:
               - arm64
 
 linux:
-    icon: "icons/windows/logo.png"
+    icon: "src/icons/windows/logo.png"
     target:
         - target: "AppImage"
           arch:
