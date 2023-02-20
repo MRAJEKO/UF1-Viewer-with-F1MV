@@ -60,7 +60,7 @@ async function flagDisplay() {
         false,
         false,
         false,
-        "flagdisplay.ico"
+        "flagdisplay.png"
     );
 }
 
@@ -104,7 +104,7 @@ async function trackTime() {
         true,
         false,
         alwaysOnTop,
-        "tracktime.ico"
+        "tracktime.png"
     );
 }
 
@@ -119,7 +119,7 @@ async function sessionLog() {
         true,
         false,
         alwaysOnTop,
-        "sessionlog.ico"
+        "sessionlog.png"
     );
 }
 
@@ -138,7 +138,7 @@ async function trackInfo() {
         true,
         false,
         alwaysOnTop,
-        "trackinfo.ico"
+        "trackinfo.png"
     );
 }
 
@@ -153,7 +153,7 @@ async function statuses() {
         true,
         false,
         alwaysOnTop,
-        "statuses.ico"
+        "statuses.png"
     );
 }
 
@@ -168,7 +168,7 @@ async function singleRCM() {
         true,
         false,
         alwaysOnTop,
-        "singlercm.ico"
+        "singlercm.png"
     );
 }
 
@@ -183,7 +183,7 @@ async function crashDetection() {
         true,
         false,
         alwaysOnTop,
-        "crashdetection.ico"
+        "crashdetection.png"
     );
 }
 
@@ -198,7 +198,7 @@ async function compass() {
         true,
         false,
         alwaysOnTop,
-        "compass.ico"
+        "compass.png"
     );
 }
 
@@ -213,7 +213,7 @@ async function tirestats() {
         true,
         false,
         alwaysOnTop,
-        "tirestats.ico"
+        "tirestats.png"
     );
 }
 
@@ -228,7 +228,7 @@ async function currentLaps() {
         true,
         false,
         alwaysOnTopPush,
-        "currentlaps.ico"
+        "currentlaps.png"
     );
 }
 
@@ -243,7 +243,7 @@ async function battlemode() {
         true,
         false,
         alwaysOnTop,
-        "battlemode.ico"
+        "battlemode.png"
     );
 }
 
@@ -258,7 +258,7 @@ async function weather() {
         true,
         false,
         alwaysOnTop,
-        "weather.ico"
+        "weather.png"
     );
 }
 

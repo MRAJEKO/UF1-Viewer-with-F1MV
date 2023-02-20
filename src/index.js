@@ -130,7 +130,7 @@ ipcMain.handle("saveLayout", async (event, layoutId) => {
         const transparent = true;
         const hasShadow = window.hasShadow();
         const alwaysOnTop = window.isAlwaysOnTop();
-        const icon = path.split("/")[1] + ".ico";
+        const icon = path.split("/")[1] + ".png";
 
         formattedUf1Windows.push({ path, bounds, hideMenuBar, frame, transparent, hasShadow, alwaysOnTop, icon });
     }
