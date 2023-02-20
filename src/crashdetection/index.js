@@ -11,7 +11,7 @@ const sleep = (milliseconds) => {
 
 let crashCount = 0;
 async function getConfigurations() {
-    const configFile = require("../settings/config.json").current;
+    const configFile = (await ipcRenderer.invoke("get_store")).config;
     host = configFile.network.host;
     port = (await f1mvApi.discoverF1MVInstances(host)).port;
     if (debug) {

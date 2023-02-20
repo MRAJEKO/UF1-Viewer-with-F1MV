@@ -2,6 +2,8 @@ const debug = false;
 
 const f1mvApi = require("npm_f1mv_api");
 
+const { ipcRenderer } = require("electron");
+
 // Top 6 drivers
 const vipDrivers = ["VER", "LEC", "PER", "HAM", "SAI", "RUS"];
 
@@ -46,7 +48,7 @@ function small() {
 }
 
 async function getConfigurations() {
-    const configFile = require("../settings/config.json").current;
+    const configFile = (await ipcRenderer.invoke("get_store")).config;
     const networkConfig = configFile.network;
     mainWindowName = configFile.autoswitcher.main_window_name;
     enableSpeedometer = configFile.autoswitcher.speedometer;

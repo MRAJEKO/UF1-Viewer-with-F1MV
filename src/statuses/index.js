@@ -32,8 +32,8 @@ document.addEventListener("keydown", (event) => {
     }
 });
 async function getConfigurations() {
-    const configFile = require("../settings/config.json").current.statuses;
-    const networkConfig = require("../settings/config.json").current.network;
+    const configFile = (await ipcRenderer.invoke("get_store")).config.statuses;
+    const networkConfig = (await ipcRenderer.invoke("get_store")).config.network;
     const defaultBackgroundColor = configFile.default_background_color;
     host = networkConfig.host;
     port = (await f1mvApi.discoverF1MVInstances(host)).port;

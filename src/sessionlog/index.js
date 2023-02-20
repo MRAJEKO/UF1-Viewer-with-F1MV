@@ -26,7 +26,7 @@ document.addEventListener("keydown", (event) => {
 });
 
 async function getConfigurations() {
-    const configFile = require("../settings/config.json").current;
+    const configFile = (await ipcRenderer.invoke("get_store")).config;
     const networkConfig = configFile.network;
     const logConfig = configFile.session_log;
     const host = networkConfig.host;

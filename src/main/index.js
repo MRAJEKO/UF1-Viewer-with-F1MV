@@ -37,7 +37,7 @@ async function ignore() {
 
 async function setAlwaysOnTop() {
     while (true) {
-        const config = require("../settings/config.json").current;
+        const config = (await ipcRenderer.invoke("get_store")).config;
         alwaysOnTop = config.general.always_on_top;
         alwaysOnTopPush = config.current_laps.always_on_top;
         if (debug) {
@@ -124,9 +124,9 @@ async function sessionLog() {
 }
 
 async function trackInfo() {
-    const width = require("../settings/config.json").current.trackinfo.orientation === "horizontal" ? 900 : 250;
+    const width = (await ipcRenderer.invoke("get_store")).config.trackinfo.orientation === "horizontal" ? 900 : 250;
 
-    const height = require("../settings/config.json").current.trackinfo.orientation === "horizontal" ? 200 : 800;
+    const height = (await ipcRenderer.invoke("get_store")).config.trackinfo.orientation === "horizontal" ? 200 : 800;
 
     await ipcRenderer.invoke(
         "window",

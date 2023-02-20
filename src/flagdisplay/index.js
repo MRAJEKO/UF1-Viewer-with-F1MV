@@ -7,7 +7,7 @@ const { ipcRenderer } = require("electron");
 let goveeConnected = false;
 let goveeDevices = [];
 
-const goveeEnabled = require("../settings/config.json").current.flag_display.govee;
+const goveeEnabled = (async () => (await ipcRenderer.invoke("get_store")).config.flag_display.govee)();
 
 async function goveeHandler() {
     if (goveeEnabled) {
@@ -65,7 +65,7 @@ const extra = document.getElementById("extra");
 const chequered = document.getElementById("chequered");
 
 async function getConfigurations() {
-    const configfile = require("../settings/config.json").current;
+    const configfile = (await ipcRenderer.invoke("get_store")).config;
     host = configfile.network.host;
     port = (await f1mvApi.discoverF1MVInstances(host)).port;
     config = {
@@ -78,7 +78,8 @@ async function getConfigurations() {
     }
 }
 
-const ledColors = require("../settings/led_colors.json");
+const ledColors = async () => (await ipcRenderer.invoke("get_store")).led_colors;
+
 async function setGoveeLight(color) {
     const rgbColor = ledColors[color];
 

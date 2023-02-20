@@ -5,6 +5,8 @@ const loopspeed = 100;
 
 const f1mvApi = require("npm_f1mv_api");
 
+const { ipcRenderer } = require("electron");
+
 // Set sleep
 const sleep = (milliseconds) => {
     return new Promise((resolve) => setTimeout(resolve, milliseconds));
@@ -12,7 +14,7 @@ const sleep = (milliseconds) => {
 
 // Apply any configuration from the config.json file
 async function getConfigurations() {
-    const configFile = require("../settings/config.json").current;
+    const configFile = (await ipcRenderer.invoke("get_store")).config;
     host = configFile.network.host;
     port = (await f1mvApi.discoverF1MVInstances(host)).port;
     if (debug) {

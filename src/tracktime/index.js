@@ -55,7 +55,7 @@ function getTime(ms) {
 }
 
 async function getConfigurations() {
-    const config = require("../settings/config.json").current.network;
+    const config = (await ipcRenderer.invoke("get_store")).config.network;
     host = config.host;
     port = (await f1mvApi.discoverF1MVInstances(host)).port;
     if (debug) {

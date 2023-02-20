@@ -8,6 +8,8 @@ const loopspeed = 80;
 
 const f1mvApi = require("npm_f1mv_api");
 
+const { ipcRenderer } = require("electron");
+
 // Set sleep
 const sleep = (milliseconds) => {
     return new Promise((resolve) => setTimeout(resolve, milliseconds));
@@ -15,7 +17,7 @@ const sleep = (milliseconds) => {
 
 // Apply any configuration from the config.json file
 async function getConfigurations() {
-    const configFile = require("../settings/config.json").current;
+    const configFile = (await ipcRenderer.invoke("get_store")).config;
     host = configFile.network.host;
     port = (await f1mvApi.discoverF1MVInstances(host)).port;
     if (debug) {
@@ -743,7 +745,7 @@ async function initiateTemplate(driverNumber, pushDrivers) {
     // Defining all header information
     const teamColor = "#" + driverList[driverNumber].TeamColour;
 
-    const teamIcon = require("../settings/team_icons.json")[driverList[driverNumber].TeamName];
+    const teamIcon = (await ipcRenderer.invoke("get_store")).team_icons[driverList[driverNumber].TeamName];
 
     const driverName = driverList[driverNumber].LastName.toUpperCase();
 

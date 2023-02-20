@@ -5,7 +5,7 @@ const { ipcRenderer } = require("electron");
 const f1mvApi = require("npm_f1mv_api");
 
 async function getConfigurations() {
-    const configFile = require("../settings/config.json").current;
+    const configFile = (await ipcRenderer.invoke("get_store")).config;
     host = configFile.network.host;
     port = (await f1mvApi.discoverF1MVInstances(host)).port;
     if (debug) {
