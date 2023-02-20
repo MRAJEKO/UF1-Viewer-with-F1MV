@@ -23,6 +23,7 @@ body {
     width: 70%;
     margin: 10px;
     position: relative;
+    justify-content: space-between;
 }
 
 .layout .window {
