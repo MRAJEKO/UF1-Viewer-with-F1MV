@@ -18,7 +18,7 @@ async function goveeHandler() {
         const goveePanel = window.open(
             "govee/index.html",
             "_blank",
-            `width=150,height=150,frame=false,transparent=true,hideMenuBar=true,hasShadow=false`
+            `width=150,height=150,frame=false,transparent=true,hideMenuBar=true,hasShadow=false,alwaysOnTop=true`
         );
 
         const Govee = require("govee-lan-control");
