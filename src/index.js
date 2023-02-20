@@ -33,7 +33,7 @@ const createWindow = () => {
             nodeIntegration: true,
             contextIsolation: false,
         },
-        icon: path.join(__dirname, "icons/windows/logo.ico"),
+        icon: path.join(__dirname, "icons/windows/logo.png"),
     });
 
     // Load main window (main/index.html)
