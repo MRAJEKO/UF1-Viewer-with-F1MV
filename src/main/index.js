@@ -302,32 +302,29 @@ async function settings() {
 }
 
 async function saveSettings() {
-    const config = require("../settings/config.json");
-    for (const category in config.current) {
-        for (const setting in config.current[category]) {
+    const config = (await ipcRenderer.invoke("get_store")).config;
+    for (const category in config) {
+        for (const setting in config[category]) {
             const settingElement = document.querySelector(`#${category} #${setting}`);
 
             let value = settingElement.value;
 
             if (settingElement.type === "checkbox") value = settingElement.checked;
 
-            config.current[category][setting] = value;
-
-            console.log(config);
-            const data = JSON.stringify(config);
-            fs.writeFile(__dirname + "/../settings/config.json", data, (err) => {
-                if (err) {
-                    console.log("Error writing file", err);
-                } else {
-                    console.log("Successfully wrote file");
-                }
-            });
+            config[category][setting] = value;
         }
     }
+
+    console.log(config);
+
+    console.log(await ipcRenderer.invoke("write_store", "config", config));
+
+    console.log("Saved settings");
 }
 
 async function setSettings() {
-    const config = require("../settings/config.json").current;
+    const config = (await ipcRenderer.invoke("get_store")).config;
+    console.log(config);
     for (const category in config) {
         for (const setting in config[category]) {
             const settingElement = document.querySelector(`#${category} #${setting}`);
@@ -343,20 +340,18 @@ async function setSettings() {
 
 setSettings();
 
-function restoreAll() {
+async function restoreAll() {
     if (debug) console.log("Restoring all settings");
-    const config = require("../settings/config.json");
-    const defaultConfig = config.default;
-    const currentConfig = config.current;
-    for (const category in currentConfig) {
-        for (const setting in currentConfig[category]) {
+    const config = (await ipcRenderer.invoke("reset_store", "config")).config;
+    for (const category in config) {
+        for (const setting in config[category]) {
             const settingElement = document.querySelector(`#${category} #${setting}`);
 
-            if (settingElement.type === "checkbox") settingElement.checked = defaultConfig[category][setting];
+            if (settingElement.type === "checkbox") settingElement.checked = config[category][setting];
 
-            if (settingElement.classList.contains("selector")) settingElement.value = defaultConfig[category][setting];
+            if (settingElement.classList.contains("selector")) settingElement.value = config[category][setting];
 
-            if (settingElement.type === "text") settingElement.value = defaultConfig[category][setting];
+            if (settingElement.type === "text") settingElement.value = config[category][setting];
         }
     }
     saveSettings();
@@ -378,21 +373,15 @@ function popup(value, id) {
     document.getElementById("popup").classList.add("show");
 }
 
-function confirm() {
+async function confirm() {
     const id = document.querySelector("#popup #name").name;
     const name = document.querySelector("#popup #name").value;
 
-    const layouts = require("../settings/layout.json");
+    const layouts = (await ipcRenderer.invoke("get_store")).layouts;
     layouts[id].name = name;
 
-    const data = JSON.stringify(layouts);
-    fs.writeFile(__dirname + "/../settings/layout.json", data, (err) => {
-        if (err) {
-            console.log("Error writing file", err);
-        } else {
-            console.log("Successfully wrote file");
-        }
-    });
+    await ipcRenderer.invoke("write_store", "layouts", layouts);
+
     document.getElementById("popup").classList.remove("show");
     document.getElementById("layouts-container").innerHTML = "";
     showLayouts();
@@ -402,32 +391,26 @@ function cancel() {
     document.getElementById("popup").classList.remove("show");
 }
 
-function remove() {
+async function remove() {
     const id = document.querySelector("#popup #name").name;
 
-    const layouts = require("../settings/layout.json");
+    const layouts = (await ipcRenderer.invoke("get_store")).layouts;
     delete layouts[id];
 
-    const data = JSON.stringify(layouts);
-    fs.writeFile(__dirname + "/../settings/layout.json", data, (err) => {
-        if (err) {
-            console.log("Error writing file", err);
-        } else {
-            console.log("Successfully wrote file");
-        }
-    });
+    await ipcRenderer.invoke("write_store", "layouts", layouts);
+
     document.getElementById("popup").classList.remove("show");
     document.getElementById("layouts-container").innerHTML = "";
     showLayouts();
 }
 
-function editLayout(layoutId) {
-    const layouts = require("../settings/layout.json");
+async function editLayout(layoutId) {
+    const layouts = (await ipcRenderer.invoke("get_store")).layouts;
     popup(layouts[layoutId].name, layoutId);
 }
 
-function showLayouts() {
-    const layouts = require("../settings/layout.json");
+async function showLayouts() {
+    const layouts = (await ipcRenderer.invoke("get_store")).layouts;
 
     for (const layout in layouts) {
         const layoutName = layouts[layout].name;
@@ -441,22 +424,15 @@ function showLayouts() {
 
 showLayouts();
 
-function newLayout() {
-    const layouts = require("../settings/layout.json");
+async function newLayout() {
+    const layouts = (await ipcRenderer.invoke("get_store")).layouts;
 
     const newId =
         Object.keys(layouts).length > 0 ? parseInt(Object.keys(layouts)[Object.keys(layouts).length - 1]) + 1 : 0;
 
     layouts[newId] = { name: "New Layout", uf1Windows: [], mvWindows: [] };
 
-    const data = JSON.stringify(layouts);
-    fs.writeFile(__dirname + "/../settings/layout.json", data, (err) => {
-        if (err) {
-            console.log("Error writing file", err);
-        } else {
-            console.log("Successfully wrote file");
-        }
-    });
+    await ipcRenderer.invoke("write_store", "layouts", layouts);
 
     document.getElementById("layouts-container").innerHTML = "";
     showLayouts();
@@ -469,8 +445,8 @@ async function isConnected(ignore) {
         document.getElementById("connect").className = "animation";
         return;
     }
-    const configFile = require("../settings/config.json").current;
-    console.log(configFile);
+    const configFile = (await ipcRenderer.invoke("get_store")).config;
+
     const host = configFile.network.host;
     try {
         const port = (await f1mvApi.discoverF1MVInstances(host)).port;

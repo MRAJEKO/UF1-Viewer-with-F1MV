@@ -1,13 +1,55 @@
 // Create all needed variables
 const { app, BrowserWindow, ipcMain, screen } = require("electron");
-const electron = require("electron");
 const path = require("path");
-const fs = require("fs");
+const Store = require("electron-store");
 
 const f1mvApi = require("npm_f1mv_api");
-const { config } = require("process");
 
 // require("electron-reload")(__dirname);
+
+const defaults = {
+    config: {
+        general: { always_on_top: true, discord_rpc: true },
+        network: { host: "localhost" },
+        flag_display: { govee: false },
+        session_log: {
+            lapped_drivers: true,
+            retired_drivers: true,
+            rain: true,
+            team_radios: false,
+            pitstops: true,
+        },
+        trackinfo: { default_background_color: "gray", orientation: "vertical" },
+        statuses: { default_background_color: "gray" },
+        current_laps: { always_on_top: true },
+        weather: { default_background_color: "gray", datapoints: "30", use_trackmap_rotation: true },
+        autoswitcher: { main_window_name: "INTERNATIONAL", speedometer: true },
+    },
+    layouts: {},
+    led_colors: {
+        default: [255, 255, 255],
+        white: [255, 255, 255],
+        green: [0, 175, 0],
+        yellow: [255, 230, 0],
+        red: [209, 0, 0],
+        purple: [185, 0, 185],
+        black: [0, 0, 0],
+    },
+    team_icons: {
+        "Red Bull Racing": "../icons/teams/red-bull.png",
+        McLaren: "../icons/teams/mclaren-white.png",
+        "Aston Martin": "../icons/teams/aston-martin.png",
+        Williams: "../icons/teams/williams-white.png",
+        AlphaTauri: "../icons/teams/alpha-tauri.png",
+        Alpine: "../icons/teams/alpine.png",
+        Ferrari: "../icons/teams/ferrari.png",
+        "Haas F1 Team": "../icons/teams/haas-red.png",
+        "Alfa Romeo": "../icons/teams/alfa-romeo.png",
+        Mercedes: "../icons/teams/mercedes.png",
+    },
+};
+
+const store = new Store({ defaults });
 
 const sleep = (milliseconds) => {
     return new Promise((resolve) => setTimeout(resolve, milliseconds));
@@ -135,8 +177,8 @@ ipcMain.handle("saveLayout", async (event, layoutId) => {
         formattedUf1Windows.push({ path, bounds, hideMenuBar, frame, transparent, hasShadow, alwaysOnTop, icon });
     }
 
-    const configFile = require("./settings/config.json");
-    const host = configFile.current.network.host;
+    const configFile = store.get("config");
+    const host = configFile.network.host;
     const port = (await f1mvApi.discoverF1MVInstances(host)).port;
 
     const config = {
@@ -160,7 +202,7 @@ ipcMain.handle("saveLayout", async (event, layoutId) => {
         });
     }
 
-    const layoutConfig = require("./settings/layout.json");
+    const layoutConfig = store.get("layouts");
 
     const layout = layoutConfig[layoutId];
 
@@ -168,19 +210,11 @@ ipcMain.handle("saveLayout", async (event, layoutId) => {
 
     layout.mvWindows = formattedMvWindows;
 
-    const data = JSON.stringify(layoutConfig);
-
-    fs.writeFile(__dirname + "/settings/layout.json", data, (err) => {
-        if (err) {
-            console.log("Error saving layout", err);
-        } else {
-            console.log("Saved layout");
-        }
-    });
+    store.set("layouts", layoutConfig);
 });
 
 ipcMain.handle("restoreLayout", async (event, layoutId, liveSessionInfo, contentIdField) => {
-    const layoutConfig = require("./settings/layout.json");
+    const layoutConfig = store.get("layouts");
 
     const layout = layoutConfig[layoutId];
 
@@ -217,8 +251,8 @@ ipcMain.handle("restoreLayout", async (event, layoutId, liveSessionInfo, content
         await sleep(1000);
     }
 
-    const configFile = require("./settings/config.json");
-    const host = configFile.current.network.host;
+    const configFile = store.get("config");
+    const host = configFile.network.host;
     const port = (await f1mvApi.discoverF1MVInstances(host)).port;
 
     const config = {
@@ -251,6 +285,22 @@ ipcMain.handle("restoreLayout", async (event, layoutId, liveSessionInfo, content
 
         await sleep(1000);
     }
+});
+
+ipcMain.handle("get_store", async (event, args) => {
+    return store.store;
+});
+
+ipcMain.handle("write_store", async (event, type, value) => {
+    store.set(type, value);
+    return store.store;
+});
+
+ipcMain.handle("reset_store", async (event, type) => {
+    const typeDefaults = defaults[type];
+    store.delete(type);
+    store.set(type, typeDefaults);
+    return store.store;
 });
 
 // Receive request on 'write_config' to write all the settings to 'config.json'
