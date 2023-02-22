@@ -197,7 +197,7 @@ async function run() {
 
     while (true) {
         await getCurrentStatus();
-        await sleep(2500);
+        await sleep(250);
     }
 }
 
