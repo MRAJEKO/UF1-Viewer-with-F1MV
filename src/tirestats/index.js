@@ -35,9 +35,15 @@ const tireStats = {
         times: [],
         toptimes: [],
     },
+    TEST: {
+        laps: 0,
+        sets: 0,
+        times: [],
+        toptimes: [],
+    },
 };
 
-const tireOrder = ["SOFT", "MEDIUM", "HARD", "INTERMEDIATE", "WET"];
+const tireOrder = ["SOFT", "MEDIUM", "HARD", "INTERMEDIATE", "WET", "TEST"];
 
 const topLimit = 3;
 
@@ -92,7 +98,11 @@ function getTireStats() {
         const driverTireData = tireData[driver].Stints;
 
         for (const stint of driverTireData) {
-            const driverIsTop = tireStats[stint.Compound].toptimes.some((topDriver) => topDriver.driver === driver);
+            const compound = stint.Compound === "TEST_UNKNOWN" ? "TEST" : stint.Compound;
+
+            if (compound === "UNKNOWN") continue;
+
+            const driverIsTop = tireStats[compound].toptimes.some((topDriver) => topDriver.driver === driver);
 
             if (driverIsTop) continue;
 
@@ -102,8 +112,8 @@ function getTireStats() {
 
             pastTireData[driver].push(JSON.stringify(stint));
 
-            if (tireOrder.indexOf(stint.Compound) === -1) continue;
-            const statsCompound = tireStats[stint.Compound];
+            if (tireOrder.indexOf(compound) === -1) continue;
+            const statsCompound = tireStats[compound];
             const statsCompoundTimes = statsCompound.toptimes;
             statsCompound.laps += stint.TotalLaps - stint.StartLaps;
             if (stint.TyresNotChanged === "0") statsCompound.sets++;

@@ -65,14 +65,14 @@ async function apiRequests() {
     ]);
 
     driverList = liveTimingState.DriverList;
-    tireData = liveTimingState.TimingAppData.Lines;
-    timingData = liveTimingState.TimingData.Lines;
+    tireData = liveTimingState.TimingAppData?.Lines;
+    timingData = liveTimingState.TimingData?.Lines;
     qualiTimingData = liveTimingState.TimingData;
-    bestTimes = liveTimingState.TimingStats.Lines;
+    bestTimes = liveTimingState.TimingStats?.Lines;
     sessionInfo = liveTimingState.SessionInfo;
     sessionType = sessionInfo.Type;
-    topThree = liveTimingState.TopThree.Lines;
-    sessionStatus = liveTimingState.SessionStatus.Status;
+    topThree = liveTimingState.TopThree?.Lines;
+    sessionStatus = liveTimingState.SessionStatus?.Status;
 
     clockData = liveTimingClock;
 }
@@ -181,7 +181,7 @@ function isDriverOnPushLap(driverNumber) {
     if (driverTimingData.InPit) return false;
 
     // If the first mini sector time is status 2064, meaning he is on a out lap, return false
-    if (driverTimingData.Sectors[0].Segments[0].Status === 2064) return false;
+    if (driverTimingData.Sectors[0].Segments?.[0].Status === 2064) return false;
 
     // Get the threshold to which the sector time should be compared to the best personal sector time.
     const pushDeltaThreshold = sessionType === "Race" ? 0.2 : sessionType === "Qualifying" ? 1 : 3;
@@ -190,14 +190,16 @@ function isDriverOnPushLap(driverNumber) {
 
     const lastSector = sectors.slice(-1)[0];
 
-    if (sectors.slice(-1)[0].Value !== "" && sectors.slice(-1)[0].Segments.slice(-1)[0].Status !== 0) return false;
+    if (sectors.slice(-1)[0].Value !== "" && (sectors.slice(-1)[0].Segments?.slice(-1)[0].Status !== 0 ?? true))
+        return false;
 
-    const completedFirstSector =
-        (sectors[0].Segments.slice(-1)[0].Status !== 0 && lastSector.Value === "") ||
-        (lastSector.Segments.slice(-1)[0].Status === 0 &&
-            lastSector.Value !== "" &&
-            sectors[1].Segments[0].Status !== 0 &&
-            sectors[0].Segments.slice(-1)[0].Status !== 0);
+    const completedFirstSector = sectors[0].Segments
+        ? (sectors[0].Segments.slice(-1)[0].Status !== 0 && lastSector.Value === "") ||
+          (lastSector.Segments.slice(-1)[0].Status === 0 &&
+              lastSector.Value !== "" &&
+              sectors[1].Segments[0].Status !== 0 &&
+              sectors[0].Segments.slice(-1)[0].Status !== 0)
+        : sectors[0].Value !== 0 && lastSector.Value === "";
 
     let isPushing = false;
     for (let sectorIndex = 0; sectorIndex < driverTimingData.Sectors.length; sectorIndex++) {
@@ -224,13 +226,11 @@ function isDriverOnPushLap(driverNumber) {
         }
 
         // If the driver has a fastest segment overall it would temporarily set pushing to true because the driver could have still backed out in a later stage
-        if (sector.Segments.some((segment) => segment.Status === 2051) && sessionType !== "Race") {
+        if (sector.Segments?.some((segment) => segment.Status === 2051) && sessionType !== "Race") {
             isPushing = true;
             continue;
         }
     }
-
-    if (driverNumber == 63) console.log(isPushing);
 
     // Return the final pushing state
     return isPushing;
@@ -244,13 +244,19 @@ function getDriverPosition(driverNumber) {
     // The starting segment will always be 0 because if there is no 0 state anywhere all segments will be completed and the current segment will be the first one.
     let currentSegment = -1;
 
-    for (const sectorIndex in sectors) {
-        const segments = sectors[sectorIndex].Segments;
-        for (const segmentIndex in segments) {
-            const segment = segments[segmentIndex];
-            if (segment.Status === 0) return parseInt(currentSegment) + parseInt(segmentIndex);
+    const driverCount = Object.keys(timingData).length;
+
+    if (sectors[0].Segments) {
+        for (const sectorIndex in sectors) {
+            const segments = sectors[sectorIndex].Segments;
+            for (const segmentIndex in segments) {
+                const segment = segments[segmentIndex];
+                if (segment.Status === 0) return parseInt(currentSegment) + parseInt(segmentIndex);
+            }
+            currentSegment += segments.length;
         }
-        currentSegment += segments.length;
+    } else {
+        currentSegment = driverCount - parseInt(driverTimingData.Position);
     }
 
     const lastSectorValue = sectors.slice(-1)[0].Value;
@@ -307,13 +313,15 @@ driverLaps = {};
 function saveTimeOfNewLap(driverNumber) {
     const driverTimingData = timingData[driverNumber];
 
-    const lastStatus = driverTimingData.Sectors.slice(-1)[0].Segments.slice(-1)[0].Status;
+    const lastSectorValue = driverTimingData.Sectors.slice(-1)[0].Value;
+
+    const lastStatus = driverTimingData.Sectors.slice(-1)[0].Segments?.slice(-1)[0].Status ?? 0;
 
     const currentDriverLap = driverTimingData.NumberOfLaps;
 
-    const newLap = !driverLaps[driverNumber]
-        ? lastStatus !== 2064 && lastStatus !== 0
-        : lastStatus !== 2064 && lastStatus !== 0 && driverLaps[driverNumber].lap !== currentDriverLap;
+    const newLap = lastStatus
+        ? lastStatus !== 2064 && lastStatus !== 0 && (driverLaps[driverNumber]?.lap !== currentDriverLap ?? true)
+        : lastSectorValue != "" && driverLaps[driverNumber]?.lap !== currentDriverLap;
 
     if (newLap) {
         const driverIndexInBackedOutDriverList = backedOutDrivers.indexOf(driverNumber);
@@ -407,16 +415,32 @@ function setSectors(driverNumber, targetDriverNumber, completedFirstSector) {
 
         const segments = sector.Segments;
 
-        for (const segmentIndex in segments) {
-            const segment = segments[segmentIndex];
+        if (segments) {
+            for (const segmentIndex in segments) {
+                const segment = segments[segmentIndex];
 
-            const segmentColor = getColorFromStatusCodeOrName(segment.Status);
+                const segmentColor = getColorFromStatusCodeOrName(segment.Status);
 
+                const segmentElement = document.querySelector(
+                    `#n${driverNumber} .sectors #sector${sectorIndex} .segments #segment${segmentIndex}`
+                );
+
+                segmentElement.style.backgroundColor = segmentColor;
+            }
+        } else {
             const segmentElement = document.querySelector(
-                `#n${driverNumber} .sectors #sector${sectorIndex} .segments #segment${segmentIndex}`
+                `#n${driverNumber} .sectors #sector${sectorIndex} .segments #segment${sectorIndex}`
             );
 
-            segmentElement.style.backgroundColor = segmentColor;
+            segmentElement.style.backgroundColor = getColorFromStatusCodeOrName(
+                sector.Value === ""
+                    ? "gray"
+                    : sector.OverallFastest
+                    ? "purple"
+                    : sector.PersonalFastest
+                    ? "green"
+                    : "yellow"
+            );
         }
     }
 
@@ -499,7 +523,7 @@ function setTargetInfo(
     targetPositionElement.textContent = `P${targetPosition}`;
 
     // Set target name
-    const targetName = driverList[targetDriverNumber].LastName.toUpperCase();
+    const targetName = driverList[targetDriverNumber].LastName?.toUpperCase() ?? driverList[targetDriverNumber].Tla;
 
     const targetNameElement = document.querySelector(`#n${driverNumber} .times .target .bottom .target-name p`);
 
@@ -519,7 +543,7 @@ function setTargetInfo(
         for (const sectorIndex in sectors) {
             const sector = sectors[sectorIndex];
 
-            if (sector.Value === "" || sector.Segments.slice(-1)[0] === 0 || currentSectorIndex === lastSectorIndex)
+            if (sector.Value === "" || sector.Segments?.slice(-1)[0] === 0 || currentSectorIndex === lastSectorIndex)
                 break;
 
             currentSectorIndex++;
@@ -589,7 +613,7 @@ function setCurrentLapTime(driverNumber, diffToLapStart, isPushing) {
     for (const sectorIndex in driverSectorData) {
         const sector = driverSectorData[sectorIndex];
 
-        if (sector.Value === "" || sector.Segments.slice(-1)[0] === 0) break;
+        if (sector.Value === "" || sector.Segments?.slice(-1)[0] === 0) break;
 
         const sectorTime = parseLapOrSectorTime(sector.Value);
 
@@ -627,8 +651,6 @@ function setCurrentLapTime(driverNumber, diffToLapStart, isPushing) {
     } else if (!isPushing) {
         const elementLapTime = parseInt(document.getElementById(`n${driverNumber}`).dataset.lapNumber);
 
-        if (driverNumber == 44) console.log(driverTimingData.Sectors.slice(-1)[0].Segments.slice(-1)[0].Status);
-
         if (driverNumber == 55) {
             console.log(`Removing ${driverNumber} from list`);
             console.log(elementLapTime);
@@ -638,20 +660,27 @@ function setCurrentLapTime(driverNumber, diffToLapStart, isPushing) {
         if (driverTimingData.InPit && elementLapTime === currentDriverLap) {
             lapTimeElement.textContent = "IN PIT";
             lapTimeElement.style.color = getColorFromStatusCodeOrName("red");
-        } else if (driverTimingData.Sectors.slice(-1)[0].Segments.slice(-1)[0].Status !== 0) {
-            const color = getColorFromStatusCodeOrName(
-                driverTimingData.LastLapTime.OverallFastest
-                    ? "ob"
-                    : driverTimingData.LastLapTime.PersonalFastest
-                    ? "pb"
-                    : "ni"
-            );
+        } else {
+            const segmentsAvailable = driverTimingData.Sectors[0].Segments;
+            if (
+                segmentsAvailable
+                    ? driverTimingData.Sectors.slice(-1)[0].Segments.slice(-1)[0].Status !== 0
+                    : driverTimingData.Sectors.slice(-1)[0] !== 0
+            ) {
+                const color = getColorFromStatusCodeOrName(
+                    driverTimingData.LastLapTime.OverallFastest
+                        ? "ob"
+                        : driverTimingData.LastLapTime.PersonalFastest
+                        ? "pb"
+                        : "ni"
+                );
 
-            lapTimeElement.textContent = driverTimingData.LastLapTime.Value;
-            lapTimeElement.style.color = color;
-        } else if (elementLapTime === currentDriverLap) {
-            lapTimeElement.textContent = "BACKED";
-            lapTimeElement.style.color = getColorFromStatusCodeOrName("red");
+                lapTimeElement.textContent = driverTimingData.LastLapTime.Value;
+                lapTimeElement.style.color = color;
+            } else if (elementLapTime === currentDriverLap) {
+                lapTimeElement.textContent = "BACKED";
+                lapTimeElement.style.color = getColorFromStatusCodeOrName("red");
+            }
         }
     }
 }
@@ -663,12 +692,13 @@ function updateTemplate(driverNumber, pushDrivers) {
 
     const lastSector = sectors.slice(-1)[0];
 
-    const completedFirstSector =
-        (sectors[0].Segments.slice(-1)[0].Status !== 0 && lastSector.Value === "") ||
-        (lastSector.Segments.slice(-1)[0].Status === 0 &&
-            lastSector.Value !== "" &&
-            sectors[0].Segments.slice(-1)[0].Status !== 0 &&
-            sectors[0].Value !== "");
+    const completedFirstSector = sectors[0].Segments
+        ? (sectors[0].Segments.slice(-1)[0].Status !== 0 && lastSector.Value === "") ||
+          (lastSector.Segments.slice(-1)[0].Status === 0 &&
+              lastSector.Value !== "" &&
+              sectors[1].Segments[0].Status !== 0 &&
+              sectors[0].Segments.slice(-1)[0].Status !== 0)
+        : sectors[0].Value !== 0 && lastSector.Value === "";
 
     const driverElement = document.getElementById(`n${driverNumber}`);
 
@@ -705,10 +735,6 @@ function updateTemplate(driverNumber, pushDrivers) {
         }, holdEndOfLapDuration);
 
         return;
-    }
-
-    if (sectors.slice(-1)[0].Segments.slice(-1)[0].Status !== 0) {
-        console.log(`${driverNumber} is on a push lap`);
     }
 
     const [targetPosition, targetDriverNumber] = getTargetPositionAndNumber(driverNumber);
@@ -768,8 +794,13 @@ async function initiateTemplate(driverNumber, pushDrivers) {
         const driverSegmentData = sectors[sectorIndex].Segments;
 
         let segments = "";
-        for (let count = 0; count < driverSegmentData.length; count++) {
-            const HTMLSegment = `<div class="segment" id="segment${count}" style="background-color: ${noTimeColor}"></div>`;
+        if (driverSegmentData) {
+            for (let count = 0; count < driverSegmentData.length; count++) {
+                const HTMLSegment = `<div class="segment" id="segment${count}" style="background-color: ${noTimeColor}"></div>`;
+                segments += HTMLSegment;
+            }
+        } else {
+            const HTMLSegment = `<div class="segment" id="segment${sectorIndex}" style="background-color: ${noTimeColor}"></div>`;
             segments += HTMLSegment;
         }
 

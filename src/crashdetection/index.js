@@ -121,6 +121,10 @@ function overwriteCrashedStatus(racingNumber) {
 
     const sessionInactive = sessionStatus === "Inactive" || sessionStatus === "Finished";
 
+    if (!lastSectorSegments && sessionInactive) return true;
+
+    if (!lastSectorSegments) return false;
+
     // Detect if grid start during inactive (formation lap) during a 'Race' session
     // If the final to last mini sector has a value (is not 0). Check if the session is 'Inactive' and if the session type is 'Race'
     if (lastSectorSegments.slice(-2, -1)[0].Status !== 0 && sessionInactive && !driverTimingData.PitOut) {
@@ -180,9 +184,11 @@ async function run() {
 
             const driverNumber = driverInfo.RacingNumber;
 
-            const name = `${driverInfo.FirstName} ${driverInfo.LastName.toUpperCase()}`;
+            const name = driverInfo.FirstName
+                ? `${driverInfo.FirstName} ${driverInfo.LastName.toUpperCase()}`
+                : driverInfo.Tla;
 
-            const color = driverInfo.TeamColour;
+            const color = driverInfo.TeamColour || "808080";
 
             const driverCarData = getCarData(driverNumber);
 

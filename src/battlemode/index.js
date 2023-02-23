@@ -273,16 +273,14 @@ function addDriver(driver) {
             <img
             id="driver-headshot"
                 src="${
-                    driverList[driver].HeadshotUrl
-                        ? driverList[driver].HeadshotUrl.replace("1col", "12col")
-                        : "../icons/unknowndriver.png"
+                    driverList[driver].HeadshotUrl?.HeadshotUrl.replace("1col", "12col") ?? "../icons/unknowndriver.png"
                 }"
                 alt="" />
                 </div>
                 <div class="driver-name">
-            <div class="first-name"><p id="first-name">${driverList[driver].FirstName}</p></div>
+            <div class="first-name"><p id="first-name">${driverList[driver].FirstName || ""}</p></div>
             <div class="last-name"><p id="last-name" style="color: #${driverList[driver].TeamColour};">${
-        driverList[driver].LastName
+        driverList[driver].LastName || driverList[driver].Tla
     }</p></div>
         </div>
     </div>

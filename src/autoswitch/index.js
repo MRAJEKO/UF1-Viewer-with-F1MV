@@ -174,7 +174,7 @@ function isDriverOnPushLap(driverNumber) {
     if (sessionStatus === "Aborted" || sessionStatus === "Inactive") return false;
 
     const driverTimingData = timingData[driverNumber];
-    const driverTimingStats = timingStats[driverNumber];
+    const driverBestTimes = bestTimes[driverNumber];
 
     console.log(driverNumber, driverTimingData.NumberOfLaps);
 
@@ -184,7 +184,7 @@ function isDriverOnPushLap(driverNumber) {
     if (driverTimingData.InPit) return false;
 
     // If the first mini sector time is status 2064, meaning he is on a out lap, return false
-    if (driverTimingData.Sectors[0].Segments[0].Status === 2064) return false;
+    if (driverTimingData.Sectors[0].Segments?.[0].Status === 2064) return false;
 
     // Get the threshold to which the sector time should be compared to the best personal sector time.
     const pushDeltaThreshold = sessionType === "Race" ? 0.2 : sessionType === "Qualifying" ? 1 : 3;
@@ -193,19 +193,21 @@ function isDriverOnPushLap(driverNumber) {
 
     const lastSector = sectors.slice(-1)[0];
 
-    if (sectors.slice(-1)[0].Value !== "" && sectors.slice(-1)[0].Segments.slice(-1)[0].Status !== 0) return false;
+    if (sectors.slice(-1)[0].Value !== "" && (sectors.slice(-1)[0].Segments?.slice(-1)[0].Status !== 0 ?? true))
+        return false;
 
-    const completedFirstSector =
-        (sectors[0].Segments.slice(-1)[0].Status !== 0 && lastSector.Value === "") ||
-        (lastSector.Segments.slice(-1)[0].Status === 0 &&
-            lastSector.Value !== "" &&
-            sectors[1].Segments[0].Status !== 0 &&
-            sectors[0].Segments.slice(-1)[0].Status !== 0);
+    const completedFirstSector = sectors[0].Segments
+        ? (sectors[0].Segments.slice(-1)[0].Status !== 0 && lastSector.Value === "") ||
+          (lastSector.Segments.slice(-1)[0].Status === 0 &&
+              lastSector.Value !== "" &&
+              sectors[1].Segments[0].Status !== 0 &&
+              sectors[0].Segments.slice(-1)[0].Status !== 0)
+        : sectors[0].Value !== 0 && lastSector.Value === "";
 
     let isPushing = false;
     for (let sectorIndex = 0; sectorIndex < driverTimingData.Sectors.length; sectorIndex++) {
         const sector = sectors[sectorIndex];
-        const bestSector = driverTimingStats.BestSectors[sectorIndex];
+        const bestSector = driverBestTimes.BestSectors[sectorIndex];
 
         const sectorTime = parseLapOrSectorTime(sector.Value);
         const bestSectorTime = parseLapOrSectorTime(bestSector.Value);
@@ -227,13 +229,11 @@ function isDriverOnPushLap(driverNumber) {
         }
 
         // If the driver has a fastest segment overall it would temporarily set pushing to true because the driver could have still backed out in a later stage
-        if (sector.Segments.some((segment) => segment.Status === 2051) && sessionType !== "Race") {
+        if (sector.Segments?.some((segment) => segment.Status === 2051) && sessionType !== "Race") {
             isPushing = true;
             continue;
         }
     }
-
-    if (driverNumber == 63) console.log(isPushing);
 
     // Return the final pushing state
     return isPushing;
@@ -365,6 +365,10 @@ function overwriteCrashedStatus(racingNumber) {
     const lastSectorSegments = driverTimingData.Sectors.slice(-1)[0].Segments;
 
     const sessionInactive = sessionStatus === "Inactive" || sessionStatus === "Finished";
+
+    if (!lastSectorSegments && sessionInactive) return true;
+
+    if (!lastSectorSegments) return false;
 
     // Detect if grid start during inactive (formation lap) during a 'Race' session
     // If the final to last mini sector has a value (is not 0). Check if the session is 'Inactive' and if the session type is 'Race'
