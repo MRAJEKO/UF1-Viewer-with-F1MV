@@ -67,7 +67,7 @@ async function flagDisplay() {
 let liveSession = false;
 function livetiming() {
     if (liveSession) {
-        location = "multiviewer://app/livetiming";
+        location = "multiviewer://app/live-timing";
     }
 }
 
