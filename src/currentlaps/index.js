@@ -59,6 +59,7 @@ async function apiRequests() {
         "TimingAppData",
         "TimingData",
         "TimingStats",
+        "TrackStatus",
         "SessionInfo",
         "TopThree",
         "SessionStatus",
@@ -73,6 +74,7 @@ async function apiRequests() {
     sessionType = sessionInfo.Type;
     topThree = liveTimingState.TopThree?.Lines;
     sessionStatus = liveTimingState.SessionStatus?.Status;
+    trackStatus = parseInt(liveTimingState.TrackStatus?.Status);
 
     clockData = liveTimingClock;
 }
@@ -168,7 +170,7 @@ function formatMsToF1(ms, fixedAmount) {
 
 // Check if the driver is on a push lap or not
 function isDriverOnPushLap(driverNumber) {
-    if (sessionStatus === "Aborted" || sessionStatus === "Inactive") return false;
+    if (sessionStatus === "Aborted" || sessionStatus === "Inactive" || [4, 5, 6, 7].includes(trackStatus)) return false;
 
     const driverTimingData = timingData[driverNumber];
     const driverBestTimes = bestTimes[driverNumber];
