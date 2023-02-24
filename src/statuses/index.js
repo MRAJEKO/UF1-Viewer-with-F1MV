@@ -152,17 +152,24 @@ function setFullStatus() {
 let pastRaceControlMessages = [];
 function setTrackSector() {
     for (const message of raceControlMessages) {
+        if (pastRaceControlMessages.includes(JSON.stringify(message))) continue;
+
+        pastRaceControlMessages.push(JSON.stringify(message));
+
+        if (message.Category === "Flag" && message.Scope === "Track" && message.Flag === "CLEAR") {
+            const allSectorElements = document.getElementsByClassName("status");
+
+            for (const sectorElement of allSectorElements) {
+                sectorElement.children[1].textContent = "CLEAR";
+                sectorElement.children[1].className = "green";
+            }
+        }
+
         if (
             (message.Category !== "Flag" || message.Scope !== "Sector") &&
             message.SubCategory !== "TrackSurfaceSlippery"
         )
             continue;
-
-        if (pastRaceControlMessages.includes(JSON.stringify(message))) continue;
-
-        console.log(message);
-
-        pastRaceControlMessages.push(JSON.stringify(message));
 
         let sector = message.Sector;
 

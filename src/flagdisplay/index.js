@@ -139,7 +139,7 @@ async function getCurrentStatus() {
     }
 
     const sessionStatus = data.SessionStatus.Status;
-    if (sessionStatus === "Finished" && prevSessionStatus !== sessionStatus) {
+    if ((sessionStatus === "Finished" || sessionStatus === "Finalised") && prevSessionStatus !== sessionStatus) {
         prevSessionStatus = sessionStatus;
         await finishBlink("white", 5, 1000);
         if (goveeConnected) setGoveeLight("default");

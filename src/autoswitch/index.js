@@ -171,7 +171,12 @@ function parseLapOrSectorTime(time) {
 
 // Check if the driver is on a push lap or not
 function isDriverOnPushLap(driverNumber) {
-    if (sessionStatus === "Aborted" || sessionStatus === "Inactive") return false;
+    if (
+        sessionStatus === "Aborted" ||
+        sessionStatus === "Inactive" ||
+        [4, 5, 6, 7].includes(parseInt(trackStatus.Status))
+    )
+        return false;
 
     const driverTimingData = timingData[driverNumber];
     const driverBestTimes = bestTimes[driverNumber];

@@ -234,13 +234,13 @@ function setSessionTimer() {
 }
 
 function setExtraTimer() {
+    const extraTimerElement = document.getElementById("extra-timer");
+
     if (sessionInfo.Type !== "Race") {
-        const extraTimerContainerElement = document.getElementById("extra-timer-container");
-        extraTimerContainerElement.className = "hidden";
+        extraTimerElement.className = "hidden";
         return;
     }
 
-    const extraTimerElement = document.getElementById("extra-timer");
     let color = "gray";
     let displayTime;
 
@@ -291,8 +291,7 @@ function setProgress(timer) {
     let totalTimers = sessionLength;
 
     if (sessionInfo.Type === "Race") {
-        const qualiPartContainerElement = document.getElementById("quali-part-container");
-        qualiPartContainerElement.className = "hidden";
+        document.getElementById("quali-part").className = "hidden";
 
         let fastestLap = 0;
         for (const driverNumber in timingStats) {
@@ -336,15 +335,16 @@ function setProgress(timer) {
                   }%`;
         progressElement.className = `${pClass} ${color}`;
 
-        const displayLapCount = `${lapCount.CurrentLap}/${maxLaps > lapCount.TotalLaps ? lapCount.TotalLaps : maxLaps}`;
+        const displayLapCount = `Lap: ${lapCount.CurrentLap}/${
+            maxLaps > lapCount.TotalLaps ? lapCount.TotalLaps : maxLaps
+        }`;
 
         const lapCountElement = document.getElementById("lapcount");
 
         lapCountElement.textContent = displayLapCount;
         lapCountElement.className = `${pClass} ${color}`;
     } else {
-        const lapCountContainerElement = document.getElementById("lapcount-container");
-        lapCountContainerElement.className = "hidden";
+        document.getElementById("lapcount").className = "hidden";
 
         if (sessionInfo.Type === "Qualifying") {
             const qualiPartElement = document.getElementById("quali-part");
@@ -355,8 +355,7 @@ function setProgress(timer) {
             qualiPartElement.textContent = `Q${qualiPart} - Q${qualiPartLengths.length}`;
             qualiPartElement.classList = `${pClass} ${timer === 0 && qualiPart === 3 ? "gray" : "green"}`;
         } else {
-            const qualiPartContainerElement = document.getElementById("quali-part-container");
-            qualiPartContainerElement.className = "hidden";
+            document.getElementById("quali-part").className = "hidden";
         }
 
         const timerProgress = totalTimers - timer;
@@ -394,32 +393,27 @@ function setPitlane(message) {
 
     switch (message.Flag) {
         case "RED":
-            pitExitElement.textContent = "CLOSED";
             pitExitElement.className = `${pClass} red`;
             return;
         case "CLEAR":
-            pitExitElement.textContent = "OPEN";
             pitExitElement.className = `${pClass} green`;
             return;
     }
 
     const type = message.SubCategory === "PitEntry" ? "entry" : "exit";
 
-    let status = "CLOSED";
     let color = "red";
     switch (message.Flag) {
         case "OPEN":
-            status = "OPEN";
             color = "green";
             break;
         case "CLOSED":
-            status = "CLOSED";
             color = "red";
             break;
     }
 
     const pitLaneElement = document.getElementById(`pit-${type}`);
-    pitLaneElement.textContent = status;
+    pitLaneElement.textContent = type.toUpperCase();
     pitLaneElement.className = `${pClass} ${color}`;
 }
 
