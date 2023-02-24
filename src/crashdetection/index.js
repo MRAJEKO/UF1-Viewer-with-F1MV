@@ -119,7 +119,8 @@ function overwriteCrashedStatus(racingNumber) {
 
     const lastSectorSegments = driverTimingData.Sectors.slice(-1)[0].Segments;
 
-    const sessionInactive = sessionStatus === "Inactive" || sessionStatus === "Finished";
+    const sessionInactive =
+        sessionStatus === "Inactive" || sessionStatus === "Finished" || sessionStatus === "Finalised";
 
     if (!lastSectorSegments && sessionInactive) return true;
 
@@ -154,7 +155,7 @@ function overwriteCrashedStatus(racingNumber) {
     // If the car has stopped anywhere in the final sector and the 'race' has 'finished'
     if (
         sessionType === "Race" &&
-        sessionStatus === "Finished" &&
+        (sessionStatus === "Finished" || sessionStatus === "Finalised") &&
         lastSectorSegments.some((segment) => segment.Status !== 0)
     ) {
         console.log(racingNumber + " is in parc ferme");
