@@ -83,72 +83,75 @@ function getLapTime(time) {
     const seconds = time - minutes * 60;
     // const milliseconds = Math.floor((time - minutes * 60 - seconds) * 1000);
 
-    return `${minutes}:${seconds.toFixed(3)}`;
+    const display0 = seconds < 10 ? "0" : "";
+
+    return `${minutes}:${display0}${seconds.toFixed(3)}`;
 }
 
 async function apiRequests() {
     const api = await f1mvApi.LiveTimingAPIGraphQL(config, ["DriverList", "TimingAppData"]);
-    tireData = api.TimingAppData.Lines;
+    tireData = api.TimingAppData?.Lines;
     driverList = api.DriverList;
 }
 
 let pastTireData = {};
 function getTireStats() {
+    for (const compound in tireStats) {
+        tireStats[compound].laps = 0;
+        tireStats[compound].sets = 0;
+        tireStats[compound].times = [];
+        tireStats[compound].toptimes = [];
+    }
+
     for (const driver in tireData) {
         const driverTireData = tireData[driver].Stints;
 
-        for (const stint of driverTireData) {
-            const compound = stint.Compound === "TEST_UNKNOWN" ? "TEST" : stint.Compound;
+        console.log(driver);
 
-            if (compound === "UNKNOWN") continue;
+        for (const compound of tireOrder) {
+            let compoundTime = null;
+            for (const stint of driverTireData) {
+                const driverCompound = stint.Compound === "TEST_UNKNOWN" ? "TEST" : stint.Compound;
 
-            const driverIsTop = tireStats[compound].toptimes.some((topDriver) => topDriver.driver === driver);
+                if (driverCompound !== compound) continue;
 
-            if (driverIsTop) continue;
+                // Set laps and sets
+                tireStats[compound].laps += stint.TotalLaps - stint.StartLaps;
+                if (stint.New === "true") tireStats[compound].sets++;
 
-            if (pastTireData[driver] && pastTireData[driver].includes(JSON.stringify(stint))) continue;
+                const lapTime = stint.LapTime ? parseLapTime(stint.LapTime) : null;
 
-            if (!pastTireData[driver]) pastTireData[driver] = [];
+                if (lapTime && (lapTime < compoundTime || compoundTime === null)) compoundTime = lapTime;
+            }
 
-            pastTireData[driver].push(JSON.stringify(stint));
+            if (!compoundTime) continue;
 
-            if (tireOrder.indexOf(compound) === -1) continue;
-            const statsCompound = tireStats[compound];
-            const statsCompoundTimes = statsCompound.toptimes;
-            statsCompound.laps += stint.TotalLaps - stint.StartLaps;
-            if (stint.TyresNotChanged === "0") statsCompound.sets++;
-            if (!stint.LapTime) continue;
+            tireStats[compound].times.push(compoundTime);
 
-            const time = parseLapTime(stint.LapTime);
+            const compountStats = tireStats[compound];
 
-            statsCompound.times.push(time);
-            if (statsCompoundTimes.length < topLimit) {
-                statsCompoundTimes.push({
+            if (compountStats.toptimes.length < topLimit) {
+                compountStats.toptimes.push({
                     driver: driver,
-                    time: time,
+                    time: compoundTime,
                 });
             } else {
-                statsCompoundTimes.sort((a, b) => a.time - b.time);
-                for (let i = 0; i < topLimit; i++) {
-                    if (statsCompoundTimes[i].time > time) {
-                        statsCompoundTimes[i] = {
+                for (let count = 0; count < topLimit; count++) {
+                    if (compountStats.toptimes[count].time > compoundTime) {
+                        compountStats.toptimes[count] = {
                             driver: driver,
-                            time: time,
+                            time: compoundTime,
                         };
                         break;
                     }
                 }
             }
+
+            tireStats[compound].toptimes.sort((a, b) => a.time - b.time);
         }
-    }
-    for (const compound in tireStats) {
-        const timeArray = tireStats[compound].toptimes;
-        timeArray.sort((a, b) => a.time - b.time);
     }
 
     tireOrder.sort((a, b) => {
-        console.log(a);
-        console.log(b);
         const aTimeAverage =
             tireStats[a].times.reduce(function (aa, ab) {
                 return aa + ab;
@@ -157,8 +160,6 @@ function getTireStats() {
             tireStats[b].times.reduce(function (ba, bb) {
                 return ba + bb;
             }, 0) / tireStats[b].times.length;
-        console.log(aTimeAverage);
-        console.log(bTimeAverage);
         if (aTimeAverage === bTimeAverage) return 0;
         if (aTimeAverage < bTimeAverage) return -1;
         if (isNaN(aTimeAverage)) return 1;
@@ -166,7 +167,6 @@ function getTireStats() {
         return 1;
     });
 
-    console.log(tireOrder);
     console.log(tireStats);
 }
 
