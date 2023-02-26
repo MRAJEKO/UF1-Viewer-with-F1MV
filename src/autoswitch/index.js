@@ -297,10 +297,10 @@ function tertiaryDriver(racingNumber) {
 
     if (sessionType === "Race") {
         const numberOfLaps = driverIntervalAhead.Value.includes("L")
-            ? driverIntervalAhead.Value.split(" ")[0] + driverTimingData.NumberOfLaps
+            ? parseInt(driverIntervalAhead.Value.split(" ")[0]) + driverTimingData.NumberOfLaps
             : driverTimingData.NumberOfLaps;
         console.log(racingNumber, numberOfLaps, lapCount.CurrentLap);
-        if (sessionStatus === "Finished" && numberOfLaps === lapCount.CurrentLap) return true;
+        if (["Finished", "Finalised"].includes(sessionStatus) && numberOfLaps === lapCount.CurrentLap) return true;
     }
 
     return false;
