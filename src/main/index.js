@@ -73,20 +73,21 @@ function livetimingButton() {
 
 let liveSessionInfo = null;
 function sessionLive() {
-    setInterval(async () => {
+    async function checkApi() {
         const response = await (await fetch("https://api.joost.systems/api/v2/f1tv/live-session")).json();
 
         console.log(response);
 
         liveSession = response.liveSessionFound;
 
-        console.log("No live session found");
-
-        if (liveSession) console.log("Live session found");
-
         liveSessionInfo = response;
 
         livetimingButton();
+    }
+
+    checkApi();
+    setInterval(async () => {
+        await checkApi();
     }, 30000);
 }
 
