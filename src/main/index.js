@@ -5,10 +5,6 @@ const debug = false;
 
 const f1mvApi = require("npm_f1mv_api");
 
-const sleep = (milliseconds) => {
-    return new Promise((resolve) => setTimeout(resolve, milliseconds));
-};
-
 async function getConfigurations(host, port, file) {
     config = {
         host: host,
@@ -36,7 +32,7 @@ async function ignore() {
 }
 
 async function setAlwaysOnTop() {
-    while (true) {
+    setInterval(async () => {
         const config = (await ipcRenderer.invoke("get_store")).config;
         alwaysOnTop = config.general.always_on_top;
         alwaysOnTopPush = config.current_laps.always_on_top;
@@ -44,8 +40,7 @@ async function setAlwaysOnTop() {
             console.log(alwaysOnTop);
             console.log(alwaysOnTopPush);
         }
-        await sleep(2000);
-    }
+    }, 2000);
 }
 setAlwaysOnTop();
 
@@ -77,18 +72,22 @@ function livetimingButton() {
 }
 
 let liveSessionInfo = null;
-async function sessionLive() {
-    while (true) {
+function sessionLive() {
+    setInterval(async () => {
         const response = await (await fetch("https://api.joost.systems/api/v2/f1tv/live-session")).json();
 
+        console.log(response);
+
         liveSession = response.liveSessionFound;
+
+        console.log("No live session found");
+
+        if (liveSession) console.log("Live session found");
 
         liveSessionInfo = response;
 
         livetimingButton();
-
-        await sleep(30000);
-    }
+    }, 30000);
 }
 
 sessionLive();
@@ -296,8 +295,9 @@ async function settings() {
         document.getElementById("settings-icon").style.transform = "rotate(45deg)";
         document.getElementById("menu").className = "shown";
         document.getElementById("reset-defaults").classList.add("show");
-        await sleep(700);
-        document.getElementById("menu").className = "shown overflow";
+        setInterval(() => {
+            document.getElementById("menu").className = "shown overflow";
+        }, 700);
     }
 }
 
@@ -362,9 +362,9 @@ async function tooltip(text, color) {
     document.getElementById("tooltip").style.backgroundColor = color;
     document.getElementById("tooltip").classList.add("show");
 
-    await sleep(5000);
-
-    document.getElementById("tooltip").classList.remove("show");
+    setInterval(() => {
+        document.getElementById("tooltip").classList.remove("show");
+    }, 5000);
 }
 
 function popup(value, id) {
@@ -441,45 +441,47 @@ async function newLayout() {
 
 // Link MV
 async function isConnected(ignore) {
-    if (ignore) {
-        document.getElementById("connect").className = "animation";
-        return;
-    }
-    const configFile = (await ipcRenderer.invoke("get_store")).config;
-
-    const host = configFile.network.host;
-    try {
-        const port = (await f1mvApi.discoverF1MVInstances(host)).port;
-
-        document.getElementById("mv-connection").textContent = "Connected to MultiViewer";
-        document.getElementById("mv-connection").className = "green";
-
-        await getConfigurations(host, port, configFile);
-
-        if ((await f1mvApi.LiveTimingAPIGraphQL(config, "SessionInfo")) !== null) {
-            if (rpc) {
-                require("./RPC.js");
-            }
-
-            console.log("Connected to MultiViewer and live timing session found");
-
-            document.getElementById("timing-connection").textContent = "Connected to Live Timing";
-            document.getElementById("timing-connection").className = "green";
-
+    const loopId = setInterval(async () => {
+        if (ignore) {
             document.getElementById("connect").className = "animation";
-            document.getElementById("connection-icon").src = "../icons/checkmark.png";
-        } else {
-            console.log("No live timing session found");
-
-            await sleep(500);
-            isConnected();
+            return;
         }
-    } catch (error) {
-        console.log("No MultiViewer instance found");
+        const configFile = (await ipcRenderer.invoke("get_store")).config;
 
-        await sleep(500);
-        isConnected();
-    }
+        const host = configFile.network.host;
+        try {
+            const port = (await f1mvApi.discoverF1MVInstances(host)).port;
+
+            document.getElementById("mv-connection").textContent = "Connected to MultiViewer";
+            document.getElementById("mv-connection").className = "green";
+
+            await getConfigurations(host, port, configFile);
+
+            if ((await f1mvApi.LiveTimingAPIGraphQL(config, "SessionInfo")) !== null) {
+                if (rpc) {
+                    try {
+                        require("./RPC.js");
+                    } catch (error) {
+                        console.log(error);
+                    }
+                }
+
+                console.log("Connected to MultiViewer and live timing session found");
+
+                document.getElementById("timing-connection").textContent = "Connected to Live Timing";
+                document.getElementById("timing-connection").className = "green";
+
+                document.getElementById("connect").className = "animation";
+                document.getElementById("connection-icon").src = "../icons/checkmark.png";
+
+                clearInterval(loopId);
+            } else {
+                console.log("No live timing session found");
+            }
+        } catch (error) {
+            console.log("No MultiViewer instance found");
+        }
+    }, 500);
 }
 
 isConnected();
