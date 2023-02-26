@@ -236,7 +236,7 @@ function setSessionTimer() {
 function setExtraTimer() {
     const extraTimerElement = document.getElementById("extra-timer");
 
-    if (sessionInfo.Type !== "Race") {
+    if (sessionInfo.Type !== "Race" || !sessionData) {
         extraTimerElement.className = "hidden";
         return;
     }
