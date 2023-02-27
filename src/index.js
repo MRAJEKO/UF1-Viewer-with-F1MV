@@ -174,6 +174,7 @@ ipcMain.handle(
             height: 600,
             frame: false,
             backgroundColor: backgroundColor,
+            icon: path.join(__dirname, "icons/windows/color.png"),
         });
 
         newWindow.loadURL(`data:text/html;charset=utf-8,<body style="-webkit-app-region: drag;"></body>`);
@@ -270,6 +271,7 @@ ipcMain.handle("restoreLayout", async (event, layoutId, liveSessionInfo, content
                     y: window.bounds.y,
                     frame: false,
                     backgroundColor: backgroundColor,
+                    icon: path.join(__dirname, "icons/windows/color.png"),
                 });
 
                 newWindow.setContentSize(window.bounds.width, window.bounds.height, true);
