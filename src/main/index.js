@@ -32,17 +32,15 @@ async function ignore() {
 }
 
 async function setAlwaysOnTop() {
-    setInterval(async () => {
-        const config = (await ipcRenderer.invoke("get_store")).config;
-        alwaysOnTop = config.general.always_on_top;
-        alwaysOnTopPush = config.current_laps.always_on_top;
-        if (debug) {
-            console.log(alwaysOnTop);
-            console.log(alwaysOnTopPush);
-        }
-    }, 2000);
+    const config = (await ipcRenderer.invoke("get_store")).config;
+    alwaysOnTop = config.general.always_on_top;
+    alwaysOnTopPush = config.current_laps.always_on_top;
 }
+
 setAlwaysOnTop();
+setInterval(async () => {
+    await setAlwaysOnTop();
+}, 2000);
 
 async function flagDisplay() {
     await ipcRenderer.invoke(
@@ -92,6 +90,10 @@ function sessionLive() {
 }
 
 sessionLive();
+
+async function generateSolidWindow(color) {
+    await ipcRenderer.invoke("generateSolidColoredWindow", color);
+}
 
 async function trackTime() {
     await ipcRenderer.invoke(
@@ -206,7 +208,7 @@ async function tirestats() {
     await ipcRenderer.invoke(
         "window",
         "tirestats/index.html",
-        800,
+        650,
         600,
         false,
         true,
