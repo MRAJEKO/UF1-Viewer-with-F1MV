@@ -32,8 +32,6 @@ const extraTime = "01:00:00";
 async function getConfigurations() {
     const configFile = (await ipcRenderer.invoke("get_store")).config.trackinfo;
     const networkConfig = (await ipcRenderer.invoke("get_store")).config.network;
-    dynamicTextColor = configFile.dynamic_text_color;
-    const defaultBackgroundColor = configFile.default_background_color;
     const orientation = configFile.orientation;
     const styleType = orientation === "vertical" ? "w" : "h";
     const h2Elements = document.querySelectorAll("h2");
@@ -54,17 +52,6 @@ async function getConfigurations() {
 
     host = networkConfig.host;
     port = (await f1mvApi.discoverF1MVInstances(host)).port;
-    if (debug) {
-        console.log(dynamicTextColor);
-        console.log(defaultBackgroundColor);
-    }
-    if (defaultBackgroundColor === "transparent") {
-        document.getElementById("background").style.backgroundColor = "gray";
-        document.getElementById("background").className = "transparent";
-        transparent = true;
-    } else {
-        document.getElementById("background").style.backgroundColor = defaultBackgroundColor;
-    }
 }
 
 let sessionInfo;

@@ -19,7 +19,7 @@ const defaults = {
             team_radios: false,
             pitstops: true,
         },
-        trackinfo: { default_background_color: "gray", orientation: "vertical" },
+        trackinfo: { orientation: "vertical" },
         current_laps: { always_on_top: true },
         weather: { default_background_color: "gray", datapoints: "30", use_trackmap_rotation: true },
         autoswitcher: { main_window_name: "INTERNATIONAL", speedometer: true },
@@ -51,6 +51,8 @@ const defaults = {
 const store = new Store({ defaults });
 
 store.delete("config.statuses");
+
+store.delete("config.trackinfo.default_background_color");
 
 const sleep = (milliseconds) => {
     return new Promise((resolve) => setTimeout(resolve, milliseconds));
