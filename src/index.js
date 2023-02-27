@@ -177,6 +177,8 @@ ipcMain.handle(
         });
 
         newWindow.loadURL(`data:text/html;charset=utf-8,<body style="-webkit-app-region: drag;"></body>`);
+
+        newWindow.title = "Solid Color Window";
     }
 );
 
@@ -185,16 +187,25 @@ ipcMain.handle("saveLayout", async (event, layoutId) => {
 
     let formattedUf1Windows = [];
     for (const window of browserwindows) {
+        console.log(window.title);
         if (window.id === 1) continue;
-        const path = window.getURL().split("src")[1];
-        if (!path.split("/")[2].includes(".")) continue;
+
+        let path;
+        let icon;
+        if (window.title === "Solid Color Window") {
+            path = "color;" + window.getBackgroundColor();
+            icon = "color.png";
+        } else {
+            path = window.getURL().split("src")[1];
+            if (!path.split("/")[2].includes(".")) continue;
+            icon = path.split("/")[1] + ".png";
+        }
         const bounds = window.getBounds();
         const hideMenuBar = !window.isMenuBarVisible();
         const frame = !hideMenuBar;
         const transparent = true;
         const hasShadow = window.hasShadow();
         const alwaysOnTop = window.isAlwaysOnTop();
-        const icon = path.split("/")[1] + ".png";
 
         formattedUf1Windows.push({ path, bounds, hideMenuBar, frame, transparent, hasShadow, alwaysOnTop, icon });
     }
@@ -246,31 +257,52 @@ ipcMain.handle("restoreLayout", async (event, layoutId, liveSessionInfo, content
     }
 
     for (const window of layout.uf1Windows) {
-        const newWindow = new BrowserWindow({
-            autoHideMenuBar: window.hideMenuBar,
-            width: window.bounds.width,
-            height: window.bounds.height,
-            x: window.bounds.x,
-            y: window.bounds.y,
-            frame: window.frame,
-            hideMenuBar: window.hideMenuBar,
-            useContentSize: true,
-            transparent: window.transparent,
-            hasShadow: window.hasShadow,
-            alwaysOnTop: window.alwaysOnTop,
-            webPreferences: {
-                preload: path.join(__dirname, "preload.js"),
-                nodeIntegration: true,
-                contextIsolation: false,
-            },
-            icon: path.join(__dirname, "icons/windows/" + window.icon),
-        });
+        setTimeout(() => {
+            let newWindow;
 
-        newWindow.setContentSize(window.bounds.width, window.bounds.height, true);
+            if (window.path.includes("color")) {
+                const backgroundColor = window.path.split(";")[1];
 
-        newWindow.loadFile(__dirname + window.path);
+                newWindow = new BrowserWindow({
+                    width: window.bounds.width,
+                    height: window.bounds.height,
+                    x: window.bounds.x,
+                    y: window.bounds.y,
+                    frame: false,
+                    backgroundColor: backgroundColor,
+                });
 
-        await sleep(1000);
+                newWindow.setContentSize(window.bounds.width, window.bounds.height, true);
+
+                newWindow.loadURL(`data:text/html;charset=utf-8,<body style="-webkit-app-region: drag;"></body>`);
+
+                newWindow.title = "Solid Color Window";
+            } else {
+                newWindow = new BrowserWindow({
+                    autoHideMenuBar: window.hideMenuBar,
+                    width: window.bounds.width,
+                    height: window.bounds.height,
+                    x: window.bounds.x,
+                    y: window.bounds.y,
+                    frame: window.frame,
+                    hideMenuBar: window.hideMenuBar,
+                    useContentSize: true,
+                    transparent: window.transparent,
+                    hasShadow: window.hasShadow,
+                    alwaysOnTop: window.alwaysOnTop,
+                    webPreferences: {
+                        preload: path.join(__dirname, "preload.js"),
+                        nodeIntegration: true,
+                        contextIsolation: false,
+                    },
+                    icon: path.join(__dirname, "icons/windows/" + window.icon),
+                });
+
+                newWindow.setContentSize(window.bounds.width, window.bounds.height, true);
+
+                newWindow.loadFile(__dirname + window.path);
+            }
+        }, 1000);
     }
 
     const configFile = store.get("config");
