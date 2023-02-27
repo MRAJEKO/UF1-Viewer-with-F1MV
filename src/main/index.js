@@ -126,7 +126,7 @@ async function sessionLog() {
 async function trackInfo() {
     const width = (await ipcRenderer.invoke("get_store")).config.trackinfo.orientation === "horizontal" ? 900 : 250;
 
-    const height = (await ipcRenderer.invoke("get_store")).config.trackinfo.orientation === "horizontal" ? 200 : 800;
+    const height = (await ipcRenderer.invoke("get_store")).config.trackinfo.orientation === "horizontal" ? 100 : 800;
 
     await ipcRenderer.invoke(
         "window",
@@ -284,7 +284,7 @@ function openLayouts() {
 
 // Settings
 let rotated = false;
-async function settings() {
+function settings() {
     if (rotated) {
         rotated = false;
         document.getElementById("settings-icon").style.transform = "rotate(-45deg)";
@@ -296,7 +296,7 @@ async function settings() {
         document.getElementById("settings-icon").style.transform = "rotate(45deg)";
         document.getElementById("menu").className = "shown";
         document.getElementById("reset-defaults").classList.add("show");
-        setInterval(() => {
+        setTimeout(() => {
             document.getElementById("menu").className = "shown overflow";
         }, 700);
     }
@@ -363,7 +363,7 @@ async function tooltip(text, color) {
     document.getElementById("tooltip").style.backgroundColor = color;
     document.getElementById("tooltip").classList.add("show");
 
-    setInterval(() => {
+    setTimeout(() => {
         document.getElementById("tooltip").classList.remove("show");
     }, 5000);
 }
