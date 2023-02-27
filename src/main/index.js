@@ -91,6 +91,59 @@ function sessionLive() {
 
 sessionLive();
 
+let userActiveID;
+async function getUserActiveID(){
+    (await fetch("https://api.joost.systems/api/v2/uf1/analytics/active-users/getUniqueID")).json().then((data) => {
+        userActiveID = data.uniqueID;
+        userActiveHandler(true)
+    });
+}
+async function userActiveHandler(active){
+    if (active === false) {
+        await sendUserActiveData(false)
+    } else if (active === true) {
+        await sendUserActiveData(true)
+        setInterval(async function () {
+            await sendUserActiveData(true)
+        }, 15000)
+    }
+}
+
+async function sendUserActiveData(active){
+    if (active === false) {
+        const userActiveURL = "https://api.joost.systems/api/v2/uf1/analytics/active-users/post"
+        const requestBody = {
+            uniqueID: userActiveID,
+            userActive: false
+        }
+        await fetch(userActiveURL, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(requestBody)
+        });
+    } else if (active === true) {
+        const userActiveURL = "https://api.joost.systems/api/v2/uf1/analytics/active-users/post"
+        const requestBody = {
+            uniqueID: userActiveID,
+            userActive: true
+        }
+        await fetch(userActiveURL, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(requestBody)
+        })
+    }
+}
+
+getUserActiveID();
+window.addEventListener("beforeunload", async function (e) {
+    await userActiveHandler(false);
+});
+
 async function generateSolidWindow(color) {
     await ipcRenderer.invoke("generateSolidColoredWindow", color);
 }
