@@ -384,20 +384,16 @@ function setPitlane(message) {
             message.SubCategory === "PitEntry" ||
             message.SubCategory === "PitExit" ||
             message.Flag === "RED" ||
-            (message.Flag === "CLEAR" && sessionStatus === "Aborted")
+            sessionStatus === "Aborted"
         )
     )
         return;
 
     const pitExitElement = document.getElementById(`pit-exit`);
 
-    switch (message.Flag) {
-        case "RED":
-            pitExitElement.className = `${pClass} red`;
-            return;
-        case "CLEAR":
-            pitExitElement.className = `${pClass} green`;
-            return;
+    if (message.Flag === "RED") {
+        pitExitElement.className = `${pClass} red`;
+        return;
     }
 
     const type = message.SubCategory === "PitEntry" ? "entry" : "exit";
@@ -461,21 +457,19 @@ function setHeadPadding(message) {
 function setDrs(message) {
     const category = message.Category;
 
-    if (!(category === "Drs" || message.Flag === "RED")) return;
+    if (category !== "Drs") return;
 
     let status = "DISABLED";
     let color = "red";
-    if (message.Category === "Drs") {
-        switch (message.Status) {
-            case "DISABLED":
-                status = message.Status;
-                color = "red";
-                break;
-            case "ENABLED":
-                status = message.Status;
-                color = "green";
-                break;
-        }
+    switch (message.Status) {
+        case "DISABLED":
+            status = message.Status;
+            color = "red";
+            break;
+        case "ENABLED":
+            status = message.Status;
+            color = "green";
+            break;
     }
 
     const drsElement = document.getElementById("drs");
@@ -516,24 +510,19 @@ function forRaceControlMessages() {
 }
 
 // Running all the functions
-let count = 0;
 async function run() {
     await getConfigurations();
     await apiRequests();
-    while (true) {
-        await apiRequests();
-        setSession();
-        setTrackTime();
-        const timer = setSessionTimer();
-        setExtraTimer();
-        setProgress(timer);
-        forRaceControlMessages();
-        if (debug) {
-            console.log(count++);
-        }
-        await sleep(1000);
-    }
+    setSession();
+    setTrackTime();
+    const timer = setSessionTimer();
+    setExtraTimer();
+    setProgress(timer);
+    forRaceControlMessages();
 }
 
 // Running the whole screen
 run();
+setInterval(async () => {
+    await run();
+}, 500);

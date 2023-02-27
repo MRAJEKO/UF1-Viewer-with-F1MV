@@ -24,8 +24,9 @@ body {
 
 .containerh {
     padding: 3vh;
+    height: calc(100vh - 6vh);
     width: calc(100vw - 6vh);
-    border-radius: 10vh;
+    border-radius: 20vh;
 }
 
 .wrapper {
@@ -51,7 +52,6 @@ span {
 }
 
 h1 {
-    padding: 5vw;
     color: gray;
     font-size: 15vw;
 }
@@ -65,7 +65,7 @@ h2 {
 }
 
 .h2h {
-    font-size: 8vh;
+    font-size: 20vh;
 }
 
 p {
@@ -84,10 +84,10 @@ p {
 
 .ph {
     width: 100%;
-    font-size: 6vh;
-    padding: 2vh;
-    border-radius: 5vh;
-    margin-top: 2vh;
+    font-size: 15vh;
+    padding: 5vh;
+    border-radius: 15vh;
+    margin-top: 5vh;
 }
 
 .hidden {
