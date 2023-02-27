@@ -412,7 +412,8 @@ function Graph() {
                 </div>
                 <div className="wind-direction">
                     <p>
-                        {getWindDirection(windDirection)} | {windDirection}° | {windSpeed} km/h
+                        {getWindDirection(windDirection)} | {windDirection}° |{" "}
+                        {(parseFloat(windSpeed) * 3.6).toFixed(1)} km/h
                     </p>
                     <img style={{ transform: `rotate(${windDirection + rotation}deg)` }} src="./src/compass.png" />
                     <p>WIND DIRECTION</p>

@@ -103,7 +103,7 @@ body {
 }
 
 .info {
-    margin-top: 2.5vw;
+    margin-top: 2.5vh;
     height: 95vh;
     display: grid;
     grid-template-rows: 5fr 1fr 5fr;
