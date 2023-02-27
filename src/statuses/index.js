@@ -32,18 +32,9 @@ document.addEventListener("keydown", (event) => {
     }
 });
 async function getConfigurations() {
-    const configFile = (await ipcRenderer.invoke("get_store")).config.statuses;
     const networkConfig = (await ipcRenderer.invoke("get_store")).config.network;
-    const defaultBackgroundColor = configFile.default_background_color;
     host = networkConfig.host;
     port = (await f1mvApi.discoverF1MVInstances(host)).port;
-    if (defaultBackgroundColor === "transparent") {
-        document.getElementById("background").style.backgroundColor = "gray";
-        document.getElementById("background").className = "transparent";
-        transparent = true;
-    } else {
-        document.getElementById("background").style.backgroundColor = defaultBackgroundColor;
-    }
 }
 
 let sessionInfo;

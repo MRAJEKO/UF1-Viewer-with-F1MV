@@ -31,11 +31,6 @@
                 <button class="window new" onclick="newLayout()">Add new layout</button>
             </div>
             <input id="content-id-field" type="text" value="" placeholder="Load custom content ID" />
-            <!-- <div class="layout">
-                <button class="window edit" onclick="saveLayout(3)"><img src="../icons/edit.png" alt="" /></button>
-                <button class="window load" onclick="restoreLayout(3)">Add new layout</button>
-                <button class="window save" onclick="saveLayout(3)"><img src="../icons/save.png" alt="" /></button>
-            </div> -->
         </section>
         <section id="menu">
             <section class="settings-section" id="general">
@@ -152,7 +147,7 @@
                     </div>
                 </div>
             </section>
-            <section class="settings-section" id="statuses">
+            <!-- <section class="settings-section" id="statuses">
                 <h2>Sector Statuses</h2>
                 <div class="setting">
                     <p>Default background color</p>
@@ -165,7 +160,7 @@
                         </select>
                     </div>
                 </div>
-            </section>
+            </section> -->
             <section class="settings-section" id="current_laps">
                 <h2>Current Laps</h2>
                 <div class="setting">
@@ -320,13 +315,35 @@
             <img id="reset-icon" src="../icons/restore.png" alt="" />
             <p>RESTORE DEFAULT SETTINGS</p>
         </button>
-        <button id="options" class="buttons" onclick="settings()">
+        <button title="Settings" id="options" class="buttons" onclick="settings()">
             <img id="settings-icon" src="../icons/settings.png" alt="" />
         </button>
-        <div id="layout-button" class="buttons" onclick="openLayouts()">
+        <div id="solid-color-windows">
+            <div
+                title="Generate Gray Window"
+                class="solid-color-window"
+                style="background-color: gray"
+                onclick="generateSolidWindow('gray')"></div>
+            <div
+                title="Generate Dark-gray Window"
+                class="solid-color-window"
+                style="background-color: #1a1a1a"
+                onclick="generateSolidWindow('#1A1A1A')"></div>
+            <div
+                title="Generate Black Window"
+                class="solid-color-window"
+                style="background-color: black"
+                onclick="generateSolidWindow('black')"></div>
+            <div
+                title="Generate White Window"
+                class="solid-color-window"
+                style="background-color: white"
+                onclick="generateSolidWindow('white')"></div>
+        </div>
+        <div title="Layouts" id="layout-button" class="buttons" onclick="openLayouts()">
             <img id="layout-icon" src="../icons/layout.png" alt="" />
         </div>
-        <div id="connection" class="buttons">
+        <div title="Connection Status" id="connection" class="buttons">
             <img id="connection-icon" src="../icons/denied.png" alt="" />
         </div>
         <div id="tooltip" style="background-color: rgb(0, 183, 255)">
