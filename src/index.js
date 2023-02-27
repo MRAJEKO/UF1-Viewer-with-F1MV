@@ -5,7 +5,7 @@ const Store = require("electron-store");
 
 const f1mvApi = require("npm_f1mv_api");
 
-// require("electron-reload")(__dirname);
+require("electron-reload")(__dirname);
 
 const defaults = {
     config: {
@@ -157,6 +157,25 @@ ipcMain.handle("checkGoveeWindowExistence", (event) => {
 
     return false;
 });
+
+ipcMain.handle(
+    "generateSolidColoredWindow",
+    async (
+        // Get all arguments for new window
+        event,
+        backgroundColor
+    ) => {
+        // Create the new window with all arguments
+        let newWindow = new BrowserWindow({
+            width: 800,
+            height: 600,
+            frame: false,
+            backgroundColor: backgroundColor,
+        });
+
+        newWindow.loadURL(`data:text/html;charset=utf-8,<body style="-webkit-app-region: drag;"></body>`);
+    }
+);
 
 ipcMain.handle("saveLayout", async (event, layoutId) => {
     const browserwindows = BrowserWindow.getAllWindows().sort((a, b) => a.id - b.id);
