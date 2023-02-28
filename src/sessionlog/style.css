@@ -79,6 +79,7 @@ body {
 
 .double {
     grid-template-columns: 1fr 1fr;
+    place-items: initial !important;
 }
 
 .penalty {
@@ -122,7 +123,6 @@ body {
 }
 
 .left {
-    width: 100%;
     height: 100%;
     display: flex;
     flex-direction: column;
@@ -131,14 +131,25 @@ body {
     border-right: 1px solid white;
 }
 
+.highlight .type {
+    background-color: rgb(255, 255, 37);
+}
+
+.highlight * {
+    border-color: rgb(255, 255, 37) !important;
+}
+
 .right {
-    width: 100%;
     height: 100%;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    border-left: 1px solid white;
+    border-left: 0.5vw solid white;
+}
+
+.right img {
+    height: 90%;
 }
 
 .time {
@@ -149,6 +160,7 @@ body {
     grid-template-columns: 1fr 1fr;
     place-items: center;
     overflow: visible;
+    border-top: 0.5vw solid white;
 }
 
 .time p {

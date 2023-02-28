@@ -20,10 +20,10 @@ async function getConfigurations() {
     const configFile = (await ipcRenderer.invoke("get_store")).config;
     host = configFile.network.host;
     port = (await f1mvApi.discoverF1MVInstances(host)).port;
-    if (debug) {
-        console.log(host);
-        console.log(port);
-    }
+
+    highlightedDrivers = configFile.general?.highlighted_drivers?.split(",") ?? [];
+
+    console.log(highlightedDrivers);
 }
 
 // Toggle the background transparent or not
@@ -826,6 +826,10 @@ async function initiateTemplate(driverNumber, pushDrivers) {
 
     listItem.classList.add("pushlap");
     listItem.id = "n" + driverNumber;
+
+    const driverTla = driverList[driverNumber]?.Tla;
+
+    if (highlightedDrivers.includes(driverTla)) listItem.classList.add("highlight");
 
     listItem.dataset.lapNumber = currentLap;
     listItem.dataset.finished = false;
