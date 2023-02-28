@@ -139,8 +139,15 @@ body {
     align-items: center;
 }
 
-.wind-direction img {
+#compass-container {
     height: 65%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#compass {
+    height: 90%;
 }
 
 .wind-direction p {

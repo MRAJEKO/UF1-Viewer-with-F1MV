@@ -404,7 +404,7 @@ function Graph() {
                         markerColors={maxColor}
                         measureSize={0.35}
                         markerSize={0.65}
-                        minValue={925}
+                        minValue={900}
                     />
                 </div>
                 <div className={"rain " + (raining ? "red" : "blue")}>
@@ -415,7 +415,13 @@ function Graph() {
                         {getWindDirection(windDirection)} | {windDirection}° |{" "}
                         {(parseFloat(windSpeed) * 3.6).toFixed(1)} km/h
                     </p>
-                    <img style={{ transform: `rotate(${windDirection + rotation}deg)` }} src="./src/compass.png" />
+                    <div id="compass-container">
+                        <img
+                            id="compass"
+                            style={{ transform: `rotate(${windDirection + rotation}deg)` }}
+                            src="../icons/compass.png"
+                        />
+                    </div>
                     <p>WIND DIRECTION</p>
                 </div>
             </div>
