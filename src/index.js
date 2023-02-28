@@ -9,7 +9,7 @@ require("electron-reload")(__dirname);
 
 const defaults = {
     config: {
-        general: { always_on_top: true, discord_rpc: true },
+        general: { always_on_top: true, discord_rpc: true, highlighted_drivers: "" },
         network: { host: "localhost" },
         flag_display: { govee: false },
         session_log: {
@@ -48,11 +48,48 @@ const defaults = {
     },
 };
 
-const store = new Store({ defaults });
+const store = new Store({ defaults: defaults });
 
-store.delete("config.statuses");
+const configVersion = store.get("version");
 
-store.delete("config.trackinfo.default_background_color");
+if (configVersion !== app.getVersion()) {
+    const oldConfig = store.store;
+    const newConfig = {
+        version: app.getVersion(),
+        config: {
+            general: {
+                always_on_top: oldConfig.config.general.always_on_top,
+                discord_rpc: oldConfig.config.general.discord_rpc,
+                highlighted_drivers: "",
+            },
+            network: { host: oldConfig.config.network.host },
+            flag_display: { govee: oldConfig.config.flag_display.govee },
+            session_log: {
+                lapped_drivers: oldConfig.config.session_log.lapped_drivers,
+                retired_drivers: oldConfig.config.session_log.retired_drivers,
+                rain: oldConfig.config.session_log.rain,
+                team_radios: oldConfig.config.session_log.team_radios,
+                pitstops: oldConfig.config.session_log.pitstops,
+            },
+            trackinfo: { orientation: oldConfig.config.trackinfo.orientation },
+            current_laps: { always_on_top: oldConfig.config.current_laps.always_on_top },
+            weather: {
+                default_background_color: oldConfig.config.weather.default_background_color,
+                datapoints: oldConfig.config.weather.datapoints,
+                use_trackmap_rotation: oldConfig.config.weather.use_trackmap_rotation,
+            },
+            autoswitcher: {
+                main_window_name: oldConfig.config.autoswitcher.main_window_name,
+                speedometer: oldConfig.config.autoswitcher.speedometer,
+            },
+        },
+        layouts: oldConfig.layouts,
+        led_colors: oldConfig.led_colors,
+        team_icons: oldConfig.team_icons,
+    };
+    store.clear();
+    store.set(newConfig);
+}
 
 const sleep = (milliseconds) => {
     return new Promise((resolve) => setTimeout(resolve, milliseconds));
