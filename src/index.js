@@ -74,7 +74,6 @@ if (configVersion !== app.getVersion()) {
             trackinfo: { orientation: oldConfig.config.trackinfo.orientation },
             current_laps: { always_on_top: oldConfig.config.current_laps.always_on_top },
             weather: {
-                default_background_color: oldConfig.config.weather.default_background_color,
                 datapoints: oldConfig.config.weather.datapoints,
                 use_trackmap_rotation: oldConfig.config.weather.use_trackmap_rotation,
             },
