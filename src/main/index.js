@@ -515,11 +515,7 @@ async function isConnected(ignore) {
 
             if ((await f1mvApi.LiveTimingAPIGraphQL(config, "SessionInfo")) !== null) {
                 if (rpc) {
-                    try {
-                        require("./RPC.js");
-                    } catch (error) {
-                        console.log(error);
-                    }
+                    require("./RPC.js");
                 }
 
                 console.log("Connected to MultiViewer and live timing session found");
