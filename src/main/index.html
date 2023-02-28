@@ -36,7 +36,10 @@
             <section class="settings-section" id="general">
                 <h2>General</h2>
                 <div class="setting">
-                    <p>Always on top for useful windows</p>
+                    <div class="setting_info">
+                        <p>Always on top</p>
+                        <p class="info">Enable to show some windows always on top.</p>
+                    </div>
                     <div class="option">
                         <label class="switch">
                             <input id="always_on_top" type="checkbox" />
@@ -45,7 +48,10 @@
                     </div>
                 </div>
                 <div class="setting">
-                    <p>Enable Discord RPC</p>
+                    <div class="setting_info">
+                        <p>Enable Discord RPC</p>
+                        <p class="info">Enable to show that you're using MultiViewer on Discord.</p>
+                    </div>
                     <div class="option">
                         <label class="switch">
                             <input id="discord_rpc" type="checkbox" />
@@ -53,11 +59,24 @@
                         </label>
                     </div>
                 </div>
+                <div class="setting">
+                    <div class="setting_info">
+                        <p>Highlighted drivers</p>
+                        <p class="info">Comma separated list of drivers to highlight. <br>Example: VER,LEC,HAM</p>
+                    </div>
+                    <div class="option">
+                        <div class="option">
+                            <input name="highlighted_drivers" type="text" maxlength="20" id="highlighted_drivers" class="typ" />
+                        </div>
+                    </div>
             </section>
             <section class="settings-section" id="network">
                 <h2>Network</h2>
                 <div class="setting">
-                    <p>Host</p>
+                    <div class="setting_info">
+                        <p>Host</p>
+                        <p class="info">The host where the MultiViewer API is running on.</p>
+                    </div>
                     <div class="option">
                         <input name="host" type="text" maxlength="20" id="host" class="typ" />
                     </div>
@@ -67,7 +86,10 @@
             <section class="settings-section" id="flag_display">
                 <h2>Flag Display</h2>
                 <div class="setting">
-                    <p>Enable Govee lights integration</p>
+                    <div class="setting_info">
+                        <p>Enable Govee Lights Integration</p>
+                        <p class="info">Connect to your Govee lights to show the track status.</p>
+                    </div>
                     <div class="option">
                         <label class="switch">
                             <input id="govee" type="checkbox" />
@@ -79,7 +101,10 @@
             <section class="settings-section" id="session_log">
                 <h2>Session Log</h2>
                 <div class="setting">
-                    <p>Lapped Drivers</p>
+                    <div class="setting_info">
+                        <p>Lapped Drivers</p>
+                        <p class="info">Show when drivers are lapped.</p>
+                    </div>
                     <div class="option">
                         <label class="switch">
                             <input id="lapped_drivers" type="checkbox" />
@@ -88,7 +113,10 @@
                     </div>
                 </div>
                 <div class="setting">
-                    <p>Retired Drivers</p>
+                    <div class="setting_info">
+                        <p>Retired Drivers</p>
+                        <p class="info">Show when drivers are retired.</p>
+                    </div>
                     <div class="option">
                         <label class="switch">
                             <input id="retired_drivers" type="checkbox" />
@@ -97,7 +125,10 @@
                     </div>
                 </div>
                 <div class="setting">
-                    <p>Rain Status</p>
+                    <div class="setting_info">
+                        <p>Rain Status</p>
+                        <p class="info">Show when rainfall starts or stops.</p>
+                    </div>
                     <div class="option">
                         <label class="switch">
                             <input id="rain" type="checkbox" />
@@ -106,7 +137,10 @@
                     </div>
                 </div>
                 <div class="setting">
-                    <p>Team Radio's</p>
+                    <div class="setting_info">
+                        <p>Team Radio's</p>
+                        <p class="info">Show when new team radio's are available.</p>
+                    </div>
                     <div class="option">
                         <label class="switch">
                             <input id="team_radios" type="checkbox" />
@@ -115,7 +149,10 @@
                     </div>
                 </div>
                 <div class="setting">
-                    <p>Pitstops</p>
+                    <div class="setting_info">
+                        <p>Pitstops</p>
+                        <p class="info">Show when drivers have completed a pitstop.</p>
+                    </div>
                     <div class="option">
                         <label class="switch">
                             <input id="pitstops" type="checkbox" />
@@ -127,7 +164,10 @@
             <section class="settings-section" id="trackinfo">
                 <h2>Track Information</h2>
                 <div class="setting">
-                    <p>Orientation</p>
+                    <div class="setting_info">
+                        <p>Orientation</p>
+                        <p class="info">Toggle the window between horizontal and vertical orientation.</p>
+                    </div>
                     <div class="option">
                         <select class="selector" id="orientation">
                             <option value="vertical">Vertical</option>
@@ -139,7 +179,10 @@
             <section class="settings-section" id="current_laps">
                 <h2>Current Laps</h2>
                 <div class="setting">
-                    <p>Set window always on top</p>
+                    <div class="setting_info">
+                        <p>Set always on top</p>
+                        <p class="info">Put this window always on top.</p>
+                    </div>
                     <div class="option">
                         <label class="switch">
                             <input id="always_on_top" type="checkbox" />
@@ -151,24 +194,19 @@
             <section class="settings-section" id="weather">
                 <h2>Weather Information</h2>
                 <div class="setting">
-                    <p>Default background color</p>
-                    <div class="option">
-                        <select class="selector" id="default_background_color">
-                            <option value="gray">Gray</option>
-                            <option value="transparent">Transparent</option>
-                            <option value="black">Black</option>
-                            <option value="white">White</option>
-                        </select>
+                    <div class="setting_info">
+                        <p>Default datapoints</p>
+                        <p class="info">The amount of default datapoints that are shown.</p>
                     </div>
-                </div>
-                <div class="setting">
-                    <p>Amount of data points</p>
                     <div class="option">
                         <input name="datapoints" type="text" maxlength="2" id="datapoints" class="typ" />
                     </div>
                 </div>
                 <div class="setting">
-                    <p>Change rotation according to track map rotation</p>
+                    <div class="setting_info">
+                        <p>Relative wind direction</p>
+                        <p class="info">Show the wind direction relative to the track map rotation.</p>
+                    </div>
                     <div class="option">
                         <label class="switch">
                             <input id="use_trackmap_rotation" type="checkbox" />
@@ -180,7 +218,10 @@
             <section class="settings-section" id="autoswitcher">
                 <h2>Auto Switcher</h2>
                 <div class="setting">
-                    <p>Default stream</p>
+                    <div class="setting_info">
+                        <p>Default Stream</p>
+                        <p class="info">The default stream that all OBC's will be synced to.</p>
+                    </div>
                     <div class="option">
                         <select class="selector" id="main_window_name">
                             <option value="INTERNATIONAL">International</option>
@@ -190,7 +231,10 @@
                     </div>
                 </div>
                 <div class="setting">
-                    <p>Always enable speedometer</p>
+                    <div class="setting_info">
+                        <p>Speedometer</p>
+                        <p class="info">Always enable the speedometer on the OBC's</p>
+                    </div>
                     <div class="option">
                         <label class="switch">
                             <input id="speedometer" type="checkbox" />
