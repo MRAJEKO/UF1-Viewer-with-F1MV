@@ -85,8 +85,8 @@ let category;
 let running = false;
 
 async function getConfigurations() {
-    const configFile = (await ipcRenderer.invoke("get_store")).config.network;
-    const host = configFile.host;
+    const configFile = (await ipcRenderer.invoke("get_store")).config;
+    const host = configFile.network.host;
     const port = (await f1mvApi.discoverF1MVInstances(host)).port;
     config = {
         host: host,
@@ -132,12 +132,48 @@ run();
 
 async function showMessage(raceControlMessage) {
     const category = raceControlMessage.SubCategory ? raceControlMessage.SubCategory : raceControlMessage.Category;
-    const message = raceControlMessage.Message;
+    const message = await (async () => {
+        let formattedMessage = raceControlMessage.Message;
+
+        const messageArray = formattedMessage.split(" ");
+
+        console.log(formattedMessage);
+
+        formattedMessage = formattedMessage.replace("DELETED", '<span class="red">DELETED</span>');
+        formattedMessage = formattedMessage.replace("PENALTY", '<span class="red">PENALTY</span>');
+        formattedMessage = formattedMessage.replace("WARNING", '<span class="orange">WARNING</span>');
+        formattedMessage = formattedMessage.replace("INCIDENT", '<span class="orange">INCIDENT</span>');
+
+        formattedMessage = formattedMessage.replace("OPEN", '<span class="green">OPEN</span>');
+        formattedMessage = formattedMessage.replace("CLOSED", '<span class="red">CLOSED</span>');
+
+        formattedMessage = formattedMessage.replace("ENABLED", '<span class="green">ENABLED</span>');
+        formattedMessage = formattedMessage.replace("DISABLED", '<span class="red">DISABLED</span>');
+
+        const driverList = (await f1mvApi.LiveTimingAPIGraphQL(config, "DriverList")).DriverList;
+        for (const driver in driverList) {
+            const driverTla = driverList[driver].Tla;
+            if (formattedMessage.includes(`(${driverTla})`)) {
+                const messageDriverIndex = messageArray.indexOf(`(${driverTla})`);
+                const driverNumber = messageArray[messageDriverIndex - 1];
+
+                formattedMessage = formattedMessage.replace(
+                    `${driverNumber} (${driverTla})`,
+                    `<span style="color: #${driverList[driverNumber].TeamColour}">${driverNumber} (${driverTla})</span>`
+                );
+
+                console.log(formattedMessage);
+            }
+        }
+
+        return formattedMessage;
+    })();
+
     const image = getImage(raceControlMessage, category);
     const path = "../icons/" + image;
 
     icon.src = path;
-    text.textContent = message;
+    text.innerHTML = message;
 
     bar.className = "shown";
 

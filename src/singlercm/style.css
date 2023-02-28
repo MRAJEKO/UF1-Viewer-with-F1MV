@@ -51,12 +51,24 @@ h1 {
     justify-content: center;
 }
 
+.red {
+    color: rgb(207, 0, 0);
+}
+
+.orange {
+    color: rgb(255, 165, 0);
+}
+
+.green {
+    color: rgb(0, 207, 0);
+}
+
 .logo {
     width: 60px;
 }
 
 #icon {
-    width: 60px;
+    width: 50px;
 }
 
 .shown {
