@@ -70,6 +70,7 @@ if (configVersion !== app.getVersion()) {
                 rain: oldConfig.config.session_log.rain,
                 team_radios: oldConfig.config.session_log.team_radios,
                 pitstops: oldConfig.config.session_log.pitstops,
+                practice_starts: true,
             },
             trackinfo: { orientation: oldConfig.config.trackinfo.orientation },
             current_laps: { always_on_top: oldConfig.config.current_laps.always_on_top },
