@@ -3,7 +3,6 @@ const { ipcRenderer } = require("electron");
 const debug = false;
 
 const f1mvApi = require("npm_f1mv_api");
-const { get } = require("request");
 
 // Set sleep
 const sleep = (milliseconds) => {
@@ -88,6 +87,9 @@ async function getConfigurations() {
     const configFile = (await ipcRenderer.invoke("get_store")).config;
     const host = configFile.network.host;
     const port = (await f1mvApi.discoverF1MVInstances(host)).port;
+
+    displayLength = parseInt(configFile.singlercm?.display_duration) ?? 10000;
+
     config = {
         host: host,
         port: port,
@@ -177,7 +179,9 @@ async function showMessage(raceControlMessage) {
 
     bar.className = "shown";
 
-    await sleep(10000);
+    console.log(displayLength);
+
+    await sleep(displayLength);
 
     bar.className = "hidden";
 
