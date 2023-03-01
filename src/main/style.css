@@ -125,10 +125,10 @@ body {
 }
 
 .disabled {
-    background-color: #e8040462;
-    color: #ffffff54;
-    box-shadow: 0 0 #000000;
-    transform: translate(0, 0);
+    background-color: #e8040462 !important;
+    color: #ffffff54 !important;
+    box-shadow: 0 0 #000000 !important;
+    transform: translate(0, 0) !important;
 }
 
 .disabled:hover {

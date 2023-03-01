@@ -58,15 +58,40 @@ async function flagDisplay() {
 }
 
 let liveSession = false;
+let multiViewerConnected = false;
 function livetiming() {
     if (liveSession) {
-        location = "multiviewer://app/live-timing";
+        if (multiViewerConnected) {
+            location = "multiviewer://app/live-timing";
+        } else {
+            if (navigator.appVersion.includes("Win") || navigator.appVersion.includes("Mac")) {
+                location = "muvi://";
+
+                const interval = setInterval(() => {
+                    if (multiViewerConnected) {
+                        location = "multiviewer://app/live-timing";
+                        clearInterval(interval);
+                    }
+                }, 500);
+            } else {
+                location = "multiviewer://app/live-timing";
+            }
+        }
     }
 }
 
 function livetimingButton() {
-    if (liveSession) document.getElementById("livetiming-button").classList.remove("disabled");
-    else document.getElementById("livetiming-button").classList.add("disabled");
+    if (liveSession) {
+        const liveTimingButtons = document.getElementsByClassName("livetiming");
+        for (const button of liveTimingButtons) {
+            button.classList.remove("disabled");
+        }
+    } else {
+        const liveTimingButtons = document.getElementsByClassName("livetiming");
+        for (const button of liveTimingButtons) {
+            button.classList.add("disabled");
+        }
+    }
 }
 
 let liveSessionInfo = null;
@@ -86,7 +111,7 @@ function sessionLive() {
     checkApi();
     setInterval(async () => {
         await checkApi();
-    }, 30000);
+    }, 15000);
 }
 
 sessionLive();
@@ -507,6 +532,8 @@ async function isConnected(ignore) {
         const host = configFile.network.host;
         try {
             const port = (await f1mvApi.discoverF1MVInstances(host)).port;
+
+            multiViewerConnected = true;
 
             document.getElementById("mv-connection").textContent = "Connected to MultiViewer";
             document.getElementById("mv-connection").className = "green";

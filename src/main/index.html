@@ -22,6 +22,7 @@
                 <button onclick="ignore()" class="link">
                     <h2>Continue either way</h2>
                 </button>
+                <button class="livetiming link disabled" onclick="livetiming()">Live Timing</button>
             </div>
         </section>
         <section id="layout" class="layouts">
@@ -64,9 +65,9 @@
                         <p>Highlighted drivers</p>
                         <p class="info">Comma separated list of drivers to highlight. <br>Example: VER,LEC,HAM</p>
                     </div>
-                    <div class="option">
+                    <div style="width: 200px;" class="option">
                         <div class="option">
-                            <input name="highlighted_drivers" type="text" maxlength="20" id="highlighted_drivers" class="typ" />
+                            <input style="width: 200px;" name="highlighted_drivers" type="text" maxlength="100" id="highlighted_drivers" class="typ" />
                         </div>
                     </div>
             </section>
@@ -326,7 +327,7 @@
         <section id="windows" class="windows">
             <h1>Ultimate Formula 1 Viewer</h1>
             <button class="window" onclick="launchMVF1()">MultiViewer</button>
-            <button id="livetiming-button" class="window disabled" onclick="livetiming()">Live Timing</button>
+            <button class=" livetiming window disabled" onclick="livetiming()">Live Timing</button>
             <button class="window" onclick="flagDisplay()">Flag Display</button>
             <button class="window" onclick="trackTime()">Delayed Track Time</button>
             <button class="window" onclick="sessionLog()">Session Log</button>

@@ -289,11 +289,6 @@ ipcMain.handle("restoreLayout", async (event, layoutId, liveSessionInfo, content
 
     const layout = layoutConfig[layoutId];
 
-    if (liveSessionInfo.liveSessionFound) {
-        location = "multiviewer://app/livetiming";
-        await sleep(5000);
-    }
-
     for (const window of layout.uf1Windows) {
         setTimeout(() => {
             let newWindow;
