@@ -4,9 +4,6 @@ const f1mvApi = require("npm_f1mv_api");
 
 const { ipcRenderer } = require("electron");
 
-// Top 6 drivers
-const vipDrivers = ["VER", "LEC", "PER", "HAM", "SAI", "RUS"];
-
 // Set sleep
 const sleep = (milliseconds) => {
     return new Promise((resolve) => setTimeout(resolve, milliseconds));
@@ -52,6 +49,8 @@ async function getConfigurations() {
     const networkConfig = configFile.network;
     mainWindowName = configFile.autoswitcher.main_window_name;
     enableSpeedometer = configFile.autoswitcher.speedometer;
+
+    highlightedDrivers = configFile.general?.highlighted_drivers?.split(",") ?? [];
 
     host = networkConfig.host;
     port = (await f1mvApi.discoverF1MVInstances(host)).port;
@@ -179,7 +178,7 @@ function isDriverOnPushLap(driverNumber) {
         return false;
 
     const driverTimingData = timingData[driverNumber];
-    const driverBestTimes = bestTimes[driverNumber];
+    const driverBestTimes = timingStats[driverNumber];
 
     console.log(driverNumber, driverTimingData.NumberOfLaps);
 
@@ -280,8 +279,12 @@ function tertiaryDriver(racingNumber) {
     const driverIntervalAhead = driverTimingData.IntervalToPositionAhead;
 
     const driverCarData = carData[0].Cars[racingNumber];
+
     if (sessionType !== "Race") {
         // If the session is a Practice or Qualifying session
+
+        console.log(driverTimingData);
+
         if (driverTimingData.InPit && driverCarData.Channels[0] <= 5) return true;
 
         return false;
@@ -409,7 +412,13 @@ function overwriteCrashedStatus(racingNumber) {
 
 function driverIsImportant(driverNumber) {
     const driverTimingData = timingData[driverNumber];
-    if (driverTimingData.InPit && sessionStatus === "Started" && !driverTimingData.Retired && !driverTimingData.Stopped)
+    if (
+        driverTimingData.InPit &&
+        sessionType === "Race" &&
+        sessionStatus === "Started" &&
+        !driverTimingData.Retired &&
+        !driverTimingData.Stopped
+    )
         return true;
 
     const driverCarData = getCarData(driverNumber);
@@ -458,7 +467,7 @@ async function setPriorities() {
         prioList.length === 0
     ) {
         prioList = [];
-        for (const vip of vipDrivers) {
+        for (const vip of highlightedDrivers) {
             for (const driver in driverList) {
                 const driverTla = driverList[driver].Tla;
 
@@ -501,7 +510,11 @@ async function setPriorities() {
         }
     }
 
+    console.log(mvpDrivers);
+    console.log(primaryDrivers);
+    console.log(secondaryDrivers);
     console.log(tertiaryDrivers);
+    console.log(hiddenDrivers);
 
     const newList = [...mvpDrivers, ...primaryDrivers, ...secondaryDrivers, ...tertiaryDrivers, ...hiddenDrivers];
 
