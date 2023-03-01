@@ -2,8 +2,6 @@ const debug = false;
 
 // The duration of the sector times being show when completing a sector
 // (All times are in MS)
-const holdSectorTimeDuration = 4000;
-const holdEndOfLapDuration = 4000;
 const loopspeed = 80;
 
 const f1mvApi = require("npm_f1mv_api");
@@ -23,7 +21,8 @@ async function getConfigurations() {
 
     highlightedDrivers = configFile.general?.highlighted_drivers?.split(",") ?? [];
 
-    console.log(highlightedDrivers);
+    holdSectorTimeDuration = parseInt(configFile.current_laps?.sector_display_duration) ?? 4000;
+    holdEndOfLapDuration = parseInt(configFile.current_laps?.end_display_duration) ?? 4000;
 }
 
 // Toggle the background transparent or not

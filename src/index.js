@@ -21,7 +21,7 @@ const defaults = {
         },
         trackinfo: { orientation: "vertical" },
         singlercm: { display_duration: "10000" },
-        current_laps: { always_on_top: true },
+        current_laps: { always_on_top: true, sector_display_duration: "4000", end_display_duration: "4000" },
         weather: { default_background_color: "gray", datapoints: "30", use_trackmap_rotation: true },
         autoswitcher: { main_window_name: "INTERNATIONAL", speedometer: true },
     },
@@ -59,6 +59,8 @@ const store = new Store({
             store.set("config.general.highlighted_drivers", "");
             store.set("config.session_log.practice_starts", true);
             store.set("config.singlercm.display_duration", "10000");
+            store.set("config.current_laps.sector_display_duration", "4000");
+            store.set("config.current_laps.end_display_duration", "4000");
         },
     },
 

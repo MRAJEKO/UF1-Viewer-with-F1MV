@@ -63,13 +63,20 @@
                 <div class="setting">
                     <div class="setting_info">
                         <p>Highlighted drivers</p>
-                        <p class="info">Comma separated list of drivers to highlight. <br>Example: VER,LEC,HAM</p>
+                        <p class="info">Comma separated list of drivers to highlight. <br />Example: VER,LEC,HAM</p>
                     </div>
-                    <div style="width: 200px;" class="option">
+                    <div style="width: 200px" class="option">
                         <div class="option">
-                            <input style="width: 200px;" name="highlighted_drivers" type="text" maxlength="100" id="highlighted_drivers" class="typ" />
+                            <input
+                                style="width: 200px"
+                                name="highlighted_drivers"
+                                type="text"
+                                maxlength="100"
+                                id="highlighted_drivers"
+                                class="typ" />
                         </div>
                     </div>
+                </div>
             </section>
             <section class="settings-section" id="network">
                 <h2>Network</h2>
@@ -194,7 +201,10 @@
                 <div class="setting">
                     <div class="setting_info">
                         <p>Display Duration</p>
-                        <p class="info">Set the duration of how long the message will stay shown (in milliseconds).</p>
+                        <p class="info">
+                            Set the duration of how long the message will stay <br />
+                            shown (in milliseconds).
+                        </p>
                     </div>
                     <div class="option">
                         <input name="display_duration" type="text" maxlength="5" id="display_duration" class="typ" />
@@ -213,6 +223,40 @@
                             <input id="always_on_top" type="checkbox" />
                             <span class="slider round"></span>
                         </label>
+                    </div>
+                </div>
+                <div class="setting">
+                    <div class="setting_info">
+                        <p>Sector Display Duration</p>
+                        <p class="info">
+                            Set the duration of how long the sector time will stay <br />
+                            shown before it continues counting (in milliseconds).
+                        </p>
+                    </div>
+                    <div class="option">
+                        <input
+                            name="sector_display_duration"
+                            type="text"
+                            maxlength="5"
+                            id="sector_display_duration"
+                            class="typ" />
+                    </div>
+                </div>
+                <div class="setting">
+                    <div class="setting_info">
+                        <p>End Display Duration</p>
+                        <p class="info">
+                            Set the duration of how long the graphic will stay <br />
+                            shown before it disappears (in milliseconds).
+                        </p>
+                    </div>
+                    <div class="option">
+                        <input
+                            name="end_display_duration"
+                            type="text"
+                            maxlength="5"
+                            id="end_display_duration"
+                            class="typ" />
                     </div>
                 </div>
             </section>
@@ -339,7 +383,7 @@
         <section id="windows" class="windows">
             <h1>Ultimate Formula 1 Viewer</h1>
             <button class="window" onclick="launchMVF1()">MultiViewer</button>
-            <button class=" livetiming window disabled" onclick="livetiming()">Live Timing</button>
+            <button class="livetiming window disabled" onclick="livetiming()">Live Timing</button>
             <button class="window" onclick="flagDisplay()">Flag Display</button>
             <button class="window" onclick="trackTime()">Delayed Track Time</button>
             <button class="window" onclick="sessionLog()">Session Log</button>
