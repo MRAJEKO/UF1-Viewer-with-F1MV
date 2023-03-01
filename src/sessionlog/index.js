@@ -37,6 +37,7 @@ async function getConfigurations() {
     showTeamRadios = logConfig.team_radios;
     showPitstops = logConfig.pitstops;
     showPracticeStarts = logConfig.practice_starts;
+    showFinished = logConfig.finished;
 
     const configHighlightedDrivers = configFile.general?.highlighted_drivers?.split(",");
 
@@ -433,6 +434,7 @@ async function addWeatherLog(time, lap, count) {
 }
 
 let oldPitlane = {};
+let allDriversInPitlane = false;
 async function addPitlaneLog(time, lap, count) {
     for (const driver in timingData) {
         const driverTimingData = timingData[driver];
@@ -443,6 +445,8 @@ async function addPitlaneLog(time, lap, count) {
 
         oldPitlane[driver] = driverTimingData.InPit;
 
+        if (!driverTimingData.InPit) allDriversInPitlane = false;
+
         if (count === 0) continue;
 
         const message = driverTimingData.InPit ? "Pit In" : "Pit Out";
@@ -450,6 +454,16 @@ async function addPitlaneLog(time, lap, count) {
         const color = driverTimingData.InPit ? "red" : "green";
 
         await addLog(driver, "driver", "Pitlane", message, color, time, lap);
+    }
+
+    const driverCount = Object.keys(timingData).length;
+
+    const pitCount = Object.values(timingData).filter((driver) => driver.InPit).length;
+
+    if (driverCount === pitCount && !allDriversInPitlane) {
+        allDriversInPitlane = true;
+
+        await addLog(null, "single", "Pitlane", "All Drivers In Pit", "red", time, lap);
     }
 }
 
@@ -610,6 +624,50 @@ async function addPitstopLog(time, lap, count) {
     }
 }
 
+let finishedDrivers = [];
+let finishedDriverLaps = {};
+let sessionEnded = false;
+let allDriversFinished = false;
+async function addFinishedLog(time, lap, count) {
+    if (["Finished", "Finalised"].includes(sessionStatus)) {
+        if (!sessionEnded) {
+            sessionEnded = true;
+
+            for (const driver in timingData) {
+                const driverTimingData = timingData[driver];
+                finishedDriverLaps[driver] = driverTimingData.NumberOfLaps;
+            }
+        }
+    } else {
+        sessionEnded = false;
+        return;
+    }
+
+    console.log(sessionEnded);
+
+    for (const driver in timingData) {
+        const driverTimingData = timingData[driver];
+
+        if (finishedDriverLaps[driver] === driverTimingData.NumberOfLaps) continue;
+
+        if (finishedDrivers.includes(driver)) continue;
+
+        finishedDrivers.push(driver);
+
+        if (count === 0) continue;
+
+        await addLog(driver, "driver", "Finished", "Finished", "white", time, lap);
+    }
+
+    const driverCount = Object.keys(timingData).length;
+
+    if (finishedDrivers.length === driverCount && !allDriversFinished) {
+        allDriversFinished = true;
+
+        await addLog(null, "single", "Finished", "All Drivers Finished", "white", time, lap);
+    }
+}
+
 let oldRaceControlMessages = [];
 async function addRaceControlMessageLogs(time, lap, count) {
     for (const raceControlMessage of raceControlMessages) {
@@ -746,6 +804,9 @@ async function run() {
         await apiRequests();
         const time = getLogTime();
         const lap = sessionType === "Race" ? `LAP ${lapCount.CurrentLap}` : "";
+
+        const segmentsAvailable = timingData[Object.keys(timingData)[0]]?.Sectors[0].Segments ? true : false;
+
         await addSessionStatusLog(time, lap, count);
         await addTrackStatusLog(time, lap, count);
         if (sessionType === "Race") await addLapCountLog(time, lap, count);
@@ -756,6 +817,7 @@ async function run() {
         if (showTeamRadios && teamRadio) await addNewBoardRadioLog(time, lap, count);
         if (showPracticeStarts && carData && sessionType === "Practice") await addPracticeStarts(time, lap, count);
         await addFastestLapLog(time, lap, count);
+        if (showFinished && segmentsAvailable) await addFinishedLog(time, lap, count);
         if (sessionType === "Race" && showPitstops && pitLaneTimeCollection) await addPitstopLog(time, lap, count);
         await addRaceControlMessageLogs(time, lap, count);
         await removeLogs();

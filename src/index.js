@@ -58,6 +58,7 @@ const store = new Store({
 
             store.set("config.general.highlighted_drivers", "");
             store.set("config.session_log.practice_starts", true);
+            store.set("config.session_log.finished", true);
             store.set("config.singlercm.display_duration", "10000");
             store.set("config.current_laps.sector_display_duration", "4000");
             store.set("config.current_laps.end_display_duration", "4000");
