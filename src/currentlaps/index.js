@@ -19,7 +19,9 @@ async function getConfigurations() {
     host = configFile.network.host;
     port = (await f1mvApi.discoverF1MVInstances(host)).port;
 
-    highlightedDrivers = configFile.general?.highlighted_drivers?.split(",") ?? [];
+    const configHighlightedDrivers = configFile.general?.highlighted_drivers?.split(",");
+
+    highlightedDrivers = configHighlightedDrivers[0] ? configHighlightedDrivers : [];
 
     holdSectorTimeDuration = parseInt(configFile.current_laps?.sector_display_duration) ?? 4000;
     holdEndOfLapDuration = parseInt(configFile.current_laps?.end_display_duration) ?? 4000;

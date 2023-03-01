@@ -37,7 +37,11 @@ async function getConfigurations() {
     showTeamRadios = logConfig.team_radios;
     showPitstops = logConfig.pitstops;
     showPracticeStarts = logConfig.practice_starts;
-    highlightedDrivers = configFile.general?.highlighted_drivers?.split(",") ?? [];
+
+    const configHighlightedDrivers = configFile.general?.highlighted_drivers?.split(",");
+
+    highlightedDrivers = configHighlightedDrivers[0] ? configHighlightedDrivers : [];
+
     config = {
         host: host,
         port: port,
