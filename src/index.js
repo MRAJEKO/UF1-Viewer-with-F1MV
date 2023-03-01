@@ -20,6 +20,7 @@ const defaults = {
             pitstops: true,
         },
         trackinfo: { orientation: "vertical" },
+        singlercm: { display_duration: "10000" },
         current_laps: { always_on_top: true },
         weather: { default_background_color: "gray", datapoints: "30", use_trackmap_rotation: true },
         autoswitcher: { main_window_name: "INTERNATIONAL", speedometer: true },
@@ -48,48 +49,21 @@ const defaults = {
     },
 };
 
-const store = new Store({ defaults: defaults });
+const store = new Store({
+    migrations: {
+        "1.4.4": (store) => {
+            store.delete("config.trackinfo.default_background_color");
+            store.delete("config.statuses");
+            store.delete("config.weather.default_background_color");
 
-const configVersion = store.get("version");
-
-if (configVersion !== app.getVersion()) {
-    const oldConfig = store.store;
-    const newConfig = {
-        version: app.getVersion(),
-        config: {
-            general: {
-                always_on_top: oldConfig.config.general.always_on_top,
-                discord_rpc: oldConfig.config.general.discord_rpc,
-                highlighted_drivers: "",
-            },
-            network: { host: oldConfig.config.network.host },
-            flag_display: { govee: oldConfig.config.flag_display.govee },
-            session_log: {
-                lapped_drivers: oldConfig.config.session_log.lapped_drivers,
-                retired_drivers: oldConfig.config.session_log.retired_drivers,
-                rain: oldConfig.config.session_log.rain,
-                team_radios: oldConfig.config.session_log.team_radios,
-                pitstops: oldConfig.config.session_log.pitstops,
-                practice_starts: true,
-            },
-            trackinfo: { orientation: oldConfig.config.trackinfo.orientation },
-            current_laps: { always_on_top: oldConfig.config.current_laps.always_on_top },
-            weather: {
-                datapoints: oldConfig.config.weather.datapoints,
-                use_trackmap_rotation: oldConfig.config.weather.use_trackmap_rotation,
-            },
-            autoswitcher: {
-                main_window_name: oldConfig.config.autoswitcher.main_window_name,
-                speedometer: oldConfig.config.autoswitcher.speedometer,
-            },
+            store.set("config.general.highlighted_drivers", "");
+            store.set("config.session_log.practice_starts", true);
+            store.set("config.singlercm.display_duration", "10000");
         },
-        layouts: oldConfig.layouts,
-        led_colors: oldConfig.led_colors,
-        team_icons: oldConfig.team_icons,
-    };
-    store.clear();
-    store.set(newConfig);
-}
+    },
+
+    defaults: defaults,
+});
 
 const sleep = (milliseconds) => {
     return new Promise((resolve) => setTimeout(resolve, milliseconds));
