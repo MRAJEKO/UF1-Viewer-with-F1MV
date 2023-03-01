@@ -466,6 +466,13 @@ async function setPriorities() {
 
     // If the session is not a race or the lap that the priolist is set is not equal to the current racing lap or the priolist is empty
     // Create a new list using the vip drivers and all other drivers in timing data (sorted on racing number)
+
+    fixedDrivers = fixedDrivers.map((driver) => {
+        for (const driverNumber in driverList) {
+            if (driverList[driverNumber].Tla === driver) return driverNumber;
+        }
+    });
+
     if (
         sessionType !== "Race" ||
         sessionStatus === "Finished" ||
@@ -507,7 +514,7 @@ async function setPriorities() {
     let hiddenDrivers = [];
 
     for (const driverNumber of prioList) {
-        if (fixedDrivers.includes(driverList[driverNumber].Tla)) continue;
+        if (fixedDrivers.includes(driverNumber)) continue;
 
         if (mvpDriver(driverNumber)) mvpDrivers.push(driverNumber);
         else if (hiddenDriver(driverNumber)) hiddenDrivers.push(driverNumber);
@@ -526,12 +533,6 @@ async function setPriorities() {
     console.log(secondaryDrivers);
     console.log(tertiaryDrivers);
     console.log(hiddenDrivers);
-
-    fixedDrivers = fixedDrivers.map((driver) => {
-        for (const driverNumber in driverList) {
-            if (driverList[driverNumber].Tla === driver) return driverNumber;
-        }
-    });
 
     const newList = [
         ...fixedDrivers,
