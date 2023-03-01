@@ -61,6 +61,7 @@ const store = new Store({
             store.set("config.singlercm.display_duration", "10000");
             store.set("config.current_laps.sector_display_duration", "4000");
             store.set("config.current_laps.end_display_duration", "4000");
+            store.set("config.autoswitcher.fixed_drivers", "");
         },
     },
 

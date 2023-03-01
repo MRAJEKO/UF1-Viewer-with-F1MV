@@ -50,7 +50,13 @@ async function getConfigurations() {
     mainWindowName = configFile.autoswitcher.main_window_name;
     enableSpeedometer = configFile.autoswitcher.speedometer;
 
-    highlightedDrivers = configFile.general?.highlighted_drivers?.split(",") ?? [];
+    const configHighlightedDrivers = configFile.general?.highlighted_drivers?.split(",");
+
+    highlightedDrivers = configHighlightedDrivers[0] ? configHighlightedDrivers : [];
+
+    const configFixedDrivers = configFile.autoswitcher?.fixed_drivers?.split(",");
+
+    fixedDrivers = configFixedDrivers[0] ? configFixedDrivers : [];
 
     host = networkConfig.host;
     port = (await f1mvApi.discoverF1MVInstances(host)).port;
@@ -485,6 +491,7 @@ async function setPriorities() {
         for (position = 1; position <= Object.values(timingData).length; position++) {
             for (const driver in timingData) {
                 const driverTimingData = timingData[driver];
+
                 console.log(driver, driverTimingData.Position, position);
                 if (parseInt(driverTimingData.Position) === parseInt(position) && !prioList.includes(driver))
                     prioList.push(driver);
@@ -498,7 +505,10 @@ async function setPriorities() {
     let secondaryDrivers = [];
     let tertiaryDrivers = [];
     let hiddenDrivers = [];
+
     for (const driverNumber of prioList) {
+        if (fixedDrivers.includes(driverList[driverNumber].Tla)) continue;
+
         if (mvpDriver(driverNumber)) mvpDrivers.push(driverNumber);
         else if (hiddenDriver(driverNumber)) hiddenDrivers.push(driverNumber);
         else if (tertiaryDriver(driverNumber)) tertiaryDrivers.push(driverNumber);
@@ -510,13 +520,27 @@ async function setPriorities() {
         }
     }
 
+    console.log(fixedDrivers);
     console.log(mvpDrivers);
     console.log(primaryDrivers);
     console.log(secondaryDrivers);
     console.log(tertiaryDrivers);
     console.log(hiddenDrivers);
 
-    const newList = [...mvpDrivers, ...primaryDrivers, ...secondaryDrivers, ...tertiaryDrivers, ...hiddenDrivers];
+    fixedDrivers = fixedDrivers.map((driver) => {
+        for (const driverNumber in driverList) {
+            if (driverList[driverNumber].Tla === driver) return driverNumber;
+        }
+    });
+
+    const newList = [
+        ...fixedDrivers,
+        ...mvpDrivers,
+        ...primaryDrivers,
+        ...secondaryDrivers,
+        ...tertiaryDrivers,
+        ...hiddenDrivers,
+    ];
 
     if (sessionType === "Race") {
         prioLog.lap = lapCount.CurrentLap;
