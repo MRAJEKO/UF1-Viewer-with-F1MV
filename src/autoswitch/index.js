@@ -469,9 +469,17 @@ async function setPriorities() {
 
     fixedDrivers = fixedDrivers.map((driver) => {
         for (const driverNumber in driverList) {
-            if (driverList[driverNumber].Tla === driver) return driverNumber;
+            if (driverList[driverNumber].Tla === driver) {
+                const driverTimingData = timingData[driverNumber];
+
+                if (!driverTimingData.Retired && !driverTimingData.Stopped) return driverNumber;
+            }
         }
     });
+
+    if (!fixedDrivers[0]) fixedDrivers = [];
+
+    console.log(fixedDrivers);
 
     if (
         sessionType !== "Race" ||
