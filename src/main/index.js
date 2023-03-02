@@ -97,15 +97,17 @@ function livetimingButton() {
 let liveSessionInfo = null;
 function sessionLive() {
     async function checkApi() {
-        const response = await (await fetch("https://api.joost.systems/api/v2/f1tv/live-session")).json();
+        try {
+            const response = await (await fetch("https://api.joost.systems/api/v2/f1tv/live-session")).json();
 
-        console.log(response);
+            liveSession = response.liveSessionFound && response.sessionInfo?.Series === "FORMULA 1";
 
-        liveSession = response.liveSessionFound;
+            liveSessionInfo = response;
 
-        liveSessionInfo = response;
-
-        livetimingButton();
+            livetimingButton();
+        } catch (error) {
+            console.log(error);
+        }
     }
 
     checkApi();
