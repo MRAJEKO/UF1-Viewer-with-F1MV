@@ -2,8 +2,6 @@ const debug = false;
 
 // The duration of the sector times being show when completing a sector
 // (All times are in MS)
-const holdSectorTimeDuration = 4000;
-const holdEndOfLapDuration = 4000;
 const loopspeed = 80;
 
 const f1mvApi = require("npm_f1mv_api");
@@ -20,10 +18,13 @@ async function getConfigurations() {
     const configFile = (await ipcRenderer.invoke("get_store")).config;
     host = configFile.network.host;
     port = (await f1mvApi.discoverF1MVInstances(host)).port;
-    if (debug) {
-        console.log(host);
-        console.log(port);
-    }
+
+    const configHighlightedDrivers = configFile.general?.highlighted_drivers?.split(",");
+
+    highlightedDrivers = configHighlightedDrivers[0] ? configHighlightedDrivers : [];
+
+    holdSectorTimeDuration = parseInt(configFile.current_laps?.sector_display_duration) ?? 4000;
+    holdEndOfLapDuration = parseInt(configFile.current_laps?.end_display_duration) ?? 4000;
 }
 
 // Toggle the background transparent or not
@@ -826,6 +827,10 @@ async function initiateTemplate(driverNumber, pushDrivers) {
 
     listItem.classList.add("pushlap");
     listItem.id = "n" + driverNumber;
+
+    const driverTla = driverList[driverNumber]?.Tla;
+
+    if (highlightedDrivers.includes(driverTla)) listItem.classList.add("highlight");
 
     listItem.dataset.lapNumber = currentLap;
     listItem.dataset.finished = false;

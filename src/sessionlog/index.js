@@ -36,6 +36,13 @@ async function getConfigurations() {
     showRain = logConfig.rain;
     showTeamRadios = logConfig.team_radios;
     showPitstops = logConfig.pitstops;
+    showPracticeStarts = logConfig.practice_starts;
+    showFinished = logConfig.finished;
+
+    const configHighlightedDrivers = configFile.general?.highlighted_drivers?.split(",");
+
+    highlightedDrivers = configHighlightedDrivers[0] ? configHighlightedDrivers : [];
+
     config = {
         host: host,
         port: port,
@@ -44,6 +51,7 @@ async function getConfigurations() {
 
 async function apiRequests() {
     const api = await f1mvApi.LiveTimingAPIGraphQL(config, [
+        "CarData",
         "DriverList",
         "ExtrapolatedClock",
         "LapCount",
@@ -60,6 +68,7 @@ async function apiRequests() {
         "WeatherData",
     ]);
     console.log(api);
+    carData = api.CarData?.Entries[0].Cars;
     driverList = api.DriverList;
     extrapolatedClock = api.ExtrapolatedClock;
     lapCount = api.LapCount;
@@ -167,14 +176,44 @@ async function addLog(driverNumber, type, category, message, color, time, lap) {
     const logs = document.getElementById("logs");
 
     let newLog = `<div class="log"><div class="type"><p>${category}</p></div><div class="status ${color}"><p>${message}</p></div><div class="time"><p>${time}</p><p>${lap}</p></div></div>`;
+
+    const driverInfo = driverList[driverNumber];
+
+    const teamColor = driverInfo?.TeamColour;
+    const firstName = driverInfo?.FirstName;
+    const lastName = driverInfo?.LastName;
+
     switch (type) {
+        case "flag": {
+            newLog = `<div class="log">
+            <div class="type">
+                <p>${category}</p>
+            </div>
+            <div class="status double">
+                <div
+                    class="left"
+                    style="
+                        background: linear-gradient(
+                            to bottom,
+                            transparent 0%,
+                            #${teamColor}BF 100%
+                        );
+                    ">
+                    <p class="driver-first-name">${firstName}</p>
+                    <p class="driver-last-name">${lastName}</p>
+                </div>
+                <div class="right ${color}">
+                    <img src="../icons/flags/${message}">
+                </div>
+            </div>
+            <div class="time">
+                <p>${time}</p>
+                <p>${lap}</p>
+            </div>
+        </div>`;
+            break;
+        }
         case "driver": {
-            const driverInfo = driverList[driverNumber];
-
-            const teamColor = driverInfo.TeamColour;
-            const firstName = driverInfo.FirstName;
-            const lastName = driverInfo.LastName;
-
             newLog = `<div class="log">
             <div class="type">
                 <p>${category}</p>
@@ -224,12 +263,6 @@ async function addLog(driverNumber, type, category, message, color, time, lap) {
             break;
         }
         case "doubleTeamColor": {
-            const driverInfo = driverList[driverNumber];
-
-            const teamColor = driverInfo.TeamColour;
-            const firstName = driverInfo.FirstName;
-            const lastName = driverInfo.LastName;
-
             newLog = `<div class="log">
             <div class="type">
                 <p>${category}</p>
@@ -239,12 +272,6 @@ async function addLog(driverNumber, type, category, message, color, time, lap) {
             break;
         }
         case "fastestlap": {
-            const driverInfo = driverList[driverNumber];
-
-            const teamColor = driverInfo.TeamColour;
-            const firstName = driverInfo.FirstName;
-            const lastName = driverInfo.LastName;
-
             newLog = `<div class="log">
             <div class="type">
                 <p>${category}</p>
@@ -254,24 +281,10 @@ async function addLog(driverNumber, type, category, message, color, time, lap) {
             break;
         }
         case "penalty": {
-            const driverInfo = driverList[driverNumber];
-
-            const teamColor = driverInfo.TeamColour;
-            const firstName = driverInfo.FirstName;
-            const lastName = driverInfo.LastName;
-
             newLog = `<div class="log"><div class="type"><p>${category}</p></div><div class="status double"><div class="left"style="background: linear-gradient(to bottom,transparent 0%,#${teamColor}BF 100%);"><p class="driver-first-name">${firstName}</p><p class="driver-last-name">${lastName}</p></div><div class="right ${color}"><p>${message[0]}</p><p class="small-text">${message[1]}</p></div></div><div class="time"><p>${time}</p><p>${lap}</p></div></div>`;
             break;
         }
         case "pitstop": {
-            const driverInfo = driverList[driverNumber];
-
-            const teamColor = driverInfo.TeamColour;
-            const firstName = driverInfo.FirstName;
-            const lastName = driverInfo.LastName;
-
-            console.log(message[3]);
-
             newLog = `<div class="log">
             <div class="type">
                 <p>${category}</p>
@@ -303,12 +316,11 @@ async function addLog(driverNumber, type, category, message, color, time, lap) {
         }
     }
 
-    if (driverNumber) {
-    }
-
     const newWrapper = document.createElement("div");
     newWrapper.classList.add("wrapper");
     newWrapper.innerHTML = newLog;
+
+    if (highlightedDrivers.includes(driverList[driverNumber]?.Tla)) newWrapper.classList.add("highlight");
 
     logs.appendChild(newWrapper);
 
@@ -422,6 +434,7 @@ async function addWeatherLog(time, lap, count) {
 }
 
 let oldPitlane = {};
+let allDriversInPitlane = false;
 async function addPitlaneLog(time, lap, count) {
     for (const driver in timingData) {
         const driverTimingData = timingData[driver];
@@ -432,6 +445,8 @@ async function addPitlaneLog(time, lap, count) {
 
         oldPitlane[driver] = driverTimingData.InPit;
 
+        if (!driverTimingData.InPit) allDriversInPitlane = false;
+
         if (count === 0) continue;
 
         const message = driverTimingData.InPit ? "Pit In" : "Pit Out";
@@ -439,6 +454,16 @@ async function addPitlaneLog(time, lap, count) {
         const color = driverTimingData.InPit ? "red" : "green";
 
         await addLog(driver, "driver", "Pitlane", message, color, time, lap);
+    }
+
+    const driverCount = Object.keys(timingData).length;
+
+    const pitCount = Object.values(timingData).filter((driver) => driver.InPit).length;
+
+    if (driverCount === pitCount && !allDriversInPitlane) {
+        allDriversInPitlane = true;
+
+        await addLog(null, "single", "Pitlane", "All Drivers In Pit", "red", time, lap);
     }
 }
 
@@ -505,6 +530,28 @@ async function addNewBoardRadioLog(time, lap, count) {
         const message = "New Radio";
 
         await addLog(radio.RacingNumber, "doubleTeamColor", "Team Radio's", message, "", time, lap);
+    }
+}
+
+let practiceStartDrivers = [];
+async function addPracticeStarts(time, lap, count) {
+    for (const driver in carData) {
+        const driverCarSpeed = carData[driver].Channels[2];
+
+        const driverTimingData = timingData[driver];
+
+        if (driverCarSpeed === 0 && driverTimingData?.PitOut) {
+            if (practiceStartDrivers.indexOf(driver) > -1) continue;
+
+            practiceStartDrivers.push(driver);
+        } else {
+            if (practiceStartDrivers.indexOf(driver) > -1) {
+                practiceStartDrivers.splice(practiceStartDrivers.indexOf(driver), 1);
+            }
+            continue;
+        }
+
+        await addLog(driver, "driver", "Practice Start", "Practice Start", "green", time, lap);
     }
 }
 
@@ -577,6 +624,50 @@ async function addPitstopLog(time, lap, count) {
     }
 }
 
+let finishedDrivers = [];
+let finishedDriverLaps = {};
+let sessionEnded = false;
+let allDriversFinished = false;
+async function addFinishedLog(time, lap, count) {
+    if (["Finished", "Finalised"].includes(sessionStatus)) {
+        if (!sessionEnded) {
+            sessionEnded = true;
+
+            for (const driver in timingData) {
+                const driverTimingData = timingData[driver];
+                finishedDriverLaps[driver] = driverTimingData.NumberOfLaps;
+            }
+        }
+    } else {
+        sessionEnded = false;
+        return;
+    }
+
+    console.log(sessionEnded);
+
+    for (const driver in timingData) {
+        const driverTimingData = timingData[driver];
+
+        if (finishedDriverLaps[driver] === driverTimingData.NumberOfLaps) continue;
+
+        if (finishedDrivers.includes(driver)) continue;
+
+        finishedDrivers.push(driver);
+
+        if (count === 0) continue;
+
+        await addLog(driver, "driver", "Finished", "Finished", "white", time, lap);
+    }
+
+    const driverCount = Object.keys(timingData).length;
+
+    if (finishedDrivers.length === driverCount && !allDriversFinished) {
+        allDriversFinished = true;
+
+        await addLog(null, "single", "Finished", "All Drivers Finished", "white", time, lap);
+    }
+}
+
 let oldRaceControlMessages = [];
 async function addRaceControlMessageLogs(time, lap, count) {
     for (const raceControlMessage of raceControlMessages) {
@@ -591,6 +682,14 @@ async function addRaceControlMessageLogs(time, lap, count) {
         const category = raceControlMessage.SubCategory ? raceControlMessage.SubCategory : raceControlMessage.Category;
 
         switch (category) {
+            case "Flag": {
+                if (raceControlMessage.Flag === "BLACK AND ORANGE") {
+                    const driver = raceControlMessage.Message.match(/\d+/)[0];
+
+                    await addLog(driver, "flag", "Penalty", "flag_blackandorange.png", "orange", time, lap);
+                }
+                break;
+            }
             case "LapTimeDeleted": {
                 const driver = raceControlMessage.Message.match(/\d+/)[0];
 
@@ -636,7 +735,6 @@ async function addRaceControlMessageLogs(time, lap, count) {
                 await addLog(null, "double", "Pitlane", ["Pit Entry", message], ["blue", color], time, lap);
                 break;
             }
-
             case "PitExit": {
                 let message = "Open";
                 let color = "green";
@@ -658,6 +756,20 @@ async function addRaceControlMessageLogs(time, lap, count) {
                 }
 
                 await addLog(null, "double", "Track Information", ["DRS", message], ["green", color], time, lap);
+                break;
+            }
+            case "LowGripConditions": {
+                let message = "Low Grip Conditions";
+                let color = "orange";
+
+                await addLog(null, "single", "Track Status", message, color, time, lap);
+                break;
+            }
+            case "NormalGripConditions": {
+                let message = "Normal Grip Conditions";
+                let color = "green";
+
+                await addLog(null, "single", "Track Status", message, color, time, lap);
                 break;
             }
         }
@@ -692,6 +804,9 @@ async function run() {
         await apiRequests();
         const time = getLogTime();
         const lap = sessionType === "Race" ? `LAP ${lapCount.CurrentLap}` : "";
+
+        const segmentsAvailable = timingData[Object.keys(timingData)[0]]?.Sectors[0].Segments ? true : false;
+
         await addSessionStatusLog(time, lap, count);
         await addTrackStatusLog(time, lap, count);
         if (sessionType === "Race") await addLapCountLog(time, lap, count);
@@ -700,7 +815,9 @@ async function run() {
         if (showRetiredDrivers) await addRetirementLog(time, lap, count);
         if (sessionType === "Race" && showLappedDrivers) await addLappedLog(time, lap, count);
         if (showTeamRadios && teamRadio) await addNewBoardRadioLog(time, lap, count);
+        if (showPracticeStarts && carData && sessionType === "Practice") await addPracticeStarts(time, lap, count);
         await addFastestLapLog(time, lap, count);
+        if (showFinished && segmentsAvailable) await addFinishedLog(time, lap, count);
         if (sessionType === "Race" && showPitstops && pitLaneTimeCollection) await addPitstopLog(time, lap, count);
         await addRaceControlMessageLogs(time, lap, count);
         await removeLogs();

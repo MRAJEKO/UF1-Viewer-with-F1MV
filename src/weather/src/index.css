@@ -103,7 +103,7 @@ body {
 }
 
 .info {
-    margin-top: 2.5vw;
+    margin-top: 2.5vh;
     height: 95vh;
     display: grid;
     grid-template-rows: 5fr 1fr 5fr;
@@ -139,8 +139,15 @@ body {
     align-items: center;
 }
 
-.wind-direction img {
+#compass-container {
     height: 65%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#compass {
+    height: 90%;
 }
 
 .wind-direction p {

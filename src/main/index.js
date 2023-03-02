@@ -5,10 +5,6 @@ const debug = false;
 
 const f1mvApi = require("npm_f1mv_api");
 
-const sleep = (milliseconds) => {
-    return new Promise((resolve) => setTimeout(resolve, milliseconds));
-};
-
 async function getConfigurations(host, port, file) {
     config = {
         host: host,
@@ -36,18 +32,15 @@ async function ignore() {
 }
 
 async function setAlwaysOnTop() {
-    while (true) {
-        const config = (await ipcRenderer.invoke("get_store")).config;
-        alwaysOnTop = config.general.always_on_top;
-        alwaysOnTopPush = config.current_laps.always_on_top;
-        if (debug) {
-            console.log(alwaysOnTop);
-            console.log(alwaysOnTopPush);
-        }
-        await sleep(2000);
-    }
+    const config = (await ipcRenderer.invoke("get_store")).config;
+    alwaysOnTop = config.general.always_on_top;
+    alwaysOnTopPush = config.current_laps.always_on_top;
 }
+
 setAlwaysOnTop();
+setInterval(async () => {
+    await setAlwaysOnTop();
+}, 2000);
 
 async function flagDisplay() {
     await ipcRenderer.invoke(
@@ -65,33 +58,122 @@ async function flagDisplay() {
 }
 
 let liveSession = false;
+let multiViewerConnected = false;
 function livetiming() {
     if (liveSession) {
-        location = "multiviewer://app/livetiming";
+        if (multiViewerConnected) {
+            location = "multiviewer://app/live-timing";
+        } else {
+            if (navigator.appVersion.includes("Win") || navigator.appVersion.includes("Mac")) {
+                location = "muvi://";
+
+                const interval = setInterval(() => {
+                    if (multiViewerConnected) {
+                        location = "multiviewer://app/live-timing";
+                        clearInterval(interval);
+                    }
+                }, 500);
+            } else {
+                location = "multiviewer://app/live-timing";
+            }
+        }
     }
 }
 
 function livetimingButton() {
-    if (liveSession) document.getElementById("livetiming-button").classList.remove("disabled");
-    else document.getElementById("livetiming-button").classList.add("disabled");
-}
-
-let liveSessionInfo = null;
-async function sessionLive() {
-    while (true) {
-        const response = await (await fetch("https://api.joost.systems/api/v2/f1tv/live-session")).json();
-
-        liveSession = response.liveSessionFound;
-
-        liveSessionInfo = response;
-
-        livetimingButton();
-
-        await sleep(60000);
+    if (liveSession) {
+        const liveTimingButtons = document.getElementsByClassName("livetiming");
+        for (const button of liveTimingButtons) {
+            button.classList.remove("disabled");
+        }
+    } else {
+        const liveTimingButtons = document.getElementsByClassName("livetiming");
+        for (const button of liveTimingButtons) {
+            button.classList.add("disabled");
+        }
     }
 }
 
+let liveSessionInfo = null;
+function sessionLive() {
+    async function checkApi() {
+        try {
+            const response = await (await fetch("https://api.joost.systems/api/v2/f1tv/live-session")).json();
+
+            liveSession = response.liveSessionFound && response.sessionInfo?.Series === "FORMULA 1";
+
+            liveSessionInfo = response;
+
+            livetimingButton();
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    checkApi();
+    setInterval(async () => {
+        await checkApi();
+    }, 15000);
+}
+
 sessionLive();
+
+let userActiveID;
+async function getUserActiveID() {
+    (await fetch("https://api.joost.systems/api/v2/uf1/analytics/active-users/getUniqueID")).json().then((data) => {
+        userActiveID = data.uniqueID;
+        userActiveHandler(true);
+    });
+}
+async function userActiveHandler(active) {
+    if (active === false) {
+        await sendUserActiveData(false);
+    } else if (active === true) {
+        await sendUserActiveData(true);
+        setInterval(async function () {
+            await sendUserActiveData(true);
+        }, 15000);
+    }
+}
+
+async function sendUserActiveData(active) {
+    if (active === false) {
+        const userActiveURL = "https://api.joost.systems/api/v2/uf1/analytics/active-users/post";
+        const requestBody = {
+            uniqueID: userActiveID,
+            userActive: false,
+        };
+        await fetch(userActiveURL, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(requestBody),
+        });
+    } else if (active === true) {
+        const userActiveURL = "https://api.joost.systems/api/v2/uf1/analytics/active-users/post";
+        const requestBody = {
+            uniqueID: userActiveID,
+            userActive: true,
+        };
+        await fetch(userActiveURL, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(requestBody),
+        });
+    }
+}
+
+getUserActiveID();
+window.addEventListener("beforeunload", async function (e) {
+    await userActiveHandler(false);
+});
+
+async function generateSolidWindow(color) {
+    await ipcRenderer.invoke("generateSolidColoredWindow", color);
+}
 
 async function trackTime() {
     await ipcRenderer.invoke(
@@ -126,7 +208,7 @@ async function sessionLog() {
 async function trackInfo() {
     const width = (await ipcRenderer.invoke("get_store")).config.trackinfo.orientation === "horizontal" ? 900 : 250;
 
-    const height = (await ipcRenderer.invoke("get_store")).config.trackinfo.orientation === "horizontal" ? 200 : 800;
+    const height = (await ipcRenderer.invoke("get_store")).config.trackinfo.orientation === "horizontal" ? 100 : 800;
 
     await ipcRenderer.invoke(
         "window",
@@ -206,7 +288,7 @@ async function tirestats() {
     await ipcRenderer.invoke(
         "window",
         "tirestats/index.html",
-        800,
+        650,
         600,
         false,
         true,
@@ -284,7 +366,7 @@ function openLayouts() {
 
 // Settings
 let rotated = false;
-async function settings() {
+function settings() {
     if (rotated) {
         rotated = false;
         document.getElementById("settings-icon").style.transform = "rotate(-45deg)";
@@ -296,8 +378,9 @@ async function settings() {
         document.getElementById("settings-icon").style.transform = "rotate(45deg)";
         document.getElementById("menu").className = "shown";
         document.getElementById("reset-defaults").classList.add("show");
-        await sleep(700);
-        document.getElementById("menu").className = "shown overflow";
+        setTimeout(() => {
+            document.getElementById("menu").className = "shown overflow";
+        }, 700);
     }
 }
 
@@ -362,9 +445,9 @@ async function tooltip(text, color) {
     document.getElementById("tooltip").style.backgroundColor = color;
     document.getElementById("tooltip").classList.add("show");
 
-    await sleep(5000);
-
-    document.getElementById("tooltip").classList.remove("show");
+    setTimeout(() => {
+        document.getElementById("tooltip").classList.remove("show");
+    }, 5000);
 }
 
 function popup(value, id) {
@@ -441,45 +524,45 @@ async function newLayout() {
 
 // Link MV
 async function isConnected(ignore) {
-    if (ignore) {
-        document.getElementById("connect").className = "animation";
-        return;
-    }
-    const configFile = (await ipcRenderer.invoke("get_store")).config;
-
-    const host = configFile.network.host;
-    try {
-        const port = (await f1mvApi.discoverF1MVInstances(host)).port;
-
-        document.getElementById("mv-connection").textContent = "Connected to MultiViewer";
-        document.getElementById("mv-connection").className = "green";
-
-        await getConfigurations(host, port, configFile);
-
-        if ((await f1mvApi.LiveTimingAPIGraphQL(config, "SessionInfo")) !== null) {
-            if (rpc) {
-                require("./RPC.js");
-            }
-
-            console.log("Connected to MultiViewer and live timing session found");
-
-            document.getElementById("timing-connection").textContent = "Connected to Live Timing";
-            document.getElementById("timing-connection").className = "green";
-
+    const loopId = setInterval(async () => {
+        if (ignore) {
             document.getElementById("connect").className = "animation";
-            document.getElementById("connection-icon").src = "../icons/checkmark.png";
-        } else {
-            console.log("No live timing session found");
-
-            await sleep(500);
-            isConnected();
+            return;
         }
-    } catch (error) {
-        console.log("No MultiViewer instance found");
+        const configFile = (await ipcRenderer.invoke("get_store")).config;
 
-        await sleep(500);
-        isConnected();
-    }
+        const host = configFile.network.host;
+        try {
+            const port = (await f1mvApi.discoverF1MVInstances(host)).port;
+
+            multiViewerConnected = true;
+
+            document.getElementById("mv-connection").textContent = "Connected to MultiViewer";
+            document.getElementById("mv-connection").className = "green";
+
+            await getConfigurations(host, port, configFile);
+
+            if ((await f1mvApi.LiveTimingAPIGraphQL(config, "SessionInfo")) !== null) {
+                if (rpc) {
+                    require("./RPC.js");
+                }
+
+                console.log("Connected to MultiViewer and live timing session found");
+
+                document.getElementById("timing-connection").textContent = "Connected to Live Timing";
+                document.getElementById("timing-connection").className = "green";
+
+                document.getElementById("connect").className = "animation";
+                document.getElementById("connection-icon").src = "../icons/checkmark.png";
+
+                clearInterval(loopId);
+            } else {
+                console.log("No live timing session found");
+            }
+        } catch (error) {
+            console.log("No MultiViewer instance found");
+        }
+    }, 500);
 }
 
 isConnected();

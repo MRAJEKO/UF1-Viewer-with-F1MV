@@ -33,7 +33,7 @@ export const modifyData = (data) => {
         trackTempCoords.push(trackTempCoord);
 
         const windSpeed = serie.Weather.WindSpeed;
-        const windSpeedCoord = { x: `${hours}:${minutes}`, y: windSpeed };
+        const windSpeedCoord = { x: `${hours}:${minutes}`, y: parseFloat(windSpeed) * 3.6 };
         windSpeedCoords.push(windSpeedCoord);
     }
 

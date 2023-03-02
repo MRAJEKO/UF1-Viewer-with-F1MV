@@ -5,11 +5,11 @@ const Store = require("electron-store");
 
 const f1mvApi = require("npm_f1mv_api");
 
-// require("electron-reload")(__dirname);
+require("electron-reload")(__dirname);
 
 const defaults = {
     config: {
-        general: { always_on_top: true, discord_rpc: true },
+        general: { always_on_top: true, discord_rpc: true, highlighted_drivers: "" },
         network: { host: "localhost" },
         flag_display: { govee: false },
         session_log: {
@@ -19,9 +19,9 @@ const defaults = {
             team_radios: false,
             pitstops: true,
         },
-        trackinfo: { default_background_color: "gray", orientation: "vertical" },
-        statuses: { default_background_color: "gray" },
-        current_laps: { always_on_top: true },
+        trackinfo: { orientation: "vertical" },
+        singlercm: { display_duration: "10000" },
+        current_laps: { always_on_top: true, sector_display_duration: "4000", end_display_duration: "4000" },
         weather: { default_background_color: "gray", datapoints: "30", use_trackmap_rotation: true },
         autoswitcher: { main_window_name: "INTERNATIONAL", speedometer: true },
     },
@@ -49,7 +49,25 @@ const defaults = {
     },
 };
 
-const store = new Store({ defaults });
+const store = new Store({
+    migrations: {
+        "1.4.4": (store) => {
+            store.delete("config.trackinfo.default_background_color");
+            store.delete("config.statuses");
+            store.delete("config.weather.default_background_color");
+
+            store.set("config.general.highlighted_drivers", "");
+            store.set("config.session_log.practice_starts", true);
+            store.set("config.session_log.finished", true);
+            store.set("config.singlercm.display_duration", "10000");
+            store.set("config.current_laps.sector_display_duration", "4000");
+            store.set("config.current_laps.end_display_duration", "4000");
+            store.set("config.autoswitcher.fixed_drivers", "");
+        },
+    },
+
+    defaults: defaults,
+});
 
 const sleep = (milliseconds) => {
     return new Promise((resolve) => setTimeout(resolve, milliseconds));
@@ -158,21 +176,52 @@ ipcMain.handle("checkGoveeWindowExistence", (event) => {
     return false;
 });
 
+ipcMain.handle(
+    "generateSolidColoredWindow",
+    async (
+        // Get all arguments for new window
+        event,
+        backgroundColor
+    ) => {
+        // Create the new window with all arguments
+        let newWindow = new BrowserWindow({
+            width: 800,
+            height: 600,
+            frame: false,
+            backgroundColor: backgroundColor,
+            icon: path.join(__dirname, "icons/windows/color.png"),
+        });
+
+        newWindow.loadURL(`data:text/html;charset=utf-8,<body style="-webkit-app-region: drag;"></body>`);
+
+        newWindow.title = "Solid Color Window";
+    }
+);
+
 ipcMain.handle("saveLayout", async (event, layoutId) => {
     const browserwindows = BrowserWindow.getAllWindows().sort((a, b) => a.id - b.id);
 
     let formattedUf1Windows = [];
     for (const window of browserwindows) {
+        console.log(window.title);
         if (window.id === 1) continue;
-        const path = window.getURL().split("src")[1];
-        if (!path.split("/")[2].includes(".")) continue;
+
+        let path;
+        let icon;
+        if (window.title === "Solid Color Window") {
+            path = "color;" + window.getBackgroundColor();
+            icon = "color.png";
+        } else {
+            path = window.getURL().split("src")[1];
+            if (!path.split("/")[2].includes(".")) continue;
+            icon = path.split("/")[1] + ".png";
+        }
         const bounds = window.getBounds();
         const hideMenuBar = !window.isMenuBarVisible();
         const frame = !hideMenuBar;
         const transparent = true;
         const hasShadow = window.hasShadow();
         const alwaysOnTop = window.isAlwaysOnTop();
-        const icon = path.split("/")[1] + ".png";
 
         formattedUf1Windows.push({ path, bounds, hideMenuBar, frame, transparent, hasShadow, alwaysOnTop, icon });
     }
@@ -218,37 +267,54 @@ ipcMain.handle("restoreLayout", async (event, layoutId, liveSessionInfo, content
 
     const layout = layoutConfig[layoutId];
 
-    if (liveSessionInfo.liveSessionFound) {
-        location = "multiviewer://app/livetiming";
-        await sleep(5000);
-    }
-
     for (const window of layout.uf1Windows) {
-        const newWindow = new BrowserWindow({
-            autoHideMenuBar: window.hideMenuBar,
-            width: window.bounds.width,
-            height: window.bounds.height,
-            x: window.bounds.x,
-            y: window.bounds.y,
-            frame: window.frame,
-            hideMenuBar: window.hideMenuBar,
-            useContentSize: true,
-            transparent: window.transparent,
-            hasShadow: window.hasShadow,
-            alwaysOnTop: window.alwaysOnTop,
-            webPreferences: {
-                preload: path.join(__dirname, "preload.js"),
-                nodeIntegration: true,
-                contextIsolation: false,
-            },
-            icon: path.join(__dirname, "icons/windows/" + window.icon),
-        });
+        setTimeout(() => {
+            let newWindow;
 
-        newWindow.setContentSize(window.bounds.width, window.bounds.height, true);
+            if (window.path.includes("color")) {
+                const backgroundColor = window.path.split(";")[1];
 
-        newWindow.loadFile(__dirname + window.path);
+                newWindow = new BrowserWindow({
+                    width: window.bounds.width,
+                    height: window.bounds.height,
+                    x: window.bounds.x,
+                    y: window.bounds.y,
+                    frame: false,
+                    backgroundColor: backgroundColor,
+                    icon: path.join(__dirname, "icons/windows/color.png"),
+                });
 
-        await sleep(1000);
+                newWindow.setContentSize(window.bounds.width, window.bounds.height, true);
+
+                newWindow.loadURL(`data:text/html;charset=utf-8,<body style="-webkit-app-region: drag;"></body>`);
+
+                newWindow.title = "Solid Color Window";
+            } else {
+                newWindow = new BrowserWindow({
+                    autoHideMenuBar: window.hideMenuBar,
+                    width: window.bounds.width,
+                    height: window.bounds.height,
+                    x: window.bounds.x,
+                    y: window.bounds.y,
+                    frame: window.frame,
+                    hideMenuBar: window.hideMenuBar,
+                    useContentSize: true,
+                    transparent: window.transparent,
+                    hasShadow: window.hasShadow,
+                    alwaysOnTop: window.alwaysOnTop,
+                    webPreferences: {
+                        preload: path.join(__dirname, "preload.js"),
+                        nodeIntegration: true,
+                        contextIsolation: false,
+                    },
+                    icon: path.join(__dirname, "icons/windows/" + window.icon),
+                });
+
+                newWindow.setContentSize(window.bounds.width, window.bounds.height, true);
+
+                newWindow.loadFile(__dirname + window.path);
+            }
+        }, 1000);
     }
 
     const configFile = store.get("config");

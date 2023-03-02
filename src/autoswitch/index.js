@@ -4,9 +4,6 @@ const f1mvApi = require("npm_f1mv_api");
 
 const { ipcRenderer } = require("electron");
 
-// Top 6 drivers
-const vipDrivers = ["VER", "LEC", "PER", "HAM", "SAI", "RUS"];
-
 // Set sleep
 const sleep = (milliseconds) => {
     return new Promise((resolve) => setTimeout(resolve, milliseconds));
@@ -52,6 +49,14 @@ async function getConfigurations() {
     const networkConfig = configFile.network;
     mainWindowName = configFile.autoswitcher.main_window_name;
     enableSpeedometer = configFile.autoswitcher.speedometer;
+
+    const configHighlightedDrivers = configFile.general?.highlighted_drivers?.split(",");
+
+    highlightedDrivers = configHighlightedDrivers[0] ? configHighlightedDrivers : [];
+
+    const configFixedDrivers = configFile.autoswitcher?.fixed_drivers?.split(",");
+
+    fixedDrivers = configFixedDrivers[0] ? configFixedDrivers : [];
 
     host = networkConfig.host;
     port = (await f1mvApi.discoverF1MVInstances(host)).port;
@@ -179,7 +184,7 @@ function isDriverOnPushLap(driverNumber) {
         return false;
 
     const driverTimingData = timingData[driverNumber];
-    const driverBestTimes = bestTimes[driverNumber];
+    const driverBestTimes = timingStats[driverNumber];
 
     console.log(driverNumber, driverTimingData.NumberOfLaps);
 
@@ -280,8 +285,12 @@ function tertiaryDriver(racingNumber) {
     const driverIntervalAhead = driverTimingData.IntervalToPositionAhead;
 
     const driverCarData = carData[0].Cars[racingNumber];
+
     if (sessionType !== "Race") {
         // If the session is a Practice or Qualifying session
+
+        console.log(driverTimingData);
+
         if (driverTimingData.InPit && driverCarData.Channels[0] <= 5) return true;
 
         return false;
@@ -297,10 +306,10 @@ function tertiaryDriver(racingNumber) {
 
     if (sessionType === "Race") {
         const numberOfLaps = driverIntervalAhead.Value.includes("L")
-            ? driverIntervalAhead.Value.split(" ")[0] + driverTimingData.NumberOfLaps
+            ? parseInt(driverIntervalAhead.Value.split(" ")[0]) + driverTimingData.NumberOfLaps
             : driverTimingData.NumberOfLaps;
         console.log(racingNumber, numberOfLaps, lapCount.CurrentLap);
-        if (sessionStatus === "Finished" && numberOfLaps === lapCount.CurrentLap) return true;
+        if (["Finished", "Finalised"].includes(sessionStatus) && numberOfLaps === lapCount.CurrentLap) return true;
     }
 
     return false;
@@ -409,7 +418,13 @@ function overwriteCrashedStatus(racingNumber) {
 
 function driverIsImportant(driverNumber) {
     const driverTimingData = timingData[driverNumber];
-    if (driverTimingData.InPit && sessionStatus === "Started" && !driverTimingData.Retired && !driverTimingData.Stopped)
+    if (
+        driverTimingData.InPit &&
+        sessionType === "Race" &&
+        sessionStatus === "Started" &&
+        !driverTimingData.Retired &&
+        !driverTimingData.Stopped
+    )
         return true;
 
     const driverCarData = getCarData(driverNumber);
@@ -451,6 +466,21 @@ async function setPriorities() {
 
     // If the session is not a race or the lap that the priolist is set is not equal to the current racing lap or the priolist is empty
     // Create a new list using the vip drivers and all other drivers in timing data (sorted on racing number)
+
+    fixedDrivers = fixedDrivers.map((driver) => {
+        for (const driverNumber in driverList) {
+            if (driverList[driverNumber].Tla === driver) {
+                const driverTimingData = timingData[driverNumber];
+
+                if (!driverTimingData.Retired && !driverTimingData.Stopped) return driverNumber;
+            }
+        }
+    });
+
+    if (!fixedDrivers[0]) fixedDrivers = [];
+
+    console.log(fixedDrivers);
+
     if (
         sessionType !== "Race" ||
         sessionStatus === "Finished" ||
@@ -458,7 +488,7 @@ async function setPriorities() {
         prioList.length === 0
     ) {
         prioList = [];
-        for (const vip of vipDrivers) {
+        for (const vip of highlightedDrivers) {
             for (const driver in driverList) {
                 const driverTla = driverList[driver].Tla;
 
@@ -476,6 +506,7 @@ async function setPriorities() {
         for (position = 1; position <= Object.values(timingData).length; position++) {
             for (const driver in timingData) {
                 const driverTimingData = timingData[driver];
+
                 console.log(driver, driverTimingData.Position, position);
                 if (parseInt(driverTimingData.Position) === parseInt(position) && !prioList.includes(driver))
                     prioList.push(driver);
@@ -489,7 +520,10 @@ async function setPriorities() {
     let secondaryDrivers = [];
     let tertiaryDrivers = [];
     let hiddenDrivers = [];
+
     for (const driverNumber of prioList) {
+        if (fixedDrivers.includes(driverNumber)) continue;
+
         if (mvpDriver(driverNumber)) mvpDrivers.push(driverNumber);
         else if (hiddenDriver(driverNumber)) hiddenDrivers.push(driverNumber);
         else if (tertiaryDriver(driverNumber)) tertiaryDrivers.push(driverNumber);
@@ -501,9 +535,21 @@ async function setPriorities() {
         }
     }
 
+    console.log(fixedDrivers);
+    console.log(mvpDrivers);
+    console.log(primaryDrivers);
+    console.log(secondaryDrivers);
     console.log(tertiaryDrivers);
+    console.log(hiddenDrivers);
 
-    const newList = [...mvpDrivers, ...primaryDrivers, ...secondaryDrivers, ...tertiaryDrivers, ...hiddenDrivers];
+    const newList = [
+        ...fixedDrivers,
+        ...mvpDrivers,
+        ...primaryDrivers,
+        ...secondaryDrivers,
+        ...tertiaryDrivers,
+        ...hiddenDrivers,
+    ];
 
     if (sessionType === "Race") {
         prioLog.lap = lapCount.CurrentLap;

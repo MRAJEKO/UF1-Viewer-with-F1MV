@@ -4,10 +4,6 @@ const { ipcRenderer } = require("electron");
 
 const f1mvApi = require("npm_f1mv_api");
 
-const sleep = (milliseconds) => {
-    return new Promise((resolve) => setTimeout(resolve, milliseconds));
-};
-
 let transparent = false;
 function toggleBackground() {
     if (transparent) {
@@ -32,8 +28,6 @@ const extraTime = "01:00:00";
 async function getConfigurations() {
     const configFile = (await ipcRenderer.invoke("get_store")).config.trackinfo;
     const networkConfig = (await ipcRenderer.invoke("get_store")).config.network;
-    dynamicTextColor = configFile.dynamic_text_color;
-    const defaultBackgroundColor = configFile.default_background_color;
     const orientation = configFile.orientation;
     const styleType = orientation === "vertical" ? "w" : "h";
     const h2Elements = document.querySelectorAll("h2");
@@ -54,17 +48,6 @@ async function getConfigurations() {
 
     host = networkConfig.host;
     port = (await f1mvApi.discoverF1MVInstances(host)).port;
-    if (debug) {
-        console.log(dynamicTextColor);
-        console.log(defaultBackgroundColor);
-    }
-    if (defaultBackgroundColor === "transparent") {
-        document.getElementById("background").style.backgroundColor = "gray";
-        document.getElementById("background").className = "transparent";
-        transparent = true;
-    } else {
-        document.getElementById("background").style.backgroundColor = defaultBackgroundColor;
-    }
 }
 
 let sessionInfo;
@@ -236,7 +219,7 @@ function setSessionTimer() {
 function setExtraTimer() {
     const extraTimerElement = document.getElementById("extra-timer");
 
-    if (sessionInfo.Type !== "Race") {
+    if (sessionInfo.Type !== "Race" || !sessionData) {
         extraTimerElement.className = "hidden";
         return;
     }
@@ -384,20 +367,16 @@ function setPitlane(message) {
             message.SubCategory === "PitEntry" ||
             message.SubCategory === "PitExit" ||
             message.Flag === "RED" ||
-            (message.Flag === "CLEAR" && sessionStatus === "Aborted")
+            sessionStatus === "Aborted"
         )
     )
         return;
 
     const pitExitElement = document.getElementById(`pit-exit`);
 
-    switch (message.Flag) {
-        case "RED":
-            pitExitElement.className = `${pClass} red`;
-            return;
-        case "CLEAR":
-            pitExitElement.className = `${pClass} green`;
-            return;
+    if (message.Flag === "RED") {
+        pitExitElement.className = `${pClass} red`;
+        return;
     }
 
     const type = message.SubCategory === "PitEntry" ? "entry" : "exit";
@@ -461,21 +440,19 @@ function setHeadPadding(message) {
 function setDrs(message) {
     const category = message.Category;
 
-    if (!(category === "Drs" || message.Flag === "RED")) return;
+    if (category !== "Drs") return;
 
     let status = "DISABLED";
     let color = "red";
-    if (message.Category === "Drs") {
-        switch (message.Status) {
-            case "DISABLED":
-                status = message.Status;
-                color = "red";
-                break;
-            case "ENABLED":
-                status = message.Status;
-                color = "green";
-                break;
-        }
+    switch (message.Status) {
+        case "DISABLED":
+            status = message.Status;
+            color = "red";
+            break;
+        case "ENABLED":
+            status = message.Status;
+            color = "green";
+            break;
     }
 
     const drsElement = document.getElementById("drs");
@@ -516,24 +493,19 @@ function forRaceControlMessages() {
 }
 
 // Running all the functions
-let count = 0;
 async function run() {
     await getConfigurations();
     await apiRequests();
-    while (true) {
-        await apiRequests();
-        setSession();
-        setTrackTime();
-        const timer = setSessionTimer();
-        setExtraTimer();
-        setProgress(timer);
-        forRaceControlMessages();
-        if (debug) {
-            console.log(count++);
-        }
-        await sleep(1000);
-    }
+    setSession();
+    setTrackTime();
+    const timer = setSessionTimer();
+    setExtraTimer();
+    setProgress(timer);
+    forRaceControlMessages();
 }
 
 // Running the whole screen
 run();
+setInterval(async () => {
+    await run();
+}, 500);

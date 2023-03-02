@@ -22,12 +22,22 @@ body {
     margin-bottom: 0;
     overflow: hidden;
     transition: all 0.5s ease-in-out;
+    border: none;
 }
 
 #container li.show {
     height: 37vw !important;
     margin-bottom: 5px;
 }
+
+#container li.show.highlight {
+    border-left: 1.5vw solid rgb(255, 251, 0);
+}
+
+#container li.show.highlight .header {
+    border-left: 0.5vw solid black;
+}
+
 /* General time styling */
 .improved-time,
 .pushlap {
@@ -41,7 +51,7 @@ body {
     background-color: white;
     color: black;
     height: 10vw;
-    width: 100vw;
+    width: 100%;
 }
 
 .danger {
