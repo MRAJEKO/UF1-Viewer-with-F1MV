@@ -268,53 +268,53 @@ ipcMain.handle("restoreLayout", async (event, layoutId, liveSessionInfo, content
     const layout = layoutConfig[layoutId];
 
     for (const window of layout.uf1Windows) {
-        setTimeout(() => {
-            let newWindow;
+        let newWindow;
 
-            if (window.path.includes("color")) {
-                const backgroundColor = window.path.split(";")[1];
+        if (window.path.includes("color")) {
+            const backgroundColor = window.path.split(";")[1];
 
-                newWindow = new BrowserWindow({
-                    width: window.bounds.width,
-                    height: window.bounds.height,
-                    x: window.bounds.x,
-                    y: window.bounds.y,
-                    frame: false,
-                    backgroundColor: backgroundColor,
-                    icon: path.join(__dirname, "icons/windows/color.png"),
-                });
+            newWindow = new BrowserWindow({
+                width: window.bounds.width,
+                height: window.bounds.height,
+                x: window.bounds.x,
+                y: window.bounds.y,
+                frame: false,
+                backgroundColor: backgroundColor,
+                icon: path.join(__dirname, "icons/windows/color.png"),
+            });
 
-                newWindow.setContentSize(window.bounds.width, window.bounds.height, true);
+            newWindow.setContentSize(window.bounds.width, window.bounds.height, true);
 
-                newWindow.loadURL(`data:text/html;charset=utf-8,<body style="-webkit-app-region: drag;"></body>`);
+            newWindow.loadURL(`data:text/html;charset=utf-8,<body style="-webkit-app-region: drag;"></body>`);
 
-                newWindow.title = "Solid Color Window";
-            } else {
-                newWindow = new BrowserWindow({
-                    autoHideMenuBar: window.hideMenuBar,
-                    width: window.bounds.width,
-                    height: window.bounds.height,
-                    x: window.bounds.x,
-                    y: window.bounds.y,
-                    frame: window.frame,
-                    hideMenuBar: window.hideMenuBar,
-                    useContentSize: true,
-                    transparent: window.transparent,
-                    hasShadow: window.hasShadow,
-                    alwaysOnTop: window.alwaysOnTop,
-                    webPreferences: {
-                        preload: path.join(__dirname, "preload.js"),
-                        nodeIntegration: true,
-                        contextIsolation: false,
-                    },
-                    icon: path.join(__dirname, "icons/windows/" + window.icon),
-                });
+            newWindow.title = "Solid Color Window";
+        } else {
+            newWindow = new BrowserWindow({
+                autoHideMenuBar: window.hideMenuBar,
+                width: window.bounds.width,
+                height: window.bounds.height,
+                x: window.bounds.x,
+                y: window.bounds.y,
+                frame: window.frame,
+                hideMenuBar: window.hideMenuBar,
+                useContentSize: true,
+                transparent: window.transparent,
+                hasShadow: window.hasShadow,
+                alwaysOnTop: window.alwaysOnTop,
+                webPreferences: {
+                    preload: path.join(__dirname, "preload.js"),
+                    nodeIntegration: true,
+                    contextIsolation: false,
+                },
+                icon: path.join(__dirname, "icons/windows/" + window.icon),
+            });
 
-                newWindow.setContentSize(window.bounds.width, window.bounds.height, true);
+            newWindow.setContentSize(window.bounds.width, window.bounds.height, true);
 
-                newWindow.loadFile(__dirname + window.path);
-            }
-        }, 1000);
+            newWindow.loadFile(__dirname + window.path);
+        }
+
+        await sleep(1000);
     }
 
     const configFile = store.get("config");
