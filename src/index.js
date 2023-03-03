@@ -326,7 +326,10 @@ ipcMain.handle("restoreLayout", async (event, layoutId, liveSessionInfo, content
         port: port,
     };
 
-    const contentId = liveSessionInfo.liveSessionFound ? liveSessionInfo.contentInfo.contentId : contentIdField ?? null;
+    const contentId =
+        liveSessionInfo.liveSessionFound && liveSessionInfo.sessionInfo?.Series === "FORMULA 1"
+            ? liveSessionInfo.contentInfo.contentId
+            : contentIdField ?? null;
 
     if (!contentId) return;
 
