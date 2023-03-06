@@ -206,6 +206,8 @@ ipcMain.handle("saveLayout", async (event, layoutId) => {
         console.log(window.title);
         if (window.id === 1) continue;
 
+        if (window.title === "Auto Onboard Camera Switching") continue;
+
         let path;
         let icon;
         if (window.title === "Solid Color Window") {
@@ -216,19 +218,48 @@ ipcMain.handle("saveLayout", async (event, layoutId) => {
             if (!path.split("/")[2].includes(".")) continue;
             icon = path.split("/")[1] + ".png";
         }
-        const bounds = window.getBounds();
+
+        let bounds = window.getBounds();
         const hideMenuBar = !window.isMenuBarVisible();
         const frame = !hideMenuBar;
-        const transparent = true;
+        const transparent = window.getBackgroundColor() === "#FFFFFF" ? false : true;
         const hasShadow = window.hasShadow();
         const alwaysOnTop = window.isAlwaysOnTop();
 
-        formattedUf1Windows.push({ path, bounds, hideMenuBar, frame, transparent, hasShadow, alwaysOnTop, icon });
+        const activeDisplay = screen.getDisplayNearestPoint({
+            x: bounds.x + bounds.width / 2,
+            y: bounds.y + bounds.height / 2,
+        });
+
+        let fullscreen = false;
+
+        if (
+            window.isFullScreen() ||
+            (bounds.x <= activeDisplay.bounds.x &&
+                bounds.y <= activeDisplay.bounds.y &&
+                bounds.width >= activeDisplay.bounds.width &&
+                bounds.height >= activeDisplay.bounds.height)
+        ) {
+            fullscreen = true;
+            bounds = activeDisplay.bounds;
+        }
+
+        formattedUf1Windows.push({
+            path,
+            bounds,
+            hideMenuBar,
+            frame,
+            transparent,
+            hasShadow,
+            fullscreen,
+            alwaysOnTop,
+            icon,
+        });
     }
 
     const configFile = store.get("config");
     const host = configFile.network.host;
-    const port = (await f1mvApi.discoverF1MVInstances(host)).port;
+    const port = (await f1mvApi.discoverF1MVInstances(host))?.port;
 
     const config = {
         host: host,
@@ -279,6 +310,7 @@ ipcMain.handle("restoreLayout", async (event, layoutId, liveSessionInfo, content
                 x: window.bounds.x,
                 y: window.bounds.y,
                 frame: false,
+                fullscreen: window.fullscreen,
                 backgroundColor: backgroundColor,
                 icon: path.join(__dirname, "icons/windows/color.png"),
             });
@@ -300,6 +332,7 @@ ipcMain.handle("restoreLayout", async (event, layoutId, liveSessionInfo, content
                 useContentSize: true,
                 transparent: window.transparent,
                 hasShadow: window.hasShadow,
+                fullscreen: window.fullscreen,
                 alwaysOnTop: window.alwaysOnTop,
                 webPreferences: {
                     preload: path.join(__dirname, "preload.js"),
@@ -326,10 +359,14 @@ ipcMain.handle("restoreLayout", async (event, layoutId, liveSessionInfo, content
         port: port,
     };
 
-    const contentId =
-        liveSessionInfo.liveSessionFound && liveSessionInfo.sessionInfo?.Series === "FORMULA 1"
-            ? liveSessionInfo.contentInfo.contentId
-            : contentIdField ?? null;
+    const liveSessionType = liveSessionInfo?.sessionInfo?.sessionType?.toLowerCase() ?? null;
+
+const contentId =
+    liveSessionInfo?.liveSessionFound &&
+    liveSessionInfo?.sessionInfo?.Series === "FORMULA 1" &&
+    (liveSessionType?.includes("post") || liveSessionType?.includes("pre"))
+        ? liveSessionInfo?.contentInfo?.contentId
+        : contentIdField ?? null;
 
     if (!contentId) return;
 
