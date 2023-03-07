@@ -4,6 +4,10 @@ const f1mvApi = require("npm_f1mv_api");
 
 const { ipcRenderer } = require("electron");
 
+const { isDriverOnPushLap } = require("../functions/driver.js");
+
+const { weirdCarBehaviour } = require("../functions/car.js");
+
 // Set sleep
 const sleep = (milliseconds) => {
     return new Promise((resolve) => setTimeout(resolve, milliseconds));
@@ -162,93 +166,6 @@ async function replaceWindow(oldWindowId, newDriverNumber, contentId, mainWindow
     }
 }
 
-// A lap or sector time can be send through and will return as a number in seconds
-function parseLapOrSectorTime(time) {
-    // Split the input into 3 variables by checking if there is a : or a . in the time. Then replace any starting 0's by nothing and convert them to numbers using parseInt.
-    const [minutes, seconds, milliseconds] = time
-        .split(/[:.]/)
-        .map((number) => parseInt(number.replace(/^0+/, "") || "0", 10));
-
-    if (milliseconds === undefined) return minutes + seconds / 1000;
-
-    return minutes * 60 + seconds + milliseconds / 1000;
-}
-
-// Check if the driver is on a push lap or not
-function isDriverOnPushLap(driverNumber) {
-    if (
-        sessionStatus === "Aborted" ||
-        sessionStatus === "Inactive" ||
-        [4, 5, 6, 7].includes(parseInt(trackStatus.Status))
-    )
-        return false;
-
-    const driverTimingData = timingData[driverNumber];
-    const driverBestTimes = timingStats[driverNumber];
-
-    console.log(driverNumber, driverTimingData.NumberOfLaps);
-
-    if (sessionType === "Race" && (driverTimingData.NumberOfLaps === undefined || driverTimingData.NumberOfLaps <= 1))
-        return false;
-
-    if (driverTimingData.InPit) return false;
-
-    // If the first mini sector time is status 2064, meaning he is on a out lap, return false
-    if (driverTimingData.Sectors[0].Segments?.[0].Status === 2064) return false;
-
-    // Get the threshold to which the sector time should be compared to the best personal sector time.
-    const pushDeltaThreshold = sessionType === "Race" ? 0.2 : sessionType === "Qualifying" ? 1 : 3;
-
-    const sectors = driverTimingData.Sectors;
-
-    const lastSector = sectors.slice(-1)[0];
-
-    if (sectors.slice(-1)[0].Value !== "" && (sectors.slice(-1)[0].Segments?.slice(-1)[0].Status !== 0 ?? true))
-        return false;
-
-    const completedFirstSector = sectors[0].Segments
-        ? (sectors[0].Segments.slice(-1)[0].Status !== 0 && lastSector.Value === "") ||
-          (lastSector.Segments.slice(-1)[0].Status === 0 &&
-              lastSector.Value !== "" &&
-              sectors[1].Segments[0].Status !== 0 &&
-              sectors[0].Segments.slice(-1)[0].Status !== 0)
-        : sectors[0].Value !== 0 && lastSector.Value === "";
-
-    let isPushing = false;
-    for (let sectorIndex = 0; sectorIndex < driverTimingData.Sectors.length; sectorIndex++) {
-        const sector = sectors[sectorIndex];
-        const bestSector = driverBestTimes.BestSectors[sectorIndex];
-
-        const sectorTime = parseLapOrSectorTime(sector.Value);
-        const bestSectorTime = parseLapOrSectorTime(bestSector.Value);
-
-        // Check if the first sector is completed by checking if the last segment of the first sector has a value meaning he has crossed the last point of that sector and the final sector time does not have a value. The last check is done because sometimes the segment already has a status but the times are not updated yet.
-
-        if (driverNumber == 63) console.log(completedFirstSector);
-
-        // If the first sector time is above the threshold it should imidiately break because it will not be a push lap
-        if (sectorTime - bestSectorTime > pushDeltaThreshold && completedFirstSector) {
-            isPushing = false;
-            break;
-        }
-
-        // If the first sector time is lower then the threshold it should temporarily set pushing to true because the driver could have still backed out in a later stage
-        if (sectorTime - bestSectorTime <= pushDeltaThreshold && completedFirstSector) {
-            isPushing = true;
-            continue;
-        }
-
-        // If the driver has a fastest segment overall it would temporarily set pushing to true because the driver could have still backed out in a later stage
-        if (sector.Segments?.some((segment) => segment.Status === 2051) && sessionType !== "Race") {
-            isPushing = true;
-            continue;
-        }
-    }
-
-    // Return the final pushing state
-    return isPushing;
-}
-
 function primaryDriver(racingNumber) {
     const driverIntervalAhead = timingData[racingNumber].IntervalToPositionAhead.Value;
 
@@ -325,15 +242,6 @@ function hiddenDriver(racingNumber) {
     return false;
 }
 
-function getCarData(driverNumber) {
-    try {
-        carData[0].Cars[driverNumber].Channels;
-    } catch (error) {
-        return "error";
-    }
-    return carData[0].Cars[driverNumber].Channels;
-}
-
 function getSpeedThreshold() {
     if (
         sessionType === "Qualifying" ||
@@ -345,30 +253,6 @@ function getSpeedThreshold() {
         return 10;
     if (sessionStatus === "Inactive" || sessionStatus === "Aborted") return 0;
     return 30;
-}
-
-function weirdCarBehaviour(driverCarData, racingNumber) {
-    const driverTimingData = timingData[racingNumber];
-
-    const rpm = driverCarData[0];
-
-    const speed = driverCarData[2];
-
-    const gear = driverCarData[3];
-
-    const speedLimit = getSpeedThreshold();
-
-    return (
-        rpm === 0 ||
-        speed <= speedLimit ||
-        gear > 8 ||
-        gear ===
-            (sessionStatus === "Inactive" ||
-            sessionStatus === "Aborted" ||
-            (sessionType !== "Race" && driverTimingData.PitOut)
-                ? ""
-                : 0)
-    );
 }
 
 function overwriteCrashedStatus(racingNumber) {
@@ -386,19 +270,13 @@ function overwriteCrashedStatus(racingNumber) {
 
     // Detect if grid start during inactive (formation lap) during a 'Race' session
     // If the final to last mini sector has a value (is not 0). Check if the session is 'Inactive' and if the session type is 'Race'
-    if (lastSectorSegments.slice(-2, -1)[0].Status !== 0 && sessionInactive && !driverTimingData.PitOut) {
-        console.log(racingNumber + " is lining up for a race start");
-        return true;
-    }
-
-    // If the race is started and the last mini sector has a different value then 0 (has a value)
     if (
         sessionType === "Race" &&
-        sessionStatus === "Started" &&
-        lastSectorSegments.slice(-1)[0].Status !== 0 &&
-        lapCount.CurrentLap === 1
+        lastSectorSegments.slice(-3).some((segment) => segment.Status !== 0) &&
+        lapCount.CurrentLap === 1 &&
+        !driverTimingData.PitOut
     ) {
-        console.log(racingNumber + " is doing a race start");
+        console.log(racingNumber + " is on the starting grid");
         return true;
     }
 
@@ -427,11 +305,7 @@ function driverIsImportant(driverNumber) {
     )
         return true;
 
-    const driverCarData = getCarData(driverNumber);
-
-    if (driverCarData === "error") return false;
-
-    if (!weirdCarBehaviour(driverCarData, driverNumber)) return false;
+    if (!weirdCarBehaviour(driverNumber, timingData, carData, sessionType, sessionStatus, trackStatus)) return false;
 
     if (overwriteCrashedStatus(driverNumber)) return false;
 
@@ -528,7 +402,9 @@ async function setPriorities() {
         else if (hiddenDriver(driverNumber)) hiddenDrivers.push(driverNumber);
         else if (tertiaryDriver(driverNumber)) tertiaryDrivers.push(driverNumber);
         else if (sessionType !== "Race") {
-            isDriverOnPushLap(driverNumber) ? primaryDrivers.push(driverNumber) : secondaryDrivers.push(driverNumber);
+            isDriverOnPushLap(sessionStatus, trackStatus, timingData, timingStats, sessionType, driverNumber)
+                ? primaryDrivers.push(driverNumber)
+                : secondaryDrivers.push(driverNumber);
         } else {
             if (secondaryDriver(driverNumber)) secondaryDrivers.push(driverNumber);
             else if (primaryDriver(driverNumber)) primaryDrivers.push(driverNumber);
