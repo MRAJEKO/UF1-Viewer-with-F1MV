@@ -240,7 +240,7 @@ body {
     font-size: 6vh;
 }
 
-#container:hover #buttons {
+.shown {
     opacity: 1 !important;
 }
 

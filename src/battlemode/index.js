@@ -152,6 +152,10 @@ function toggleDriver(driver) {
 function orderButtons() {
     const driverNumbers = sortDrivers();
 
+    console.log("SHow");
+
+    document.getElementById("buttons").classList.add("shown");
+
     // Find all buttons in the #buttons div
     const driverButtons = document.querySelectorAll("#buttons .driver-button");
 
@@ -177,6 +181,13 @@ function orderButtons() {
 
     misc.forEach((button) => buttonsContainer.appendChild(button));
 }
+
+window.addEventListener("mouseout", (event) => {
+    // If there are childeren in the #buttons div, remove the class "shown" from it
+    console.log(document.getElementById("buttons").children);
+    if (event.relatedTarget == null && document.getElementById("wrapper").children.length > 0)
+        document.getElementById("buttons").classList.remove("shown");
+});
 
 function addButtons() {
     const drivers = sortDrivers();
