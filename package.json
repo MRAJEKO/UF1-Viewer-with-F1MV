@@ -1,7 +1,7 @@
 {
     "name": "uf1",
     "productName": "Ultimate-F1Viewer-With-F1MV",
-    "version": "1.4.4",
+    "version": "1.4.5",
     "description": "A integration with multiple windows to enchance your F1TV experience using the MultiViewer for F1 app.",
     "main": "./src/index.js",
     "scripts": {
