@@ -7,9 +7,8 @@ const { ipcRenderer } = require("electron");
 let goveeConnected = false;
 let goveeDevices = [];
 
-const goveeEnabled = (async () => (await ipcRenderer.invoke("get_store")).config.flag_display.govee)();
-
 async function goveeHandler() {
+    const goveeEnabled = await (async () => (await ipcRenderer.invoke("get_store")).config.flag_display.govee)();
     if (goveeEnabled) {
         console.log(window);
 
