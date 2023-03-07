@@ -13,31 +13,31 @@ const sleep = (milliseconds) => {
     return new Promise((resolve) => setTimeout(resolve, milliseconds));
 };
 
-let transparent = false;
-function toggleBackground() {
-    if (transparent) {
-        document.querySelector("body").className = "";
-        document.getElementById("container").className = "";
-        document.getElementById("wrapper1").className = "wrapper";
-        document.getElementById("wrapper2").className = "hidden";
-        document.getElementById("hide").style.margin = "Inherited";
-        document.getElementById("onboard-count2").style.fontSize = "Inherited";
-        window.resizeTo(400, 480);
-        transparent = false;
+let size = 0;
+function toggleSize() {
+    if (document.getElementById("background").classList.value.includes("drag")) {
     } else {
-        document.querySelector("body").className = "transparent";
-        transparent = true;
+        if (size === 1) {
+            window.resizeTo(400, 480);
+            size = 0;
+            document.getElementById("container").className = "";
+            document.getElementById("wrapper1").className = "wrapper";
+            document.getElementById("wrapper2").className = "hidden";
+            document.getElementById("hide").style.margin = "Inherited";
+            document.getElementById("onboard-count2").style.fontSize = "Inherited";
+        }
     }
 }
 
 document.addEventListener("keydown", (event) => {
-    if (event.key == "Escape") {
-        toggleBackground();
+    if (event.key === "Escape") {
+        toggleSize();
     }
 });
 
 function hide() {
     document.getElementById("container").className = "hidden";
+    size = 1;
 }
 
 function small() {
@@ -46,6 +46,7 @@ function small() {
     document.getElementById("wrapper2").className = "wrapper";
     document.getElementById("hide").style.margin = "0";
     document.getElementById("onboard-count2").style.fontSize = "25px";
+    size = 1;
 }
 
 async function getConfigurations() {

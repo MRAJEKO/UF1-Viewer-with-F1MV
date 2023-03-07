@@ -14,4 +14,4 @@ document.addEventListener("keydown", (event) => {
 
 document.getElementById(
     "background"
-).innerHTML += `<div id="move_mode_info"><h1>Move Mode</h1><p>This window is currently in move mode. You can press 'Escape' to toggle it and switch between moving and functionality</p></div>;`;
+).innerHTML += `<div id="move_mode_info"><h1>Move Mode</h1><p>This window is currently in move mode. You can press 'Escape' to toggle it and switch between moving and functionality</p></div>`;
