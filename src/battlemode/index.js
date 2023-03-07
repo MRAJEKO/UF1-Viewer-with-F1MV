@@ -23,25 +23,6 @@ async function getConfigurations() {
     }
 }
 
-// Toggle the background transparent or not
-let transparent = false;
-function toggleBackground() {
-    if (transparent) {
-        document.querySelector("body").className = "drag";
-        transparent = false;
-    } else {
-        document.querySelector("body").className = "transparent";
-        transparent = true;
-    }
-}
-
-// Listen to the escape key and toggle the backgrounds transparency when it is pressed
-document.addEventListener("keydown", (event) => {
-    if (event.key == "Escape") {
-        toggleBackground();
-    }
-});
-
 // All the api requests
 async function apiRequests() {
     const config = {

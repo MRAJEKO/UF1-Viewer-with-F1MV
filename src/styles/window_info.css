@@ -1,0 +1,26 @@
+#move_mode_info {
+    border: 4px solid white;
+    border-radius: 20px;
+    height: calc(100vh - 8px);
+    width: calc(100vw - 8px);
+    position: fixed;
+    top: 0;
+    background-color: rgba(0, 0, 0, 0.74);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+#move_mode_info h1 {
+    font-size: 20vh;
+    margin: 2vh 0;
+    font-family: "SFBold";
+}
+
+#move_mode_info p {
+    opacity: 0.8;
+    font-size: 7vh;
+    margin: 2vh 0;
+    font-family: "SFRegular";
+}
