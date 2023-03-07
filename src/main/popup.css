@@ -1,0 +1,66 @@
+#popup {
+    height: 200px;
+    width: 80%;
+    background-color: rgb(0, 0, 0);
+    border-radius: 30px;
+    position: fixed;
+    z-index: 5;
+    top: 100%;
+    left: 50%;
+    transform: translate(-50%);
+    display: flex;
+    flex-direction: column;
+    transition: all 0.7s ease;
+}
+
+#popup form {
+    height: 65%;
+    display: grid;
+    place-items: center;
+}
+
+#popup input {
+    height: 30px;
+    width: 70%;
+    border: none;
+    border-radius: 20px;
+    padding: 15px;
+    font-size: 4vw;
+}
+
+#popup .buttons {
+    width: 100%;
+    display: flex;
+    justify-content: space-evenly;
+    bottom: 20px;
+}
+
+#popup .buttons button {
+    height: 50px;
+    border: none;
+    border-radius: 10px;
+    background-color: #1f1f1f;
+    color: white;
+    font-size: 20px;
+    width: 30%;
+}
+
+#popup .buttons button:nth-child(1) {
+    background-color: rgb(255, 111, 111);
+    color: rgb(0, 0, 0);
+}
+
+#popup .buttons button:nth-child(2) {
+    background-color: rgba(128, 128, 128, 0.342);
+    color: gray;
+}
+
+#popup .buttons button:nth-child(3) {
+    background-color: rgb(111, 255, 118);
+    color: rgb(0, 0, 0);
+}
+
+#popup.show {
+    transform: translate(-50%, -50%) !important;
+    top: 50%;
+}

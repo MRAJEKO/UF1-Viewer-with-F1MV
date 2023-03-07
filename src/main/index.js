@@ -5,6 +5,13 @@ const debug = false;
 
 const f1mvApi = require("npm_f1mv_api");
 
+const container = document.getElementById("sections");
+
+container.addEventListener("wheel", function (event) {
+    container.scrollTop += event.deltaY;
+    event.preventDefault();
+});
+
 async function getConfigurations(host, port, file) {
     config = {
         host: host,
@@ -369,13 +376,13 @@ let rotated = false;
 function settings() {
     if (rotated) {
         rotated = false;
-        document.getElementById("settings-icon").style.transform = "rotate(-45deg)";
+        document.getElementById("settings-icon").style.transform = "rotate(-60deg)";
         document.getElementById("menu").className = "";
         document.getElementById("reset-defaults").classList.remove("show");
         saveSettings();
     } else {
         rotated = true;
-        document.getElementById("settings-icon").style.transform = "rotate(45deg)";
+        document.getElementById("settings-icon").style.transform = "rotate(60deg)";
         document.getElementById("menu").className = "shown";
         document.getElementById("reset-defaults").classList.add("show");
         setTimeout(() => {
@@ -553,7 +560,11 @@ async function isConnected(ignore) {
                 document.getElementById("timing-connection").className = "green";
 
                 document.getElementById("connect").className = "animation";
-                document.getElementById("connection-icon").src = "../icons/checkmark.png";
+
+                const connectionInfo = document.getElementById("connection");
+
+                connectionInfo.className = "connected";
+                connectionInfo.textContent = "CONNECTED";
 
                 clearInterval(loopId);
             } else {

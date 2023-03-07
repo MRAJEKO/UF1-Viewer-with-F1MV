@@ -1,0 +1,19 @@
+#tooltip {
+    width: 70%;
+    position: fixed;
+    bottom: -100px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 10px;
+    border-radius: 10px;
+    border: 2px solid black;
+    transition: all 0.5s ease;
+    z-index: 4;
+    display: grid;
+    place-items: center;
+    color: black;
+}
+
+#tooltip.show {
+    bottom: 20px !important;
+}

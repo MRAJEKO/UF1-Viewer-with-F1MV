@@ -1,0 +1,73 @@
+.tools-wrapper {
+    display: flex;
+    width: 90%;
+    justify-content: space-between;
+    margin: 0 auto;
+    align-items: center;
+}
+
+.tools {
+    height: 79px;
+    display: grid;
+    place-items: center;
+    /* background-color: rgb(26, 26, 26); */
+    /* background: linear-gradient(
+        180deg,
+        rgba(26, 26, 26, 1) 0%,
+        rgba(26, 26, 26, 0.6) 20%,
+        rgba(26, 26, 26, 0.3) 40%,
+        rgba(26, 26, 26, 0) 60%,
+        rgba(26, 26, 26, 0) 80%,
+        rgba(26, 26, 26, 0) 100%
+    ); */
+    border-top: 1px solid #9f9f9f;
+}
+
+.connection-status p {
+    color: #9f9f9f;
+}
+
+#layout-button {
+    left: 0;
+    right: auto;
+    bottom: 60px !important;
+}
+
+#reset-defaults {
+    position: fixed;
+    right: -100px;
+    bottom: 60px !important;
+    background-color: #d32f2f;
+    border-radius: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 50px;
+    height: 50px;
+    transition: all 0.4s ease-in-out;
+    margin: 0px 15px 20px 0;
+}
+
+#reset-defaults.show {
+    right: 0 !important;
+}
+
+#reset-defaults p {
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+#reset-defaults:hover {
+    width: 350px;
+}
+
+#reset-icon {
+    padding: 15px;
+    width: 30px;
+}
+
+#settings-icon,
+#layout-icon {
+    transition: all 0.5s ease;
+    width: 30px;
+}

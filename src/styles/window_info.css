@@ -17,6 +17,7 @@
     margin: 2vh 0;
     font-family: "SFBold";
     width: 90% !important;
+    text-align: center;
 }
 
 #move_mode_info p {
@@ -25,4 +26,5 @@
     margin: 2vh 0;
     font-family: "SFRegular";
     width: 90% !important;
+    text-align: center;
 }
