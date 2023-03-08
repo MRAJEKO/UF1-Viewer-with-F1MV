@@ -18,6 +18,8 @@ const defaults = {
             rain: true,
             team_radios: false,
             pitstops: true,
+            practice_starts: true,
+            finished: true,
         },
         trackinfo: { orientation: "vertical" },
         singlercm: { display_duration: "10000" },
@@ -63,6 +65,15 @@ const store = new Store({
             store.set("config.current_laps.sector_display_duration", "4000");
             store.set("config.current_laps.end_display_duration", "4000");
             store.set("config.autoswitcher.fixed_drivers", "");
+        },
+        "1.4.5": (store) => {
+            if (store.get("config.session_log.practice_starts") === undefined) {
+                store.set("config.session_log.practice_starts", true);
+            }
+
+            if (store.get("config.session_log.finished") === undefined) {
+                store.set("config.session_log.finished", true);
+            }
         },
     },
 
@@ -361,12 +372,12 @@ ipcMain.handle("restoreLayout", async (event, layoutId, liveSessionInfo, content
 
     const liveSessionType = liveSessionInfo?.sessionInfo?.sessionType?.toLowerCase() ?? null;
 
-const contentId =
-    liveSessionInfo?.liveSessionFound &&
-    liveSessionInfo?.sessionInfo?.Series === "FORMULA 1" &&
-    (liveSessionType?.includes("post") || liveSessionType?.includes("pre"))
-        ? liveSessionInfo?.contentInfo?.contentId
-        : contentIdField ?? null;
+    const contentId =
+        liveSessionInfo?.liveSessionFound &&
+        liveSessionInfo?.sessionInfo?.Series === "FORMULA 1" &&
+        (liveSessionType?.includes("post") || liveSessionType?.includes("pre"))
+            ? liveSessionInfo?.contentInfo?.contentId
+            : contentIdField ?? null;
 
     if (!contentId) return;
 
