@@ -5,13 +5,6 @@ const debug = false;
 
 const f1mvApi = require("npm_f1mv_api");
 
-const container = document.getElementById("sections");
-
-container.addEventListener("wheel", function (event) {
-    container.scrollTop += event.deltaY;
-    event.preventDefault();
-});
-
 async function getConfigurations(host, port, file) {
     config = {
         host: host,

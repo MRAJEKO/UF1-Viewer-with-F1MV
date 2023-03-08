@@ -11,9 +11,14 @@ body {
     height: 100vh;
 }
 
+::-webkit-scrollbar {
+    display: none;
+}
+
 #sections {
     height: calc(100vh - 80px);
-    overflow: hidden;
+    overflow: auto;
+    transition: all 0.5s ease;
 }
 
 .disabled {
