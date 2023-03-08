@@ -367,34 +367,38 @@ function openLayouts() {
 // Settings
 let rotated = false;
 function settings() {
-    if (rotated) {
-        rotated = false;
-        document.getElementById("settings-icon").style.transform = "rotate(-60deg)";
-        document.getElementById("menu").className = "";
-        document.getElementById("reset-defaults").classList.remove("show");
-        saveSettings();
+    const settingsIcon = document.getElementById("settings-icon");
+
+    if (settingsIcon.style.transform === "none" || settingsIcon.style.transform === "") {
+        settingsIcon.style.transform = "rotate(60deg)";
     } else {
-        rotated = true;
-        document.getElementById("settings-icon").style.transform = "rotate(60deg)";
-        document.getElementById("menu").className = "shown";
-        document.getElementById("reset-defaults").classList.add("show");
-        setTimeout(() => {
-            document.getElementById("menu").className = "shown overflow";
-        }, 700);
+        settingsIcon.style.transform = "none";
+        saveSettings();
     }
+
+    document.getElementById("reset-defaults").classList.toggle("hidden");
+
+    document.getElementById("layout-icon").classList.toggle("hidden");
+
+    document.getElementById("menu").classList.toggle("shown");
+    document.getElementById("menu").classList.toggle("overflow");
 }
 
 async function saveSettings() {
     const config = (await ipcRenderer.invoke("get_store")).config;
     for (const category in config) {
         for (const setting in config[category]) {
-            const settingElement = document.querySelector(`#${category} #${setting}`);
+            try {
+                const settingElement = document.querySelector(`#${category} #${setting}`);
 
-            let value = settingElement.value;
+                let value = settingElement.value;
 
-            if (settingElement.type === "checkbox") value = settingElement.checked;
+                if (settingElement.type === "checkbox") value = settingElement.checked;
 
-            config[category][setting] = value;
+                config[category][setting] = value;
+            } catch (e) {
+                console.log(e);
+            }
         }
     }
 
@@ -410,13 +414,17 @@ async function setSettings() {
     console.log(config);
     for (const category in config) {
         for (const setting in config[category]) {
-            const settingElement = document.querySelector(`#${category} #${setting}`);
+            try {
+                const settingElement = document.querySelector(`#${category} #${setting}`);
 
-            if (settingElement.type === "checkbox") settingElement.checked = config[category][setting];
+                if (settingElement.type === "checkbox") settingElement.checked = config[category][setting];
 
-            if (settingElement.classList.contains("selector")) settingElement.value = config[category][setting];
+                if (settingElement.classList.contains("selector")) settingElement.value = config[category][setting];
 
-            if (settingElement.type === "text") settingElement.value = config[category][setting];
+                if (settingElement.type === "text") settingElement.value = config[category][setting];
+            } catch (e) {
+                console.log(e);
+            }
         }
     }
 }
@@ -428,13 +436,17 @@ async function restoreAll() {
     const config = (await ipcRenderer.invoke("reset_store", "config")).config;
     for (const category in config) {
         for (const setting in config[category]) {
-            const settingElement = document.querySelector(`#${category} #${setting}`);
+            try {
+                const settingElement = document.querySelector(`#${category} #${setting}`);
 
-            if (settingElement.type === "checkbox") settingElement.checked = config[category][setting];
+                if (settingElement.type === "checkbox") settingElement.checked = config[category][setting];
 
-            if (settingElement.classList.contains("selector")) settingElement.value = config[category][setting];
+                if (settingElement.classList.contains("selector")) settingElement.value = config[category][setting];
 
-            if (settingElement.type === "text") settingElement.value = config[category][setting];
+                if (settingElement.type === "text") settingElement.value = config[category][setting];
+            } catch (e) {
+                console.log(e);
+            }
         }
     }
     saveSettings();
@@ -537,8 +549,8 @@ async function isConnected(ignore) {
 
             multiViewerConnected = true;
 
-            document.getElementById("mv-connection").textContent = "Connected to MultiViewer";
-            document.getElementById("mv-connection").className = "green";
+            document.getElementById("mv-connection").innerHTML = "MULTIVIEWER: <span>CONNECTED</span>";
+            document.getElementById("mv-connection").className = "link connected";
 
             await getConfigurations(host, port, configFile);
 
@@ -549,8 +561,8 @@ async function isConnected(ignore) {
 
                 console.log("Connected to MultiViewer and live timing session found");
 
-                document.getElementById("timing-connection").textContent = "Connected to Live Timing";
-                document.getElementById("timing-connection").className = "green";
+                document.getElementById("timing-connection").innerHTML = "LIVE TIMING: <span>CONNECTED</span>";
+                document.getElementById("timing-connection").className = "link connected";
 
                 document.getElementById("connect").className = "animation";
 

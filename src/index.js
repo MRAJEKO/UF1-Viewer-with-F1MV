@@ -24,8 +24,8 @@ const defaults = {
         trackinfo: { orientation: "vertical" },
         singlercm: { display_duration: "10000" },
         current_laps: { always_on_top: true, sector_display_duration: "4000", end_display_duration: "4000" },
-        weather: { default_background_color: "gray", datapoints: "30", use_trackmap_rotation: true },
-        autoswitcher: { main_window_name: "INTERNATIONAL", speedometer: true },
+        weather: { datapoints: "30", use_trackmap_rotation: true },
+        autoswitcher: { main_window_name: "INTERNATIONAL", speedometer: true, fixed_drivers: "" },
     },
     layouts: {},
     led_colors: {
@@ -73,6 +73,10 @@ const store = new Store({
 
             if (store.get("config.session_log.finished") === undefined) {
                 store.set("config.session_log.finished", true);
+            }
+
+            if (store.get("config.autoswitcher.fixed_drivers") === undefined) {
+                store.set("config.autoswitcher.fixed_drivers", "");
             }
         },
     },

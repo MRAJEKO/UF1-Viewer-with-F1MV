@@ -3,7 +3,7 @@
     width: 60%;
     justify-content: space-evenly;
     color: gray !important;
-    font-size: 15px;
+    font-size: 12px;
     align-items: center;
     white-space: nowrap;
 }
@@ -35,20 +35,29 @@
     min-height: 40px;
     height: 40px;
     margin: 7.5px;
+    border: 2px solid transparent;
 }
 
+.link.gray,
+.window.gray {
+    border-color: #9f9f9f;
+    color: white;
+}
+
+.link.default,
 .window.default {
-    border: 2px solid rgb(255, 50, 50);
+    border-color: rgb(255, 50, 50);
     color: rgb(255, 50, 50);
 }
 
+.link.beta,
 .window.beta {
-    border: 2px solid #c76cff;
+    border-color: #c76cff;
     color: #c76cff;
 }
 
 .window:hover {
-    transform: translate(4px, 4px);
+    transform: translate(3px, 3px);
 }
 
 #solid-color-windows {
@@ -66,7 +75,7 @@
     border-radius: 10px;
     box-shadow: 3px 3px #000000;
     transition: all 0.5s ease;
-    border: 1px solid #9f9f9f;
+    border: 2px solid #9f9f9f;
     margin: 7.5px;
 }
 

@@ -18,19 +18,37 @@
         <div id="sections">
             <section id="connect" class="shown">
                 <h1>Ultimate Formula 1 Viewer</h1>
-                <div class="wrapper">
-                    <div class="connections">
-                        <h2 id="mv-connection" class="red">Not connected to Multiviewer</h2>
-                        <h2 id="timing-connection" class="red">No live timing running</h2>
-                    </div>
-                    <button onclick="launchMVF1()" class="link">
-                        <h2>Open MultiViewer</h2>
-                    </button>
-                    <button onclick="ignore()" class="link">
-                        <h2>Continue either way</h2>
-                    </button>
-                    <button class="livetiming link disabled" onclick="livetiming()">Live Timing</button>
+                <div class="container">
+                    <span class="wrapper">
+                        <div class="new-window-section">
+                            <div class="line"></div>
+                            <p>STATUS</p>
+                            <div class="line"></div>
+                        </div>
+                        <div class="connections">
+                            <p id="mv-connection" class="link disconnected">MULTIVIEWER: <span>DISCONNECTED</span></p>
+                            <p id="timing-connection" class="link disconnected">
+                                LIVE TIMING: <span>DISCONNECTED</span>
+                            </p>
+                        </div>
+                    </span>
+                    <span class="wrapper">
+                        <div class="new-window-section">
+                            <div class="line"></div>
+                            <p>CONTROLS</p>
+                            <div class="line"></div>
+                        </div>
+                        <button onclick="launchMVF1()" class="link gray">
+                            <p>OPEN MULTIVIEWER</p>
+                        </button>
+                        <button class="livetiming link disabled" onclick="livetiming()">
+                            <p>OPEN LIVE TIMING</p>
+                        </button>
+                    </span>
                 </div>
+                <button onclick="ignore()" class="continue">
+                    <p>CONTINUE ANYWAY</p>
+                </button>
             </section>
             <section id="layout" class="layouts">
                 <h1>Saved Layouts</h1>
@@ -476,12 +494,17 @@
         </div>
         <section id="tools" class="tools">
             <div class="tools-wrapper">
-                <button id="reset-defaults" class="buttons" onclick="restoreAll()">
-                    <img id="reset-icon" src="../icons/restore.png" alt="" />
-                    <p>RESTORE DEFAULT SETTINGS</p>
-                </button>
-                <div title="Layouts" id="layout-button" class="buttons" onclick="openLayouts()">
-                    <img id="layout-icon" src="../icons/layout.png" alt="" />
+                <div class="dynamic-button">
+                    <div title="Layouts" id="layout-button" class="buttons" onclick="openLayouts()">
+                        <img id="layout-icon" src="../icons/layout.png" alt="" />
+                    </div>
+                    <button
+                        title="Restore Default Settings"
+                        id="reset-defaults"
+                        class="buttons hidden"
+                        onclick="restoreAll()">
+                        <img id="reset-icon" src="../icons/restore.png" alt="" />
+                    </button>
                 </div>
                 <div class="connection-status">
                     <p>MultiViewer Status: <span id="connection" class="disconnected">DISCONNECTED</span></p>
