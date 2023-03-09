@@ -58,13 +58,7 @@ h1 {
     width: 100%;
 }
 
-#content-id-field {
-    padding: 10px;
-    border-radius: 10px;
-    border: none;
-    position: absolute;
-    bottom: 100px;
-}
+
 
 .shown {
     height: calc(100vh - 80px) !important;

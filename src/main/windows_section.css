@@ -10,7 +10,7 @@
 
 .line {
     background-color: gray;
-    height: 0.2vh;
+    height: 2px;
     width: 100%;
     margin: 10px;
 }

@@ -53,10 +53,8 @@
             <section id="layout" class="layouts">
                 <h1>Saved Layouts</h1>
                 <div id="layouts-container"></div>
-                <div class="layout">
-                    <button class="window new" onclick="newLayout()">Add new layout</button>
-                </div>
-                <input id="content-id-field" type="text" value="" placeholder="Load custom content ID" />
+                <button class="new layout gray" onclick="newLayout()">CREATE NEW LAYOUT</button>
+                <input id="content-id-field" type="text" value="" placeholder="LOAD CUSTOM CONTENT ID" />
             </section>
             <section id="menu">
                 <section class="settings-section" id="general">
@@ -517,14 +515,14 @@
         <div id="tooltip" style="background-color: rgb(0, 183, 255)">
             <p></p>
         </div>
-        <div id="popup" class="">
+        <div id="popup">
             <form>
-                <input type="text" id="name" value="" name="" />
+                <input type="text" id="name" value="" name="" placeholder="LAYOUT NAME" />
             </form>
             <div class="buttons">
-                <button onclick="remove()">Delete</button>
-                <button onclick="cancel()">Cancel</button>
-                <button onclick="confirm()">Confirm</button>
+                <button onclick="cancel()">CANCEL</button>
+                <button onclick="remove()">DELETE</button>
+                <button onclick="confirm()">CONFIRM</button>
             </div>
         </div>
     </body>

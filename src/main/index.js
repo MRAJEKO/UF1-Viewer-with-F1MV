@@ -346,12 +346,14 @@ async function weather() {
 
 async function saveLayout(layoutId) {
     await ipcRenderer.invoke("saveLayout", layoutId);
-    tooltip("Layout saved!", "#83FF83");
+    tooltip("Layout saved!", "#83FF83D9");
 }
 
 async function restoreLayout(layoutId) {
     const contentIdField = document.getElementById("content-id-field").value;
     await ipcRenderer.invoke("restoreLayout", layoutId, liveSessionInfo, contentIdField);
+
+    tooltip("Layout Opened!", "#83EEFFD9");
 }
 
 async function autoSwitch() {
@@ -497,6 +499,8 @@ async function remove() {
     document.getElementById("popup").classList.remove("show");
     document.getElementById("layouts-container").innerHTML = "";
     showLayouts();
+
+    tooltip("Layout removed!", "#FF8383D9");
 }
 
 async function editLayout(layoutId) {
@@ -510,10 +514,20 @@ async function showLayouts() {
     for (const layout in layouts) {
         const layoutName = layouts[layout].name;
         document.getElementById("layouts-container").innerHTML += `<div class="layout">
-    <button class="window edit" onclick="editLayout(${layout})"><img src="../icons/edit.png" alt="" /></button>
-    <button class="window load" onclick="restoreLayout(${layout})">${layoutName}</button>
-    <button class="window save" onclick="saveLayout(${layout})"><img src="../icons/save.png" alt="" /></button>
-</div>`;
+                        <div onclick="editLayout(${layout})" class="part name">
+                        <p>
+                            ${layoutName}<span class="icon-container"><img src="../icons/edit.png" alt="" /></span>
+                        </p>
+                    </div>
+                    <div onclick="restoreLayout(${layout})" class="part load">
+                        <p>LOAD</p>
+                    </div>
+                    <div class="part save" onclick="saveLayout(${layout})">
+                        <p>
+                            <span class="icon-container"><img src="../icons/save.png" alt="" /></span>SAVE
+                        </p>
+                    </div>
+                </div>`;
     }
 }
 
@@ -531,7 +545,7 @@ async function newLayout() {
 
     document.getElementById("layouts-container").innerHTML = "";
     showLayouts();
-    tooltip("New layout created, press the save icon to save your current layout", "#83FF83");
+    tooltip("New layout created, press the save icon to save your current layout", "#83FF83D9");
 }
 
 // Link MV

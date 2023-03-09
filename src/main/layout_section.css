@@ -6,55 +6,105 @@
 }
 
 .layout {
-    display: flex;
-    width: 70%;
+    background-color: transparent;
+    display: grid;
+    grid-template-columns: 20fr 6fr 7fr;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.5s ease;
+    font-size: 17px;
+    width: 90%;
+    min-height: 40px;
+    /* height: 40px; */
     margin: 10px;
-    position: relative;
+    gap: 10px;
+    border: 2px solid transparent;
+    border-radius: 10px;
+}
+
+.layout.gray {
+    color: black;
+    width: 30%;
+    height: 40px;
+    display: inherit;
+    background-color: #9f9f9f;
+    font-size: 14px;
+}
+
+.layout .part {
+    border: 2px solid #9f9f9f;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 2px 15px;
+    border-radius: 10px;
+    text-align: left;
+    transition: all 0.5s ease;
+    user-select: none;
+}
+
+.layout .part:hover {
+    transform: translate(3px, 3px);
+}
+
+.layout .part.name p {
+    gap: 10px;
+}
+
+.layout .part.save p,
+.layout .part.load p {
+    color: #9f9f9f;
+}
+
+.layout .part.name p,
+.layout .part.save p {
+    display: flex;
+    align-items: center;
     justify-content: space-between;
+    width: 100%;
 }
 
-.layout .window {
-    margin: 0 !important;
-}
-
-.load {
-    width: 75% !important;
-    height: fit-content;
-}
-
-.save,
-.edit {
-    width: 40px !important;
-    padding: 5px !important;
+.layout .icon-container {
     display: grid;
     place-items: center;
 }
 
-.save img {
-    width: 90%;
-}
-
-.edit img {
-    width: 70%;
-}
-
-.new {
-    width: 100% !important;
-    background-color: rgb(0, 173, 231) !important;
-    color: black;
+.layout .icon-container img {
+    height: 20px;
 }
 
 .layouts {
+    position: fixed;
     height: 0vh;
     width: 100vw;
-    backdrop-filter: blur(1.5rem);
-    background-color: rgb(50, 50, 50);
-    position: fixed;
+    background-color: rgb(15, 15, 15);
+    overflow: scroll;
+    transition: all 0.7s ease;
     display: flex;
     align-items: center;
     flex-direction: column;
-    overflow: hidden;
-    transition: all 0.7s ease;
     z-index: 1;
 }
 
+#content-id-field {
+    padding: 10px;
+    border-radius: 10px;
+    border: none;
+    position: fixed;
+    bottom: 100px;
+    text-align: center;
+    display: none;
+}
+
+.new {
+    margin-bottom: 80px;
+}
+
+.new:hover {
+    transform: translate(3px, 3px);
+}
+
+#layout.shown #content-id-field {
+    display: block;
+}

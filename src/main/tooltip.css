@@ -1,17 +1,17 @@
 #tooltip {
-    width: 70%;
+    width: 60%;
     position: fixed;
     bottom: -100px;
     left: 50%;
     transform: translateX(-50%);
-    padding: 10px;
-    border-radius: 10px;
+    padding: 10px 20px;
+    border-radius: 30px;
     border: 2px solid black;
     transition: all 0.5s ease;
     z-index: 4;
     display: grid;
     place-items: center;
-    color: black;
+    color: rgb(41, 41, 41);
 }
 
 #tooltip.show {
