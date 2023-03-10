@@ -252,6 +252,23 @@ ipcMain.handle("saveLayout", async (event, layoutId) => {
 
         let fullscreen = false;
 
+        if (bounds.x < activeDisplay.bounds.x) {
+            bounds.width -= activeDisplay.bounds.x - bounds.x;
+            bounds.x = activeDisplay.bounds.x;
+        }
+
+        if (bounds.y < activeDisplay.bounds.y) {
+            bounds.height -= activeDisplay.bounds.y - bounds.y;
+            bounds.y = activeDisplay.bounds.y;
+        }
+
+        if (bounds.x + bounds.width > activeDisplay.bounds.x + activeDisplay.bounds.width) {
+            bounds.width = activeDisplay.bounds.x + activeDisplay.bounds.width - bounds.x;
+        }
+
+        if (bounds.y + bounds.height > activeDisplay.bounds.y + activeDisplay.bounds.height)
+            bounds.height = activeDisplay.bounds.y + activeDisplay.bounds.height - bounds.y;
+
         if (
             window.isFullScreen() ||
             (bounds.x <= activeDisplay.bounds.x &&
