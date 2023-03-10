@@ -14,11 +14,6 @@ const { parseLapOrSectorTime, formatMsToF1 } = require("../functions/times.js");
 
 const { getColorFromStatusCodeOrName } = require("../functions/colors.js");
 
-// Set sleep
-const sleep = (milliseconds) => {
-    return new Promise((resolve) => setTimeout(resolve, milliseconds));
-};
-
 // Apply any configuration from the config.json file
 async function getConfigurations() {
     const configFile = (await ipcRenderer.invoke("get_store")).config;
@@ -32,26 +27,6 @@ async function getConfigurations() {
     holdSectorTimeDuration = parseInt(configFile.current_laps?.sector_display_duration) ?? 4000;
     holdEndOfLapDuration = parseInt(configFile.current_laps?.end_display_duration) ?? 4000;
 }
-
-// Toggle the background transparent or not
-let transparent = false;
-function toggleBackground() {
-    if (transparent) {
-        document.querySelector("body").className = "";
-        transparent = false;
-    } else {
-        document.querySelector("body").className = "transparent";
-        transparent = true;
-    }
-}
-
-// Listen to the escape key and toggle the backgrounds transparency when it is pressed
-document.addEventListener("keydown", (event) => {
-    if (event.key == "Escape") {
-        toggleBackground();
-    }
-});
-
 // All the api requests
 async function apiRequests() {
     const config = {
@@ -644,9 +619,9 @@ async function initiateTemplate(driverNumber, pushDrivers) {
 
     container.insertBefore(listItem, beforeElement);
 
-    await sleep(10);
-
-    listItem.classList.add("show");
+    setTimeout(() => {
+        listItem.classList.add("show");
+    }, 10);
 }
 
 const { getDriversTrackOrder } = require("../functions/driver.js");
@@ -654,8 +629,7 @@ const { getDriversTrackOrder } = require("../functions/driver.js");
 // Run all function and create a loop to refresh
 async function run() {
     await getConfigurations();
-    while (true) {
-        await sleep(loopspeed);
+    setInterval(async () => {
         await apiRequests();
         const pushDrivers = getAllPushDriverPositions();
         // Check for every driver if he is pushing and then initiate a template
@@ -675,6 +649,6 @@ async function run() {
         for (const driver in timingData) {
             saveTimeOfNewLap(driver);
         }
-    }
+    }, loopspeed);
 }
 run();

@@ -4,27 +4,6 @@ const { ipcRenderer } = require("electron");
 
 const f1mvApi = require("npm_f1mv_api");
 
-const sleep = (milliseconds) => {
-    return new Promise((resolve) => setTimeout(resolve, milliseconds));
-};
-
-let transparent = false;
-function toggleBackground() {
-    if (transparent) {
-        document.getElementById("background").className = "";
-        transparent = false;
-    } else {
-        document.getElementById("background").className = "transparent";
-        transparent = true;
-    }
-}
-
-document.addEventListener("keydown", (event) => {
-    if (event.key == "Escape") {
-        toggleBackground();
-    }
-});
-
 async function getConfigurations() {
     const configFile = (await ipcRenderer.invoke("get_store")).config;
     const networkConfig = configFile.network;
@@ -324,9 +303,9 @@ async function addLog(driverNumber, type, category, message, color, time, lap) {
 
     logs.appendChild(newWrapper);
 
-    await sleep(10);
-
-    newWrapper.classList.add("shown");
+    setTimeout(() => {
+        newWrapper.classList.add("shown");
+    }, 10);
 }
 
 function getLogTime() {
@@ -799,8 +778,8 @@ function removeLogs() {
 async function run() {
     await getConfigurations();
     let count = 0;
-    while (true) {
-        await sleep(500);
+
+    setInterval(async () => {
         await apiRequests();
         const time = getLogTime();
         const lap = sessionType === "Race" ? `LAP ${lapCount.CurrentLap}` : "";
@@ -822,7 +801,7 @@ async function run() {
         await addRaceControlMessageLogs(time, lap, count);
         await removeLogs();
         count++;
-    }
+    }, 500);
 }
 
 run();

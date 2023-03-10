@@ -4,15 +4,13 @@
 }
 
 body {
-    background-color: gray;
-    -webkit-app-region: drag;
     height: 100vh;
     width: 100vw;
     overflow: hidden;
 }
 
-.transparent {
-    background-color: transparent !important;
+.drag {
+    -webkit-app-region: drag;
 }
 
 /* Container and animations */

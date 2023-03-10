@@ -4,15 +4,10 @@
     overflow: hidden;
 }
 
-body {
-    background-color: gray;
-}
-
 #compass {
     width: calc(100vw);
-    -webkit-app-region: drag;
 }
 
-.transparent {
-    background-color: transparent;
+.drag {
+    -webkit-app-region: drag;
 }

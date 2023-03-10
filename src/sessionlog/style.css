@@ -7,10 +7,12 @@
 }
 
 body {
-    -webkit-app-region: drag;
     height: 100vh;
     width: 100vw;
-    background-color: gray;
+}
+
+.drag {
+    -webkit-app-region: drag;
 }
 
 .header {
@@ -198,8 +200,4 @@ body {
 
 .white {
     background: linear-gradient(to bottom, transparent 0%, rgba(255, 255, 255, 0.438) 100%);
-}
-
-.transparent {
-    background: transparent !important;
 }

@@ -153,7 +153,8 @@ ipcMain.handle(
         transparent,
         hasShadow,
         alwaysOnTop,
-        icon
+        icon,
+        aspectRatio
     ) => {
         // Create the new window with all arguments
         const newWindow = new BrowserWindow({
@@ -172,6 +173,9 @@ ipcMain.handle(
             },
             icon: path.join(__dirname, "icons/windows/" + icon),
         });
+
+        if (aspectRatio) newWindow.setAspectRatio(aspectRatio);
+
         newWindow.loadFile(path.join(__dirname, pathToHTML));
 
         return "Opening: " + pathToHTML + alwaysOnTop;

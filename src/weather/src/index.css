@@ -4,14 +4,11 @@
     font-family: "SFBold", Arial, Helvetica, sans-serif;
 }
 
-.transparent {
-    background-color: transparent !important;
-    -webkit-app-region: no-drag;
-}
-
 body {
     overflow: hidden;
-    background-color: gray;
+}
+
+.drag {
     -webkit-app-region: drag;
 }
 

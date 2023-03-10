@@ -273,14 +273,15 @@ async function compass() {
     await ipcRenderer.invoke(
         "window",
         "compass/index.html",
-        100,
-        100,
+        250,
+        250,
         false,
         true,
         true,
         false,
         alwaysOnTop,
-        "compass.png"
+        "compass.png",
+        1
     );
 }
 
