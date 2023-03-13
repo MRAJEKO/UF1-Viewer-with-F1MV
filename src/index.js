@@ -575,7 +575,6 @@ ipcMain.handle("restoreLayout", async (event, layoutId, liveSessionInfo, content
                 y: window.bounds.y,
                 frame: window.frame,
                 hideMenuBar: window.hideMenuBar,
-                useContentSize: true,
                 transparent: window.transparent,
                 hasShadow: window.hasShadow,
                 fullscreen: window.fullscreen,
@@ -587,8 +586,6 @@ ipcMain.handle("restoreLayout", async (event, layoutId, liveSessionInfo, content
                 },
                 icon: path.join(__dirname, "icons/windows/" + window.icon),
             });
-
-            newWindow.setContentSize(window.bounds.width, window.bounds.height, true);
 
             newWindow.loadFile(__dirname + window.path);
         }
