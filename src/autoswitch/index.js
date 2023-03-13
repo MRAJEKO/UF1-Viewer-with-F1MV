@@ -137,14 +137,8 @@ async function replaceWindow(oldWindowId, newDriverNumber, contentId, mainWindow
     console.log(mainWindow);
 
     const bounds = await f1mvApi.getPlayerBounds(config, oldWindowId);
-    const height = bounds.height;
-    const width = bounds.width;
-    const x = bounds.x;
-    const y = bounds.y;
 
-    const newBounds = { height: height, width: width, x: 0, y: -5000 };
-
-    const newWindow = await f1mvApi.createPlayer(config, newDriverNumber, contentId, newBounds, false, null, true);
+    const newWindow = await f1mvApi.createPlayer(config, newDriverNumber, contentId, bounds, false);
 
     if (!newWindow.errors) {
         const newWindowId = newWindow.data.playerCreate;
@@ -159,7 +153,7 @@ async function replaceWindow(oldWindowId, newDriverNumber, contentId, mainWindow
 
         await sleep(3000);
 
-        await f1mvApi.setPlayerBounds(config, newWindowId, { x: x, y: y });
+        await f1mvApi.setAlwaysOnTop(config, newWindowId, true, "FLOATING");
 
         await f1mvApi.removePlayer(config, oldWindowId);
     } else {
