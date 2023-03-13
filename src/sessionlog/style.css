@@ -109,13 +109,18 @@ body {
     align-items: center;
 }
 
+.tires div {
+    display: flex;
+    align-items: center;
+}
+
 .tires img {
-    height: 6vw;
+    height: 7vw !important;
 }
 
 .arrow img {
-    height: 4vw;
-    width: 7vw;
+    height: 4vw !important;
+    width: 7vw !important;
 }
 
 .stoptime {

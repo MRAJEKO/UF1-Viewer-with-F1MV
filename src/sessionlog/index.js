@@ -153,7 +153,6 @@ function getTime(ms) {
 
 async function addLog(driverNumber, type, category, message, color, time, lap) {
     const logs = document.getElementById("logs");
-
     let newLog = `<div class="log"><div class="type"><p>${category}</p></div><div class="status ${color}"><p>${message}</p></div><div class="time"><p>${time}</p><p>${lap}</p></div></div>`;
 
     const driverInfo = driverList[driverNumber];
@@ -565,6 +564,8 @@ async function addFastestLapLog(time, lap, count) {
 let oldPitstops = [];
 async function addPitstopLog(time, lap, count) {
     for (const driver in pitLaneTimeCollection) {
+        console.log(driver);
+
         const driverPitInfo = pitLaneTimeCollection[driver];
 
         const pitstopString = JSON.stringify(driverPitInfo);
@@ -624,12 +625,23 @@ async function addFinishedLog(time, lap, count) {
 
     console.log(sessionEnded);
 
+    console.log(finishedDriverLaps);
+
     for (const driver in timingData) {
         const driverTimingData = timingData[driver];
 
-        if (finishedDriverLaps[driver] === driverTimingData.NumberOfLaps) continue;
-
         if (finishedDrivers.includes(driver)) continue;
+
+        if (driverTimingData.Position == 1 && sessionType === "Race") {
+            finishedDrivers.push(driver);
+            await addLog(driver, "driver", "Finished", "Finished", "white", time, lap);
+            continue;
+        }
+
+        if (driverTimingData.Retired || driverTimingData.Stopped || driverTimingData.InPit)
+            finishedDrivers.push(driver);
+
+        if (finishedDriverLaps[driver] === driverTimingData.NumberOfLaps) continue;
 
         finishedDrivers.push(driver);
 
@@ -666,13 +678,32 @@ async function addRaceControlMessageLogs(time, lap, count) {
                     const driver = raceControlMessage.Message.match(/\d+/)[0];
 
                     await addLog(driver, "flag", "Penalty", "flag_blackandorange.png", "orange", time, lap);
+                    break;
+                }
+                if (raceControlMessage.Flag === "BLACK AND WHITE") {
+                    const driver = raceControlMessage.Message.match(/\d+/)[0];
+
+                    await addLog(driver, "flag", "Penalty", "flag_blackandwhite.png", "white", time, lap);
+                    break;
                 }
                 break;
             }
             case "LapTimeDeleted": {
                 const driver = raceControlMessage.Message.match(/\d+/)[0];
 
-                await addLog(driver, "penalty", "Penalty", ["Warning", "Track Limits"], "orange", time, lap);
+                const trackLimitCount = raceControlMessages?.filter(
+                    (message) => message.SubCategory === "LapTimeDeleted" && message.Message.includes(`CAR ${driver}`)
+                ).length;
+
+                await addLog(
+                    driver,
+                    "penalty",
+                    "Penalty",
+                    [`Warning (${trackLimitCount})`, "Track Limits"],
+                    "orange",
+                    time,
+                    lap
+                );
                 break;
             }
             case "TimePenalty": {
