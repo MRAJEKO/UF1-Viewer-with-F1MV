@@ -23,7 +23,12 @@ const defaults = {
         },
         trackinfo: { orientation: "vertical" },
         singlercm: { display_duration: "10000" },
-        current_laps: { always_on_top: true, sector_display_duration: "4000", end_display_duration: "4000" },
+        current_laps: {
+            always_on_top: true,
+            show_header: true,
+            sector_display_duration: "4000",
+            end_display_duration: "4000",
+        },
         weather: { datapoints: "30", use_trackmap_rotation: true },
         autoswitcher: { main_window_name: "INTERNATIONAL", speedometer: true, fixed_drivers: "" },
     },
@@ -49,6 +54,191 @@ const defaults = {
         "Alfa Romeo": "../icons/teams/alfa-romeo.png",
         Mercedes: "../icons/teams/mercedes.png",
     },
+    internal_settings: {
+        windows: {
+            main: {
+                path: "main/index.html",
+                autoHideMenuBar: true,
+                width: 600,
+                height: 1000,
+                minWidth: 600,
+                minHeight: 600,
+                maximizable: false,
+                icon: "icons/windows/logo.png",
+            },
+            flag_display: {
+                path: "flagdisplay/index.html",
+                width: 800,
+                height: 600,
+                frame: false,
+                hideMenuBar: true,
+                transparent: false,
+                hasShadow: false,
+                alwaysOnTop: false,
+                aspectRatio: null,
+                icon: "icons/windows/flagdisplay.png",
+            },
+            tracktime: {
+                path: "tracktime/index.html",
+                width: 400,
+                height: 140,
+                frame: false,
+                hideMenuBar: true,
+                transparent: true,
+                hasShadow: false,
+                alwaysOnTop: null,
+                aspectRatio: null,
+                icon: "icons/windows/tracktime.png",
+            },
+            session_log: {
+                path: "sessionlog/index.html",
+                width: 250,
+                height: 800,
+                frame: false,
+                hideMenuBar: true,
+                transparent: true,
+                hasShadow: false,
+                alwaysOnTop: null,
+                aspectRatio: null,
+                icon: "icons/windows/sessionlog.png",
+            },
+            trackinfo: {
+                path: "trackinfo/index.html",
+                width: null,
+                height: null,
+                frame: false,
+                hideMenuBar: true,
+                transparent: true,
+                hasShadow: false,
+                alwaysOnTop: null,
+                aspectRatio: null,
+                icon: "icons/windows/trackinfo.png",
+            },
+            statuses: {
+                path: "statuses/index.html",
+                width: 250,
+                height: 800,
+                frame: false,
+                hideMenuBar: true,
+                transparent: true,
+                hasShadow: false,
+                alwaysOnTop: null,
+                aspectRatio: null,
+                icon: "icons/windows/statuses.png",
+            },
+            singlercm: {
+                path: "singlercm/index.html",
+                width: 1000,
+                height: 100,
+                frame: false,
+                hideMenuBar: true,
+                transparent: true,
+                hasShadow: false,
+                alwaysOnTop: true,
+                aspectRatio: null,
+                icon: "icons/windows/singlercm.png",
+            },
+            crashdetection: {
+                path: "crashdetection/index.html",
+                width: 400,
+                height: 400,
+                frame: false,
+                hideMenuBar: true,
+                transparent: true,
+                hasShadow: false,
+                alwaysOnTop: null,
+                aspectRatio: null,
+                icon: "icons/windows/crashdetection.png",
+            },
+            compass: {
+                path: "compass/index.html",
+                width: 250,
+                height: 250,
+                frame: false,
+                hideMenuBar: true,
+                transparent: true,
+                hasShadow: false,
+                alwaysOnTop: null,
+                aspectRatio: 1,
+                icon: "icons/windows/compass.png",
+            },
+            tirestats: {
+                path: "tirestats/index.html",
+                width: 650,
+                height: 600,
+                frame: false,
+                hideMenuBar: true,
+                transparent: true,
+                hasShadow: false,
+                alwaysOnTop: null,
+                aspectRatio: null,
+                icon: "icons/windows/tirestats.png",
+            },
+            current_laps: {
+                path: "currentlaps/index.html",
+                width: 300,
+                height: 500,
+                frame: false,
+                hideMenuBar: true,
+                transparent: true,
+                hasShadow: false,
+                alwaysOnTop: null,
+                aspectRatio: null,
+                icon: "icons/windows/currentlaps.png",
+            },
+            battlemode: {
+                path: "battlemode/index.html",
+                width: 1300,
+                height: 200,
+                frame: false,
+                hideMenuBar: true,
+                transparent: true,
+                hasShadow: false,
+                alwaysOnTop: null,
+                aspectRatio: null,
+                icon: "icons/windows/battlemode.png",
+            },
+            weather: {
+                path: "weather/index.html",
+                width: 1000,
+                height: 530,
+                frame: false,
+                hideMenuBar: true,
+                transparent: true,
+                hasShadow: false,
+                alwaysOnTop: null,
+                aspectRatio: null,
+                icon: "icons/windows/weather.png",
+            },
+            autoswitcher: {
+                path: "autoswitcher/index.html",
+                width: 400,
+                height: 480,
+                frame: false,
+                hideMenuBar: true,
+                transparent: true,
+                hasShadow: false,
+                alwaysOnTop: true,
+                aspectRatio: null,
+                icon: "icons/windows/autoswitcher.png",
+            },
+        },
+        session: {
+            getLiveSession: "https://api.joost.systems/api/v2/f1tv/live-session",
+        },
+        multiviewer: {
+            app: {
+                link: "muvi://",
+            },
+            livetiming: {
+                link: "multiviewer://app/live-timing",
+            },
+        },
+        analytics: {
+            getUniqueID: "https://api.joost.systems/api/v2/uf1/analytics/active-users/getUniqueID",
+            sendActiveUsers: "https://api.joost.systems/api/v2/uf1/analytics/active-users/post",
+        },
+    },
 };
 
 const store = new Store({
@@ -67,7 +257,7 @@ const store = new Store({
             store.set("config.autoswitcher.fixed_drivers", "");
         },
         "1.4.5": (store) => {
-            if (store.get("config.session_log.practice_starts") === undefined) {
+            if (store.get("config.session_log.practice_starts") === null) {
                 store.set("config.session_log.practice_starts", true);
             }
 
@@ -78,6 +268,10 @@ const store = new Store({
             if (store.get("config.autoswitcher.fixed_drivers") === undefined) {
                 store.set("config.autoswitcher.fixed_drivers", "");
             }
+
+            store.set("config.current_laps.show_header", true);
+
+            store.set("internal_settings", defaults.internal_settings);
         },
     },
 
@@ -91,15 +285,15 @@ const sleep = (milliseconds) => {
 // Get main display height
 // Create the browser window.
 const createWindow = () => {
-    const mainDisplayHeight = screen.getPrimaryDisplay().size.height;
-    let height = 1000;
-    if (mainDisplayHeight < height) {
-        height = mainDisplayHeight;
-    }
+    // const mainDisplayHeight = screen.getPrimaryDisplay().size.height;
+    // let height = 1000;
+    // if (mainDisplayHeight < height) {
+    //     height = mainDisplayHeight;
+    // }
     const mainWindow = new BrowserWindow({
         autoHideMenuBar: true,
         width: 600,
-        height: height,
+        height: 1000,
         minWidth: 600,
         minHeight: 600,
         maximizable: false,
@@ -153,10 +347,15 @@ ipcMain.handle(
         transparent,
         hasShadow,
         alwaysOnTop,
-        icon,
-        aspectRatio
+        aspectRatio,
+        icon
     ) => {
         // Create the new window with all arguments
+
+        console.log(pathToHTML);
+
+        if (!alwaysOnTop) alwaysOnTop = store.get("config.general.always_on_top");
+
         const newWindow = new BrowserWindow({
             autoHideMenuBar: hideMenuBar,
             width: width,
@@ -171,7 +370,7 @@ ipcMain.handle(
                 nodeIntegration: true,
                 contextIsolation: false,
             },
-            icon: path.join(__dirname, "icons/windows/" + icon),
+            icon: path.join(__dirname, icon),
         });
 
         if (aspectRatio) newWindow.setAspectRatio(aspectRatio);

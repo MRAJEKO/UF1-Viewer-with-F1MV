@@ -4,6 +4,7 @@ const { ipcRenderer } = require("electron");
 const debug = false;
 
 const f1mvApi = require("npm_f1mv_api");
+const { get } = require("request");
 
 async function getConfigurations(host, port, file) {
     config = {
@@ -17,9 +18,11 @@ async function getConfigurations(host, port, file) {
     }
 }
 
-function launchMVF1() {
+async function launchMVF1() {
+    const multiviewerLink = (await ipcRenderer.invoke("get_store")).internal_settings.multiviewer.app.link;
+
     if (navigator.appVersion.includes("Win") || navigator.appVersion.includes("Mac")) {
-        location = "muvi://";
+        location = multiviewerLink;
     } else if (navigator.appVersion.includes("X11") || navigator.appVersion.includes("Linux")) {
         alert("Opening MultiViewer for Linux is not supported yet.");
     } else {
@@ -31,50 +34,26 @@ async function ignore() {
     isConnected(true);
 }
 
-async function setAlwaysOnTop() {
-    const config = (await ipcRenderer.invoke("get_store")).config;
-    alwaysOnTop = config.general.always_on_top;
-    alwaysOnTopPush = config.current_laps.always_on_top;
-}
-
-setAlwaysOnTop();
-setInterval(async () => {
-    await setAlwaysOnTop();
-}, 2000);
-
-async function flagDisplay() {
-    await ipcRenderer.invoke(
-        "window",
-        "flagdisplay/index.html",
-        800,
-        600,
-        false,
-        true,
-        false,
-        false,
-        false,
-        "flagdisplay.png"
-    );
-}
-
 let liveSession = false;
 let multiViewerConnected = false;
-function livetiming() {
+async function livetiming() {
+    const multiviewerLinks = (await ipcRenderer.invoke("get_store")).internal_settings.multiviewer;
+
     if (liveSession) {
         if (multiViewerConnected) {
-            location = "multiviewer://app/live-timing";
+            location = multiviewerLinks.livetiming.link;
         } else {
             if (navigator.appVersion.includes("Win") || navigator.appVersion.includes("Mac")) {
-                location = "muvi://";
+                location = multiviewerLinks.app.link;
 
                 const interval = setInterval(() => {
                     if (multiViewerConnected) {
-                        location = "multiviewer://app/live-timing";
+                        location = multiviewerLinks.livetiming.link;
                         clearInterval(interval);
                     }
                 }, 500);
             } else {
-                location = "multiviewer://app/live-timing";
+                location = multiviewerLinks.livetiming.link;
             }
         }
     }
@@ -97,8 +76,10 @@ function livetimingButton() {
 let liveSessionInfo = null;
 function sessionLive() {
     async function checkApi() {
+        const liveSessionApiLink = (await ipcRenderer.invoke("get_store")).internal_settings.session.getLiveSession;
+
         try {
-            const response = await (await fetch("https://api.joost.systems/api/v2/f1tv/live-session")).json();
+            const response = await (await fetch(liveSessionApiLink)).json();
 
             liveSession = response.liveSessionFound && response.sessionInfo?.Series === "FORMULA 1";
 
@@ -120,7 +101,8 @@ sessionLive();
 
 let userActiveID;
 async function getUserActiveID() {
-    (await fetch("https://api.joost.systems/api/v2/uf1/analytics/active-users/getUniqueID")).json().then((data) => {
+    const getUniqueIDLink = (await ipcRenderer.invoke("get_store")).internal_settings.analytics.getUniqueID;
+    (await fetch(getUniqueIDLink)).json().then((data) => {
         userActiveID = data.uniqueID;
         userActiveHandler(true);
     });
@@ -138,7 +120,7 @@ async function userActiveHandler(active) {
 
 async function sendUserActiveData(active) {
     if (active === false) {
-        const userActiveURL = "https://api.joost.systems/api/v2/uf1/analytics/active-users/post";
+        const userActiveURL = (await ipcRenderer.invoke("get_store")).internal_settings.analytics.sendActiveUsers;
         const requestBody = {
             uniqueID: userActiveID,
             userActive: false,
@@ -151,7 +133,7 @@ async function sendUserActiveData(active) {
             body: JSON.stringify(requestBody),
         });
     } else if (active === true) {
-        const userActiveURL = "https://api.joost.systems/api/v2/uf1/analytics/active-users/post";
+        const userActiveURL = (await ipcRenderer.invoke("get_store")).internal_settings.analytics.sendActiveUsers;
         const requestBody = {
             uniqueID: userActiveID,
             userActive: true,
@@ -175,174 +157,100 @@ async function generateSolidWindow(color) {
     await ipcRenderer.invoke("generateSolidColoredWindow", color);
 }
 
+async function flagDisplay() {
+    const internalSettings = (await ipcRenderer.invoke("get_store")).internal_settings;
+
+    await ipcRenderer.invoke("window", ...Object.values(internalSettings.windows.flag_display));
+}
+
 async function trackTime() {
-    await ipcRenderer.invoke(
-        "window",
-        "tracktime/index.html",
-        400,
-        140,
-        false,
-        true,
-        true,
-        false,
-        alwaysOnTop,
-        "tracktime.png"
-    );
+    const internalSettings = (await ipcRenderer.invoke("get_store")).internal_settings;
+
+    await ipcRenderer.invoke("window", ...Object.values(internalSettings.windows.tracktime));
 }
 
 async function sessionLog() {
-    await ipcRenderer.invoke(
-        "window",
-        "sessionlog/index.html",
-        250,
-        800,
-        false,
-        true,
-        true,
-        false,
-        alwaysOnTop,
-        "sessionlog.png"
-    );
+    const internalSettings = (await ipcRenderer.invoke("get_store")).internal_settings;
+
+    await ipcRenderer.invoke("window", ...Object.values(internalSettings.windows.session_log));
 }
 
 async function trackInfo() {
-    const width = (await ipcRenderer.invoke("get_store")).config.trackinfo.orientation === "horizontal" ? 900 : 250;
+    const settings = await ipcRenderer.invoke("get_store");
 
-    const height = (await ipcRenderer.invoke("get_store")).config.trackinfo.orientation === "horizontal" ? 100 : 800;
+    const internalSettings = settings.internal_settings;
 
-    await ipcRenderer.invoke(
-        "window",
-        "trackinfo/index.html",
-        width,
-        height,
-        false,
-        true,
-        true,
-        false,
-        alwaysOnTop,
-        "trackinfo.png"
-    );
+    const width = settings.config.trackinfo.orientation === "horizontal" ? 900 : 250;
+    internalSettings.windows.trackinfo.width = width;
+
+    const height = settings.config.trackinfo.orientation === "horizontal" ? 100 : 800;
+    internalSettings.windows.trackinfo.height = height;
+
+    await ipcRenderer.invoke("window", ...Object.values(internalSettings.windows.trackinfo));
 }
 
 async function statuses() {
-    await ipcRenderer.invoke(
-        "window",
-        "statuses/index.html",
-        250,
-        800,
-        false,
-        true,
-        true,
-        false,
-        alwaysOnTop,
-        "statuses.png"
-    );
+    const internalSettings = (await ipcRenderer.invoke("get_store")).internal_settings;
+
+    await ipcRenderer.invoke("window", ...Object.values(internalSettings.windows.statuses));
 }
 
 async function singleRCM() {
-    await ipcRenderer.invoke(
-        "window",
-        "singlercm/index.html",
-        1000,
-        100,
-        false,
-        true,
-        true,
-        false,
-        alwaysOnTop,
-        "singlercm.png"
-    );
+    const internalSettings = (await ipcRenderer.invoke("get_store")).internal_settings;
+
+    await ipcRenderer.invoke("window", ...Object.values(internalSettings.windows.singlercm));
 }
 
 async function crashDetection() {
-    await ipcRenderer.invoke(
-        "window",
-        "crashdetection/index.html",
-        400,
-        400,
-        false,
-        true,
-        true,
-        false,
-        alwaysOnTop,
-        "crashdetection.png"
-    );
+    const internalSettings = (await ipcRenderer.invoke("get_store")).internal_settings;
+
+    await ipcRenderer.invoke("window", ...Object.values(internalSettings.windows.crashdetection));
 }
 
 async function compass() {
-    await ipcRenderer.invoke(
-        "window",
-        "compass/index.html",
-        250,
-        250,
-        false,
-        true,
-        true,
-        false,
-        alwaysOnTop,
-        "compass.png",
-        1
-    );
+    const internalSettings = (await ipcRenderer.invoke("get_store")).internal_settings;
+
+    await ipcRenderer.invoke("window", ...Object.values(internalSettings.windows.compass));
 }
 
 async function tirestats() {
-    await ipcRenderer.invoke(
-        "window",
-        "tirestats/index.html",
-        650,
-        600,
-        false,
-        true,
-        true,
-        false,
-        alwaysOnTop,
-        "tirestats.png"
-    );
+    const internalSettings = (await ipcRenderer.invoke("get_store")).internal_settings;
+
+    await ipcRenderer.invoke("window", ...Object.values(internalSettings.windows.tirestats));
 }
 
 async function currentLaps() {
-    await ipcRenderer.invoke(
-        "window",
-        "currentlaps/index.html",
-        300,
-        500,
-        false,
-        true,
-        true,
-        false,
-        alwaysOnTopPush,
-        "currentlaps.png"
-    );
+    const internalSettings = (await ipcRenderer.invoke("get_store")).internal_settings;
+
+    const alwaysOnTop = (await ipcRenderer.invoke("get_store")).config.current_laps.always_on_top;
+
+    internalSettings.windows.current_laps.alwaysOnTop = alwaysOnTop;
+
+    await ipcRenderer.invoke("window", ...Object.values(internalSettings.windows.current_laps));
 }
 
 async function battlemode() {
-    await ipcRenderer.invoke(
-        "window",
-        "battlemode/index.html",
-        1300,
-        200,
-        false,
-        true,
-        true,
-        false,
-        alwaysOnTop,
-        "battlemode.png"
-    );
+    const internalSettings = (await ipcRenderer.invoke("get_store")).internal_settings;
+
+    await ipcRenderer.invoke("window", ...Object.values(internalSettings.windows.battlemode));
 }
 
 async function weather() {
-    await ipcRenderer.invoke(
-        "window",
-        "weather/index.html",
-        1000,
-        530,
-        false,
-        true,
-        true,
-        false,
-        alwaysOnTop,
-        "weather.png"
-    );
+    const internalSettings = (await ipcRenderer.invoke("get_store")).internal_settings;
+
+    await ipcRenderer.invoke("window", ...Object.values(internalSettings.windows.weather));
+}
+
+async function autoSwitch() {
+    const internalSettings = (await ipcRenderer.invoke("get_store")).internal_settings;
+
+    await ipcRenderer.invoke("window", ...Object.values(internalSettings.windows.autoswitcher));
+}
+
+function openLayouts() {
+    const element = document.getElementById("layout");
+
+    element.classList.toggle("shown");
 }
 
 async function saveLayout(layoutId) {
@@ -355,16 +263,6 @@ async function restoreLayout(layoutId) {
     await ipcRenderer.invoke("restoreLayout", layoutId, liveSessionInfo, contentIdField);
 
     tooltip("Layout Opened!", "#83EEFFD9");
-}
-
-async function autoSwitch() {
-    await ipcRenderer.invoke("window", "autoswitch/index.html", 400, 480, false, true, true, false, true);
-}
-
-function openLayouts() {
-    const element = document.getElementById("layout");
-
-    element.classList.toggle("shown");
 }
 
 // Settings
