@@ -225,7 +225,7 @@ const defaults = {
                 icon: "icons/windows/weather.png",
             },
             autoswitcher: {
-                path: "autoswitcher/index.html",
+                path: "autoswitch/index.html",
                 width: 400,
                 height: 480,
                 frame: false,
