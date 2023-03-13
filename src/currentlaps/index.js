@@ -24,6 +24,13 @@ async function getConfigurations() {
 
     highlightedDrivers = configHighlightedDrivers[0] ? configHighlightedDrivers : [];
 
+    const header = configFile.current_laps?.show_header;
+
+    if (!header) {
+        document.getElementById("header").style.display = "none";
+        document.getElementById("line").style.display = "none";
+    }
+
     holdSectorTimeDuration = parseInt(configFile.current_laps?.sector_display_duration) ?? 4000;
     holdEndOfLapDuration = parseInt(configFile.current_laps?.end_display_duration) ?? 4000;
 }

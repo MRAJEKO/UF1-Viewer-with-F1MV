@@ -15,6 +15,31 @@ body {
 
 /* Container and animations */
 
+.window_header {
+    padding: 5vw;
+}
+
+.window_header h1 {
+    font-size: 8vw;
+    color: white;
+    font-family: "SFBold";
+}
+
+.line {
+    height: 2px;
+    width: 100%;
+    border-radius: 5vw;
+    background-color: #0a0a0faf;
+    margin: 3vw 0;
+}
+
+.wrapper {
+    background-color: #0a0a0faf;
+    border-radius: 6vw;
+    text-align: center;
+    margin-bottom: 3vw;
+}
+
 #container li {
     height: 0;
     margin-bottom: 0;
