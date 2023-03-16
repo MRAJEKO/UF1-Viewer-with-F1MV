@@ -1,7 +1,9 @@
 // Create all needed variables
-const { app, BrowserWindow, ipcMain, screen } = require("electron");
+const { app, BrowserWindow, ipcMain, screen, session } = require("electron");
 const path = require("path");
 const Store = require("electron-store");
+
+const fetch = require("electron-fetch").default;
 
 const f1mvApi = require("npm_f1mv_api");
 
@@ -9,7 +11,7 @@ require("electron-reload")(__dirname);
 
 const defaults = {
     config: {
-        general: { always_on_top: true, discord_rpc: true, highlighted_drivers: "" },
+        general: { always_on_top: true, discord_rpc: true, await_session: true, highlighted_drivers: "" },
         network: { host: "localhost" },
         flag_display: { govee: false },
         session_log: {
@@ -288,6 +290,8 @@ const store = new Store({
             store.set("internal_settings", defaults.internal_settings);
 
             store.set("team_icons", defaults.team_icons);
+
+            store.set("config.general.await_session", true);
         },
     },
 
@@ -325,7 +329,10 @@ const createWindow = () => {
 };
 
 // Create the main window when the app is ready to launch
-app.on("ready", createWindow);
+app.on("ready", () => {
+    createWindow();
+    session.defaultSession.clearCache();
+});
 
 // Quit when all windows are closed, except on macOS. There, it's common
 // for applications and their menu bar to stay active until the user quits
@@ -413,7 +420,7 @@ ipcMain.handle(
         backgroundColor
     ) => {
         // Create the new window with all arguments
-        let newWindow = new BrowserWindow({
+        const newWindow = new BrowserWindow({
             width: 800,
             height: 600,
             frame: false,
@@ -545,12 +552,10 @@ ipcMain.handle("restoreLayout", async (event, layoutId, liveSessionInfo, content
     const layout = layoutConfig[layoutId];
 
     for (const window of layout.uf1Windows) {
-        let newWindow;
-
         if (window.path.includes("color")) {
             const backgroundColor = window.path.split(";")[1];
 
-            newWindow = new BrowserWindow({
+            const newWindow = new BrowserWindow({
                 width: window.bounds.width,
                 height: window.bounds.height,
                 x: window.bounds.x,
@@ -561,13 +566,13 @@ ipcMain.handle("restoreLayout", async (event, layoutId, liveSessionInfo, content
                 icon: path.join(__dirname, "icons/windows/color.png"),
             });
 
-            newWindow.setContentSize(window.bounds.width, window.bounds.height, true);
-
             newWindow.loadURL(`data:text/html;charset=utf-8,<body style="-webkit-app-region: drag;"></body>`);
+
+            newWindow.setSize(window.bounds.width, window.bounds.height);
 
             newWindow.title = "Solid Color Window";
         } else {
-            newWindow = new BrowserWindow({
+            const newWindow = new BrowserWindow({
                 autoHideMenuBar: window.hideMenuBar,
                 width: window.bounds.width,
                 height: window.bounds.height,
@@ -587,7 +592,11 @@ ipcMain.handle("restoreLayout", async (event, layoutId, liveSessionInfo, content
                 icon: path.join(__dirname, "icons/windows/" + window.icon),
             });
 
-            newWindow.loadFile(__dirname + window.path);
+            console.log(__dirname + window.path);
+
+            await newWindow.loadFile(__dirname + window.path);
+
+            newWindow.setSize(window.bounds.width, window.bounds.height);
         }
 
         await sleep(1000);
@@ -602,23 +611,77 @@ ipcMain.handle("restoreLayout", async (event, layoutId, liveSessionInfo, content
         port: port,
     };
 
-    const liveSessionType = liveSessionInfo?.sessionInfo?.sessionType?.toLowerCase() ?? null;
+    let liveSessionType = liveSessionInfo?.sessionInfo?.sessionType?.toLowerCase() ?? null;
 
-    const contentId =
-        liveSessionInfo?.liveSessionFound &&
-        liveSessionInfo?.sessionInfo?.Series === "FORMULA 1" &&
-        (liveSessionType?.includes("post") || liveSessionType?.includes("pre"))
-            ? liveSessionInfo?.contentInfo?.contentId
-            : contentIdField ?? null;
+    if (!liveSessionInfo?.liveSessionFound && !contentIdField) return;
 
-    if (!contentId) return;
-
-    await sleep(5000);
+    if (liveSessionType?.includes("post") && !contentIdField) return;
 
     const driverList = (await f1mvApi.LiveTimingAPIGraphQL(config, "DriverList")).DriverList;
 
+    let tempWindows = [];
+    if (liveSessionType?.includes("pre") && !contentIdField) {
+        if (!store.get("config.general.await_session")) return;
+
+        console.log("Waiting for session to go live...");
+        for (const window of layout.mvWindows) {
+            const newWindow = new BrowserWindow({
+                width: window.bounds.width,
+                height: window.bounds.height,
+                x: window.bounds.x,
+                y: window.bounds.y,
+                frame: false,
+                transparent: true,
+                resizable: false,
+                movable: false,
+            });
+
+            newWindow.loadFile(__dirname + "/main/tempstream/index.html");
+
+            const color = `#${driverList[window.driverData?.driverNumber]?.TeamColour ?? "FFFFFF"}`;
+
+            await newWindow.webContents.executeJavaScript(
+                `document.getElementById("title").textContent = '${window.title}';
+                document.getElementById("title").style.color = '${color}';`
+            );
+
+            tempWindows.push(newWindow);
+        }
+    }
+
+    while (liveSessionType?.includes("pre") && !contentIdField) {
+        const liveSessionApiLink = store.get("internal_settings.session.getLiveSession");
+
+        try {
+            liveSessionInfo = await (await fetch(liveSessionApiLink)).json();
+            liveSessionType = liveSessionInfo?.sessionInfo?.sessionType?.toLowerCase() ?? null;
+        } catch (error) {
+            console.log(error);
+        }
+
+        await sleep(15000);
+    }
+
+    console.log("Session is live. Opening MultiViewer streams...");
+
+    const contentId =
+        contentIdField === "" && !(liveSessionType.includes("pre") || liveSessionType.includes("post"))
+            ? liveSessionInfo?.contentInfo?.contentId ?? null
+            : contentIdField || null;
+
+    if (!contentId) return;
+
+    await sleep(1000);
+
+    if (tempWindows.length > 0) {
+        for (const window of tempWindows) {
+            window.close();
+        }
+    }
+
     for (const window of layout.mvWindows) {
         const driverNumber = window.driverData?.driverNumber ?? null;
+
         if (window.driverData && !Object.keys(driverList).includes(driverNumber ? driverNumber.toString() : null))
             continue;
 
@@ -651,43 +714,3 @@ ipcMain.handle("reset_store", async (event, type) => {
     store.set(type, typeDefaults);
     return store.store;
 });
-
-// Receive request on 'write_config' to write all the settings to 'config.json'
-// ipcMain.handle("write_config", async (event, category, key, value) => {
-//     const config = require("./config.json");
-//     config.current[category][key] = value;
-//     const data = JSON.stringify(config);
-//     // Write the data to 'config.json'
-//     fs.writeFile(__dirname + "/config.json", data, (err) => {
-//         if (err) {
-//             console.log("Error writing file", err);
-//         } else {
-//             console.log("Successfully wrote file");
-//         }
-//     });
-//     return require("./config.json");
-// });
-
-// Receive request on 'get_config' to get all the current values inside of 'config.json'
-// ipcMain.handle("get_config", async (event, args) => {
-//     const config = require("./config.json");
-//     return config;
-// });
-
-// Get the correct team icon from the team name
-// ipcMain.handle("get_icon", async (event, teamName) => {
-//     const icons = {
-//         "Red Bull Racing": "../icons/teams/red-bull.png",
-//         McLaren: "../icons/teams/mclaren-white.png",
-//         "Aston Martin": "../icons/teams/aston-martin.png",
-//         Williams: "../icons/teams/williams-white.png",
-//         AlphaTauri: "../icons/teams/alpha-tauri.png",
-//         Alpine: "../icons/teams/alpine.png",
-//         Ferrari: "../icons/teams/ferrari.png",
-//         "Haas F1 Team": "../icons/teams/haas-red.png",
-//         "Alfa Romeo": "../icons/teams/alfa-romeo.png",
-//         Mercedes: "../icons/teams/mercedes.png",
-//     };
-
-//     return icons[teamName];
-// });

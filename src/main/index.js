@@ -74,30 +74,21 @@ function livetimingButton() {
 }
 
 let liveSessionInfo = null;
-function sessionLive() {
-    async function checkApi() {
-        const liveSessionApiLink = (await ipcRenderer.invoke("get_store")).internal_settings.session.getLiveSession;
+async function setSessionInfo() {
+    const liveSessionApiLink = (await ipcRenderer.invoke("get_store")).internal_settings.session.getLiveSession;
 
-        try {
-            const response = await (await fetch(liveSessionApiLink)).json();
-
-            liveSession = response.liveSessionFound && response.sessionInfo?.Series === "FORMULA 1";
-
-            liveSessionInfo = response;
-
-            livetimingButton();
-        } catch (error) {
-            console.log(error);
-        }
+    try {
+        liveSessionInfo = await (await fetch(liveSessionApiLink)).json();
+        console.log(liveSessionInfo);
+    } catch (error) {
+        console.log(error);
     }
-
-    checkApi();
-    setInterval(async () => {
-        await checkApi();
-    }, 15000);
 }
 
-sessionLive();
+setSessionInfo();
+setInterval(async () => {
+    await setSessionInfo();
+}, 15000);
 
 let userActiveID;
 async function getUserActiveID() {
@@ -260,6 +251,9 @@ async function saveLayout(layoutId) {
 
 async function restoreLayout(layoutId) {
     const contentIdField = document.getElementById("content-id-field").value;
+
+    console.log(liveSessionInfo);
+
     await ipcRenderer.invoke("restoreLayout", layoutId, liveSessionInfo, contentIdField);
 
     tooltip("Layout Opened!", "#83EEFFD9");
