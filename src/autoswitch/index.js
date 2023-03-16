@@ -267,7 +267,8 @@ function overwriteCrashedStatus(racingNumber) {
     // If the final to last mini sector has a value (is not 0). Check if the session is 'Inactive' and if the session type is 'Race'
     if (
         sessionType === "Race" &&
-        lastSectorSegments.slice(-3).some((segment) => segment.Status !== 0) &&
+        (lastSectorSegments.slice(-3).some((segment) => segment.Status !== 0) ||
+            driverTimingData.Sectors[0].Segments[1].Status === 0) &&
         lapCount.CurrentLap === 1 &&
         !driverTimingData.PitOut
     ) {
