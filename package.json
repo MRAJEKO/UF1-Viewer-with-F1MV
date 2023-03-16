@@ -1,7 +1,7 @@
 {
     "name": "uf1",
     "productName": "Ultimate-F1Viewer-With-F1MV",
-    "version": "1.4.4",
+    "version": "1.4.5",
     "description": "A integration with multiple windows to enchance your F1TV experience using the MultiViewer for F1 app.",
     "main": "./src/index.js",
     "scripts": {
@@ -50,12 +50,13 @@
         "@nivo/line": "^0.80.0",
         "adm-zip": "^0.5.9",
         "discord-rpc": "^4.0.1",
+        "electron-fetch": "^1.9.1",
         "electron-reload": "^2.0.0-alpha.1",
         "electron-squirrel-startup": "^1.0.0",
         "electron-store": "^8.1.0",
         "fs-extra": "^8.1.0",
         "govee-lan-control": "^2.1.0",
-        "npm_f1mv_api": "^1.4.1-rc1",
+        "npm_f1mv_api": "^1.4.5",
         "react": "^18.2.0",
         "react-dom": "^18.2.0",
         "request": "^2.88.0",

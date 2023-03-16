@@ -7,29 +7,38 @@ const { ipcRenderer } = require("electron");
 let goveeConnected = false;
 let goveeDevices = [];
 
-const goveeEnabled = (async () => (await ipcRenderer.invoke("get_store")).config.flag_display.govee)();
-
 async function goveeHandler() {
+    const goveeEnabled = await (async () => (await ipcRenderer.invoke("get_store")).config.flag_display.govee)();
     if (goveeEnabled) {
-        console.log(window);
-
         if (await ipcRenderer.invoke("checkGoveeWindowExistence")) return;
-
-        const goveePanel = window.open(
-            "govee/index.html",
-            "_blank",
-            `width=150,height=150,frame=false,transparent=true,hideMenuBar=true,hasShadow=false,alwaysOnTop=true`
-        );
 
         const Govee = require("govee-lan-control");
         const govee = new Govee.default();
+
+        async function showGoveeWindow() {
+            const goveePanel = window.open(
+                "govee/index.html",
+                "_blank",
+                `width=150,height=150,frame=false,transparent=true,hideMenuBar=true,hasShadow=false,alwaysOnTop=true,movable=false,resizable=false`
+            );
+
+            await sleep(100);
+
+            goveePanel.document.getElementById("connected").textContent = goveeDevices.length;
+
+            await sleep(5000);
+
+            goveePanel.document.getElementById("container").classList.add("hide");
+
+            await sleep(500);
+
+            goveePanel.close();
+        }
 
         govee.on("deviceAdded", async (device) => {
             console.log("Connected to Govee device: " + device.model);
 
             goveeDevices.push(device);
-
-            goveePanel.document.getElementById("connected").textContent = goveeDevices.length;
 
             setGoveeLight("green");
 
@@ -38,18 +47,19 @@ async function goveeHandler() {
             setGoveeLight("default");
 
             goveeConnected = true;
+
+            await showGoveeWindow();
         });
 
         govee.on("deviceRemoved", async (device) => {
             console.log("Govee device disconnected: " + device.model);
-
             const deviceIndex = goveeDevices.indexOf(device);
 
             goveeDevices.splice(deviceIndex, 1);
 
-            goveePanel.document.getElementById("connected").textContent = goveeDevices.length;
-
             if (goveeDevices.length === 0) goveeConnected = false;
+
+            await showGoveeWindow();
         });
     }
 }

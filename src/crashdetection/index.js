@@ -47,23 +47,6 @@ async function apiRequests() {
     }
 }
 
-let transparent = false;
-function toggleBackground() {
-    if (transparent) {
-        document.querySelector("body").className = "";
-        transparent = false;
-    } else {
-        document.querySelector("body").className = "transparent";
-        transparent = true;
-    }
-}
-
-document.addEventListener("keydown", (event) => {
-    if (event.key === "Escape") {
-        toggleBackground();
-    }
-});
-
 function getCarData(driverNumber) {
     try {
         carData[0].Cars[driverNumber].Channels;
@@ -137,7 +120,7 @@ function overwriteCrashedStatus(racingNumber) {
     if (
         sessionType === "Race" &&
         sessionStatus === "Started" &&
-        lastSectorSegments.slice(-1)[0].Status !== 0 &&
+        (lastSectorSegments.slice(-3)[0].Status !== 0 || driverTimingData.Sectors[0].Segments[1].Status === 0) &&
         lapCount.CurrentLap === 1
     ) {
         console.log(racingNumber + " is doing a race start");

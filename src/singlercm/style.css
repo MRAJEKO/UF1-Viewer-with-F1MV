@@ -8,7 +8,9 @@
 body {
     width: 100vw;
     height: 100vh;
-    background-color: gray;
+}
+
+.drag {
     -webkit-app-region: drag;
 }
 
@@ -77,8 +79,4 @@ h1 {
 
 .hidden {
     transform: translateY(-100px);
-}
-
-.transparent {
-    background: transparent !important;
 }

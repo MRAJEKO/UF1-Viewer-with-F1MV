@@ -230,12 +230,14 @@ function setTireStats() {
 
 async function run() {
     await getConfigurations();
-    while (true) {
+    await apiRequests();
+    getTireStats();
+    setTireStats();
+    setInterval(async () => {
         await apiRequests();
         getTireStats();
         setTireStats();
-        await sleep(5000);
-    }
+    }, 5000);
 }
 
 run();

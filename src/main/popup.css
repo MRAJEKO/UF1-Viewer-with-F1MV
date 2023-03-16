@@ -1,0 +1,76 @@
+#popup {
+    height: 150px;
+    width: 70%;
+    background-color: rgba(0, 0, 0, 0.457);
+    backdrop-filter: blur(10px);
+    border-radius: 30px;
+    position: fixed;
+    z-index: 5;
+    top: 100%;
+    left: 50%;
+    transform: translate(-50%);
+    display: flex;
+    flex-direction: column;
+    transition: all 0.7s ease;
+    border: 2px solid #9f9f9f;
+    justify-content: space-evenly;
+    align-items: center;
+}
+
+#popup form {
+    height: 35%;
+    width: 100%;
+}
+
+#popup input {
+    border: 2px solid #9f9f9f;
+    background-color: transparent;
+    padding: 0 20px;
+    border-radius: 20px;
+    width: 77%;
+    height: 100%;
+    font-size: 17px;
+}
+
+#popup .buttons {
+    width: 85%;
+    display: flex;
+    justify-content: space-evenly;
+    gap: 7%;
+    bottom: 20px;
+}
+
+#popup .buttons button {
+    height: 30px;
+    border: none;
+    border-radius: 20px;
+    background-color: transparent;
+    color: white;
+    font-size: 15px;
+    width: 30%;
+    transition: all 0.5s ease;
+}
+
+#popup .buttons button:hover {
+    transform: translate(2px, 2px);
+}
+
+#popup .buttons button:nth-child(1) {
+    border: 2px solid rgb(90, 90, 90);
+    color: rgb(90, 90, 90);
+}
+
+#popup .buttons button:nth-child(2) {
+    border: 2px solid rgb(255, 111, 111);
+    color: rgb(255, 111, 111);
+}
+
+#popup .buttons button:nth-child(3) {
+    border: 2px solid rgb(111, 255, 118);
+    color: rgb(111, 255, 118);
+}
+
+#popup.show {
+    transform: translate(-50%, -50%) !important;
+    top: 50%;
+}

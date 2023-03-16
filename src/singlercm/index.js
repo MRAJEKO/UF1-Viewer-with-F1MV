@@ -17,25 +17,6 @@ function httpGet(theUrl) {
     return xmlHttpReq.responseText;
 }
 
-let transparent = false;
-function toggleBackground() {
-    if (transparent) {
-        document.getElementById("background").className = "";
-        document.getElementById("RCM").classList.remove("drag");
-        transparent = false;
-    } else {
-        document.getElementById("background").className = "transparent";
-        document.getElementById("RCM").classList.add("drag");
-        transparent = true;
-    }
-}
-
-document.addEventListener("keydown", (event) => {
-    if (event.key == "Escape") {
-        toggleBackground();
-    }
-});
-
 const bar = document.getElementById("RCM");
 const text = document.getElementById("message");
 const icon = document.getElementById("icon");

@@ -4,6 +4,7 @@ const { ipcRenderer } = require("electron");
 const debug = false;
 
 const f1mvApi = require("npm_f1mv_api");
+const { get } = require("request");
 
 async function getConfigurations(host, port, file) {
     config = {
@@ -17,9 +18,11 @@ async function getConfigurations(host, port, file) {
     }
 }
 
-function launchMVF1() {
+async function launchMVF1() {
+    const multiviewerLink = (await ipcRenderer.invoke("get_store")).internal_settings.multiviewer.app.link;
+
     if (navigator.appVersion.includes("Win") || navigator.appVersion.includes("Mac")) {
-        location = "muvi://";
+        location = multiviewerLink;
     } else if (navigator.appVersion.includes("X11") || navigator.appVersion.includes("Linux")) {
         alert("Opening MultiViewer for Linux is not supported yet.");
     } else {
@@ -31,50 +34,26 @@ async function ignore() {
     isConnected(true);
 }
 
-async function setAlwaysOnTop() {
-    const config = (await ipcRenderer.invoke("get_store")).config;
-    alwaysOnTop = config.general.always_on_top;
-    alwaysOnTopPush = config.current_laps.always_on_top;
-}
-
-setAlwaysOnTop();
-setInterval(async () => {
-    await setAlwaysOnTop();
-}, 2000);
-
-async function flagDisplay() {
-    await ipcRenderer.invoke(
-        "window",
-        "flagdisplay/index.html",
-        800,
-        600,
-        false,
-        true,
-        false,
-        false,
-        false,
-        "flagdisplay.png"
-    );
-}
-
 let liveSession = false;
 let multiViewerConnected = false;
-function livetiming() {
+async function livetiming() {
+    const multiviewerLinks = (await ipcRenderer.invoke("get_store")).internal_settings.multiviewer;
+
     if (liveSession) {
         if (multiViewerConnected) {
-            location = "multiviewer://app/live-timing";
+            location = multiviewerLinks.livetiming.link;
         } else {
             if (navigator.appVersion.includes("Win") || navigator.appVersion.includes("Mac")) {
-                location = "muvi://";
+                location = multiviewerLinks.app.link;
 
                 const interval = setInterval(() => {
                     if (multiViewerConnected) {
-                        location = "multiviewer://app/live-timing";
+                        location = multiviewerLinks.livetiming.link;
                         clearInterval(interval);
                     }
                 }, 500);
             } else {
-                location = "multiviewer://app/live-timing";
+                location = multiviewerLinks.livetiming.link;
             }
         }
     }
@@ -95,32 +74,26 @@ function livetimingButton() {
 }
 
 let liveSessionInfo = null;
-function sessionLive() {
-    async function checkApi() {
-        try {
-            const response = await (await fetch("https://api.joost.systems/api/v2/f1tv/live-session")).json();
+async function setSessionInfo() {
+    const liveSessionApiLink = (await ipcRenderer.invoke("get_store")).internal_settings.session.getLiveSession;
 
-            liveSession = response.liveSessionFound && response.sessionInfo?.Series === "FORMULA 1";
-
-            liveSessionInfo = response;
-
-            livetimingButton();
-        } catch (error) {
-            console.log(error);
-        }
+    try {
+        liveSessionInfo = await (await fetch(liveSessionApiLink)).json();
+        console.log(liveSessionInfo);
+    } catch (error) {
+        console.log(error);
     }
-
-    checkApi();
-    setInterval(async () => {
-        await checkApi();
-    }, 15000);
 }
 
-sessionLive();
+setSessionInfo();
+setInterval(async () => {
+    await setSessionInfo();
+}, 15000);
 
 let userActiveID;
 async function getUserActiveID() {
-    (await fetch("https://api.joost.systems/api/v2/uf1/analytics/active-users/getUniqueID")).json().then((data) => {
+    const getUniqueIDLink = (await ipcRenderer.invoke("get_store")).internal_settings.analytics.getUniqueID;
+    (await fetch(getUniqueIDLink)).json().then((data) => {
         userActiveID = data.uniqueID;
         userActiveHandler(true);
     });
@@ -138,7 +111,7 @@ async function userActiveHandler(active) {
 
 async function sendUserActiveData(active) {
     if (active === false) {
-        const userActiveURL = "https://api.joost.systems/api/v2/uf1/analytics/active-users/post";
+        const userActiveURL = (await ipcRenderer.invoke("get_store")).internal_settings.analytics.sendActiveUsers;
         const requestBody = {
             uniqueID: userActiveID,
             userActive: false,
@@ -151,7 +124,7 @@ async function sendUserActiveData(active) {
             body: JSON.stringify(requestBody),
         });
     } else if (active === true) {
-        const userActiveURL = "https://api.joost.systems/api/v2/uf1/analytics/active-users/post";
+        const userActiveURL = (await ipcRenderer.invoke("get_store")).internal_settings.analytics.sendActiveUsers;
         const requestBody = {
             uniqueID: userActiveID,
             userActive: true,
@@ -175,187 +148,94 @@ async function generateSolidWindow(color) {
     await ipcRenderer.invoke("generateSolidColoredWindow", color);
 }
 
+async function flagDisplay() {
+    const internalSettings = (await ipcRenderer.invoke("get_store")).internal_settings;
+
+    await ipcRenderer.invoke("window", ...Object.values(internalSettings.windows.flag_display));
+}
+
 async function trackTime() {
-    await ipcRenderer.invoke(
-        "window",
-        "tracktime/index.html",
-        400,
-        140,
-        false,
-        true,
-        true,
-        false,
-        alwaysOnTop,
-        "tracktime.png"
-    );
+    const internalSettings = (await ipcRenderer.invoke("get_store")).internal_settings;
+
+    await ipcRenderer.invoke("window", ...Object.values(internalSettings.windows.tracktime));
 }
 
 async function sessionLog() {
-    await ipcRenderer.invoke(
-        "window",
-        "sessionlog/index.html",
-        250,
-        800,
-        false,
-        true,
-        true,
-        false,
-        alwaysOnTop,
-        "sessionlog.png"
-    );
+    const internalSettings = (await ipcRenderer.invoke("get_store")).internal_settings;
+
+    await ipcRenderer.invoke("window", ...Object.values(internalSettings.windows.session_log));
 }
 
 async function trackInfo() {
-    const width = (await ipcRenderer.invoke("get_store")).config.trackinfo.orientation === "horizontal" ? 900 : 250;
+    const settings = await ipcRenderer.invoke("get_store");
 
-    const height = (await ipcRenderer.invoke("get_store")).config.trackinfo.orientation === "horizontal" ? 100 : 800;
+    const internalSettings = settings.internal_settings;
 
-    await ipcRenderer.invoke(
-        "window",
-        "trackinfo/index.html",
-        width,
-        height,
-        false,
-        true,
-        true,
-        false,
-        alwaysOnTop,
-        "trackinfo.png"
-    );
+    const width = settings.config.trackinfo.orientation === "horizontal" ? 900 : 250;
+    internalSettings.windows.trackinfo.width = width;
+
+    const height = settings.config.trackinfo.orientation === "horizontal" ? 100 : 800;
+    internalSettings.windows.trackinfo.height = height;
+
+    await ipcRenderer.invoke("window", ...Object.values(internalSettings.windows.trackinfo));
 }
 
 async function statuses() {
-    await ipcRenderer.invoke(
-        "window",
-        "statuses/index.html",
-        250,
-        800,
-        false,
-        true,
-        true,
-        false,
-        alwaysOnTop,
-        "statuses.png"
-    );
+    const internalSettings = (await ipcRenderer.invoke("get_store")).internal_settings;
+
+    await ipcRenderer.invoke("window", ...Object.values(internalSettings.windows.statuses));
 }
 
 async function singleRCM() {
-    await ipcRenderer.invoke(
-        "window",
-        "singlercm/index.html",
-        1000,
-        100,
-        false,
-        true,
-        true,
-        false,
-        alwaysOnTop,
-        "singlercm.png"
-    );
+    const internalSettings = (await ipcRenderer.invoke("get_store")).internal_settings;
+
+    await ipcRenderer.invoke("window", ...Object.values(internalSettings.windows.singlercm));
 }
 
 async function crashDetection() {
-    await ipcRenderer.invoke(
-        "window",
-        "crashdetection/index.html",
-        400,
-        400,
-        false,
-        true,
-        true,
-        false,
-        alwaysOnTop,
-        "crashdetection.png"
-    );
+    const internalSettings = (await ipcRenderer.invoke("get_store")).internal_settings;
+
+    await ipcRenderer.invoke("window", ...Object.values(internalSettings.windows.crashdetection));
 }
 
 async function compass() {
-    await ipcRenderer.invoke(
-        "window",
-        "compass/index.html",
-        100,
-        100,
-        false,
-        true,
-        true,
-        false,
-        alwaysOnTop,
-        "compass.png"
-    );
+    const internalSettings = (await ipcRenderer.invoke("get_store")).internal_settings;
+
+    await ipcRenderer.invoke("window", ...Object.values(internalSettings.windows.compass));
 }
 
 async function tirestats() {
-    await ipcRenderer.invoke(
-        "window",
-        "tirestats/index.html",
-        650,
-        600,
-        false,
-        true,
-        true,
-        false,
-        alwaysOnTop,
-        "tirestats.png"
-    );
+    const internalSettings = (await ipcRenderer.invoke("get_store")).internal_settings;
+
+    await ipcRenderer.invoke("window", ...Object.values(internalSettings.windows.tirestats));
 }
 
 async function currentLaps() {
-    await ipcRenderer.invoke(
-        "window",
-        "currentlaps/index.html",
-        300,
-        500,
-        false,
-        true,
-        true,
-        false,
-        alwaysOnTopPush,
-        "currentlaps.png"
-    );
+    const internalSettings = (await ipcRenderer.invoke("get_store")).internal_settings;
+
+    const alwaysOnTop = (await ipcRenderer.invoke("get_store")).config.current_laps.always_on_top;
+
+    internalSettings.windows.current_laps.alwaysOnTop = alwaysOnTop;
+
+    await ipcRenderer.invoke("window", ...Object.values(internalSettings.windows.current_laps));
 }
 
 async function battlemode() {
-    await ipcRenderer.invoke(
-        "window",
-        "battlemode/index.html",
-        1300,
-        200,
-        false,
-        true,
-        true,
-        false,
-        alwaysOnTop,
-        "battlemode.png"
-    );
+    const internalSettings = (await ipcRenderer.invoke("get_store")).internal_settings;
+
+    await ipcRenderer.invoke("window", ...Object.values(internalSettings.windows.battlemode));
 }
 
 async function weather() {
-    await ipcRenderer.invoke(
-        "window",
-        "weather/index.html",
-        1000,
-        530,
-        false,
-        true,
-        true,
-        false,
-        alwaysOnTop,
-        "weather.png"
-    );
-}
+    const internalSettings = (await ipcRenderer.invoke("get_store")).internal_settings;
 
-async function saveLayout(layoutId) {
-    await ipcRenderer.invoke("saveLayout", layoutId);
-    tooltip("Layout saved!", "#83FF83");
-}
-
-async function restoreLayout(layoutId) {
-    const contentIdField = document.getElementById("content-id-field").value;
-    await ipcRenderer.invoke("restoreLayout", layoutId, liveSessionInfo, contentIdField);
+    await ipcRenderer.invoke("window", ...Object.values(internalSettings.windows.weather));
 }
 
 async function autoSwitch() {
-    await ipcRenderer.invoke("window", "autoswitch/index.html", 400, 480, false, true, true, false, true);
+    const internalSettings = (await ipcRenderer.invoke("get_store")).internal_settings;
+
+    await ipcRenderer.invoke("window", ...Object.values(internalSettings.windows.autoswitcher));
 }
 
 function openLayouts() {
@@ -364,37 +244,56 @@ function openLayouts() {
     element.classList.toggle("shown");
 }
 
+async function saveLayout(layoutId) {
+    await ipcRenderer.invoke("saveLayout", layoutId);
+    tooltip("Layout saved!", "#83FF83D9");
+}
+
+async function restoreLayout(layoutId) {
+    const contentIdField = document.getElementById("content-id-field").value;
+
+    console.log(liveSessionInfo);
+
+    await ipcRenderer.invoke("restoreLayout", layoutId, liveSessionInfo, contentIdField);
+
+    tooltip("Layout Opened!", "#83EEFFD9");
+}
+
 // Settings
 let rotated = false;
 function settings() {
-    if (rotated) {
-        rotated = false;
-        document.getElementById("settings-icon").style.transform = "rotate(-45deg)";
-        document.getElementById("menu").className = "";
-        document.getElementById("reset-defaults").classList.remove("show");
-        saveSettings();
+    const settingsIcon = document.getElementById("settings-icon");
+
+    if (settingsIcon.style.transform === "none" || settingsIcon.style.transform === "") {
+        settingsIcon.style.transform = "rotate(60deg)";
     } else {
-        rotated = true;
-        document.getElementById("settings-icon").style.transform = "rotate(45deg)";
-        document.getElementById("menu").className = "shown";
-        document.getElementById("reset-defaults").classList.add("show");
-        setTimeout(() => {
-            document.getElementById("menu").className = "shown overflow";
-        }, 700);
+        settingsIcon.style.transform = "none";
+        saveSettings();
     }
+
+    document.getElementById("reset-defaults").classList.toggle("hidden");
+
+    document.getElementById("layout-icon").classList.toggle("hidden");
+
+    document.getElementById("menu").classList.toggle("shown");
+    document.getElementById("menu").classList.toggle("overflow");
 }
 
 async function saveSettings() {
     const config = (await ipcRenderer.invoke("get_store")).config;
     for (const category in config) {
         for (const setting in config[category]) {
-            const settingElement = document.querySelector(`#${category} #${setting}`);
+            try {
+                const settingElement = document.querySelector(`#${category} #${setting}`);
 
-            let value = settingElement.value;
+                let value = settingElement.value;
 
-            if (settingElement.type === "checkbox") value = settingElement.checked;
+                if (settingElement.type === "checkbox") value = settingElement.checked;
 
-            config[category][setting] = value;
+                config[category][setting] = value;
+            } catch (e) {
+                console.log(e);
+            }
         }
     }
 
@@ -410,13 +309,17 @@ async function setSettings() {
     console.log(config);
     for (const category in config) {
         for (const setting in config[category]) {
-            const settingElement = document.querySelector(`#${category} #${setting}`);
+            try {
+                const settingElement = document.querySelector(`#${category} #${setting}`);
 
-            if (settingElement.type === "checkbox") settingElement.checked = config[category][setting];
+                if (settingElement.type === "checkbox") settingElement.checked = config[category][setting];
 
-            if (settingElement.classList.contains("selector")) settingElement.value = config[category][setting];
+                if (settingElement.classList.contains("selector")) settingElement.value = config[category][setting];
 
-            if (settingElement.type === "text") settingElement.value = config[category][setting];
+                if (settingElement.type === "text") settingElement.value = config[category][setting];
+            } catch (e) {
+                console.log(e);
+            }
         }
     }
 }
@@ -428,13 +331,17 @@ async function restoreAll() {
     const config = (await ipcRenderer.invoke("reset_store", "config")).config;
     for (const category in config) {
         for (const setting in config[category]) {
-            const settingElement = document.querySelector(`#${category} #${setting}`);
+            try {
+                const settingElement = document.querySelector(`#${category} #${setting}`);
 
-            if (settingElement.type === "checkbox") settingElement.checked = config[category][setting];
+                if (settingElement.type === "checkbox") settingElement.checked = config[category][setting];
 
-            if (settingElement.classList.contains("selector")) settingElement.value = config[category][setting];
+                if (settingElement.classList.contains("selector")) settingElement.value = config[category][setting];
 
-            if (settingElement.type === "text") settingElement.value = config[category][setting];
+                if (settingElement.type === "text") settingElement.value = config[category][setting];
+            } catch (e) {
+                console.log(e);
+            }
         }
     }
     saveSettings();
@@ -485,6 +392,8 @@ async function remove() {
     document.getElementById("popup").classList.remove("show");
     document.getElementById("layouts-container").innerHTML = "";
     showLayouts();
+
+    tooltip("Layout removed!", "#FF8383D9");
 }
 
 async function editLayout(layoutId) {
@@ -498,10 +407,20 @@ async function showLayouts() {
     for (const layout in layouts) {
         const layoutName = layouts[layout].name;
         document.getElementById("layouts-container").innerHTML += `<div class="layout">
-    <button class="window edit" onclick="editLayout(${layout})"><img src="../icons/edit.png" alt="" /></button>
-    <button class="window load" onclick="restoreLayout(${layout})">${layoutName}</button>
-    <button class="window save" onclick="saveLayout(${layout})"><img src="../icons/save.png" alt="" /></button>
-</div>`;
+                        <div onclick="editLayout(${layout})" class="part name">
+                        <p>
+                            ${layoutName}<span class="icon-container"><img src="../icons/edit.png" alt="" /></span>
+                        </p>
+                    </div>
+                    <div onclick="restoreLayout(${layout})" class="part load">
+                        <p>LOAD</p>
+                    </div>
+                    <div class="part save" onclick="saveLayout(${layout})">
+                        <p>
+                            <span class="icon-container"><img src="../icons/save.png" alt="" /></span>SAVE
+                        </p>
+                    </div>
+                </div>`;
     }
 }
 
@@ -519,7 +438,7 @@ async function newLayout() {
 
     document.getElementById("layouts-container").innerHTML = "";
     showLayouts();
-    tooltip("New layout created, press the save icon to save your current layout", "#83FF83");
+    tooltip("New layout created, press the save icon to save your current layout", "#83FF83D9");
 }
 
 // Link MV
@@ -537,8 +456,8 @@ async function isConnected(ignore) {
 
             multiViewerConnected = true;
 
-            document.getElementById("mv-connection").textContent = "Connected to MultiViewer";
-            document.getElementById("mv-connection").className = "green";
+            document.getElementById("mv-connection").innerHTML = "MULTIVIEWER: <span>CONNECTED</span>";
+            document.getElementById("mv-connection").className = "link connected";
 
             await getConfigurations(host, port, configFile);
 
@@ -549,11 +468,15 @@ async function isConnected(ignore) {
 
                 console.log("Connected to MultiViewer and live timing session found");
 
-                document.getElementById("timing-connection").textContent = "Connected to Live Timing";
-                document.getElementById("timing-connection").className = "green";
+                document.getElementById("timing-connection").innerHTML = "LIVE TIMING: <span>CONNECTED</span>";
+                document.getElementById("timing-connection").className = "link connected";
 
                 document.getElementById("connect").className = "animation";
-                document.getElementById("connection-icon").src = "../icons/checkmark.png";
+
+                const connectionInfo = document.getElementById("connection");
+
+                connectionInfo.className = "connected";
+                connectionInfo.textContent = "CONNECTED";
 
                 clearInterval(loopId);
             } else {

@@ -4,33 +4,6 @@ const { ipcRenderer } = require("electron");
 
 const f1mvApi = require("npm_f1mv_api");
 
-const sleep = (milliseconds) => {
-    return new Promise((resolve) => setTimeout(resolve, milliseconds));
-};
-
-function httpGet(theUrl) {
-    let xmlHttpReq = new XMLHttpRequest();
-    xmlHttpReq.open("GET", theUrl, false);
-    xmlHttpReq.send(null);
-    return xmlHttpReq.responseText;
-}
-
-let transparent = false;
-function toggleBackground() {
-    if (transparent) {
-        document.getElementById("background").className = "";
-        transparent = false;
-    } else {
-        document.getElementById("background").className = "transparent";
-        transparent = true;
-    }
-}
-
-document.addEventListener("keydown", (event) => {
-    if (event.key == "Escape") {
-        toggleBackground();
-    }
-});
 async function getConfigurations() {
     const networkConfig = (await ipcRenderer.invoke("get_store")).config.network;
     host = networkConfig.host;
@@ -49,46 +22,6 @@ async function apiRequests() {
     trackStatus = data.TrackStatus;
     raceControlMessages = data.RaceControlMessages.Messages;
     sessionInfo = data.SessionInfo;
-}
-
-function parseTime(time) {
-    console.log(time);
-    const [seconds, minutes, hours] = time
-        .split(":")
-        .reverse()
-        .map((number) => parseInt(number));
-
-    if (hours === undefined) return (minutes * 60 + seconds) * 1000;
-
-    return (hours * 3600 + minutes * 60 + seconds) * 1000;
-}
-
-function parseLapTime(lapTime) {
-    const [minutes, seconds, milliseconds] = lapTime
-        .split(/[:.]/)
-        .map((number) => parseInt(number.replace(/^0+/, "") || "0", 10));
-
-    if (milliseconds === undefined) {
-        return minutes + seconds / 1000;
-    }
-
-    return minutes * 60 + seconds + milliseconds / 1000;
-}
-
-function getTime(ms) {
-    const date = new Date(ms);
-
-    console.log(date);
-
-    const hours = date.getUTCHours().toString().padStart(2, "0");
-    const minutes = date.getUTCMinutes().toString().padStart(2, "0");
-    const seconds = date.getUTCSeconds().toString().padStart(2, "0");
-
-    if (parseInt(hours) === 0) {
-        return `${minutes}:${seconds}`;
-    }
-
-    return `${hours}:${minutes}:${seconds}`;
 }
 
 async function addTrackSectors() {
@@ -193,12 +126,11 @@ async function run() {
     await getConfigurations();
     await apiRequests();
     await addTrackSectors();
-    while (true) {
+    setInterval(async () => {
         await apiRequests();
         setFullStatus();
         setTrackSector();
-        await sleep(500);
-    }
+    }, 500);
 }
 
 run();

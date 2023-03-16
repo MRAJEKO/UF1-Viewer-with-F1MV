@@ -7,8 +7,6 @@
 
 body {
     height: 100vh;
-    background-color: gray;
-    -webkit-app-region: drag;
 }
 
 .container {
@@ -20,6 +18,8 @@ body {
     flex-direction: column;
     align-items: center;
     justify-content: space-evenly;
+    opacity: 1;
+    transition: all 0.5s ease;
 }
 
 .transparent {
@@ -51,4 +51,8 @@ p {
     font-family: "SFRegular", Arial, Helvetica, sans-serif;
     font-size: 30px;
     padding: 4px 15px;
+}
+
+.hide {
+    opacity: 0;
 }

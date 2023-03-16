@@ -55,9 +55,11 @@ li.show {
 }
 
 body {
-    background-color: gray;
-    -webkit-app-region: drag;
     height: 100vh;
+}
+
+.drag {
+    -webkit-app-region: drag;
 }
 
 #container {
@@ -68,10 +70,6 @@ body {
 .hidden {
     display: none;
     opacity: 0;
-}
-
-.transparent {
-    background-color: transparent;
 }
 
 .warning {

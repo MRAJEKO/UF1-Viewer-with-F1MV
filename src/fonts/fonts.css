@@ -1,14 +1,14 @@
 @font-face {
     font-family: "SFRegular";
-    src: url("SF-Pro-Display-Regular.otf") format("opentype");
+    src: url("Inter-Regular.ttf") format("truetype");
 }
 @font-face {
     font-family: "SFMedium";
-    src: url("SF-Pro-Display-Medium.otf") format("opentype");
+    src: url("Inter-Medium.ttf") format("truetype");
 }
 @font-face {
     font-family: "SFBold";
-    src: url("SF-Pro-Display-Bold.otf") format("opentype");
+    src: url("Inter-Bold.ttf") format("truetype");
 }
 
 @font-face {

@@ -7,7 +7,9 @@
 
 body {
     height: 100vh;
-    background-color: gray;
+}
+
+.drag {
     -webkit-app-region: drag;
 }
 

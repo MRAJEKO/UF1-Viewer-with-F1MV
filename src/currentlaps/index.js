@@ -8,10 +8,11 @@ const f1mvApi = require("npm_f1mv_api");
 
 const { ipcRenderer } = require("electron");
 
-// Set sleep
-const sleep = (milliseconds) => {
-    return new Promise((resolve) => setTimeout(resolve, milliseconds));
-};
+const { isDriverOnPushLap, getDriverPosition } = require("../functions/driver.js");
+
+const { parseLapOrSectorTime, formatMsToF1 } = require("../functions/times.js");
+
+const { getColorFromStatusCodeOrName } = require("../functions/colors.js");
 
 // Apply any configuration from the config.json file
 async function getConfigurations() {
@@ -23,29 +24,16 @@ async function getConfigurations() {
 
     highlightedDrivers = configHighlightedDrivers[0] ? configHighlightedDrivers : [];
 
+    const header = configFile.current_laps?.show_header;
+
+    if (!header) {
+        document.getElementById("header").style.display = "none";
+        document.getElementById("line").style.display = "none";
+    }
+
     holdSectorTimeDuration = parseInt(configFile.current_laps?.sector_display_duration) ?? 4000;
     holdEndOfLapDuration = parseInt(configFile.current_laps?.end_display_duration) ?? 4000;
 }
-
-// Toggle the background transparent or not
-let transparent = false;
-function toggleBackground() {
-    if (transparent) {
-        document.querySelector("body").className = "";
-        transparent = false;
-    } else {
-        document.querySelector("body").className = "transparent";
-        transparent = true;
-    }
-}
-
-// Listen to the escape key and toggle the backgrounds transparency when it is pressed
-document.addEventListener("keydown", (event) => {
-    if (event.key == "Escape") {
-        toggleBackground();
-    }
-});
-
 // All the api requests
 async function apiRequests() {
     const config = {
@@ -80,195 +68,6 @@ async function apiRequests() {
     clockData = liveTimingClock;
 }
 
-// Set all statusses or names to the corect hex code
-function getColorFromStatusCodeOrName(codeOrName) {
-    switch (codeOrName) {
-        case 2048:
-            return "#fdd835";
-        case 2049:
-            return "#4caf50";
-        case 2051:
-            return "#9c27b0";
-        case 2052:
-            return "#f44336";
-        case 2064:
-            return "#2196f3";
-        case 2068:
-            return "#f44336";
-
-        case "red":
-            return "#f44336";
-        case "yellow":
-            return "#fdd835";
-        case "green":
-            return "#4caf50";
-        case "purple":
-            return "#9c27b0";
-        case "white":
-            return "#ffffff";
-
-        case "S":
-            return "#ff0000";
-        case "M":
-            return "#ffde00";
-        case "H":
-            return "#dbdada";
-        case "I":
-            return "#2c7515";
-        case "W":
-            return "#3d7ba3";
-
-        case "ob":
-            return "#9c27b0";
-        case "pb":
-            return "#4caf50";
-        case "ni":
-            return "#fdd835";
-
-        default:
-            return "#5b5b5d";
-    }
-}
-
-// Convert the RBG values to hex
-function rgbToHex(rgb) {
-    // Extract the red, green, and blue components from the RGB value
-    const [r, g, b] = rgb.match(/\d+/g).map((x) => parseInt(x, 10));
-
-    // Convert the red, green, and blue values to hexadecimal
-    const hexR = r.toString(16).padStart(2, "0");
-    const hexG = g.toString(16).padStart(2, "0");
-    const hexB = b.toString(16).padStart(2, "0");
-
-    // Return the hexadecimal color code
-    return `#${hexR}${hexG}${hexB}`;
-}
-
-// A lap or sector time can be send through and will return as a number in seconds
-function parseLapOrSectorTime(time) {
-    // Split the input into 3 variables by checking if there is a : or a . in the time. Then replace any starting 0's by nothing and convert them to numbers using parseInt.
-    const [minutes, seconds, milliseconds] = time
-        .split(/[:.]/)
-        .map((number) => parseInt(number.replace(/^0+/, "") || "0", 10));
-
-    if (milliseconds === undefined) return minutes + seconds / 1000;
-
-    return minutes * 60 + seconds + milliseconds / 1000;
-}
-
-function formatMsToF1(ms, fixedAmount) {
-    const minutes = Math.floor(ms / 60000);
-
-    let milliseconds = ms % 60000;
-
-    const seconds =
-        milliseconds / 1000 < 10 && minutes > 0
-            ? "0" + (milliseconds / 1000).toFixed(fixedAmount)
-            : (milliseconds / 1000).toFixed(fixedAmount);
-
-    return minutes > 0 ? minutes + ":" + seconds : seconds;
-}
-
-// Check if the driver is on a push lap or not
-function isDriverOnPushLap(driverNumber) {
-    if (sessionStatus === "Aborted" || sessionStatus === "Inactive" || [4, 5, 6, 7].includes(trackStatus)) return false;
-
-    const driverTimingData = timingData[driverNumber];
-    const driverBestTimes = bestTimes[driverNumber];
-
-    console.log(driverNumber, driverTimingData.NumberOfLaps);
-
-    if (sessionType === "Race" && (driverTimingData.NumberOfLaps === undefined || driverTimingData.NumberOfLaps <= 1))
-        return false;
-
-    if (driverTimingData.InPit) return false;
-
-    // If the first mini sector time is status 2064, meaning he is on a out lap, return false
-    if (driverTimingData.Sectors[0].Segments?.[0].Status === 2064) return false;
-
-    // Get the threshold to which the sector time should be compared to the best personal sector time.
-    const pushDeltaThreshold = sessionType === "Race" ? 0.2 : sessionType === "Qualifying" ? 1 : 3;
-
-    const sectors = driverTimingData.Sectors;
-
-    const lastSector = sectors.slice(-1)[0];
-
-    if (sectors.slice(-1)[0].Value !== "" && (sectors.slice(-1)[0].Segments?.slice(-1)[0].Status !== 0 ?? true))
-        return false;
-
-    const completedFirstSector = sectors[0].Segments
-        ? (sectors[0].Segments.slice(-1)[0].Status !== 0 && lastSector.Value === "") ||
-          (lastSector.Segments.slice(-1)[0].Status === 0 &&
-              lastSector.Value !== "" &&
-              sectors[1].Segments[0].Status !== 0 &&
-              sectors[0].Segments.slice(-1)[0].Status !== 0)
-        : sectors[0].Value !== 0 && lastSector.Value === "";
-
-    let isPushing = false;
-    for (let sectorIndex = 0; sectorIndex < driverTimingData.Sectors.length; sectorIndex++) {
-        const sector = sectors[sectorIndex];
-        const bestSector = driverBestTimes.BestSectors[sectorIndex];
-
-        const sectorTime = parseLapOrSectorTime(sector.Value);
-        const bestSectorTime = parseLapOrSectorTime(bestSector.Value);
-
-        // Check if the first sector is completed by checking if the last segment of the first sector has a value meaning he has crossed the last point of that sector and the final sector time does not have a value. The last check is done because sometimes the segment already has a status but the times are not updated yet.
-
-        if (driverNumber == 63) console.log(completedFirstSector);
-
-        // If the first sector time is above the threshold it should imidiately break because it will not be a push lap
-        if (sectorTime - bestSectorTime > pushDeltaThreshold && completedFirstSector) {
-            isPushing = false;
-            break;
-        }
-
-        // If the first sector time is lower then the threshold it should temporarily set pushing to true because the driver could have still backed out in a later stage
-        if (sectorTime - bestSectorTime <= pushDeltaThreshold && completedFirstSector) {
-            isPushing = true;
-            continue;
-        }
-
-        // If the driver has a fastest segment overall it would temporarily set pushing to true because the driver could have still backed out in a later stage
-        if (sector.Segments?.some((segment) => segment.Status === 2051) && sessionType !== "Race") {
-            isPushing = true;
-            continue;
-        }
-    }
-
-    // Return the final pushing state
-    return isPushing;
-}
-
-// Get the position of the driver based on their segments
-function getDriverPosition(driverNumber) {
-    const driverTimingData = timingData[driverNumber];
-    const sectors = driverTimingData.Sectors;
-
-    // The starting segment will always be 0 because if there is no 0 state anywhere all segments will be completed and the current segment will be the first one.
-    let currentSegment = -1;
-
-    const driverCount = Object.keys(timingData).length;
-
-    if (sectors[0].Segments) {
-        for (const sectorIndex in sectors) {
-            const segments = sectors[sectorIndex].Segments;
-            for (const segmentIndex in segments) {
-                const segment = segments[segmentIndex];
-                if (segment.Status === 0) return parseInt(currentSegment) + parseInt(segmentIndex);
-            }
-            currentSegment += segments.length;
-        }
-    } else {
-        currentSegment = driverCount - parseInt(driverTimingData.Position);
-    }
-
-    const lastSectorValue = sectors.slice(-1)[0].Value;
-
-    if (lastSectorValue === "") return currentSegment;
-
-    return 0;
-}
-
 let backedOutDrivers = [];
 // Get the position of all the drivers and sort them accordingly
 function getAllPushDriverPositions() {
@@ -277,11 +76,18 @@ function getAllPushDriverPositions() {
     for (const driverNumber in timingData) {
         if (backedOutDrivers.indexOf(driverNumber) !== -1) continue;
 
-        const isDriverPushing = isDriverOnPushLap(driverNumber);
+        const isDriverPushing = isDriverOnPushLap(
+            sessionStatus,
+            trackStatus,
+            timingData,
+            bestTimes,
+            sessionType,
+            driverNumber
+        );
 
         if (!isDriverPushing) continue;
 
-        let driverPosition = getDriverPosition(driverNumber);
+        let driverPosition = getDriverPosition(driverNumber, timingData);
 
         pushDriversPositions.push({ driver: driverNumber, position: driverPosition });
     }
@@ -305,8 +111,6 @@ function getAllPushDriverPositions() {
     });
 
     const sortedDrivers = pushDriversPositions.map((driverNumber) => driverNumber.driver);
-
-    console.log(sortedDrivers);
 
     // Return a array with all the driver numbers that are on a push lap in the order of position on track
     return sortedDrivers;
@@ -347,7 +151,6 @@ function setPosition(driverNumber) {
     const displayedPosition = document.querySelector(`#n${driverNumber} .position p`).textContent;
 
     if (sessionType === "Qualifying") {
-        console.log("Qualifying");
         const sessionPart = qualiTimingData.SessionPart;
 
         const entries = qualiTimingData.NoEntries[sessionPart] || null;
@@ -455,8 +258,6 @@ function getTargetPositionAndNumber(driverNumber) {
 
     const position = driverTimingData.Position;
 
-    if (driverNumber == 14) console.log(position);
-
     let targetPosition = 1;
     if (sessionType === "Practice") {
         targetPosition = position == 1 ? 2 : 1;
@@ -465,11 +266,7 @@ function getTargetPositionAndNumber(driverNumber) {
 
         const currentEntries = qualiTimingData.NoEntries[sessionPart];
 
-        if (driverNumber == 14) console.log(currentEntries);
-
         const cutoff = currentEntries !== null ? position > currentEntries : false;
-
-        if (driverNumber == 14) console.log(cutoff);
 
         if (cutoff && driverTimingData.BestLapTime.Value === "") {
             targetPosition =
@@ -553,13 +350,6 @@ function setTargetInfo(
         }
     }
 
-    if (driverNumber == 16) {
-        console.log(currentSectorIndex);
-        console.log(completedFirstSector);
-        console.log(doesTargetHaveTime);
-        console.log(targetDelta);
-    }
-
     let targetTime = "NO TIME";
     let targetDisplayTime = "NO TIME";
     let targetColor = getColorFromStatusCodeOrName("gray");
@@ -629,11 +419,6 @@ function setCurrentLapTime(driverNumber, diffToLapStart, isPushing) {
 
     const currentDriverLap = driverTimingData.NumberOfLaps;
 
-    if (driverNumber == 44) {
-        console.log(diffToLapStart);
-        console.log(isPushing);
-    }
-
     if (diffToLapStart) {
         const msPastSector = (diffToLapStart / 1000 - totalSectorTimes) * 1000;
 
@@ -653,12 +438,6 @@ function setCurrentLapTime(driverNumber, diffToLapStart, isPushing) {
         lapTimeElement.style.color = color;
     } else if (!isPushing) {
         const elementLapTime = parseInt(document.getElementById(`n${driverNumber}`).dataset.lapNumber);
-
-        if (driverNumber == 55) {
-            console.log(`Removing ${driverNumber} from list`);
-            console.log(elementLapTime);
-            console.log(currentDriverLap);
-        }
 
         if (driverTimingData.InPit && elementLapTime === currentDriverLap) {
             lapTimeElement.textContent = "IN PIT";
@@ -843,22 +622,21 @@ async function initiateTemplate(driverNumber, pushDrivers) {
         if (child.dataset.finished === "true") pushDriverIndex++;
     }
 
-    console.log(pushDriverIndex);
-
     const beforeElement = container.children[pushDriverIndex];
 
     container.insertBefore(listItem, beforeElement);
 
-    await sleep(10);
-
-    listItem.classList.add("show");
+    setTimeout(() => {
+        listItem.classList.add("show");
+    }, 10);
 }
+
+const { getDriversTrackOrder } = require("../functions/driver.js");
 
 // Run all function and create a loop to refresh
 async function run() {
     await getConfigurations();
-    while (true) {
-        await sleep(loopspeed);
+    setInterval(async () => {
         await apiRequests();
         const pushDrivers = getAllPushDriverPositions();
         // Check for every driver if he is pushing and then initiate a template
@@ -878,12 +656,6 @@ async function run() {
         for (const driver in timingData) {
             saveTimeOfNewLap(driver);
         }
-
-        if (debug) {
-            console.log(driverLaps);
-
-            console.log(pushDrivers);
-        }
-    }
+    }, loopspeed);
 }
 run();
