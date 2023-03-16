@@ -40,8 +40,6 @@ async function goveeHandler() {
 
             goveeDevices.push(device);
 
-            goveePanel.document.getElementById("connected").textContent = goveeDevices.length;
-
             setGoveeLight("green");
 
             await sleep(1000);
@@ -58,8 +56,6 @@ async function goveeHandler() {
             const deviceIndex = goveeDevices.indexOf(device);
 
             goveeDevices.splice(deviceIndex, 1);
-
-            goveePanel.document.getElementById("connected").textContent = goveeDevices.length;
 
             if (goveeDevices.length === 0) goveeConnected = false;
 

@@ -15,17 +15,14 @@ const sleep = (milliseconds) => {
 
 let size = 0;
 function toggleSize() {
-    if (document.getElementById("background").classList.value.includes("drag")) {
-    } else {
-        if (size === 1) {
-            window.resizeTo(400, 480);
-            size = 0;
-            document.getElementById("container").className = "";
-            document.getElementById("wrapper1").className = "wrapper";
-            document.getElementById("wrapper2").className = "hidden";
-            document.getElementById("hide").style.margin = "Inherited";
-            document.getElementById("onboard-count2").style.fontSize = "Inherited";
-        }
+    if (size === 1) {
+        window.resizeTo(400, 480);
+        size = 0;
+        document.getElementById("container").className = "";
+        document.getElementById("wrapper1").className = "wrapper";
+        document.getElementById("wrapper2").className = "hidden";
+        document.getElementById("hide").style.margin = "Inherited";
+        document.getElementById("onboard-count2").style.fontSize = "Inherited";
     }
 }
 
