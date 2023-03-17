@@ -55,6 +55,7 @@ h2 {
 }
 
 p {
+    white-space: nowrap;
     width: fit-content;
     font-size: 5vw;
     padding: 2vw;
