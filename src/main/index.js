@@ -79,10 +79,12 @@ async function setSessionInfo() {
 
     try {
         liveSessionInfo = await (await fetch(liveSessionApiLink)).json();
-        console.log(liveSessionInfo);
+        liveSession = liveSessionInfo.liveSessionFound;
     } catch (error) {
         console.log(error);
     }
+
+    livetimingButton();
 }
 
 setSessionInfo();

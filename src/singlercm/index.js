@@ -17,10 +17,6 @@ function httpGet(theUrl) {
     return xmlHttpReq.responseText;
 }
 
-const bar = document.getElementById("RCM");
-const text = document.getElementById("message");
-const icon = document.getElementById("icon");
-
 WANTED_CATEGORIES = [
     "Flag",
     "IncidentNoted",
@@ -57,13 +53,6 @@ WANTED_FLAGS = ["BLACK AND ORANGE", "BLACK AND WHITE", "CHEQUERED"];
 
 WANTED_SAFETYCAR = ["SAFETY CAR WILL USE START/FINISH STRAIGHT", "SAFETY CAR THROUGH THE PIT LANE"];
 
-let rcms;
-let lastRCM;
-let lastRCMstring;
-let oldRCM;
-let category;
-let running = false;
-
 async function getConfigurations() {
     const configFile = (await ipcRenderer.invoke("get_store")).config;
     const host = configFile.network.host;
@@ -93,7 +82,7 @@ async function getRaceControlMessages() {
 }
 
 async function runQueue(count) {
-    if (count === 0) queue = [];
+    // if (count === 0) queue = [];
     for (const message of queue) {
         const jsonMessage = JSON.parse(message);
         if (isMessageWanted(jsonMessage)) await showMessage(jsonMessage);
@@ -114,6 +103,7 @@ async function run() {
 run();
 
 async function showMessage(raceControlMessage) {
+    console.log("Showing message");
     const category = raceControlMessage.SubCategory ? raceControlMessage.SubCategory : raceControlMessage.Category;
     const message = await (async () => {
         let formattedMessage = raceControlMessage.Message;
@@ -152,6 +142,10 @@ async function showMessage(raceControlMessage) {
         return formattedMessage;
     })();
 
+    const bar = document.getElementById("RCM");
+    const text = document.getElementById("message");
+    const icon = document.getElementById("icon");
+
     const image = getImage(raceControlMessage, category);
     const path = "../icons/" + image;
 
@@ -159,8 +153,6 @@ async function showMessage(raceControlMessage) {
     text.innerHTML = message;
 
     bar.className = "shown";
-
-    console.log(displayLength);
 
     await sleep(displayLength);
 
