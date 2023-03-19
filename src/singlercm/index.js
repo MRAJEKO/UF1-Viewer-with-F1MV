@@ -82,7 +82,7 @@ async function getRaceControlMessages() {
 }
 
 async function runQueue(count) {
-    // if (count === 0) queue = [];
+    if (count === 0) queue = [];
     for (const message of queue) {
         const jsonMessage = JSON.parse(message);
         if (isMessageWanted(jsonMessage)) await showMessage(jsonMessage);
