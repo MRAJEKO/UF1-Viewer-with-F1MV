@@ -650,6 +650,8 @@ ipcMain.handle("restoreLayout", async (event, layoutId, liveSessionInfo, content
     }
 
     while (liveSessionType?.includes("pre") && !contentIdField) {
+        session.defaultSession.clearCache();
+
         const liveSessionApiLink = store.get("internal_settings.session.getLiveSession");
 
         try {
