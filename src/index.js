@@ -293,6 +293,9 @@ const store = new Store({
 
             store.set("config.general.await_session", true);
         },
+        "1.4.8": (store) => {
+            store.set("internal_settings.windows.singlercm.aspectRatio", 10);
+        },
     },
 
     defaults: defaults,
@@ -372,7 +375,7 @@ ipcMain.handle(
 
         console.log(pathToHTML);
 
-        if (!alwaysOnTop) alwaysOnTop = store.get("config.general.always_on_top");
+        if (alwaysOnTop === null) alwaysOnTop = store.get("config.general.always_on_top");
 
         const newWindow = new BrowserWindow({
             autoHideMenuBar: hideMenuBar,

@@ -16,9 +16,9 @@ body {
 
 h1 {
     text-align: center;
-    font-size: 21px;
+    font-size: 2vw;
     color: white;
-    width: 750px;
+    width: 75%;
     font-family: "SFBold", Arial, Helvetica, sans-serif;
 }
 
@@ -26,8 +26,8 @@ h1 {
     display: flex;
     justify-content: center;
     align-items: center;
-    width: 100px !important;
-    height: 80px;
+    width: 10% !important;
+    height: 80%;
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
@@ -35,19 +35,19 @@ h1 {
 
 .logo-container {
     left: 0;
-    border-right: 1px solid rgb(90, 90, 90);
+    border-right: 0.1vw solid rgb(90, 90, 90);
 }
 
 .icon-container {
     right: 0;
-    border-left: 1px solid rgb(90, 90, 90);
+    border-left: 0.1vw solid rgb(90, 90, 90);
 }
 
 #RCM {
     width: 100vw;
-    height: 100px;
+    height: 100vh;
     background-color: #0a0a0faf;
-    border-radius: 0 0 40px 40px;
+    border-radius: 0 0 4vw 4vw;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -66,17 +66,17 @@ h1 {
 }
 
 .logo {
-    width: 60px;
+    width: 5.5vw;
 }
 
 #icon {
-    width: 50px;
+    width: 5vw;
 }
 
 .shown {
-    transform: translateY(0px);
+    transform: translateY(0);
 }
 
 .hidden {
-    transform: translateY(-100px);
+    transform: translateY(-100%);
 }
