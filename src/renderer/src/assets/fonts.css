@@ -1,0 +1,29 @@
+/* Inter Fonts */
+@font-face {
+  font-family: 'InterRegular';
+  src: url('./fonts/Inter-Regular.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'InterMedium';
+  src: url('./fonts/Inter-Medium.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'InterBold';
+  src: url('./fonts/Inter-Bold.ttf') format('truetype');
+}
+
+/* Official FORMULA 1 fonts */
+@font-face {
+  font-family: 'OF1Regular';
+  src: url('./fonts/Formula1-Regular_web_0.ttf');
+}
+
+@font-face {
+  font-family: 'OF1Bold';
+  src: url('./fonts/Formula1-Bold_web_0_modified.ttf');
+}
+
+@font-face {
+  font-family: 'F1Wide';
+  src: url('./fonts/Formula1-Wide.ttf') format('truetype');
+}

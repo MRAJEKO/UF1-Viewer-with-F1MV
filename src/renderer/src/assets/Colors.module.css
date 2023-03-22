@@ -1,0 +1,13 @@
+.default-button {
+  border-color: rgb(255, 50, 50);
+  color: rgb(255, 50, 50);
+}
+
+.beta-button {
+  border-color: #c76cff;
+  color: #c76cff;
+}
+
+.background-black {
+  background-color: rgb(15, 15, 15);
+}

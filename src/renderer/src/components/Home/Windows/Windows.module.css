@@ -1,0 +1,87 @@
+.new-window-section {
+  display: flex;
+  width: 60%;
+  justify-content: space-evenly;
+  color: gray !important;
+  font-size: 12px;
+  align-items: center;
+  white-space: nowrap;
+}
+
+.new-window-section p {
+  font-family: 'InterBold';
+}
+
+h1 {
+  font-size: 30px;
+  padding: 30px;
+  padding-bottom: 22.5px;
+  color: white;
+  font-family: 'InterBold';
+}
+
+.line {
+  background-color: gray;
+  height: 2px;
+  width: 100%;
+  margin: 10px;
+}
+
+section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: calc(100vh - 80px);
+  overflow: auto;
+  margin-bottom: 7.5px;
+}
+
+.window {
+  font-family: 'InterBold';
+  background-color: transparent;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 10px;
+  transition: all 0.5s ease;
+  font-size: 17px;
+  width: 60%;
+  min-height: 40px;
+  height: 40px;
+  margin: 7.5px;
+  border: 2px solid transparent;
+}
+
+.link.gray,
+.window.gray {
+  border-color: #9f9f9f;
+  color: white;
+}
+
+.window:hover {
+  transform: translate(3px, 3px);
+}
+
+#solid-color-windows {
+  display: flex;
+  justify-content: space-evenly;
+}
+
+#solid-color-windows:hover {
+  transform: none;
+}
+
+.solid-color-window {
+  width: 100%;
+  height: 100%;
+  border-radius: 10px;
+  box-shadow: 3px 3px #000000;
+  transition: all 0.5s ease;
+  border: 2px solid #9f9f9f;
+  margin: 7.5px;
+}
+
+.solid-color-window:hover {
+  transform: translate(3px, 3px);
+  box-shadow: 0 0 #000000;
+}
