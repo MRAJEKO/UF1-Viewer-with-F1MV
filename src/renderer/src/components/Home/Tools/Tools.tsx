@@ -1,32 +1,73 @@
-import status from '../../../utils/status'
+import { useState } from 'react'
 
-const Tools = () => {
+import { connectionStatuses } from '../../../utils/connectionStatuses'
+import styles from './Tools.module.css'
+import Colors from '../../../assets/Colors.module.css'
+import layoutsIcon from '../../../assets/icons/layout.png'
+import restoreIcon from '../../../assets/icons/restore.png'
+import settingsIcon from '../../../assets/icons/settings.png'
+
+interface ToolsProps {
+  openLayouts: () => void
+  restoreAll: () => void
+  settings: () => void
+}
+
+const Tools = ({ openLayouts, restoreAll, settings }: ToolsProps) => {
+  const [showRestore, setShowRestore] = useState(false)
+  const [showLayouts, setShowLayouts] = useState(true)
+
+  const statuses = connectionStatuses()
+
   return (
-    <section id="tools" className="tools">
-      <div className="tools-wrapper">
-        <div className="dynamic-button">
-          <div title="Layouts" id="layout-button" className="buttons" onclick="openLayouts()">
-            <img id="layout-icon" src="../icons/layout.png" alt="" />
+    <section id="tools" className={`${styles.tools} ${Colors['background-tools']}`}>
+      <div className={styles['tools-wrapper']}>
+        <div className={`${styles['icon']} ${styles['dynamic-button']}`}>
+          <div
+            title="Layouts"
+            className={`${styles.button} ${styles['layout-button']} ${
+              !showLayouts && styles.hidden
+            }`}
+            onClick={openLayouts}
+          >
+            <img className={styles.icon} src={layoutsIcon} />
           </div>
           <button
             title="Restore Default Settings"
-            id="reset-defaults"
-            className="buttons hidden"
-            onclick="restoreAll()"
+            className={`${styles.button} ${styles['restore-defaults']} ${
+              !showRestore && styles.hidden
+            }`}
+            onClick={restoreAll}
           >
-            <img id="reset-icon" src="../icons/restore.png" alt="" />
+            <img className={styles.icon} src={restoreIcon} />
           </button>
         </div>
-        <div className="connection-status">
+        <div className={styles['connection-status']}>
           <p>
-            MultiViewer Status:{' '}
-            <span id="connection" className="disconnected">
-              DISCONNECTED
+            Live Timing Status:{' '}
+            <span
+              id="connection"
+              className={
+                statuses.liveTiming
+                  ? `${styles['connected']} ${Colors['connected']}`
+                  : `${styles['disconnected']} ${Colors['disconnected']}`
+              }
+            >
+              {statuses.liveTiming ? 'CONNECTED' : 'DISCONNECTED'}
             </span>
           </p>
         </div>
-        <button title="Settings" id="options" className="buttons" onclick="settings()">
-          <img id="settings-icon" src="../icons/settings.png" alt="" />
+        <button
+          title="Settings"
+          id="options"
+          className={styles.button}
+          onClick={() => {
+            settings
+            setShowLayouts(!showLayouts)
+            setShowRestore(!showRestore)
+          }}
+        >
+          <img className={styles.icon} src={settingsIcon} />
         </button>
       </div>
     </section>

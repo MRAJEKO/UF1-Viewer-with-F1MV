@@ -33,7 +33,6 @@ section {
   align-items: center;
   height: calc(100vh - 80px);
   overflow: auto;
-  margin-bottom: 7.5px;
 }
 
 .window {

@@ -3,6 +3,13 @@
   color: rgb(255, 50, 50);
 }
 
+.default-button.disabled {
+  background-color: transparent;
+  border: 2px solid #9f313162 !important;
+  color: #9f313162 !important;
+  transform: translate(0, 0) !important;
+}
+
 .beta-button {
   border-color: #c76cff;
   color: #c76cff;
@@ -10,4 +17,16 @@
 
 .background-black {
   background-color: rgb(15, 15, 15);
+}
+
+.background-tools {
+  background-color: #ffffff05;
+}
+
+.connected {
+  color: rgb(94, 255, 94);
+}
+
+.disconnected {
+  color: rgb(255, 62, 62);
 }

@@ -1,15 +1,11 @@
 import { useState, useEffect } from 'react'
+import { LiveTimingClockAPIGraphQL } from 'npm_f1mv_api'
 
-import { ipcRenderer } from 'electron'
-import { discoverF1MVInstances, LiveTimingClockAPIGraphQL } from 'npm_f1mv_api'
+let host: string = 'localhost'
 
-let host: string = ''
-
-// ipcRenderer.send('get-store', '')
-
-// ipcRenderer.on('get-store-reply', (event, arg) => {
-//   host = arg
-// })
+window.ipcRenderer.invoke('get-store').then((event) => {
+  host = event?.config?.network?.host || 'localhost'
+})
 
 export interface connectionStatusesProps {
   multiViewer: boolean
@@ -27,14 +23,12 @@ export function connectionStatuses(): connectionStatusesProps {
       try {
         if (!host) return
 
-        const port = (await discoverF1MVInstances(host)).port
+        const port = (await window.discoverF1MVInstances(host)).port
 
         const config = {
           host: host,
           port: port
         }
-
-        console.log(config)
 
         const liveTiming = (await LiveTimingClockAPIGraphQL(config, 'liveTimingStartTime'))
           ?.liveTimingStartTime

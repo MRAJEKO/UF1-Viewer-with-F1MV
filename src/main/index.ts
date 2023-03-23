@@ -16,6 +16,7 @@ function createWindow(): void {
     ...(process.platform === 'linux' ? { icon } : {}),
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
+      webSecurity: false,
       sandbox: false
     }
   })
@@ -335,8 +336,6 @@ const store = new Store({
   defaults: defaults
 })
 
-console.log(store.get('internal_settings.test'))
+ipcMain.handle('get-store', () => store.store)
 
-// ipcMain.on('get-store', (event) => {
-//   event.sender.send('get-store-reply', store.get('store.config.network.host'))
-// })
+ipcMain.handle('open-window', (event, window) => {})
