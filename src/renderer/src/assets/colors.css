@@ -1,0 +1,11 @@
+:root {
+  --white: #ffffff;
+  --light-gray: #9f9f9f;
+  --dark-gray: #0f0f0f;
+  --white-transparent: #ffffff05;
+  --connected: #5eff5e;
+  --disconnected: #ff3e3e;
+  --default-button: #ff3232;
+  --default-button-disabled: #9f313162;
+  --beta-button: #c76cff;
+}

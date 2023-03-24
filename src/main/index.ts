@@ -1,11 +1,10 @@
-import { app, shell, BrowserWindow, ipcMain } from 'electron'
+import { app, shell, BrowserWindow, ipcMain, nativeImage } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
-import icon from '../../resources/icon.png?asset'
 import Store from 'electron-store'
 
 function createWindow(): void {
-  // Create the browser window.
+  // Create the browser window
   const mainWindow = new BrowserWindow({
     width: 600,
     height: 1000,
@@ -13,7 +12,7 @@ function createWindow(): void {
     minHeight: 600,
     show: false,
     autoHideMenuBar: true,
-    ...(process.platform === 'linux' ? { icon } : {}),
+    icon: 'src/renderer/src/assets/icons/windows/logo.png',
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
       webSecurity: false,
@@ -37,6 +36,8 @@ function createWindow(): void {
   } else {
     mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
   }
+
+  mainWindow.on('closed', () => app.quit())
 }
 
 // This method will be called when Electron has finished
@@ -338,4 +339,24 @@ const store = new Store({
 
 ipcMain.handle('get-store', () => store.store)
 
-ipcMain.handle('open-window', (event, window) => {})
+ipcMain.handle('open-window', (_event, window) => {
+  console.log(window)
+  const windowProperties = store.store.internal_settings.windows[window]
+
+  console.log(windowProperties)
+
+  // const newWindow = new BrowserWindow({
+})
+
+ipcMain.handle('open-solid-window', (_event, color) => {
+  console.log(join(__dirname, '../renderer/src/assets/icons/windows/flagdisplay.png'))
+  const newWindow = new BrowserWindow({
+    width: 800,
+    height: 600,
+    frame: false,
+    backgroundColor: color,
+    icon: join(__dirname, '../renderer/src/assets/icons/windows/flagdisplay.png')
+  })
+
+  newWindow.loadURL(`data:text/html;charset=utf-8,<body style="-webkit-app-region: drag;"></body>`)
+})

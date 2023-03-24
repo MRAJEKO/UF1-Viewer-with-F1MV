@@ -1,8 +1,20 @@
-import React from 'react'
+import styles from './SolidWindows.module.css'
+import windowStyles from './Windows.module.css'
+
+import SolidWindow from './SolidWindow'
 
 const SolidWindows = () => {
+  function openWindow(color: string) {
+    window.ipcRenderer.invoke('open-solid-window', color)
+  }
+
   return (
-    <div>SolidWindows</div>
+    <div className={`${windowStyles.window} ${styles['solid-window-container']}`}>
+      <SolidWindow onPress={() => openWindow('#808080')} color="#808080" />
+      <SolidWindow onPress={() => openWindow('#1a1a1a')} color="#1a1a1a" />
+      <SolidWindow onPress={() => openWindow('#000000')} color="#000000" />
+      <SolidWindow onPress={() => openWindow('#ffffff')} color="#ffffff" />
+    </div>
   )
 }
 

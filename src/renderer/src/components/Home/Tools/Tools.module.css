@@ -6,6 +6,14 @@
   align-items: center;
 }
 
+.connected {
+  color: var(--connected);
+}
+
+.disconnected {
+  color: var(--disconnected);
+}
+
 .tools {
   height: 79px;
   display: grid;

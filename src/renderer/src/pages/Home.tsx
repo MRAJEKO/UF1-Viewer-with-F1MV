@@ -1,6 +1,5 @@
 import Windows from '../components/Home/Windows/Windows'
 import Tools from '../components/Home/Tools/Tools'
-import Colors from '../assets/Colors.module.css'
 
 const HomePage = () => {
   function show(id: string) {
@@ -14,7 +13,7 @@ const HomePage = () => {
   }
 
   return (
-    <div className={'background ' + Colors['background-black']}>
+    <div className={'background '}>
       <Windows />
       <Tools openLayouts={show('layouts')} restoreAll={restoreAll} settings={show('settings')} />
     </div>

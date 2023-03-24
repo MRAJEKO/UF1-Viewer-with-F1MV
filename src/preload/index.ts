@@ -25,7 +25,7 @@ if (process.contextIsolated) {
 contextBridge.exposeInMainWorld('ipcRenderer', {
   send: (channel: string, data: any) => ipcRenderer.send(channel, data),
   on: (channel: string, func: any) => {
-    ipcRenderer.on(channel, (event, ...args) => func(...args))
+    ipcRenderer.on(channel, (_event, ...args) => func(...args))
   },
   invoke: (channel: string, data?: any) => ipcRenderer.invoke(channel, data)
 })

@@ -1,0 +1,21 @@
+.solid-window-container {
+  border: none;
+  display: flex;
+  gap: 20px;
+}
+
+.solid-window-container:hover {
+  transform: translate(0, 0) !important;
+}
+
+.solid-window {
+  border-radius: 10px;
+  border: 2px solid var(--light-gray);
+  height: 100%;
+  width: 100%;
+  transition: all 0.5s ease-in-out;
+}
+
+.solid-window:hover {
+  transform: translate(3px, 3px) !important;
+}

@@ -2,7 +2,6 @@ import { useState } from 'react'
 
 import { connectionStatuses } from '../../../utils/connectionStatuses'
 import styles from './Tools.module.css'
-import Colors from '../../../assets/Colors.module.css'
 import layoutsIcon from '../../../assets/icons/layout.png'
 import restoreIcon from '../../../assets/icons/restore.png'
 import settingsIcon from '../../../assets/icons/settings.png'
@@ -20,7 +19,7 @@ const Tools = ({ openLayouts, restoreAll, settings }: ToolsProps) => {
   const statuses = connectionStatuses()
 
   return (
-    <section id="tools" className={`${styles.tools} ${Colors['background-tools']}`}>
+    <section id="tools" className={`${styles.tools} ${styles['background-tools']}`}>
       <div className={styles['tools-wrapper']}>
         <div className={`${styles['icon']} ${styles['dynamic-button']}`}>
           <div
@@ -49,8 +48,8 @@ const Tools = ({ openLayouts, restoreAll, settings }: ToolsProps) => {
               id="connection"
               className={
                 statuses.liveTiming
-                  ? `${styles['connected']} ${Colors['connected']}`
-                  : `${styles['disconnected']} ${Colors['disconnected']}`
+                  ? `${styles['connected']} ${styles['connected']}`
+                  : `${styles['disconnected']} ${styles['disconnected']}`
               }
             >
               {statuses.liveTiming ? 'CONNECTED' : 'DISCONNECTED'}

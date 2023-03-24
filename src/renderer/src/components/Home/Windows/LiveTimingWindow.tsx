@@ -1,5 +1,4 @@
 import styles from './Windows.module.css'
-import Colors from '../../../assets/Colors.module.css'
 import { liveSession } from '../../../utils/liveSession'
 
 interface LiveTimingWindowProps {
@@ -10,14 +9,12 @@ interface LiveTimingWindowProps {
 const LiveTimingWindow = ({ onPress, name }: LiveTimingWindowProps) => {
   const liveSessionInfo = liveSession()
 
-  const isSessionLive = liveSessionInfo.liveSessionFound
-
-  console.log(isSessionLive)
+  const isSessionLive = liveSessionInfo.streamInfo?.liveTimingAvailable
 
   return (
     <button
-      className={`${styles.window} ${Colors['default-button']} ${
-        !isSessionLive && Colors[`disabled`]
+      className={`${styles.window} ${styles['default-button']} ${
+        !isSessionLive && styles[`disabled`]
       }`}
       onClick={onPress}
     >

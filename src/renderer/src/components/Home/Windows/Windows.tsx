@@ -1,11 +1,10 @@
 import { useEffect, useRef } from 'react'
 import Window from './Window'
 import NewWindowSection from './NewWindowSection'
+import SolidWindows from './SolidWindows'
 import LiveTimingWindow from './LiveTimingWindow'
 import { liveSession } from '../../../utils/liveSession'
 import { connectionStatuses } from '../../../utils/connectionStatuses'
-import styles from './Windows.module.css'
-import colors from '../../../assets/Colors.module.css'
 
 const Windows = () => {
   const liveSessionInfo = liveSession()
@@ -30,9 +29,7 @@ const Windows = () => {
   }
 
   async function liveTiming() {
-    // const isLiveSession = liveSessionInfo.liveSessionFound
-
-    const isLiveSession = true
+    const isLiveSession = liveSessionInfo.streamInfo?.liveTimingAvailable
 
     if (isLiveSession) {
       if (!multiViewerConnectedRef.current) await launchF1MV()
@@ -52,15 +49,15 @@ const Windows = () => {
   }
 
   function openWindow(name: string) {
-    window.ipcRenderer.invoke('openWindow', name)
+    window.ipcRenderer.invoke('open-window', name)
   }
 
   return (
-    <section className={colors['background-black']}>
+    <section>
       <h1>Ultimate Formula 1 Viewer</h1>
       <Window onPress={launchF1MV} name="MultiViewer" />
       <LiveTimingWindow onPress={liveTiming} name="Live Timing" />
-      <Window onPress={launchF1MV} name="Flag Display" />
+      <Window onPress={() => openWindow('flag_display')} name="Flag Display" />
       <Window onPress={launchF1MV} name="Delayed Track Time" />
       <Window onPress={launchF1MV} name="Session Log" />
       <Window onPress={launchF1MV} name="Track Information" />
@@ -74,6 +71,8 @@ const Windows = () => {
       <Window onPress={launchF1MV} name="Weather Information" />
       <NewWindowSection name="BETA" />
       <Window onPress={launchF1MV} name="Auto Onboard Camera Switcher" type="beta" />
+      <NewWindowSection name="SOLID COLORED WINDOWS" />
+      <SolidWindows />
     </section>
   )
 }
