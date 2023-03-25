@@ -3,6 +3,8 @@ import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import Store from 'electron-store'
 
+const logo = 'src/renderer/src/assets/icons/windows/logo.png'
+
 function createWindow(): void {
   // Create the browser window
   const mainWindow = new BrowserWindow({
@@ -12,7 +14,7 @@ function createWindow(): void {
     minHeight: 600,
     show: false,
     autoHideMenuBar: true,
-    icon: 'src/renderer/src/assets/icons/windows/logo.png',
+    icon: logo,
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
       webSecurity: false,
@@ -349,13 +351,12 @@ ipcMain.handle('open-window', (_event, window) => {
 })
 
 ipcMain.handle('open-solid-window', (_event, color) => {
-  console.log(join(__dirname, '../renderer/src/assets/icons/windows/flagdisplay.png'))
   const newWindow = new BrowserWindow({
     width: 800,
     height: 600,
     frame: false,
     backgroundColor: color,
-    icon: join(__dirname, '../renderer/src/assets/icons/windows/flagdisplay.png')
+    icon: 'src/renderer/src/assets/icons/windows/color.png'
   })
 
   newWindow.loadURL(`data:text/html;charset=utf-8,<body style="-webkit-app-region: drag;"></body>`)
