@@ -1,0 +1,75 @@
+section.connections {
+  z-index: 5;
+  position: fixed;
+  width: 100vw;
+  height: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 20px;
+  align-items: center;
+}
+
+.extended {
+  height: 100vh !important;
+}
+
+.title {
+  position: absolute;
+  top: 0;
+}
+
+.continue {
+  all: unset;
+  font-family: 'InterBold';
+  color: var(--light-gray);
+  font-size: 15px;
+  position: absolute;
+  bottom: 45px;
+}
+
+.section {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+section.connections button {
+  height: 50px !important;
+}
+
+.connection {
+  border: 2px solid transparent;
+  padding: 17px 0;
+  width: 60%;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  margin: 7.5px;
+  user-select: none;
+}
+
+.connection p {
+  display: flex;
+  gap: 10px;
+  font-family: 'InterBold';
+  color: var(--white);
+  font-size: 17px;
+}
+
+.connected {
+  border-color: var(--connected) !important;
+}
+
+span.connected {
+  color: var(--connected) !important;
+}
+
+.disconnected {
+  border-color: var(--disconnected) !important;
+}
+
+span.disconnected {
+  color: var(--disconnected) !important;
+}

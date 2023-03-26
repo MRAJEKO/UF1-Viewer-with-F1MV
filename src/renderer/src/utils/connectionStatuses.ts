@@ -35,9 +35,13 @@ export function connectionStatuses(): connectionStatusesProps {
           ? true
           : false
 
-        setConnections({ multiViewer: true, liveTiming: liveTiming })
+        if (liveTiming != connections.liveTiming || connections.multiViewer != true) {
+          setConnections({ multiViewer: true, liveTiming: liveTiming })
+        }
       } catch (error) {
-        setConnections({ multiViewer: false, liveTiming: false })
+        if (connections.multiViewer !== false || connections.liveTiming !== false) {
+          setConnections({ multiViewer: false, liveTiming: false })
+        }
       }
     }
 
@@ -45,7 +49,7 @@ export function connectionStatuses(): connectionStatusesProps {
     const intervalId = setInterval(fetchStatus, 1000)
 
     return () => clearInterval(intervalId)
-  }, [])
+  }, [connections])
 
   return connections
 }

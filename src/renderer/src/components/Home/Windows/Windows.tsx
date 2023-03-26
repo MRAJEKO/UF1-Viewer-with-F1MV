@@ -1,53 +1,10 @@
-import { useEffect, useRef } from 'react'
 import Window from './Window'
 import NewWindowSection from './NewWindowSection'
 import SolidWindows from './SolidWindows'
 import LiveTimingWindow from './LiveTimingWindow'
-import { liveSession } from '../../../utils/liveSession'
-import { connectionStatuses } from '../../../utils/connectionStatuses'
+import { launchF1MV } from '../../../utils/launchF1MV'
 
 const Windows = () => {
-  const liveSessionInfo = liveSession()
-
-  const statuses = connectionStatuses()
-
-  console.log(statuses)
-
-  const multiViewerConnectedRef = useRef(statuses.multiViewer)
-
-  useEffect(() => {
-    multiViewerConnectedRef.current = statuses.multiViewer
-  }, [statuses.multiViewer])
-
-  console.log(multiViewerConnectedRef)
-
-  async function launchF1MV() {
-    const multiViewerLink: string = (await window.ipcRenderer.invoke('get-store')).internal_settings
-      .multiviewer.app.link
-    console.log('Opening MultiViewer for F1')
-    window.shell.openExternal(multiViewerLink)
-  }
-
-  async function liveTiming() {
-    const isLiveSession = liveSessionInfo.streamInfo?.liveTimingAvailable
-
-    if (isLiveSession) {
-      if (!multiViewerConnectedRef.current) await launchF1MV()
-
-      const interval = setInterval(async () => {
-        console.log(multiViewerConnectedRef.current)
-        if (multiViewerConnectedRef.current) {
-          const liveTimingLink: string = (await window.ipcRenderer.invoke('get-store'))
-            .internal_settings.multiviewer.livetiming.link
-
-          window.shell.openExternal(liveTimingLink)
-
-          clearInterval(interval)
-        }
-      }, 500)
-    }
-  }
-
   function openWindow(name: string) {
     window.ipcRenderer.invoke('open-window', name)
   }
@@ -56,7 +13,7 @@ const Windows = () => {
     <section>
       <h1>Ultimate Formula 1 Viewer</h1>
       <Window onPress={launchF1MV} name="MultiViewer" />
-      <LiveTimingWindow onPress={liveTiming} name="Live Timing" />
+      <LiveTimingWindow name="Live Timing" type="default" />
       <Window onPress={() => openWindow('flag_display')} name="Flag Display" />
       <Window onPress={launchF1MV} name="Delayed Track Time" />
       <Window onPress={launchF1MV} name="Session Log" />

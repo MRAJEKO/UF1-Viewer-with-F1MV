@@ -12,14 +12,9 @@ export function liveSession() {
   useEffect(() => {
     async function fetchStatus() {
       try {
-        const response = await (
-          await fetch(liveSessionApiLink, {
-            method: 'GET',
-            headers: {
-              'Cache-Control': 'no-cache'
-            }
-          })
-        ).json()
+        const response = await (await fetch(liveSessionApiLink)).json()
+
+        if (JSON.stringify(response) === JSON.stringify(liveSessionInfo)) return
 
         setLiveSessionInfo(response)
       } catch (error) {
@@ -31,7 +26,7 @@ export function liveSession() {
     const intervalId = setInterval(fetchStatus, 15000)
 
     return () => clearInterval(intervalId)
-  }, [])
+  }, [liveSessionInfo])
 
   return liveSessionInfo
 }

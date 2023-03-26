@@ -22,6 +22,7 @@ h1 {
   padding-bottom: 22.5px;
   color: white;
   font-family: 'InterBold';
+  text-align: center;
 }
 
 .line {
@@ -33,11 +34,13 @@ h1 {
 
 section {
   display: flex;
+  width: 100vw;
   flex-direction: column;
   align-items: center;
   height: calc(100vh - 80px);
   overflow: auto;
   background-color: var(--dark-gray);
+  transition: all 0.7s ease;
 }
 
 .window {
@@ -54,6 +57,7 @@ section {
   height: 40px;
   margin: 7.5px;
   border: 2px solid transparent;
+  cursor: pointer;
 }
 
 .window:hover {
@@ -70,9 +74,14 @@ section {
   color: var(--beta-button) !important;
 }
 
-.default-button.disabled {
+.white-button {
+  border: 2px solid var(--white-button) !important;
+  color: var(--white-button) !important;
+}
+
+.white-button.disabled {
   background-color: transparent;
-  border: 2px solid var(--default-button-disabled) !important;
-  color: var(--default-button-disabled) !important;
+  border: 2px solid var(--white-button-disabled) !important;
+  color: var(--white-button-disabled) !important;
   transform: translate(0, 0) !important;
 }
