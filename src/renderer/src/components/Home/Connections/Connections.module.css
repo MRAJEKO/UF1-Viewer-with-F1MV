@@ -1,17 +1,24 @@
-section.connections {
-  z-index: 5;
-  position: fixed;
-  width: 100vw;
-  height: 0;
+.container {
+  width: 100%;
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 20px;
   align-items: center;
+  gap: 20px;
+}
+
+section.connections {
+  position: fixed;
+  z-index: 5;
+  width: 100vw;
+  height: 100vh;
+  max-height: 0;
+  overflow: hidden;
 }
 
 .extended {
-  height: 100vh !important;
+  max-height: 100vh !important;
 }
 
 .title {
@@ -25,7 +32,8 @@ section.connections {
   color: var(--light-gray);
   font-size: 15px;
   position: absolute;
-  bottom: 45px;
+  top: 90vh;
+  cursor: pointer;
 }
 
 .section {

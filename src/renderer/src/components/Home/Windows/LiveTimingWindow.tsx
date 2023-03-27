@@ -12,8 +12,6 @@ interface LiveTimingWindowProps {
 const LiveTimingWindow = ({ name, type }: LiveTimingWindowProps) => {
   const liveSessionInfo = liveSession()
 
-  console.log(liveSessionInfo)
-
   const statuses = connectionStatuses()
 
   const multiViewerConnectedRef = useRef(statuses.multiViewer)

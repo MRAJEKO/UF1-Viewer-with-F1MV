@@ -69,6 +69,14 @@ section {
   color: var(--default-button) !important;
 }
 
+.default-button.disabled {
+  background-color: transparent;
+  border: 2px solid var(--default-button-disabled) !important;
+  color: var(--default-button-disabled) !important;
+  transform: translate(0, 0) !important;
+  cursor: default;
+}
+
 .beta-button {
   border: 2px solid var(--beta-button) !important;
   color: var(--beta-button) !important;
@@ -84,4 +92,5 @@ section {
   border: 2px solid var(--white-button-disabled) !important;
   color: var(--white-button-disabled) !important;
   transform: translate(0, 0) !important;
+  cursor: default;
 }
