@@ -1,0 +1,37 @@
+.container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow: auto;
+  gap: 25px;
+  backdrop-filter: blur(30px);
+  height: 100%;
+  padding: 5vw 0;
+}
+
+section.settings {
+  top: 0;
+  position: fixed;
+  z-index: 4;
+  width: 100vw;
+  max-height: 0;
+  overflow: hidden;
+  background-color: var(--black-translucent) !important;
+}
+
+.session-part {
+  background-color: var(--gray-translucent);
+  width: 90%;
+  border-radius: 20px;
+  border: 2px solid var(--light-gray);
+  padding: 10px 15px;
+}
+
+.session-part * {
+  color: white;
+}
+
+.extended {
+  max-height: 100vh !important;
+}

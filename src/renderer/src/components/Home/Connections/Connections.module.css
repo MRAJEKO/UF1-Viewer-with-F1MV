@@ -26,6 +26,12 @@ section.connections {
   top: 0;
 }
 
+.livetiming-info {
+  color: var(--gray);
+  font-family: 'InterBold';
+  font-size: 14px;
+}
+
 .continue {
   all: unset;
   font-family: 'InterBold';

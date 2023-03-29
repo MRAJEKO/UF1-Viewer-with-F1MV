@@ -15,6 +15,7 @@ interface ToolsProps {
 const Tools = ({ openLayouts, restoreAll, settings }: ToolsProps) => {
   const [showRestore, setShowRestore] = useState(false)
   const [showLayouts, setShowLayouts] = useState(true)
+  const [showSettings, setShowSettings] = useState(false)
 
   const statuses = connectionStatuses()
 
@@ -33,7 +34,7 @@ const Tools = ({ openLayouts, restoreAll, settings }: ToolsProps) => {
           </div>
           <button
             title="Restore Default Settings"
-            className={`${styles.button} ${styles['restore-defaults']} ${
+            className={`${styles.button} ${styles['reset-defaults']} ${
               !showRestore && styles.hidden
             }`}
             onClick={restoreAll}
@@ -61,12 +62,13 @@ const Tools = ({ openLayouts, restoreAll, settings }: ToolsProps) => {
           id="options"
           className={styles.button}
           onClick={() => {
-            settings
+            settings()
             setShowLayouts(!showLayouts)
             setShowRestore(!showRestore)
+            setShowSettings(!showSettings)
           }}
         >
-          <img className={styles.icon} src={settingsIcon} />
+          <img className={`${styles.icon} ${showSettings && styles.rotated}`} src={settingsIcon} />
         </button>
       </div>
     </section>

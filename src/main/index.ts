@@ -80,32 +80,222 @@ app.on('window-all-closed', () => {
 const defaults = {
   config: {
     general: {
-      always_on_top: true,
-      discord_rpc: true,
-      await_session: true,
-      highlighted_drivers: ''
+      name: 'General',
+      settings: {
+        always_on_top: {
+          title: 'Always on top',
+          description: 'Enable to show some windows always on top.',
+          type: 'switch',
+          value: false
+        },
+        discord_rpc: {
+          title: 'Enable Discord RPC',
+          description: "Enable to show that you're using MultiViewer on Discord.",
+          type: 'switch',
+          value: true
+        },
+        await_session: {
+          title: 'Await Session On Load',
+          description:
+            'During the Pre-session, load a layout and wait for the main session to start to open the MultiViewer windows.',
+          type: 'switch',
+          value: true
+        },
+        highlighted_drivers: {
+          title: 'Highlighted drivers',
+          description: 'Comma separated list of drivers to highlight. Example: VER,LEC,HAM',
+          type: 'text',
+          value: ''
+        }
+      }
     },
-    network: { host: 'localhost' },
-    flag_display: { govee: false },
+    network: {
+      name: 'Network',
+      settings: {
+        host: {
+          title: 'Host',
+          description: 'The host where the MultiViewer API is running on.',
+          type: 'text',
+          value: 'localhost'
+        }
+      }
+    },
+    flag_display: {
+      name: 'Flag display',
+      settings: {
+        govee: {
+          title: 'Enable Govee Lights Integration',
+          description: 'Connect to your Govee lights to show the track status.',
+          type: 'switch',
+          value: false
+        }
+      }
+    },
     session_log: {
-      lapped_drivers: true,
-      retired_drivers: true,
-      rain: true,
-      team_radios: false,
-      pitstops: true,
-      practice_starts: true,
-      finished: true
+      name: 'Session Log',
+      settings: {
+        lapped_drivers: {
+          title: 'Lapped drivers',
+          description: 'Show when drivers are lapped.',
+          type: 'switch',
+          value: true
+        },
+        retired_drivers: {
+          title: 'Retired drivers',
+          description: 'Show when drivers are retired.',
+          type: 'switch',
+          value: true
+        },
+        rain: {
+          title: 'Rain Status',
+          description: 'Show when rainfall starts or stops.',
+          type: 'switch',
+          value: true
+        },
+        team_radios: {
+          title: 'Team Radios',
+          description: "Show when new team radio's are available.",
+          type: 'switch',
+          value: false
+        },
+        pitstops: {
+          title: 'Pitstops',
+          description: 'Show when drivers have completed a pitstop.',
+          type: 'switch',
+          value: true
+        },
+        practice_starts: {
+          title: 'Practice Starts',
+          description: 'Show when drivers are doing practice starts.',
+          type: 'switch',
+          value: true
+        },
+        finished: {
+          title: 'Finish',
+          description: 'Show when drivers have finished the session.',
+          type: 'switch',
+          value: true
+        }
+      }
     },
-    trackinfo: { orientation: 'vertical' },
-    singlercm: { display_duration: '10000' },
+    trackinfo: {
+      name: 'Track Info',
+      settings: {
+        orientation: {
+          title: 'Orientation',
+          description: 'The orientation of the track info window.',
+          type: 'select',
+          value: 'vertical',
+          options: [
+            {
+              value: 'horizontal',
+              title: 'Horizontal'
+            },
+            {
+              value: 'vertical',
+              title: 'Vertical'
+            }
+          ]
+        }
+      }
+    },
+    singlercm: {
+      name: 'Single Race Control Message',
+      settings: {
+        display_duration: {
+          title: 'Display duration',
+          description: 'The duration in milliseconds to show the message.',
+          type: 'number',
+          value: 10000
+        }
+      }
+    },
     current_laps: {
-      always_on_top: true,
-      show_header: true,
-      sector_display_duration: '4000',
-      end_display_duration: '4000'
+      name: 'Current Laps',
+      settings: {
+        always_on_top: {
+          title: 'Set always on top',
+          description: 'Put this window always on top.',
+          type: 'switch',
+          value: false
+        },
+        show_header: {
+          title: 'Show header',
+          description: 'Enable or disable the header at the top of the window.',
+          type: 'switch',
+          value: true
+        },
+        sector_display_duration: {
+          title: 'Sector Display Duration',
+          description:
+            'Set the duration of how long the sector time will stay shown before it continues counting (in milliseconds).',
+          type: 'number',
+          value: 4000
+        },
+        end_display_duration: {
+          title: 'End Display Duration',
+          description:
+            'Set the duration of how long the graphic will stay shown before it disappears (in milliseconds).',
+          type: 'number',
+          value: 4000
+        }
+      }
     },
-    weather: { datapoints: '30', use_trackmap_rotation: true },
-    autoswitcher: { main_window_name: 'INTERNATIONAL', speedometer: true, fixed_drivers: '' }
+    weather: {
+      name: 'Weather Info',
+      settings: {
+        datapoints: {
+          title: 'Default Datapoints',
+          description: 'The amount of default datapoints that are shown.',
+          type: 'number',
+          value: 30
+        },
+        use_trackmap_rotation: {
+          title: 'Relative Wind Direction',
+          description: 'Show the wind direction relative to the track map rotation.',
+          type: 'switch',
+          value: true
+        }
+      }
+    },
+    autoswitcher: {
+      name: 'Auto Onboard Camera Switcher',
+      settings: {
+        main_window_name: {
+          title: 'Default Stream',
+          description: "The default stream that all OBC's will be synced to.",
+          type: 'select',
+          value: 'INTERNATIONAL',
+          options: [
+            {
+              value: 'INTERNATIONAL',
+              title: 'International'
+            },
+            {
+              value: 'F1 LIVE',
+              title: 'F1 Live'
+            },
+            {
+              value: 'PIT LANE',
+              title: 'Pit Lane'
+            }
+          ]
+        },
+        speedometer: {
+          title: 'Speedometer',
+          description: "Always enable the speedometer on the OBC's.",
+          type: 'switch',
+          value: false
+        },
+        fixed_drivers: {
+          title: 'Fixed Drivers',
+          description:
+            'Comma separated list of drivers to keep on display always. Example: VER,LEC,HAM.',
+          type: 'text',
+          value: ''
+        }
+      }
+    }
   },
   layouts: {},
   led_colors: {
@@ -333,7 +523,227 @@ const defaults = {
 const store = new Store({
   migrations: {
     '2.0.0': (store) => {
-      store.set('internal_settings.test', 'test')
+      const oldConfig: any = store.get('config')
+      const newConfig = {
+        general: {
+          name: 'General',
+          settings: {
+            always_on_top: {
+              title: 'Always on top',
+              description: 'Enable to show some windows always on top.',
+              type: 'switch',
+              value: oldConfig.general.always_on_top
+            },
+            discord_rpc: {
+              title: 'Enable Discord RPC',
+              description: "Enable to show that you're using MultiViewer on Discord.",
+              type: 'switch',
+              value: oldConfig.general.discord_rpc
+            },
+            await_session: {
+              title: 'Await Session On Load',
+              description:
+                'During the Pre-session, load a layout and wait for the main session to start to open the MultiViewer windows.',
+              type: 'switch',
+              value: oldConfig.general.await_session
+            },
+            highlighted_drivers: {
+              title: 'Highlighted drivers',
+              description: 'Comma separated list of drivers to highlight. Example: VER,LEC,HAM',
+              type: 'text',
+              value: oldConfig.general.highlighted_drivers
+            }
+          }
+        },
+        network: {
+          name: 'Network',
+          settings: {
+            host: {
+              title: 'Host',
+              description: 'The host where the MultiViewer API is running on.',
+              type: 'text',
+              value: oldConfig.network.host
+            }
+          }
+        },
+        flag_display: {
+          name: 'Flag display',
+          settings: {
+            govee: {
+              title: 'Enable Govee Lights Integration',
+              description: 'Connect to your Govee lights to show the track status.',
+              type: 'switch',
+              value: oldConfig.flag_display.govee
+            }
+          }
+        },
+        session_log: {
+          name: 'Session Log',
+          settings: {
+            lapped_drivers: {
+              title: 'Lapped drivers',
+              description: 'Show when drivers are lapped.',
+              type: 'switch',
+              value: oldConfig.session_log.lapped_drivers
+            },
+            retired_drivers: {
+              title: 'Retired drivers',
+              description: 'Show when drivers are retired.',
+              type: 'switch',
+              value: oldConfig.session_log.retired_drivers
+            },
+            rain: {
+              title: 'Rain Status',
+              description: 'Show when rainfall starts or stops.',
+              type: 'switch',
+              value: oldConfig.session_log.rain
+            },
+            team_radios: {
+              title: 'Team Radios',
+              description: "Show when new team radio's are available.",
+              type: 'switch',
+              value: oldConfig.session_log.team_radios
+            },
+            pitstops: {
+              title: 'Pitstops',
+              description: 'Show when drivers have completed a pitstop.',
+              type: 'switch',
+              value: oldConfig.session_log.pitstops
+            },
+            practice_starts: {
+              title: 'Practice Starts',
+              description: 'Show when drivers are doing practice starts.',
+              type: 'switch',
+              value: oldConfig.session_log.practice_starts
+            },
+            finished: {
+              title: 'Finish',
+              description: 'Show when drivers have finished the session.',
+              type: 'switch',
+              value: oldConfig.session_log.finished
+            }
+          }
+        },
+        trackinfo: {
+          name: 'Track Info',
+          settings: {
+            orientation: {
+              title: 'Orientation',
+              description: 'The orientation of the track info window.',
+              type: 'select',
+              value: oldConfig.trackinfo.orientation,
+              options: [
+                {
+                  value: 'horizontal',
+                  title: 'Horizontal'
+                },
+                {
+                  value: 'vertical',
+                  title: 'Vertical'
+                }
+              ]
+            }
+          }
+        },
+        singlercm: {
+          name: 'Single Race Control Message',
+          settings: {
+            display_duration: {
+              title: 'Display duration',
+              description: 'The duration in milliseconds to show the message.',
+              type: 'number',
+              value: parseInt(oldConfig.singlercm.display_duration)
+            }
+          }
+        },
+        current_laps: {
+          name: 'Current Laps',
+          settings: {
+            always_on_top: {
+              title: 'Set always on top',
+              description: 'Put this window always on top.',
+              type: 'switch',
+              value: oldConfig.current_laps.always_on_top
+            },
+            show_header: {
+              title: 'Show header',
+              description: 'Enable or disable the header at the top of the window.',
+              type: 'switch',
+              value: oldConfig.current_laps.show_header
+            },
+            sector_display_duration: {
+              title: 'Sector Display Duration',
+              description:
+                'Set the duration of how long the sector time will stay shown before it continues counting (in milliseconds).',
+              type: 'number',
+              value: parseInt(oldConfig.current_laps.sector_display_duration)
+            },
+            end_display_duration: {
+              title: 'End Display Duration',
+              description:
+                'Set the duration of how long the graphic will stay shown before it disappears (in milliseconds).',
+              type: 'number',
+              value: parseInt(oldConfig.current_laps.end_display_duration)
+            }
+          }
+        },
+        weather: {
+          name: 'Weather Info',
+          settings: {
+            datapoints: {
+              title: 'Default Datapoints',
+              description: 'The amount of default datapoints that are shown.',
+              type: 'number',
+              value: parseInt(oldConfig.weather.datapoints)
+            },
+            use_trackmap_rotation: {
+              title: 'Relative Wind Direction',
+              description: 'Show the wind direction relative to the track map rotation.',
+              type: 'switch',
+              value: true
+            }
+          }
+        },
+        autoswitcher: {
+          name: 'Auto Onboard Camera Switcher',
+          settings: {
+            main_window_name: {
+              title: 'Default Stream',
+              description: "The default stream that all OBC's will be synced to.",
+              type: 'select',
+              value: oldConfig.autoswitcher.main_window_name,
+              options: [
+                {
+                  value: 'INTERNATIONAL',
+                  title: 'International'
+                },
+                {
+                  value: 'F1 LIVE',
+                  title: 'F1 Live'
+                },
+                {
+                  value: 'PIT LANE',
+                  title: 'Pit Lane'
+                }
+              ]
+            },
+            speedometer: {
+              title: 'Speedometer',
+              description: "Always enable the speedometer on the OBC's.",
+              type: 'switch',
+              value: oldConfig.autoswitcher.speedometer
+            },
+            fixed_drivers: {
+              title: 'Fixed Drivers',
+              description:
+                'Comma separated list of drivers to keep on display always. Example: VER,LEC,HAM.',
+              type: 'text',
+              value: oldConfig.autoswitcher.fixed_drivers
+            }
+          }
+        }
+      }
+      store.set('config', newConfig)
     }
   },
   defaults: defaults

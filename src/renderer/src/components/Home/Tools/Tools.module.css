@@ -23,6 +23,7 @@
 }
 
 .connection-status p {
+  user-select: none;
   color: #9f9f9f;
   font-family: 'InterBold';
 }
@@ -50,6 +51,7 @@
 
 .icon {
   width: 30px;
+  transition: all 0.3s ease;
 }
 
 .button {
@@ -60,9 +62,14 @@
   z-index: 4;
   opacity: 1;
   transition: all 0.5s ease;
+  cursor: pointer;
 }
 
 .hidden {
   z-index: 1;
   opacity: 0;
+}
+
+.icon.rotated {
+  transform: rotate(60deg);
 }

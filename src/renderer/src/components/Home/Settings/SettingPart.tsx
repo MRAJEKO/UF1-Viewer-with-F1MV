@@ -1,24 +1,43 @@
-interface CategoryProps {
-  
+import Setting from './Setting'
+import styles from './Settings.module.css'
 
-
-let settings: string
-
-window.ipcRenderer.invoke('get-store').then((event) => {
-  liveSessionApiLink = event?.internal_settings?.session?.getLiveSession || undefined
-})
+interface SettingOptionsProps {
+  value: string | number | boolean
+  title: string
+}
 
 interface SettingPartProps {
   id: string
   name: string
+  settings: {
+    [key: string]: {
+      title: string
+      description: string
+      type: string
+      value: string | number | boolean
+      options?: SettingOptionsProps[]
+    }
+  }
 }
 
-const SettingPart = ({ id, name }: SettingPartProps) => {
+const SettingPart = ({ id, name, settings }: SettingPartProps) => {
   return (
-    <div className="setting-part" id={id}>
-      <h1>{name}</h1>
+    <div className={styles['session-part']} id={id}>
+      <h2>{name}</h2>
       <div className="setting-part-settings">
-
+        {Object.keys(settings).map((key) => {
+          return (
+            <Setting
+              key={key}
+              id={key}
+              title={settings[key].title}
+              description={settings[key].description}
+              type={settings[key].type}
+              value={settings[key].value}
+              options={settings[key].options}
+            />
+          )
+        })}
       </div>
     </div>
   )

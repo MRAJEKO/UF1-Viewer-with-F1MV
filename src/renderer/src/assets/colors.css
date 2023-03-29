@@ -1,7 +1,10 @@
 :root {
   --white: #ffffff;
   --light-gray: #9f9f9f;
+  --gray: #313131;
+  --gray-translucent: #3131315e;
   --dark-gray: #0f0f0f;
+  --black-translucent: #00000080;
   --white-transparent: #ffffff05;
   --connected: #5eff5e;
   --disconnected: #ff3e3e;

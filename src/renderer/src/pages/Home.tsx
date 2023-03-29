@@ -6,17 +6,18 @@ import { connectionStatuses } from '../utils/connectionStatuses'
 import Settings from '../components/Home/Settings/Settings'
 
 const HomePage = () => {
-  const [extended, setExtended] = useState(true)
-  const [forceClosed, setForceClosed] = useState(false)
+  const [connectionsExtended, setConnectionsExtended] = useState(true)
+  const [connectionsForceClosed, setConnectionsForceClosed] = useState(false)
+  const [settingsExtended, setSettingsExtended] = useState(false)
 
   const statuses = connectionStatuses()
 
   if (
-    !forceClosed &&
-    ((statuses.multiViewer && statuses.liveTiming && extended) ||
-      (!statuses.multiViewer && !statuses.liveTiming && !extended))
+    !connectionsForceClosed &&
+    ((statuses.multiViewer && statuses.liveTiming && connectionsExtended) ||
+      (!statuses.multiViewer && !statuses.liveTiming && !connectionsExtended))
   ) {
-    setExtended(!extended)
+    setConnectionsExtended(!connectionsExtended)
   }
 
   function show(id: string) {
@@ -30,16 +31,24 @@ const HomePage = () => {
   }
 
   function closeConnections() {
-    setForceClosed(true)
-    setExtended(false)
+    setConnectionsForceClosed(true)
+    setConnectionsExtended(false)
+  }
+
+  function toggleSettings() {
+    setSettingsExtended(!settingsExtended)
+  }
+
+  function showLayouts() {
+    console.log('showLayouts')
   }
 
   return (
     <div className={'background '}>
-      <Connections extended={extended} closeConnections={closeConnections} />
+      <Connections extended={connectionsExtended} closeConnections={closeConnections} />
       <Windows />
-      <Settings />
-      <Tools openLayouts={show('layouts')} restoreAll={restoreAll} settings={show('settings')} />
+      <Settings extended={settingsExtended} />
+      <Tools openLayouts={showLayouts} restoreAll={restoreAll} settings={toggleSettings} />
     </div>
   )
 }
