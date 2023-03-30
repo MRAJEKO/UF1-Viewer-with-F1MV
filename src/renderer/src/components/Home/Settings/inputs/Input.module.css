@@ -1,0 +1,15 @@
+.input {
+  all: unset;
+  background-color: var(--light-gray-translucent);
+  border-radius: 5px;
+  padding: 5px;
+  font-family: 'InterMedium';
+  font-size: 14px;
+  color: var(--white);
+  border: 2px solid transparent;
+  transition: all 0.3s ease;
+}
+
+.input:focus {
+  border-color: var(--light-gray);
+}

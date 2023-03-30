@@ -18,9 +18,10 @@ interface SettingPartProps {
       options?: SettingOptionsProps[]
     }
   }
+  updateSetting: (category: string, setting: string, value: string | boolean | number) => void
 }
 
-const SettingPart = ({ id, name, settings }: SettingPartProps) => {
+const SettingPart = ({ id, name, settings, updateSetting }: SettingPartProps) => {
   return (
     <div className={styles['session-part']} id={id}>
       <h2>{name}</h2>
@@ -28,6 +29,7 @@ const SettingPart = ({ id, name, settings }: SettingPartProps) => {
         {Object.keys(settings).map((key) => {
           return (
             <Setting
+              updateSetting={updateSetting}
               key={key}
               id={key}
               title={settings[key].title}

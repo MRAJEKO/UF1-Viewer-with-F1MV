@@ -17,12 +17,17 @@ const Settings = ({ extended }: SettingsProps) => {
 
   if (!settings) return <h1>Loading settings...</h1>
 
+  function updateSetting(category: string, setting: string, value: string | boolean | number) {
+    console.log(category, setting, value)
+  }
+
   return (
     <section className={`${styles.settings} ${extended && styles.extended}`}>
       <div className={styles.container}>
         {Object.keys(settings).map((key) => {
           return (
             <SettingPart
+              updateSetting={updateSetting}
               key={key}
               id={key}
               name={settings[key].name}

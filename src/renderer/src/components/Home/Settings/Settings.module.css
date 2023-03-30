@@ -28,8 +28,34 @@ section.settings {
   padding: 10px 15px;
 }
 
-.session-part * {
+.session-part h2 {
+  font-family: 'InterBold';
+  font-size: 20px;
   color: white;
+  text-align: center;
+  margin: 10px 0;
+}
+
+.setting {
+  margin: 30px 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.setting-header h3 {
+  font-family: 'InterMedium';
+  font-size: 16px;
+  font-weight: normal;
+  color: white;
+}
+
+.setting-header p {
+  font-family: 'InterMedium';
+  font-size: 12px;
+  color: var(--lighter-gray);
+  margin: 0;
 }
 
 .extended {

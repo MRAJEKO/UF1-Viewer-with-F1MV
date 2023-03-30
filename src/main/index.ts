@@ -700,7 +700,7 @@ const store = new Store({
               title: 'Relative Wind Direction',
               description: 'Show the wind direction relative to the track map rotation.',
               type: 'switch',
-              value: true
+              value: oldConfig.weather.use_trackmap_rotation
             }
           }
         },
