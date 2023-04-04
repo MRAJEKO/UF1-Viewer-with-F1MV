@@ -1,6 +1,7 @@
 import styles from './Settings.module.css'
 import Switch from './inputs/Switch'
 import Input from './inputs/Input'
+import Select from './inputs/Select'
 
 interface SettingProps {
   id: string
@@ -27,7 +28,18 @@ const Setting = ({ id, title, description, type, value, options, updateSetting }
           <Switch updateSetting={updateSetting} id={id} value={Boolean(value)} />
         )}
         {type === 'text' && (
-          <Input updateSetting={updateSetting} id={id} value={value.toString()} />
+          <Input type={type} updateSetting={updateSetting} id={id} value={value.toString()} />
+        )}
+        {type === 'number' && (
+          <Input type={type} updateSetting={updateSetting} id={id} value={value.toString()} />
+        )}
+        {type === 'select' && (
+          <Select
+            updateSetting={updateSetting}
+            id={id}
+            value={value.toString()}
+            options={options ?? []}
+          />
         )}
       </div>
     </div>
