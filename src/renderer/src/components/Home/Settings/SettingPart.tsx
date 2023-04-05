@@ -29,7 +29,7 @@ const SettingPart = ({ id, name, settings, updateSetting }: SettingPartProps) =>
         {Object.keys(settings).map((key) => {
           return (
             <Setting
-              updateSetting={updateSetting}
+              updateSetting={(setting, value) => updateSetting(id, setting, value)}
               key={key}
               id={key}
               title={settings[key].title}

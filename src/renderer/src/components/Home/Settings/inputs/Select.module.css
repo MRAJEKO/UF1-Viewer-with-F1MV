@@ -1,0 +1,20 @@
+.select {
+  border: none;
+  background-color: var(--light-gray-translucent);
+  color: white;
+  font-family: 'InterMedium';
+  font-size: 14px;
+  padding: 5px 15px;
+  border-radius: 10px;
+  border: 2px solid transparent;
+  transition: all 0.3s ease;
+}
+
+.select:focus {
+  outline: none;
+  border-color: var(--light-gray);
+}
+
+.select option {
+  color: black;
+}

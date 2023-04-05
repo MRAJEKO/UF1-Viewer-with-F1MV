@@ -10,6 +10,7 @@ const Settings = ({ extended }: SettingsProps) => {
   const [settings, setSettings] = useState<any>(null)
 
   useEffect(() => {
+    if (settings) return
     window.ipcRenderer.invoke('get-store').then((data) => {
       setSettings(data.config)
     })
@@ -18,8 +19,11 @@ const Settings = ({ extended }: SettingsProps) => {
   if (!settings) return <h1>Loading settings...</h1>
 
   function updateSetting(category: string, setting: string, value: string | boolean | number) {
-    console.log(category, setting, value)
+    if (!settings) return
+    setSettings({ ...settings, [category]: { ...settings[category], [setting]: value } })
   }
+
+  console.log(settings)
 
   return (
     <section className={`${styles.settings} ${extended && styles.extended}`}>

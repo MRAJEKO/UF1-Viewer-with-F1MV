@@ -19,3 +19,7 @@ input::-webkit-inner-spin-button {
 .input:focus {
   border-color: var(--light-gray);
 }
+
+.number {
+  width: 100px;
+}

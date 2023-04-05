@@ -13,7 +13,7 @@ interface SettingProps {
     value: string | number | boolean
     title: string
   }[]
-  updateSetting: (category: string, setting: string, value: string | boolean | number) => void
+  updateSetting: (setting: string, value: string | boolean | number) => void
 }
 
 const Setting = ({ id, title, description, type, value, options, updateSetting }: SettingProps) => {
@@ -25,17 +25,31 @@ const Setting = ({ id, title, description, type, value, options, updateSetting }
       </div>
       <div className={styles['setting-body']}>
         {type === 'switch' && (
-          <Switch updateSetting={updateSetting} id={id} value={Boolean(value)} />
+          <Switch
+            updateSetting={(value) => updateSetting(id, value)}
+            id={id}
+            value={Boolean(value)}
+          />
         )}
         {type === 'text' && (
-          <Input type={type} updateSetting={updateSetting} id={id} value={value.toString()} />
+          <Input
+            type={type}
+            updateSetting={(value) => updateSetting(id, value)}
+            id={id}
+            value={value.toString()}
+          />
         )}
         {type === 'number' && (
-          <Input type={type} updateSetting={updateSetting} id={id} value={value.toString()} />
+          <Input
+            type={type}
+            updateSetting={(value) => updateSetting(id, value)}
+            id={id}
+            value={value.toString()}
+          />
         )}
         {type === 'select' && (
           <Select
-            updateSetting={updateSetting}
+            updateSetting={(value) => updateSetting(id, value)}
             id={id}
             value={value.toString()}
             options={options ?? []}

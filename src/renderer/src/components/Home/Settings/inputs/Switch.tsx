@@ -3,18 +3,13 @@ import styles from './Switch.module.css'
 interface SwitchProps {
   id: string
   value: boolean
-  updateSetting: (category: string, setting: string, value: string | boolean | number) => void
+  updateSetting: (value: string | boolean | number) => void
 }
 
 const Switch = ({ id, value, updateSetting }: SwitchProps) => {
   return (
     <label className={styles.switch}>
-      <input
-        onChange={() => updateSetting('Hello', 'world', !value)}
-        type="checkbox"
-        id={id}
-        checked={value}
-      />
+      <input onChange={() => updateSetting(!value)} type="checkbox" id={id} checked={value} />
       <span className={styles.slider}></span>
     </label>
   )

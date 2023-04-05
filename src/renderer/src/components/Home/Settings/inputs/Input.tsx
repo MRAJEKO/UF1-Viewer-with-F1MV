@@ -4,18 +4,18 @@ interface InputProps {
   id: string
   value: string
   type: string
-  updateSetting: (category: string, setting: string, value: string | boolean | number) => void
+  updateSetting: (value: string | boolean | number) => void
 }
 
 const Input = ({ id, value, type, updateSetting }: InputProps) => {
   return (
     <input
-      className={styles.input}
+      className={styles.input + ' ' + styles[type]}
       name={id}
       type={type}
       id={id}
       value={value}
-      onChange={(event) => updateSetting('Hello', 'world', event.target.value)}
+      onChange={(event) => updateSetting(event.target.value)}
     />
   )
 }

@@ -7,7 +7,7 @@ interface SelectProps {
     value: string | number | boolean
     title: string
   }[]
-  updateSetting: (category: string, setting: string, value: string | boolean | number) => void
+  updateSetting: (value: string | boolean | number) => void
 }
 
 const Select = ({ id, value, options, updateSetting }: SelectProps) => {
@@ -17,7 +17,7 @@ const Select = ({ id, value, options, updateSetting }: SelectProps) => {
       name={id}
       id={id}
       value={value}
-      onChange={(event) => updateSetting('Hello', 'world', event.target.value)}
+      onChange={(event) => updateSetting(event.target.value)}
     >
       {options.map((option) => (
         <option key={option.value.toString()} value={option.value.toString()}>
