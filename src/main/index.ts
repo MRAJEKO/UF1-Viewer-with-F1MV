@@ -751,6 +751,11 @@ const store = new Store({
 
 ipcMain.handle('get-store', () => store.store)
 
+ipcMain.handle('set-config', (_event, config) => {
+  console.log(config)
+  store.set('config', config)
+})
+
 ipcMain.handle('open-window', (_event, window) => {
   console.log(window)
   const windowProperties = store.store.internal_settings.windows[window]

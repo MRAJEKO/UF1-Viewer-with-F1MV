@@ -20,10 +20,19 @@ const Settings = ({ extended }: SettingsProps) => {
 
   function updateSetting(category: string, setting: string, value: string | boolean | number) {
     if (!settings) return
-    setSettings({ ...settings, [category]: { ...settings[category], [setting]: value } })
+    setSettings({
+      ...settings,
+      [category]: {
+        ...settings[category],
+        settings: {
+          ...settings[category].settings,
+          [setting]: { ...settings[category].settings[setting], value: value }
+        }
+      }
+    })
   }
 
-  console.log(settings)
+  if (!extended) window.ipcRenderer.invoke('set-config', settings)
 
   return (
     <section className={`${styles.settings} ${extended && styles.extended}`}>
