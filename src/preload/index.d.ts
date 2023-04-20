@@ -1,4 +1,5 @@
 import { ElectronAPI } from '@electron-toolkit/preload'
+import { Config, Topic, ClockTopic } from 'npm_f1mv_api'
 
 declare global {
   interface Window {
@@ -12,6 +13,10 @@ declare global {
     shell: {
       openExternal: (url: string) => void
     }
-    discoverF1MVInstances: (host: string) => Promise<{ port: number }>
+    mvApi: {
+      LiveTimingAPIGraphQL: (config: Config, topics: Topic[]) => Promise<any>
+      discoverF1MVInstances: (host: string) => Promise<any>
+      LiveTimingClockAPIGraphQL: (config: Config, topics: ClockTopic[]) => Promise<any>
+    }
   }
 }

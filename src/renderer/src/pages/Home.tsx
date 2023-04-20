@@ -20,12 +20,6 @@ const HomePage = () => {
     setConnectionsExtended(!connectionsExtended)
   }
 
-  function show(id: string) {
-    return () => {
-      console.log(id)
-    }
-  }
-
   function restoreAll() {
     console.log('restoreAll')
   }

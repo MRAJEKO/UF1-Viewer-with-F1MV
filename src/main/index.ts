@@ -2,6 +2,7 @@ import { app, shell, BrowserWindow, ipcMain } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import Store from 'electron-store'
+import { windowProperties } from './types'
 
 const logo = 'src/renderer/src/assets/icons/windows/logo.png'
 
@@ -40,6 +41,11 @@ function createWindow(): void {
   }
 
   mainWindow.on('closed', () => app.quit())
+
+  app.on('before-quit', () => {
+    mainWindow.webContents.session.clearCache()
+    localStorage.clear()
+  })
 }
 
 // This method will be called when Electron has finished
@@ -336,7 +342,7 @@ const defaults = {
   internal_settings: {
     windows: {
       main: {
-        path: 'main/index.html',
+        path: '',
         autoHideMenuBar: true,
         width: 600,
         height: 1000,
@@ -346,7 +352,7 @@ const defaults = {
         icon: 'icons/windows/logo.png'
       },
       flag_display: {
-        path: 'flagdisplay/index.html',
+        path: 'flag_display',
         width: 800,
         height: 600,
         frame: false,
@@ -358,7 +364,7 @@ const defaults = {
         icon: 'icons/windows/flagdisplay.png'
       },
       tracktime: {
-        path: 'tracktime/index.html',
+        path: 'tracktime',
         width: 400,
         height: 140,
         frame: false,
@@ -370,7 +376,7 @@ const defaults = {
         icon: 'icons/windows/tracktime.png'
       },
       session_log: {
-        path: 'sessionlog/index.html',
+        path: 'session_log',
         width: 250,
         height: 800,
         frame: false,
@@ -382,7 +388,7 @@ const defaults = {
         icon: 'icons/windows/sessionlog.png'
       },
       trackinfo: {
-        path: 'trackinfo/index.html',
+        path: 'trackinfo',
         width: null,
         height: null,
         frame: false,
@@ -394,7 +400,7 @@ const defaults = {
         icon: 'icons/windows/trackinfo.png'
       },
       statuses: {
-        path: 'statuses/index.html',
+        path: 'statuses',
         width: 250,
         height: 800,
         frame: false,
@@ -406,7 +412,7 @@ const defaults = {
         icon: 'icons/windows/statuses.png'
       },
       singlercm: {
-        path: 'singlercm/index.html',
+        path: 'singlercm',
         width: 1000,
         height: 100,
         frame: false,
@@ -418,7 +424,7 @@ const defaults = {
         icon: 'icons/windows/singlercm.png'
       },
       crashdetection: {
-        path: 'crashdetection/index.html',
+        path: 'crashdetection',
         width: 400,
         height: 400,
         frame: false,
@@ -430,7 +436,7 @@ const defaults = {
         icon: 'icons/windows/crashdetection.png'
       },
       compass: {
-        path: 'compass/index.html',
+        path: 'compass',
         width: 250,
         height: 250,
         frame: false,
@@ -442,7 +448,7 @@ const defaults = {
         icon: 'icons/windows/compass.png'
       },
       tirestats: {
-        path: 'tirestats/index.html',
+        path: 'tirestats',
         width: 650,
         height: 600,
         frame: false,
@@ -454,7 +460,7 @@ const defaults = {
         icon: 'icons/windows/tirestats.png'
       },
       current_laps: {
-        path: 'currentlaps/index.html',
+        path: 'current_laps',
         width: 300,
         height: 500,
         frame: false,
@@ -466,7 +472,7 @@ const defaults = {
         icon: 'icons/windows/currentlaps.png'
       },
       battlemode: {
-        path: 'battlemode/index.html',
+        path: 'battlemode',
         width: 1300,
         height: 200,
         frame: false,
@@ -478,7 +484,7 @@ const defaults = {
         icon: 'icons/windows/battlemode.png'
       },
       weather: {
-        path: 'weather/index.html',
+        path: 'weather',
         width: 1000,
         height: 530,
         frame: false,
@@ -490,7 +496,7 @@ const defaults = {
         icon: 'icons/windows/weather.png'
       },
       autoswitcher: {
-        path: 'autoswitch/index.html',
+        path: 'autoswitcher',
         width: 400,
         height: 480,
         frame: false,
@@ -744,6 +750,8 @@ const store = new Store({
         }
       }
       store.set('config', newConfig)
+
+      store.set('internal_settings', defaults.internal_settings)
     }
   },
   defaults: defaults
@@ -758,11 +766,34 @@ ipcMain.handle('set-config', (_event, config) => {
 
 ipcMain.handle('open-window', (_event, window) => {
   console.log(window)
-  const windowProperties = store.store.internal_settings.windows[window]
+  const windowProperties: windowProperties = store.store.internal_settings.windows[window]
 
   console.log(windowProperties)
 
-  // const newWindow = new BrowserWindow({
+  const newWindow = new BrowserWindow({
+    autoHideMenuBar: windowProperties.hideMenuBar,
+    width: windowProperties.width,
+    height: windowProperties.height,
+    frame: windowProperties.frame,
+    transparent: windowProperties.transparent,
+    hasShadow: windowProperties.hasShadow,
+    icon: `src/renderer/src/assets/${windowProperties.icon}`,
+    webPreferences: {
+      preload: join(__dirname, '../preload/index.js'),
+      webSecurity: false,
+      sandbox: false
+    }
+  })
+
+  if (windowProperties.aspectRatio) newWindow.setAspectRatio(windowProperties.aspectRatio)
+
+  if (windowProperties.alwaysOnTop) newWindow.setAlwaysOnTop(true)
+
+  if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
+    newWindow.loadURL(join(process.env['ELECTRON_RENDERER_URL'], `/${windowProperties.path}`))
+  } else {
+    newWindow.loadFile(join(__dirname, `../renderer/index.html/${windowProperties.path}}`))
+  }
 })
 
 ipcMain.handle('open-solid-window', (_event, color) => {
