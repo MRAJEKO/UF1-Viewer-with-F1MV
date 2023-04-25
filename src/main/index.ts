@@ -304,14 +304,25 @@ const defaults = {
     }
   },
   layouts: {},
-  led_colors: {
-    default: [255, 255, 255],
-    white: [255, 255, 255],
-    green: [0, 175, 0],
-    yellow: [255, 230, 0],
-    red: [209, 0, 0],
-    purple: [185, 0, 185],
-    black: [0, 0, 0]
+  colors: {
+    general: {
+      purple: '#b900b9',
+      green: '#00AF00',
+      red: '#d10000',
+      yellow: '#ffe600',
+      blue: '#2196f3',
+      black: '#000000',
+      white: '#ffffff'
+    },
+    leds: {
+      default: [255, 255, 255],
+      white: [255, 255, 255],
+      green: [0, 175, 0],
+      yellow: [255, 230, 0],
+      red: [209, 0, 0],
+      purple: [185, 0, 185],
+      black: [0, 0, 0]
+    }
   },
   team_icons: {
     Mercedes: '../icons/teams/mercedes.png',
@@ -528,7 +539,7 @@ const defaults = {
 
 const store = new Store({
   migrations: {
-    '2.0.0': (store) => {
+    '2.0.0': (store: any) => {
       const oldConfig: any = store.get('config')
       const newConfig = {
         general: {
@@ -749,9 +760,15 @@ const store = new Store({
           }
         }
       }
+
       store.set('config', newConfig)
 
       store.set('internal_settings', defaults.internal_settings)
+
+      const oldLeds: any = store.get('led_colors')
+      store.set('colors', { general: { ...defaults.colors.general }, leds: oldLeds })
+
+      store.delete('led_colors')
     }
   },
   defaults: defaults

@@ -2,10 +2,6 @@ import { useState, useEffect } from 'react'
 
 let host: string = 'localhost'
 
-window.ipcRenderer.invoke('get-store').then((event) => {
-  host = event?.config?.network?.host || 'localhost'
-})
-
 export interface connectionStatusesProps {
   multiViewer: boolean
   liveTiming: boolean
@@ -19,6 +15,9 @@ export function connectionStatuses(): connectionStatusesProps {
 
   useEffect(() => {
     async function fetchStatus() {
+      if (!localStorage.getItem('config'))
+        host = (await window.ipcRenderer.invoke('get-store'))?.config?.network?.host ?? 'localhost'
+
       try {
         if (!host) return
 

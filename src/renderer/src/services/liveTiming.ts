@@ -1,9 +1,11 @@
-import { useEffect, useState } from 'react'
-import topics from '../constants/apiTopics'
+import { useEffect } from 'react'
+import { Topic } from 'npm_f1mv_api'
 
-const LiveTiming = () => {
-  const [data, setData] = useState(null)
-
+const LiveTiming = (
+  topics: Topic[],
+  onDataReceived: (data: any) => void,
+  updateFrequency: number
+) => {
   useEffect(() => {
     const fetchData = async () => {
       const configString = localStorage.getItem('config')
@@ -15,18 +17,17 @@ const LiveTiming = () => {
       try {
         const response = await window.mvApi.LiveTimingAPIGraphQL(config, topics)
 
-        if (JSON.stringify(response) !== JSON.stringify(data)) {
-          setData(response)
+        if (response) {
+          onDataReceived(response)
         }
       } catch (error) {
         console.log(error)
       }
     }
-    const intervalId = setInterval(fetchData, 100)
-    return () => clearInterval(intervalId)
-  }, [data])
 
-  return data
+    const intervalId = setInterval(fetchData, updateFrequency)
+    return () => clearInterval(intervalId)
+  }, [])
 }
 
 export default LiveTiming
