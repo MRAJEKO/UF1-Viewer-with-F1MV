@@ -1,9 +1,13 @@
 import LiveTiming from '../services/liveTiming'
 import { useCallback, useState } from 'react'
 import TrackStatus from '@renderer/components/FlagDisplay/TrackStatus'
+import SessionStatus from '@renderer/components/FlagDisplay/SessionStatus'
+import styles from '@renderer/components/FlagDisplay/Panels.module.css'
+import FastestLap from '@renderer/components/FlagDisplay/FastestLap'
 
 const FlagDisplay = () => {
   const [trackStatus, setTrackStatus] = useState<null | number>(null)
+  const [sessionStatus, setSessionStatus] = useState<null | string>(null)
   const [fastestLap, setFastestLap] = useState<null | string>(null)
 
   const onDataReceived = useCallback(
@@ -17,16 +21,25 @@ const FlagDisplay = () => {
           .filter((personalBestLapTime: any) => personalBestLapTime.Position == 1)[0]?.Value
 
         if (newFastestLap && newFastestLap !== fastestLap) setFastestLap(newFastestLap)
+
+        data?.SessionStatus?.Status !== sessionStatus &&
+          setSessionStatus(data?.SessionStatus?.Status)
       }
     },
-    [trackStatus, fastestLap]
+    [trackStatus, fastestLap, sessionStatus]
   )
 
-  LiveTiming(['TrackStatus', 'TimingStats'], onDataReceived, 250)
+  LiveTiming(['TrackStatus', 'SessionStatus', 'TimingStats'], onDataReceived, 250)
 
-  console.log(trackStatus)
+  console.log(sessionStatus)
 
-  return <TrackStatus status={trackStatus} />
+  return (
+    <div className={styles.container}>
+      <TrackStatus status={trackStatus} />
+      <SessionStatus status={sessionStatus} />
+      <FastestLap fastestLap={fastestLap} />
+    </div>
+  )
 }
 
 export default FlagDisplay

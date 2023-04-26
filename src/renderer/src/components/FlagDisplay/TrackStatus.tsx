@@ -1,15 +1,13 @@
 import { useEffect, useState } from 'react'
 import styles from './Panels.module.css'
+import { Colors } from '@renderer/interfaces/Colors'
+import React from 'react'
 
 interface TrackStatusProps {
   status: number | null
 }
 
-interface Colors {
-  [key: string]: string
-}
-
-const TrackStatus = ({ status }: TrackStatusProps) => {
+const TrackStatus = React.memo(({ status }: TrackStatusProps) => {
   const [color, setColor] = useState('black')
   const [colors, setColors] = useState<Colors>({})
 
@@ -24,7 +22,7 @@ const TrackStatus = ({ status }: TrackStatusProps) => {
 
   const changeColor = (color: string) => {
     console.log(colors)
-    if (colors?.general[color]) setColor(colors.general[color])
+    if (colors?.general?.[color]) setColor(colors.general[color])
     else setColor('black')
   }
 
@@ -36,6 +34,7 @@ const TrackStatus = ({ status }: TrackStatusProps) => {
         changeColor('black')
         await new Promise((resolve) => setTimeout(resolve, duration))
       }
+      changeColor('yellow')
     }
 
     switch (status) {
@@ -62,6 +61,6 @@ const TrackStatus = ({ status }: TrackStatusProps) => {
   }, [status])
 
   return <div className={styles['panel']} style={{ backgroundColor: color }}></div>
-}
+})
 
 export default TrackStatus

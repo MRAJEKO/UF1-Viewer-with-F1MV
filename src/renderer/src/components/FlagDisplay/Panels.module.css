@@ -1,7 +1,27 @@
-.panel {
+.container {
   width: 100vw;
   height: 100vh;
+  -webkit-app-region: drag;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+
+.panel {
+  width: 100%;
+  height: 100%;
   position: absolute;
   transition: 0.5s ease;
-  -webkit-app-region: drag;
+}
+
+.session-status {
+  align-self: center;
+  width: 95%;
+  height: 95%;
+  position: absolute;
+  transition: 0.5s ease;
+  border-radius: 20px;
+  background-color: white;
+  z-index: 1;
 }
