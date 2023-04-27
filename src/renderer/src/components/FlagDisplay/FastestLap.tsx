@@ -24,14 +24,12 @@ const FastestLap = React.memo(({ fastestLap }: FastestLapProps) => {
     console.log(fastestLap)
 
     const changeColor = (color: string) => {
-      console.log(colors)
-      console.log(color)
       if (colors?.general?.[color]) setColor(colors.general[color])
       else setColor('transparent')
     }
 
     changeColor('purple')
-    setInterval(() => {
+    setTimeout(() => {
       changeColor('transparent')
     }, 2000)
   }, [fastestLap])
