@@ -5,9 +5,10 @@ import React from 'react'
 
 interface SessionStatusProps {
   status: string | null
+  onColorChange: (color: string) => void
 }
 
-const SessionStatus = React.memo(({ status }: SessionStatusProps) => {
+const SessionStatus = React.memo(({ status, onColorChange }: SessionStatusProps) => {
   const [color, setColor] = useState('transparent')
   const [colors, setColors] = useState<Colors>({})
 
@@ -21,8 +22,9 @@ const SessionStatus = React.memo(({ status }: SessionStatusProps) => {
   })
 
   const changeColor = (color: string) => {
-    if (colors?.general[color]) setColor(colors.general[color])
-    else setColor('transparent')
+    const newColor = colors?.general?.[color] ?? 'transparent'
+    setColor(newColor)
+    onColorChange(newColor !== 'transparent' ? newColor : null)
   }
 
   const blinkColor = async (color, duration, count) => {

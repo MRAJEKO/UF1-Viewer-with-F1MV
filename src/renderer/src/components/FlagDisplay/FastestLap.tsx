@@ -5,9 +5,10 @@ import React from 'react'
 
 interface FastestLapProps {
   fastestLap: string | null
+  onColorChange: (color: string) => void
 }
 
-const FastestLap = React.memo(({ fastestLap }: FastestLapProps) => {
+const FastestLap = React.memo(({ fastestLap, onColorChange }: FastestLapProps) => {
   const [color, setColor] = useState('transparent')
   const [colors, setColors] = useState<Colors>({})
 
@@ -20,14 +21,13 @@ const FastestLap = React.memo(({ fastestLap }: FastestLapProps) => {
     getColors()
   }, [])
 
+  const changeColor = (color: string) => {
+    const newColor = colors?.general?.[color] ?? 'transparent'
+    setColor(newColor)
+    onColorChange(newColor !== 'transparent' ? newColor : null)
+  }
+
   useEffect(() => {
-    console.log(fastestLap)
-
-    const changeColor = (color: string) => {
-      if (colors?.general?.[color]) setColor(colors.general[color])
-      else setColor('transparent')
-    }
-
     changeColor('purple')
     setTimeout(() => {
       changeColor('transparent')

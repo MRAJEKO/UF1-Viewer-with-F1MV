@@ -5,9 +5,10 @@ import React from 'react'
 
 interface TrackStatusProps {
   status: number | null
+  onColorChange: (color: string) => void
 }
 
-const TrackStatus = React.memo(({ status }: TrackStatusProps) => {
+const TrackStatus = React.memo(({ status, onColorChange }: TrackStatusProps) => {
   const [color, setColor] = useState('black')
   const [colors, setColors] = useState<Colors>({})
 
@@ -15,15 +16,16 @@ const TrackStatus = React.memo(({ status }: TrackStatusProps) => {
     const getColors = async () => {
       const data = (await window.ipcRenderer.invoke('get-store'))?.colors ?? {}
       setColors(data)
+      console.log(data, 1)
     }
 
     getColors()
-  })
+  }, [])
 
   const changeColor = (color: string) => {
-    console.log(colors)
-    if (colors?.general?.[color]) setColor(colors.general[color])
-    else setColor('black')
+    const newColor = colors?.general?.[color] ?? colors?.general?.['black'] ?? 'black'
+    setColor(newColor)
+    onColorChange(newColor)
   }
 
   useEffect(() => {

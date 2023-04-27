@@ -8,6 +8,7 @@ import {
   Topic,
   ClockTopic
 } from 'npm_f1mv_api'
+import Govee from 'govee-lan-control'
 
 const api = {}
 
@@ -42,4 +43,17 @@ contextBridge.exposeInMainWorld('mvApi', {
   discoverF1MVInstances: (host: string) => discoverF1MVInstances(host),
   LiveTimingClockAPIGraphQL: (config: Config, topics: ClockTopic[]) =>
     LiveTimingClockAPIGraphQL(config, topics)
+})
+
+contextBridge.exposeInMainWorld('Govee', {
+  newDevice: async () => {
+    const govee = new (Govee as any).default()
+
+    return new Promise<void>((resolve) => {
+      govee.on('deviceAdded', (device: any) => {
+        console.log('device added', device)
+        resolve(device)
+      })
+    })
+  }
 })

@@ -18,5 +18,10 @@ declare global {
       discoverF1MVInstances: (host: string) => Promise<any>
       LiveTimingClockAPIGraphQL: (config: Config, topics: ClockTopic[]) => Promise<any>
     }
+    Govee: {
+      newDevice: () => Promise<any>
+      default: () => any
+      on: (govee: any, event: string, func: (...args: any[]) => void) => void
+    }
   }
 }

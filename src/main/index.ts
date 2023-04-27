@@ -3,6 +3,7 @@ import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import Store from 'electron-store'
 import { windowProperties } from './types'
+import Govee from 'govee-lan-control'
 
 const logo = 'src/renderer/src/assets/icons/windows/logo.png'
 
@@ -777,15 +778,11 @@ const store = new Store({
 ipcMain.handle('get-store', () => store.store)
 
 ipcMain.handle('set-config', (_event, config) => {
-  console.log(config)
   store.set('config', config)
 })
 
 ipcMain.handle('open-window', (_event, window) => {
-  console.log(window)
   const windowProperties: windowProperties = store.store.internal_settings.windows[window]
-
-  console.log(windowProperties)
 
   const newWindow = new BrowserWindow({
     autoHideMenuBar: windowProperties.hideMenuBar,
