@@ -15,6 +15,8 @@ const Connections = ({ extended = false, closeConnections }: ConnectionsProps) =
   const liveSessionInfo = liveSession()
   const isSessionLive = liveSessionInfo.streamInfo?.liveTimingAvailable
 
+  console.log(liveSessionInfo)
+
   return (
     <section className={`${extended && styles.extended} ${styles.connections}`}>
       <div className={styles.container}>

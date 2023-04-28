@@ -1,9 +1,8 @@
-import { app, shell, BrowserWindow, ipcMain } from 'electron'
+import { app, shell, BrowserWindow, ipcMain, session } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import Store from 'electron-store'
 import { windowProperties } from './types'
-import Govee from 'govee-lan-control'
 
 const logo = 'src/renderer/src/assets/icons/windows/logo.png'
 
@@ -25,6 +24,7 @@ function createWindow(): void {
   })
 
   mainWindow.on('ready-to-show', () => {
+    session.defaultSession.clearCache()
     mainWindow.show()
   })
 
@@ -44,7 +44,7 @@ function createWindow(): void {
   mainWindow.on('closed', () => app.quit())
 
   app.on('before-quit', () => {
-    mainWindow.webContents.session.clearCache()
+    session.defaultSession.clearCache()
     localStorage.clear()
   })
 }
@@ -821,3 +821,5 @@ ipcMain.handle('open-solid-window', (_event, color) => {
 
   newWindow.loadURL(`data:text/html;charset=utf-8,<body style="-webkit-app-region: drag;"></body>`)
 })
+
+ipcMain.handle('clear-cache', () => session.defaultSession.clearCache())

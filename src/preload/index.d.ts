@@ -20,8 +20,6 @@ declare global {
     }
     Govee: {
       newDevice: () => Promise<any>
-      default: () => any
-      on: (govee: any, event: string, func: (...args: any[]) => void) => void
     }
   }
 }
