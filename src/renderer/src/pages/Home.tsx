@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Connections from '../components/Home/Connections/Connections'
 import Windows from '../components/Home/Windows/Windows'
 import Tools from '../components/Home/Tools/Tools'
@@ -11,6 +11,12 @@ const HomePage = () => {
   const [settingsExtended, setSettingsExtended] = useState(false)
 
   const statuses = connectionStatuses()
+
+  useEffect(() => {
+    window.addEventListener('beforeunload', () => {
+      localStorage.clear()
+    })
+  }, [])
 
   if (
     !connectionsForceClosed &&

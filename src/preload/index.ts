@@ -52,7 +52,6 @@ contextBridge.exposeInMainWorld('Govee', {
 
     return new Promise<void>((resolve) => {
       govee.on('deviceAdded', (device: any) => {
-        console.log('device added', device)
         resolve(device)
       })
     })

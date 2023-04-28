@@ -5,7 +5,7 @@ import React from 'react'
 
 interface FastestLapProps {
   fastestLap: string | null
-  onColorChange: (color: string) => void
+  onColorChange: (color: string | null) => void
 }
 
 const FastestLap = React.memo(({ fastestLap, onColorChange }: FastestLapProps) => {
@@ -24,7 +24,7 @@ const FastestLap = React.memo(({ fastestLap, onColorChange }: FastestLapProps) =
   const changeColor = (color: string) => {
     const newColor = colors?.general?.[color] ?? 'transparent'
     setColor(newColor)
-    onColorChange(newColor !== 'transparent' ? newColor : null)
+    onColorChange(color !== 'transparent' ? color : null)
   }
 
   useEffect(() => {

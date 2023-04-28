@@ -5,7 +5,7 @@ import React from 'react'
 
 interface SessionStatusProps {
   status: string | null
-  onColorChange: (color: string) => void
+  onColorChange: (color: string | null) => void
 }
 
 const SessionStatus = React.memo(({ status, onColorChange }: SessionStatusProps) => {
@@ -19,19 +19,19 @@ const SessionStatus = React.memo(({ status, onColorChange }: SessionStatusProps)
     }
 
     getColors()
-  })
+  }, [])
 
   const changeColor = (color: string) => {
     const newColor = colors?.general?.[color] ?? 'transparent'
     setColor(newColor)
-    onColorChange(newColor !== 'transparent' ? newColor : null)
+    onColorChange(color !== 'transparent' ? color : null)
   }
 
   const blinkColor = async (color, duration, count) => {
     for (let i = 0; i < count; i++) {
       changeColor(color)
       await new Promise((resolve) => setTimeout(resolve, duration))
-      changeColor('black')
+      changeColor('default')
       await new Promise((resolve) => setTimeout(resolve, duration))
     }
     changeColor('transparent')

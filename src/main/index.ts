@@ -42,11 +42,6 @@ function createWindow(): void {
   }
 
   mainWindow.on('closed', () => app.quit())
-
-  app.on('before-quit', () => {
-    session.defaultSession.clearCache()
-    localStorage.clear()
-  })
 }
 
 // This method will be called when Electron has finished
@@ -307,13 +302,14 @@ const defaults = {
   layouts: {},
   colors: {
     general: {
+      default: '#0f0f0f',
+      black: '#000000',
+      white: '#ffffff',
       purple: '#b900b9',
       green: '#00AF00',
       red: '#d10000',
       yellow: '#ffe600',
-      blue: '#2196f3',
-      black: '#000000',
-      white: '#ffffff'
+      blue: '#2196f3'
     },
     leds: {
       default: [255, 255, 255],
@@ -773,6 +769,10 @@ const store = new Store({
     }
   },
   defaults: defaults
+})
+
+app.on('before-quit', () => {
+  session.defaultSession.clearCache()
 })
 
 ipcMain.handle('get-store', () => store.store)

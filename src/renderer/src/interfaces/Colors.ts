@@ -5,3 +5,7 @@ export interface Color {
 export interface Colors {
   [key: string]: Color
 }
+
+export interface LedColors {
+  [key: string]: [number, number, number]
+}

@@ -45,14 +45,10 @@ const FlagDisplay = () => {
 
   LiveTiming(['TrackStatus', 'SessionStatus', 'TimingStats'], onDataReceived, 250)
 
-  console.log(trackStatusColor, sessionStatusColor, fastestLapColor)
+  // console.log(trackStatusColor, sessionStatusColor, fastestLapColor)
 
   return (
     <div className={styles.container}>
-      <GoveeIntegration
-        status={goveeEnabled}
-        colors={[fastestLapColor, sessionStatusColor, trackStatusColor]}
-      />
       <TrackStatus
         status={trackStatus}
         onColorChange={(color) => goveeEnabled && setTrackStatusColor(color)}
@@ -64,6 +60,10 @@ const FlagDisplay = () => {
       <FastestLap
         fastestLap={fastestLap}
         onColorChange={(color) => goveeEnabled && setFastestLapColor(color)}
+      />
+      <GoveeIntegration
+        status={goveeEnabled}
+        colors={[fastestLapColor, sessionStatusColor, trackStatusColor]}
       />
     </div>
   )
