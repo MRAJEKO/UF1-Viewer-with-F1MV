@@ -16,7 +16,7 @@
 
 ## What is Ultimate Formula 1 Viewer (UF1)?
 
-This app is a integration on <a href="https://muvi.gg/">MultiViewer for F1</a>. It adds a lot of visuals and information windows using the MultiViewer API. It is mainly build for personal use but is now open source for everyone to use. The goal of the all is to make watching Formula 1 more enjoyable and easier to follow. The app is focused on showing information that really helps you understand what is going on the session. A lot of status information, changes in the session and automatic switching between the most important stuff happening on track.
+This app is a integration on <a href="https://muvi.gg/">MultiViewer for F1</a>. It adds a lot of visuals and information windows using the MultiViewer API. It is mainly build for personal use but is now open source for everyone to use. The goal of is to make watching Formula 1 more enjoyable and easier to follow. The app is focused on showing information that really helps you understand what is going on the session. A lot of status information, changes in the session and automatic switching between the most important stuff happening on track.
 
 > **Note:** This app requires <a href="https://muvi.gg/">MultiViewer for F1</a> to be installed.
 
