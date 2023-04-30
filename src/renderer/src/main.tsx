@@ -7,6 +7,7 @@ import './assets/colors.css'
 
 import HomePage from './pages/Home'
 import FlagDisplay from './pages/FlagDisplay'
+import TrackTime from './pages/TrackTime'
 
 const router = createBrowserRouter([
   {
@@ -16,6 +17,10 @@ const router = createBrowserRouter([
   {
     path: '/flag_display',
     element: <FlagDisplay />
+  },
+  {
+    path: '/tracktime',
+    element: <TrackTime />
   }
 ])
 

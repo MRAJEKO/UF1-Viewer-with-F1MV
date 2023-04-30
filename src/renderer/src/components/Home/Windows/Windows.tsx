@@ -15,7 +15,7 @@ const Windows = () => {
       <Window onPress={launchF1MV} name="MultiViewer" />
       <LiveTimingWindow name="Live Timing" type="default" />
       <Window onPress={() => openWindow('flag_display')} name="Flag Display" />
-      <Window onPress={launchF1MV} name="Delayed Track Time" />
+      <Window onPress={() => openWindow('tracktime')} name="Delayed Track Time" />
       <Window onPress={launchF1MV} name="Session Log" />
       <Window onPress={launchF1MV} name="Track Information" />
       <Window onPress={launchF1MV} name="Sector Statuses" />
