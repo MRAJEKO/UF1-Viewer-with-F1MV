@@ -17,10 +17,25 @@ const FlagDisplay = () => {
   const [fastestLapColor, setFastestLapColor] = useState<null | string>(null)
 
   const [goveeEnabled, setGoveeEnabled] = useState<boolean>(false)
+  const [goveeUsed, setGoveeUsed] = useState<boolean>(false)
+
+  useEffect(() => {
+    window.addEventListener('beforeunload', () => {
+      if (goveeUsed && goveeEnabled) localStorage.removeItem('goveeUsed')
+    })
+  }, [goveeEnabled, goveeUsed])
 
   useEffect(() => {
     window.ipcRenderer.invoke('get-store').then((store: any) => {
-      setGoveeEnabled(store.config.flag_display.settings.govee.value)
+      const goveeUsed = localStorage.getItem('goveeUsed')
+      const goveeEnabled = store.config.flag_display.settings.govee.value
+
+      if (!goveeUsed && goveeEnabled) {
+        localStorage.setItem('goveeUsed', 'true')
+        setGoveeUsed(true)
+      }
+
+      setGoveeEnabled(goveeEnabled)
     })
   }, [])
 
@@ -45,8 +60,6 @@ const FlagDisplay = () => {
 
   LiveTiming(['TrackStatus', 'SessionStatus', 'TimingStats'], onDataReceived, 250)
 
-  // console.log(trackStatusColor, sessionStatusColor, fastestLapColor)
-
   return (
     <div className={styles.container}>
       <TrackStatus
@@ -61,10 +74,9 @@ const FlagDisplay = () => {
         fastestLap={fastestLap}
         onColorChange={(color) => goveeEnabled && setFastestLapColor(color)}
       />
-      <GoveeIntegration
-        status={goveeEnabled}
-        colors={[fastestLapColor, sessionStatusColor, trackStatusColor]}
-      />
+      {goveeEnabled && (
+        <GoveeIntegration colors={[fastestLapColor, sessionStatusColor, trackStatusColor]} />
+      )}
     </div>
   )
 }

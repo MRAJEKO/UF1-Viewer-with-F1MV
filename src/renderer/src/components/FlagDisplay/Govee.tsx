@@ -3,11 +3,10 @@ import { useEffect, useState } from 'react'
 import styles from './Panels.module.css'
 
 interface GoveeProps {
-  status: boolean
   colors: Array<string | null>
 }
 
-const GoveeIntegration = ({ status, colors }: GoveeProps) => {
+const GoveeIntegration = ({ colors }: GoveeProps) => {
   const [ledColors, setLedColors] = useState<LedColors>({})
   const [goveeDevices, setGoveeDevices] = useState<any[]>([])
   const [currentColor, setCurrentColor] = useState<string | null>(null)
@@ -52,12 +51,12 @@ const GoveeIntegration = ({ status, colors }: GoveeProps) => {
   }
 
   useEffect(() => {
-    if (status && goveeDevices.length > 0) {
+    if (goveeDevices.length > 0) {
       setGoveeLight(colors.find((color) => color !== null ?? ledColors?.default ?? null) ?? null)
     }
   }, [colors])
 
-  return status ? <div className={styles.panel} style={{ zIndex: 3, color: 'blue' }}></div> : null
+  return <div className={styles.panel} style={{ zIndex: 3, color: 'blue' }}></div>
 }
 
 export default GoveeIntegration
