@@ -1,4 +1,4 @@
-import { LedColors } from '@renderer/interfaces/Colors'
+import { ledColors } from '@renderer/modules/Colors'
 import { useEffect, useState } from 'react'
 import styles from './Panels.module.css'
 
@@ -7,25 +7,24 @@ interface GoveeProps {
 }
 
 const GoveeIntegration = ({ colors }: GoveeProps) => {
-  const [ledColors, setLedColors] = useState<LedColors>({})
   const [goveeDevices, setGoveeDevices] = useState<any[]>([])
   const [currentColor, setCurrentColor] = useState<string | null>(null)
+
+  const [displayDevices, setDisplayDevices] = useState<boolean>(false)
 
   useEffect(() => {
     window.Govee.newDevice()
       .then((device) => {
         console.log('New device found!', device.model)
         setGoveeDevices((prev) => [...prev, device])
+        setDisplayDevices(true)
+        setTimeout(() => {
+          setDisplayDevices(false)
+        }, 5000)
       })
       .catch((error) => {
         console.error(error)
       })
-  }, [])
-
-  useEffect(() => {
-    window.ipcRenderer.invoke('get-store').then((data) => {
-      setLedColors(data?.colors?.leds ?? {})
-    })
   }, [])
 
   const setGoveeLight = async (color) => {
@@ -56,7 +55,12 @@ const GoveeIntegration = ({ colors }: GoveeProps) => {
     }
   }, [colors])
 
-  return <div className={styles.panel} style={{ zIndex: 3, color: 'blue' }}></div>
+  return (
+    <div className={styles.goveePanel} style={{ zIndex: 3, opacity: displayDevices ? 1 : 0 }}>
+      <p className={styles.title}>Connected:</p>
+      <p className={styles.count}>{goveeDevices.length}</p>
+    </div>
+  )
 }
 
 export default GoveeIntegration

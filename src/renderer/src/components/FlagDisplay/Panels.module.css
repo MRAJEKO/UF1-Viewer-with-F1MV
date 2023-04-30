@@ -25,3 +25,30 @@
   background-color: white;
   z-index: 1;
 }
+
+.goveePanel {
+  background-color: var(--black-translucent);
+  border-radius: 20px;
+  height: 150px;
+  width: 150px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-around;
+  transition: all 0.5s ease;
+}
+
+.goveePanel .title {
+  font-family: 'InterBold';
+  font-size: 22px;
+  color: var(--white);
+}
+
+.goveePanel .count {
+  color: var(--light-green);
+  font-family: 'InterBold';
+  border: 3px solid var(--light-green);
+  padding: 13px 18px;
+  border-radius: 15px;
+  font-size: 25px;
+}
