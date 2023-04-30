@@ -1,7 +1,7 @@
-import { Colors } from '@renderer/interfaces/Colors'
 import { useEffect, useState } from 'react'
 import styles from './Panels.module.css'
 import React from 'react'
+import { colors } from '@renderer/modules/Colors'
 
 interface FastestLapProps {
   fastestLap: string | null
@@ -10,19 +10,9 @@ interface FastestLapProps {
 
 const FastestLap = React.memo(({ fastestLap, onColorChange }: FastestLapProps) => {
   const [color, setColor] = useState('transparent')
-  const [colors, setColors] = useState<Colors>({})
-
-  useEffect(() => {
-    const getColors = async () => {
-      const data = (await window.ipcRenderer.invoke('get-store'))?.colors ?? {}
-      setColors(data)
-    }
-
-    getColors()
-  }, [])
 
   const changeColor = (color: string) => {
-    const newColor = colors?.general?.[color] ?? 'transparent'
+    const newColor = colors?.[color] ?? 'transparent'
     setColor(newColor)
     onColorChange(color !== 'transparent' ? color : null)
   }

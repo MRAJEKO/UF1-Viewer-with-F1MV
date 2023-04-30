@@ -5,6 +5,7 @@ import SessionStatus from '@renderer/components/FlagDisplay/SessionStatus'
 import styles from '@renderer/components/FlagDisplay/Panels.module.css'
 import FastestLap from '@renderer/components/FlagDisplay/FastestLap'
 import GoveeIntegration from '@renderer/components/FlagDisplay/Govee'
+import { colors } from '@renderer/modules/Colors'
 
 const FlagDisplay = () => {
   const [trackStatus, setTrackStatus] = useState<null | number>(null)
@@ -61,7 +62,7 @@ const FlagDisplay = () => {
   LiveTiming(['TrackStatus', 'SessionStatus', 'TimingStats'], onDataReceived, 250)
 
   return (
-    <div className={styles.container}>
+    <div className={styles.container} style={{ backgroundColor: colors?.['default'] ?? 'black' }}>
       <TrackStatus
         status={trackStatus}
         onColorChange={(color) => goveeEnabled && setTrackStatusColor(color)}

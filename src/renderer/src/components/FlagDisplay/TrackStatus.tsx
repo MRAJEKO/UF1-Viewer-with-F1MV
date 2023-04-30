@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import styles from './Panels.module.css'
-import { Colors } from '@renderer/interfaces/Colors'
+import { Colors, colors } from '@renderer/modules/Colors'
 import React from 'react'
 
 interface TrackStatusProps {
@@ -10,19 +10,9 @@ interface TrackStatusProps {
 
 const TrackStatus = React.memo(({ status, onColorChange }: TrackStatusProps) => {
   const [color, setColor] = useState('black')
-  const [colors, setColors] = useState<Colors>({})
-
-  useEffect(() => {
-    const getColors = async () => {
-      const data = (await window.ipcRenderer.invoke('get-store'))?.colors ?? {}
-      setColors(data)
-    }
-
-    getColors()
-  }, [])
 
   const changeColor = (color: string) => {
-    const newColor = colors?.general?.[color] ?? 'transparent'
+    const newColor = colors?.[color] ?? 'transparent'
     setColor(newColor)
     onColorChange(color !== 'transparent' ? color : null)
   }
