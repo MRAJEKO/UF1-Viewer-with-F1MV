@@ -6,6 +6,7 @@ import styles from '@renderer/components/FlagDisplay/Panels.module.css'
 import FastestLap from '@renderer/components/FlagDisplay/FastestLap'
 import GoveeIntegration from '@renderer/components/FlagDisplay/Govee'
 import { colors } from '@renderer/modules/Colors'
+import { goveeEnabled } from '@renderer/modules/Settings'
 
 const FlagDisplay = () => {
   const [trackStatus, setTrackStatus] = useState<null | number>(null)
@@ -17,27 +18,21 @@ const FlagDisplay = () => {
   const [fastestLap, setFastestLap] = useState<null | string>(null)
   const [fastestLapColor, setFastestLapColor] = useState<null | string>(null)
 
-  const [goveeEnabled, setGoveeEnabled] = useState<boolean>(false)
   const [goveeUsed, setGoveeUsed] = useState<boolean>(false)
 
   useEffect(() => {
     window.addEventListener('beforeunload', () => {
       if (goveeUsed && goveeEnabled) localStorage.removeItem('goveeUsed')
     })
-  }, [goveeEnabled, goveeUsed])
+  }, [goveeUsed])
 
   useEffect(() => {
-    window.ipcRenderer.invoke('get-store').then((store: any) => {
-      const goveeUsed = localStorage.getItem('goveeUsed')
-      const goveeEnabled = store.config.flag_display.settings.govee.value
+    const goveeUsed = localStorage.getItem('goveeUsed')
 
-      if (!goveeUsed && goveeEnabled) {
-        localStorage.setItem('goveeUsed', 'true')
-        setGoveeUsed(true)
-      }
-
-      setGoveeEnabled(goveeEnabled)
-    })
+    if (!goveeUsed && goveeEnabled) {
+      localStorage.setItem('goveeUsed', 'true')
+      setGoveeUsed(true)
+    }
   }, [])
 
   const onDataReceived = useCallback(
