@@ -84,12 +84,6 @@ const defaults = {
     general: {
       name: 'General',
       settings: {
-        always_on_top: {
-          title: 'Always on top',
-          description: 'Enable to show some windows always on top.',
-          type: 'switch',
-          value: false
-        },
         discord_rpc: {
           title: 'Enable Discord RPC',
           description: "Enable to show that you're using MultiViewer on Discord.",
@@ -125,6 +119,12 @@ const defaults = {
     flag_display: {
       name: 'Flag display',
       settings: {
+        always_on_top: {
+          title: 'Always on top',
+          description: 'Keep this window always on top.',
+          type: 'switch',
+          value: false
+        },
         govee: {
           title: 'Enable Govee Lights Integration',
           description: 'Connect to your Govee lights to show the track status.',
@@ -133,9 +133,26 @@ const defaults = {
         }
       }
     },
+    tracktime: {
+      name: 'Delayed Track Time',
+      settings: {
+        always_on_top: {
+          title: 'Always on top',
+          description: 'Keep this window always on top.',
+          type: 'switch',
+          value: false
+        }
+      }
+    },
     session_log: {
       name: 'Session Log',
       settings: {
+        always_on_top: {
+          title: 'Always on top',
+          description: 'Keep this window always on top.',
+          type: 'switch',
+          value: false
+        },
         lapped_drivers: {
           title: 'Lapped drivers',
           description: 'Show when drivers are lapped.',
@@ -183,6 +200,12 @@ const defaults = {
     trackinfo: {
       name: 'Track Info',
       settings: {
+        always_on_top: {
+          title: 'Always on top',
+          description: 'Keep this window always on top.',
+          type: 'switch',
+          value: false
+        },
         orientation: {
           title: 'Orientation',
           description: 'The orientation of the track info window.',
@@ -201,9 +224,26 @@ const defaults = {
         }
       }
     },
+    sector_statuses: {
+      name: 'Sector Statuses',
+      settings: {
+        always_on_top: {
+          title: 'Always on top',
+          description: 'Keep this window always on top.',
+          type: 'switch',
+          value: false
+        }
+      }
+    },
     singlercm: {
       name: 'Single Race Control Message',
       settings: {
+        always_on_top: {
+          title: 'Always on top',
+          description: 'Keep this window always on top.',
+          type: 'switch',
+          value: true
+        },
         display_duration: {
           title: 'Display duration',
           description: 'The duration in milliseconds to show the message.',
@@ -212,12 +252,45 @@ const defaults = {
         }
       }
     },
-    current_laps: {
-      name: 'Current Laps',
+    crash_detection: {
+      name: 'Crash Detection',
       settings: {
         always_on_top: {
-          title: 'Set always on top',
-          description: 'Put this window always on top.',
+          title: 'Always on top',
+          description: 'Keep this window always on top.',
+          type: 'switch',
+          value: false
+        }
+      }
+    },
+    track_rotation_compass: {
+      name: 'Track Rotation Compass',
+      settings: {
+        always_on_top: {
+          title: 'Always on top',
+          description: 'Keep this window always on top.',
+          type: 'switch',
+          value: false
+        }
+      }
+    },
+    tire_statistics: {
+      name: 'Tire Statistics',
+      settings: {
+        always_on_top: {
+          title: 'Always on top',
+          description: 'Keep this window always on top.',
+          type: 'switch',
+          value: false
+        }
+      }
+    },
+    current_laps: {
+      name: 'Current Push Laps',
+      settings: {
+        always_on_top: {
+          title: 'Always on top',
+          description: 'Keep this window always on top.',
           type: 'switch',
           value: false
         },
@@ -243,9 +316,26 @@ const defaults = {
         }
       }
     },
+    battle_mode: {
+      name: 'Battle Mode',
+      settings: {
+        always_on_top: {
+          title: 'Always on top',
+          description: 'Keep this window always on top.',
+          type: 'switch',
+          value: false
+        }
+      }
+    },
     weather: {
       name: 'Weather Info',
       settings: {
+        always_on_top: {
+          title: 'Always on top',
+          description: 'Keep this window always on top.',
+          type: 'switch',
+          value: false
+        },
         datapoints: {
           title: 'Default Datapoints',
           description: 'The amount of default datapoints that are shown.',
@@ -263,6 +353,12 @@ const defaults = {
     autoswitcher: {
       name: 'Auto Onboard Camera Switcher',
       settings: {
+        always_on_top: {
+          title: 'Always on top',
+          description: 'Keep this window always on top.',
+          type: 'switch',
+          value: true
+        },
         main_window_name: {
           title: 'Default Stream',
           description: "The default stream that all OBC's will be synced to.",
@@ -583,6 +679,7 @@ const store = new Store({
         flag_display: {
           name: 'Flag display',
           settings: {
+            always_on_top: defaults.config.flag_display.settings.always_on_top,
             govee: {
               title: 'Enable Govee Lights Integration',
               description: 'Connect to your Govee lights to show the track status.',
@@ -591,9 +688,11 @@ const store = new Store({
             }
           }
         },
+        tracktime: defaults.config.tracktime,
         session_log: {
           name: 'Session Log',
           settings: {
+            always_on_top: defaults.config.session_log.settings.always_on_top,
             lapped_drivers: {
               title: 'Lapped drivers',
               description: 'Show when drivers are lapped.',
@@ -641,6 +740,7 @@ const store = new Store({
         trackinfo: {
           name: 'Track Info',
           settings: {
+            always_on_top: defaults.config.trackinfo.settings.always_on_top,
             orientation: {
               title: 'Orientation',
               description: 'The orientation of the track info window.',
@@ -659,9 +759,11 @@ const store = new Store({
             }
           }
         },
+        sector_statuses: defaults.config.sector_statuses,
         singlercm: {
           name: 'Single Race Control Message',
           settings: {
+            always_on_top: defaults.config.singlercm.settings.always_on_top,
             display_duration: {
               title: 'Display duration',
               description: 'The duration in milliseconds to show the message.',
@@ -670,6 +772,9 @@ const store = new Store({
             }
           }
         },
+        crash_detection: defaults.config.crash_detection,
+        track_rotation_compass: defaults.config.track_rotation_compass,
+        tire_statistics: defaults.config.tire_statistics,
         current_laps: {
           name: 'Current Laps',
           settings: {
@@ -701,9 +806,11 @@ const store = new Store({
             }
           }
         },
+        battle_mode: defaults.config.battle_mode,
         weather: {
           name: 'Weather Info',
           settings: {
+            always_on_top: defaults.config.weather.settings.always_on_top,
             datapoints: {
               title: 'Default Datapoints',
               description: 'The amount of default datapoints that are shown.',
@@ -721,6 +828,7 @@ const store = new Store({
         autoswitcher: {
           name: 'Auto Onboard Camera Switcher',
           settings: {
+            always_on_top: defaults.config.autoswitcher.settings.always_on_top,
             main_window_name: {
               title: 'Default Stream',
               description: "The default stream that all OBC's will be synced to.",
@@ -766,6 +874,13 @@ const store = new Store({
       store.set('colors', { general: { ...defaults.colors.general }, leds: oldLeds })
 
       store.delete('led_colors')
+
+      for (const windowSettingKey in store.get('internal_settings.windows')) {
+        const windowSetting = store.get('internal_settings.windows')[windowSettingKey]
+
+        if (windowSetting.hasOwnProperty('alwaysOnTop'))
+          store.delete(`internal_settings.windows.${windowSettingKey}.alwaysOnTop`)
+      }
     }
   },
   defaults: defaults
@@ -801,7 +916,7 @@ ipcMain.handle('open-window', (_event, window) => {
 
   if (windowProperties.aspectRatio) newWindow.setAspectRatio(windowProperties.aspectRatio)
 
-  if (windowProperties.alwaysOnTop) newWindow.setAlwaysOnTop(true)
+  if (store.get(`config.${window}.settings.always_on_top.value`)) newWindow.setAlwaysOnTop(true)
 
   if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
     newWindow.loadURL(join(process.env['ELECTRON_RENDERER_URL'], `/${windowProperties.path}`))
