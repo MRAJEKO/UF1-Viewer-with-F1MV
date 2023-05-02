@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import Connections from '../components/Home/Connections/Connections'
 import Windows from '../components/Home/Windows/Windows'
 import Tools from '../components/Home/Tools/Tools'
-import { connectionStatuses } from '../utils/connectionStatuses'
+import { connectionStatuses } from '../hooks/connectionStatuses'
 import Settings from '../components/Home/Settings/Settings'
 
 const HomePage = () => {

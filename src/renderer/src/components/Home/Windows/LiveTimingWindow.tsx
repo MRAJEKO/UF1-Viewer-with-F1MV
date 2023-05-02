@@ -1,8 +1,8 @@
 import { useRef, useEffect } from 'react'
 import styles from './Windows.module.css'
-import { connectionStatuses } from '../../../utils/connectionStatuses'
+import { connectionStatuses } from '../../../hooks/connectionStatuses'
 import { launchF1MV } from '../../../utils/launchF1MV'
-import { liveSession } from '../../../utils/liveSession'
+import useLiveSession from '../../../hooks/liveSession'
 
 interface LiveTimingWindowProps {
   name: string
@@ -10,7 +10,7 @@ interface LiveTimingWindowProps {
 }
 
 const LiveTimingWindow = ({ name, type }: LiveTimingWindowProps) => {
-  const liveSessionInfo = liveSession()
+  const { isLiveSession } = useLiveSession()
 
   const statuses = connectionStatuses()
 
@@ -21,7 +21,7 @@ const LiveTimingWindow = ({ name, type }: LiveTimingWindowProps) => {
   }, [statuses.multiViewer])
 
   async function openLiveTiming() {
-    const isLiveSession = liveSessionInfo.streamInfo?.liveTimingAvailable
+    console.log(isLiveSession)
 
     if (isLiveSession) {
       if (!multiViewerConnectedRef.current) await launchF1MV()
@@ -40,12 +40,10 @@ const LiveTimingWindow = ({ name, type }: LiveTimingWindowProps) => {
     }
   }
 
-  const isSessionLive = liveSessionInfo.streamInfo?.liveTimingAvailable
-
   return (
     <button
       className={`${styles.window} ${styles[`${type}-button`]} ${
-        !isSessionLive && styles[`disabled`]
+        !isLiveSession && styles[`disabled`]
       }`}
       onClick={openLiveTiming}
     >

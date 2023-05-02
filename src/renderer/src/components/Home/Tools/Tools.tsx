@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-import { connectionStatuses } from '../../../utils/connectionStatuses'
+import { connectionStatuses } from '../../../hooks/connectionStatuses'
 import styles from './Tools.module.css'
 import layoutsIcon from '../../../assets/icons/layout.png'
 import restoreIcon from '../../../assets/icons/restore.png'

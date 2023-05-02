@@ -613,7 +613,7 @@ const defaults = {
       }
     },
     session: {
-      getLiveSession: 'https://api.joost.systems/api/v2/f1tv/live-session'
+      getLiveSession: 'https://api.jstt.me/api/v2/f1tv/live-session'
     },
     multiviewer: {
       app: {
@@ -881,6 +881,11 @@ const store = new Store({
         if (windowSetting.hasOwnProperty('alwaysOnTop'))
           store.delete(`internal_settings.windows.${windowSettingKey}.alwaysOnTop`)
       }
+
+      store.set(
+        'internal_settings.session.getLiveSession',
+        'https://api.jstt.me/api/v2/f1tv/live-session'
+      )
     }
   },
   defaults: defaults

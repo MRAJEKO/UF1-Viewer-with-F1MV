@@ -4,7 +4,7 @@ import Window from '../Windows/Window'
 import { launchF1MV } from '../../../utils/launchF1MV'
 import LiveTimingWindow from '../Windows/LiveTimingWindow'
 import Connection from './Connection'
-import { liveSession } from '../../../utils/liveSession'
+import useLiveSession from '../../../hooks/liveSession'
 
 interface ConnectionsProps {
   extended?: boolean
@@ -12,10 +12,7 @@ interface ConnectionsProps {
 }
 
 const Connections = ({ extended = false, closeConnections }: ConnectionsProps) => {
-  const liveSessionInfo = liveSession()
-  const isSessionLive = liveSessionInfo.streamInfo?.liveTimingAvailable
-
-  console.log(liveSessionInfo)
+  const { isLiveSession } = useLiveSession()
 
   return (
     <section className={`${extended && styles.extended} ${styles.connections}`}>
@@ -30,7 +27,7 @@ const Connections = ({ extended = false, closeConnections }: ConnectionsProps) =
           <NewWindowSection name="CONTROLS" />
           <Window type="white" name="OPEN MULTIVIEWER" onPress={launchF1MV} />
           <LiveTimingWindow name="OPEN LIVE TIMING" type="white" />
-          {!isSessionLive && (
+          {!isLiveSession && (
             <p className={styles['livetiming-info']}>There is no live timing available.</p>
           )}
         </div>
