@@ -1,5 +1,5 @@
 import styles from './Connections.module.css'
-import { connectionStatuses } from '../../../hooks/connectionStatuses'
+import { connectionStatuses } from '../../../hooks/useConnectionStatuses'
 
 interface ConnectionProps {
   name: string

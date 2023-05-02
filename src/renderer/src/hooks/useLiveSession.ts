@@ -28,6 +28,7 @@ export interface liveSessionInfo {
 const useLiveSession = () => {
   const [liveSessionLink, setLiveSessionLink] = useState<string>('')
   const [liveSessionInfo, setLiveSessionInfo] = useState<liveSessionInfo>({} as liveSessionInfo)
+  const [loop, setLoop] = useState<number>(15000)
 
   useEffect(() => {
     window.ipcRenderer.invoke('get-store').then((store) => {
@@ -55,15 +56,17 @@ const useLiveSession = () => {
     }
 
     fetchStatus()
-    const intervalId = setInterval(fetchStatus, 15000)
+    const intervalId = setInterval(fetchStatus, loop)
 
     return () => clearInterval(intervalId)
-  }, [liveSessionLink])
+  }, [liveSessionLink, loop])
 
   const isLiveSession = liveSessionInfo?.liveSessions?.some(
     (liveSession: liveSession) =>
       liveSession.sessionInfo?.Series === 'FORMULA 1' && liveSession.streamInfo?.liveTimingAvailable
   )
+
+  if (isLiveSession) setLoop(60000)
 
   const prioritySession = liveSessionInfo?.liveSessions
     ?.filter((liveSession: liveSession) => liveSession.sessionInfo.Series === 'FORMULA 1')

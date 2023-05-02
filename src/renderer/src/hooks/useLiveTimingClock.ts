@@ -1,8 +1,9 @@
 import { useEffect } from 'react'
-import { Topic } from 'npm_f1mv_api'
+import { ClockTopic } from 'npm_f1mv_api'
+const LiveTimingClockAPIGraphQL = window.mvApi.LiveTimingClockAPIGraphQL
 
 const LiveTiming = (
-  topics: Topic[],
+  topics: ClockTopic[],
   onDataReceived: (data: any) => void,
   updateFrequency: number
 ) => {
@@ -15,7 +16,7 @@ const LiveTiming = (
       const config = JSON.parse(configString)
 
       try {
-        const response = await window.mvApi.LiveTimingAPIGraphQL(config, topics)
+        const response = await LiveTimingClockAPIGraphQL(config, topics)
 
         if (response) {
           onDataReceived(response)
@@ -27,7 +28,7 @@ const LiveTiming = (
 
     const intervalId = setInterval(fetchData, updateFrequency)
     return () => clearInterval(intervalId)
-  }, [])
+  }, [onDataReceived])
 }
 
 export default LiveTiming

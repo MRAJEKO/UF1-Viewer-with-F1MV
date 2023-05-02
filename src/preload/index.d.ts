@@ -17,6 +17,12 @@ declare global {
       LiveTimingAPIGraphQL: (config: Config, topics: Topic[]) => Promise<any>
       discoverF1MVInstances: (host: string) => Promise<any>
       LiveTimingClockAPIGraphQL: (config: Config, topics: ClockTopic[]) => Promise<any>
+      customGraphQL: (
+        config: Config,
+        body: object,
+        variables: object,
+        operationName: string
+      ) => Promise<any>
     }
     Govee: {
       newDevice: () => Promise<any>

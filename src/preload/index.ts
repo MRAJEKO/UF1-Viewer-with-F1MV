@@ -6,7 +6,8 @@ import {
   LiveTimingClockAPIGraphQL,
   Config,
   Topic,
-  ClockTopic
+  ClockTopic,
+  customGraphQL
 } from 'npm_f1mv_api'
 
 import Govee from 'govee-lan-control'
@@ -43,7 +44,8 @@ contextBridge.exposeInMainWorld('mvApi', {
   LiveTimingAPIGraphQL: (config: Config, topics: Topic[]) => LiveTimingAPIGraphQL(config, topics),
   discoverF1MVInstances: (host: string) => discoverF1MVInstances(host),
   LiveTimingClockAPIGraphQL: (config: Config, topics: ClockTopic[]) =>
-    LiveTimingClockAPIGraphQL(config, topics)
+    LiveTimingClockAPIGraphQL(config, topics),
+  customGraphQL: (config: Config, body: object, variables: object, operationName: string) => customGraphQL(config, body, variables, operationName)
 })
 
 contextBridge.exposeInMainWorld('Govee', {

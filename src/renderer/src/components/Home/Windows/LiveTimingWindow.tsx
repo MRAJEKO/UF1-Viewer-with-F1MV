@@ -1,8 +1,8 @@
 import { useRef, useEffect } from 'react'
 import styles from './Windows.module.css'
-import { connectionStatuses } from '../../../hooks/connectionStatuses'
+import { connectionStatuses } from '../../../hooks/useConnectionStatuses'
 import { launchF1MV } from '../../../utils/launchF1MV'
-import useLiveSession from '../../../hooks/liveSession'
+import useLiveSession from '../../../hooks/useLiveSession'
 
 interface LiveTimingWindowProps {
   name: string

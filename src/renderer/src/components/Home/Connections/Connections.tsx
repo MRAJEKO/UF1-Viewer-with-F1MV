@@ -4,7 +4,7 @@ import Window from '../Windows/Window'
 import { launchF1MV } from '../../../utils/launchF1MV'
 import LiveTimingWindow from '../Windows/LiveTimingWindow'
 import Connection from './Connection'
-import useLiveSession from '../../../hooks/liveSession'
+import useLiveSession from '../../../hooks/useLiveSession'
 
 interface ConnectionsProps {
   extended?: boolean

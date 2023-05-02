@@ -1,4 +1,4 @@
-import LiveTiming from '../services/liveTiming'
+import LiveTiming from '../hooks/useLiveTiming'
 import { useCallback, useEffect, useState } from 'react'
 import TrackStatus from '@renderer/components/FlagDisplay/TrackStatus'
 import SessionStatus from '@renderer/components/FlagDisplay/SessionStatus'
@@ -35,7 +35,7 @@ const FlagDisplay = () => {
     }
   }, [])
 
-  const onDataReceived = useCallback(
+  const handleDataReceived = useCallback(
     (data: any) => {
       if (data) {
         if (parseInt(data?.TrackStatus?.Status ?? 0) !== trackStatus)
@@ -54,7 +54,7 @@ const FlagDisplay = () => {
     [trackStatus, fastestLap, sessionStatus]
   )
 
-  LiveTiming(['TrackStatus', 'SessionStatus', 'TimingStats'], onDataReceived, 250)
+  LiveTiming(['TrackStatus', 'SessionStatus', 'TimingStats'], handleDataReceived, 250)
 
   return (
     <div className={styles.container} style={{ backgroundColor: colors?.['default'] ?? 'black' }}>
