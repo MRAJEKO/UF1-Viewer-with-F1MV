@@ -2,6 +2,13 @@ import { useEffect } from 'react'
 import { ClockTopic } from 'npm_f1mv_api'
 const LiveTimingClockAPIGraphQL = window.mvApi.LiveTimingClockAPIGraphQL
 
+export interface ILiveTimingClockData {
+  paused: boolean
+  systemTime: string
+  trackTime: string
+  liveTimingStartTime: string
+}
+
 const LiveTiming = (
   topics: ClockTopic[],
   onDataReceived: (data: any) => void,
