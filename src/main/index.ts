@@ -469,13 +469,13 @@ const defaults = {
       },
       tracktime: {
         path: 'tracktime',
-        width: 400,
-        height: 140,
+        width: 350,
+        height: 100,
         frame: false,
         hideMenuBar: true,
         transparent: true,
         hasShadow: false,
-        alwaysOnTop: null,
+        alwaysOnTop: 3.5,
         aspectRatio: null,
         icon: 'icons/windows/tracktime.png'
       },
@@ -886,6 +886,8 @@ const store = new Store({
         'internal_settings.session.getLiveSession',
         'https://api.jstt.me/api/v2/f1tv/live-session'
       )
+
+      store.set('internal_settings.windows.tracktime.aspectRatio', 3.5)
     }
   },
   defaults: defaults

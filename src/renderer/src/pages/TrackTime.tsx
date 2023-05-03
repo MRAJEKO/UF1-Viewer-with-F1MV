@@ -1,25 +1,33 @@
-import LiveTimingClock from '@renderer/hooks/useLiveTimingClock'
-import { useCallback, useState } from 'react'
-
-interface IValues {
-  paused: boolean
-  systemTime: string
-  trackTime: string
-  liveTimingStartTime: string
-}
+import TrackTimeClock from '@renderer/components/TrackTime/TrackTimeClock'
+import LiveTiming from '@renderer/hooks/useLiveTiming'
+import LiveTimingClock, { ILiveTimingClockData } from '@renderer/hooks/useLiveTimingClock'
+import { useCallback, useEffect, useState } from 'react'
+import styles from '@renderer/components/TrackTime/TrackTime.module.css'
 
 const TrackTime = () => {
-  const [values, setValues] = useState<null | IValues>(null)
+  const [liveTimingClockData, setValues] = useState<null | ILiveTimingClockData>(null)
+  const [GmtOffset, setGmtOffset] = useState<string>('00:00:00')
+  const [now, setNow] = useState<number>(new Date().getTime())
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (!liveTimingClockData?.paused) setNow(new Date().getTime())
+    }, 1000)
+
+    return () => clearInterval(interval)
+  }, [liveTimingClockData])
 
   const handleDataReceived = useCallback(
-    (data: IValues) => {
+    (data: ILiveTimingClockData) => {
       if (!data) return
 
-      if (JSON.stringify(data) === JSON.stringify(values)) return
+      if (JSON.stringify(data) === JSON.stringify(liveTimingClockData)) return
+
+      setNow(new Date().getTime())
 
       setValues(data)
     },
-    [values]
+    [liveTimingClockData]
   )
 
   LiveTimingClock(
@@ -28,9 +36,24 @@ const TrackTime = () => {
     500
   )
 
-  console.log(values)
+  const handleSessionInfoReceived = useCallback(
+    (data: any) => {
+      if (!data?.SessionInfo) return
 
-  return <div style={{ color: 'white' }}>{values?.paused ? 'paused' : 'unpaused'}</div>
+      const dataGmtOffset = data.SessionInfo.GmtOffset
+
+      if (dataGmtOffset && dataGmtOffset !== GmtOffset) setGmtOffset(dataGmtOffset)
+    },
+    [GmtOffset]
+  )
+
+  LiveTiming(['SessionInfo'], handleSessionInfoReceived, 2500)
+
+  return (
+    <div className={styles.container}>
+      <TrackTimeClock now={now} liveTimingClockData={liveTimingClockData} GmtOffset={GmtOffset} />
+    </div>
+  )
 }
 
 export default TrackTime

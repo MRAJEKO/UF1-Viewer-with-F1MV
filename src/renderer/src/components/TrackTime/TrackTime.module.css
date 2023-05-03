@@ -1,0 +1,12 @@
+.container {
+  width: 100vw;
+  height: 100vh;
+  background-color: var(--black-translucent);
+  color: white;
+  font-family: 'InterBold', sans-serif;
+  display: grid;
+  place-items: center;
+  font-size: 18vw;
+  border-radius: 5vw;
+  -webkit-app-region: drag;
+}
