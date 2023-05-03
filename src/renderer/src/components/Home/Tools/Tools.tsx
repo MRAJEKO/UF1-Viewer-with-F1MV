@@ -5,6 +5,7 @@ import styles from './Tools.module.css'
 import layoutsIcon from '../../../assets/icons/layout.png'
 import restoreIcon from '../../../assets/icons/restore.png'
 import settingsIcon from '../../../assets/icons/settings.png'
+import windowsStyles from '../Windows/Windows.module.css'
 
 interface ToolsProps {
   openLayouts: () => void
@@ -20,7 +21,10 @@ const Tools = ({ openLayouts, restoreAll, settings }: ToolsProps) => {
   const statuses = connectionStatuses()
 
   return (
-    <section id="tools" className={`${styles.tools} ${styles['background-tools']}`}>
+    <section
+      id="tools"
+      className={`${styles.tools} ${styles['background-tools']} ${windowsStyles['homepage-section']}`}
+    >
       <div className={styles['tools-wrapper']}>
         <div className={`${styles['icon']} ${styles['dynamic-button']}`}>
           <div

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import SettingPart from './SettingPart'
 import styles from './Settings.module.css'
+import windowsStyles from '../Windows/Windows.module.css'
 
 interface SettingsProps {
   extended?: boolean
@@ -35,7 +36,11 @@ const Settings = ({ extended }: SettingsProps) => {
   if (!extended) window.ipcRenderer.invoke('set-config', settings)
 
   return (
-    <section className={`${styles.settings} ${extended && styles.extended}`}>
+    <section
+      className={`${styles.settings} ${extended && styles.extended} ${
+        windowsStyles['homepage-section']
+      }`}
+    >
       <div className={styles.container}>
         {Object.keys(settings).map((key) => {
           return (

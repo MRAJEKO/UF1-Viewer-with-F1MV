@@ -3,6 +3,7 @@ import NewWindowSection from './NewWindowSection'
 import SolidWindows from './SolidWindows'
 import LiveTimingWindow from './LiveTimingWindow'
 import { launchF1MV } from '../../../utils/launchF1MV'
+import styles from './Windows.module.css'
 
 const Windows = () => {
   function openWindow(name: string) {
@@ -10,7 +11,7 @@ const Windows = () => {
   }
 
   return (
-    <section>
+    <section className={styles['homepage-section']}>
       <h1>Ultimate Formula 1 Viewer</h1>
       <Window onPress={launchF1MV} name="MultiViewer" />
       <LiveTimingWindow name="Live Timing" type="default" />

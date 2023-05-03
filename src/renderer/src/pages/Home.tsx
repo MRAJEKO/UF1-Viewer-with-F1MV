@@ -44,7 +44,7 @@ const HomePage = () => {
   }
 
   return (
-    <div className={'background '}>
+    <div className={'background'}>
       <Connections extended={connectionsExtended} closeConnections={closeConnections} />
       <Windows />
       <Settings extended={settingsExtended} />

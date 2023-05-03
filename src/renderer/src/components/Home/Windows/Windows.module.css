@@ -8,10 +8,6 @@
   white-space: nowrap;
 }
 
-body {
-  background-color: var(--dark-gray);
-}
-
 .new-window-section p {
   font-family: 'InterBold';
 }
@@ -32,7 +28,7 @@ h1 {
   margin: 10px;
 }
 
-section {
+.homepage-section {
   display: flex;
   width: 100vw;
   flex-direction: column;
