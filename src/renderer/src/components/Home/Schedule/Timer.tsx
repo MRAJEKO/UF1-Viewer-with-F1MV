@@ -7,7 +7,7 @@ interface Props {
 const Timer = ({ timer }: Props) => {
   timer = timer ?? '?:??:??:??'
 
-  const mapping = ['Days', 'Hours', 'Minutes', 'Seconds']
+  const mapping = ['DAYS', 'HOURS', 'MINUTES', 'SECONDS']
 
   return (
     <div className={styles.container}>

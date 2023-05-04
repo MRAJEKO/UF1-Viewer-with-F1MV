@@ -29,11 +29,11 @@
 
 .session-name {
   font-family: 'InterBold', sans-serif;
-  font-size: 22px;
+  font-size: 20px;
 }
 
 .event-name {
   font-family: 'InterMedium', sans-serif;
-  font-size: 13px;
+  font-size: 14px;
   color: var(--light-gray);
 }

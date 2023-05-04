@@ -21,10 +21,11 @@
   color: var(--white);
   font-family: 'InterBold', sans-serif;
   font-size: 25px;
+  font-variant-numeric: tabular-nums;
 }
 
 .counter-name {
   color: var(--light-gray);
   font-family: 'InterMedium', sans-serif;
-  font-size: 12px;
+  font-size: 10px;
 }

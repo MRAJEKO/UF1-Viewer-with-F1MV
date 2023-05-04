@@ -28,7 +28,8 @@ section.connections {
 }
 
 .livetiming-info {
-  color: var(--gray);
+  color: var(--light-gray);
+  opacity: 0.5;
   font-family: 'InterBold';
   font-size: 14px;
 }
