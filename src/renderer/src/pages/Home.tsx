@@ -4,6 +4,8 @@ import Windows from '../components/Home/Windows/Windows'
 import Tools from '../components/Home/Tools/Tools'
 import { connectionStatuses } from '../hooks/useConnectionStatuses'
 import Settings from '../components/Home/Settings/Settings'
+import Schedule from '@renderer/components/Home/Schedule/Schedule'
+import styles from '@renderer/components/Home/Home.module.css'
 
 const HomePage = () => {
   const [connectionsExtended, setConnectionsExtended] = useState(true)
@@ -44,11 +46,14 @@ const HomePage = () => {
   }
 
   return (
-    <div className={'background'}>
-      <Connections extended={connectionsExtended} closeConnections={closeConnections} />
-      <Windows />
-      <Settings extended={settingsExtended} />
-      <Tools openLayouts={showLayouts} restoreAll={restoreAll} settings={toggleSettings} />
+    <div className={styles.container}>
+      <Schedule />
+      <div className={'background'}>
+        <Connections extended={connectionsExtended} closeConnections={closeConnections} />
+        <Windows />
+        <Settings extended={settingsExtended} />
+        <Tools openLayouts={showLayouts} restoreAll={restoreAll} settings={toggleSettings} />
+      </div>
     </div>
   )
 }

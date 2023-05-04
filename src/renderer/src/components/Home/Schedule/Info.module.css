@@ -1,0 +1,39 @@
+.wrapper {
+  color: var(--white);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+}
+
+.container {
+  display: flex;
+  align-items: center;
+  height: 100%;
+}
+
+.flag-container {
+  width: 50px;
+  height: 30px;
+  background-size: cover;
+  border-radius: 5px;
+}
+
+.container img {
+  height: 50%;
+}
+
+.info-container {
+  margin-left: 10px;
+}
+
+.session-name {
+  font-family: 'InterBold', sans-serif;
+  font-size: 22px;
+}
+
+.event-name {
+  font-family: 'InterMedium', sans-serif;
+  font-size: 13px;
+  color: var(--light-gray);
+}

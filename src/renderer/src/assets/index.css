@@ -9,9 +9,11 @@
 }
 
 .background {
-  height: 100vh;
   width: 100vw;
   background-color: var(--dark-gray);
+  position: relative;
+  flex: 1;
+  overflow: hidden;
 }
 
 .move {
