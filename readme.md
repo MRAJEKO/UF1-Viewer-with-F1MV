@@ -49,7 +49,7 @@ When you first start the application you will be promted to open MultiViewer for
 
 > **Note:** You are also able to 'continue either way' but this can cause issues and bugs when opening windows. Use at your own risk.
 
-<img style="border-radius: 10px;" src="https://cdn.lapstime.fr/lADO1/QoKebuGI95.png/raw" height="400">
+<img style="border-radius: 10px;" src="https://test-cdn.lapstime.fr/u/m6Z5Ih.png" height="400">
 
 <br>
 
@@ -61,7 +61,7 @@ The main window will be used as the hub for everything else. You are able to lau
 
 > The main window is used as a launcher for all other windows. You can launch MultiViewer for F1 from here as well.
 
-<img style="border-radius: 10px;" src="https://cdn.lapstime.fr/lADO1/jOYiHoYO11.png/raw" height="600" />
+<img style="border-radius: 10px;" src="https://test-cdn.lapstime.fr/u/VbB8z6.png" height="600" />
 
 <br />
 <br />
@@ -70,7 +70,7 @@ The main window will be used as the hub for everything else. You are able to lau
 
 > There is also a settings window that can be opened by clicking the settings icon in the bottom right corner. It will show a section where you can change the settings of different windows. you can also change settings like network settings.
 
-<img style="border-radius: 10px;" src="https://cdn.lapstime.fr/lADO1/XUFiRuqo82.png/raw" height="400" />
+<img style="border-radius: 10px;" src="https://test-cdn.lapstime.fr/u/RWu5DA.png" height="400" />
 
 <br />
 <br />
@@ -99,7 +99,7 @@ You also have the ability to save layouts and load layouts.
 
 > To load a layout you can press the name of the layout. This will open all the UF1 windows that are saved in the layout. If there currently is a live session it will also automatically load those correct stream and start the live timing. If this is not the case it will not open any MultiViewer Streams. You are also able to provide a 'contentId' to open a corresponding session which will also launch the correct MultiViewer streams **but not the correct live timing**.
 
-<img style="border-radius: 10px;" src="https://cdn.lapstime.fr/lADO1/liQiQEMU74.png/raw" height="400" />
+<img style="border-radius: 10px;" src="https://test-cdn.lapstime.fr/u/hSF6DC.png" height="400" />
 
 <br>
 
@@ -131,9 +131,9 @@ Pressing this button will open the live timing page if there is a live session. 
 
 Will show the current track status. It will blink yellow when a SC or a VSC is triggered and it will turn purple when a new fastest lap has been set. If the track is clear it will show a green flag for a few seconds and then return to a darkgray/black so you can use it as neutral background.
 
-<img src="https://cdn.lapstime.fr/lADO1/BUVuKive00.png/raw" height="50">
+<img src="https://test-cdn.lapstime.fr/u/l1giQY.png" height="50">
 
-<img src="https://cdn.lapstime.fr/lADO1/wiFOsodI50.png/raw" height="50">
+<img src="https://test-cdn.lapstime.fr/u/dmM1Dl.png" height="50">
 
 <br>
 
@@ -141,7 +141,7 @@ Will show the current track status. It will blink yellow when a SC or a VSC is t
 
 Shows how many govee lights are connected. The Govee integration is disabled by default and you will need to enable LAN Control for you lights in order for it to connect. (the lights are connected to the flag display window)
 
-<img src="https://cdn.lapstime.fr/lADO1/lifiqoFe65.png/raw" height="100">
+<img src="https://test-cdn.lapstime.fr/u/buoZIw.png" height="100">
 
 <br>
 
@@ -149,7 +149,7 @@ Shows how many govee lights are connected. The Govee integration is disabled by 
 
 Shows the current time on track in their timezone.
 
-<img src="https://cdn.lapstime.fr/lADO1/WeBObiFu22.png/raw" height="100">
+<img src="https://test-cdn.lapstime.fr/u/fVI5bf.png" height="100">
 
 <br>
 
@@ -157,7 +157,7 @@ Shows the current time on track in their timezone.
 
 Shows a list of the past change of events in the session. Driver pit entry or exit, pit stop times and tire changes (race only), new fastest laps, new lap starts (race only), DRS changes, new team radio's (disabled by default), ect. A new bar will be generated if a event occurs.
 
-<img src="https://cdn.lapstime.fr/lADO1/XEjumodO46.png/raw" height="400">
+<img src="https://test-cdn.lapstime.fr/u/6mzgrn.png" height="400">
 
 <br>
 
@@ -165,7 +165,7 @@ Shows a list of the past change of events in the session. Driver pit entry or ex
 
 Shows information about the track such as DRS being enabled, pit exit or entry being open, session timer, status of the session (whether the session is started), ect.
 
-<img src="https://cdn.lapstime.fr/lADO1/higUNeDE12.png/raw" width="100%">
+<img src="https://test-cdn.lapstime.fr/u/FBvTx7.png" width="100%">
 
 <br>
 
@@ -173,7 +173,7 @@ Shows information about the track such as DRS being enabled, pit exit or entry b
 
 Shows the statuses of all mini sectors (segments) on track. It also shows whether the segment has a slippery surface or not.
 
-<img src="https://cdn.lapstime.fr/lADO1/vubAZoNO90.png/raw" height="500">
+<img src="https://test-cdn.lapstime.fr/u/jmWn7y.png" height="500">
 
 <br>
 
@@ -181,7 +181,7 @@ Shows the statuses of all mini sectors (segments) on track. It also shows whethe
 
 Show new race control messages that are coming through. It will also show icons based on their type so you can quickly see the type and importance of the message. It will be shown for a few seconds and then disapear.
 
-<img src="https://cdn.lapstime.fr/lADO1/NoPAFUte67.png/raw" width="100%">
+<img src="https://test-cdn.lapstime.fr/u/6yilqn.png" width="100%">
 
 <br>
 
@@ -189,7 +189,7 @@ Show new race control messages that are coming through. It will also show icons 
 
 Will show cars that have crashed or need to retire based on the car driving slow or stopping.
 
-<img src="https://cdn.lapstime.fr/lADO1/SOMugIze85.png/raw" height="200">
+<img src="https://test-cdn.lapstime.fr/u/we9BVy.png" height="200">
 
 <br>
 
@@ -197,7 +197,7 @@ Will show cars that have crashed or need to retire based on the car driving slow
 
 Will point to the north of the track. This is the rotation relative to the MultiViewer track map than might be rotated. North might not be the top of the track but the direction where the compass points to.
 
-<img src="https://cdn.lapstime.fr/lADO1/maWiVikE33.png/raw" height="100">
+<img src="https://test-cdn.lapstime.fr/u/0Exnwp.png" height="100">
 
 <br>
 
@@ -205,7 +205,7 @@ Will point to the north of the track. This is the rotation relative to the Multi
 
 Will show information about the used tires. It will show the top 3 times set using that tire, the total laps driven and sets used of that tire and it will also show the delta to the other tire compounds so you can see which on is the quickest.
 
-<img src="https://cdn.lapstime.fr/lADO1/qIMEZECu40.png/raw" height="400">
+<img src="https://test-cdn.lapstime.fr/u/v4ooAE.png" height="400">
 
 <br>
 
@@ -213,7 +213,7 @@ Will show information about the used tires. It will show the top 3 times set usi
 
 Shows all the drivers that are on a push lap. It shows the mini sectors and the sector times. It also shows information to a 'target' driver which is picked based on the session and position. This is most useful during a practice or qualifying session. It also sorts on order of the driver on track meaning the top one will finish their lap first and so forth.
 
-<img src="https://cdn.lapstime.fr/lADO1/difEgerE45.png/raw" height="400">
+<img src="https://test-cdn.lapstime.fr/u/jyRiuk.png" height="400">
 
 <br>
 
@@ -221,7 +221,7 @@ Shows all the drivers that are on a push lap. It shows the mini sectors and the 
 
 Select drivers you want to see the gap between. The amount of driver you can select depents on the width of the window. It also shows telemetry and lap times per driver but that gets removed if it wouldn't fit all the selected driver.
 
-<img src="https://cdn.lapstime.fr/lADO1/JEkeSOFU71.png/raw" width="100%">
+<img src="https://test-cdn.lapstime.fr/u/8ie1sE.png" width="100%">
 
 <br>
 
@@ -229,7 +229,7 @@ Select drivers you want to see the gap between. The amount of driver you can sel
 
 It shows the track and air temperature over time and shows the current humidity and pressure. It also has the wind direction and wind speed plus if it is raining or not.
 
-<img src="https://cdn.lapstime.fr/lADO1/kUkApeDI44.png/raw" width="100%">
+<img src="https://test-cdn.lapstime.fr/u/TEOdXy.png" width="100%">
 
 <br>
 
@@ -241,6 +241,6 @@ Will switch the onboards based on priority. This would be very useful if you can
 
 > **Note:** You must select your main feed in the settings for it to sync without buffering. Default is the 'international' feed.
 
-<img src="https://cdn.lapstime.fr/lADO1/duQeyuTE65.png/raw" height="300">
+<img src="https://test-cdn.lapstime.fr/u/uIkTQz.png" height="300">
 
-<img src="https://cdn.lapstime.fr/lADO1/QeCAPAsu41.png/raw" height="150">
+<img src="https://test-cdn.lapstime.fr/u/egwqCP.png" height="150">
