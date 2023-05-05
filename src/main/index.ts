@@ -638,12 +638,6 @@ const store = new Store({
         general: {
           name: 'General',
           settings: {
-            always_on_top: {
-              title: 'Always on top',
-              description: 'Enable to show some windows always on top.',
-              type: 'switch',
-              value: oldConfig.general.always_on_top
-            },
             discord_rpc: {
               title: 'Enable Discord RPC',
               description: "Enable to show that you're using MultiViewer on Discord.",
