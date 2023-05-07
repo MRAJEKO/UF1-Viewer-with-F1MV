@@ -36,6 +36,8 @@ const TrackTime = () => {
     500
   )
 
+  console.log(liveTimingClockData)
+
   const handleSessionInfoReceived = useCallback(
     (data: any) => {
       if (!data?.SessionInfo) return

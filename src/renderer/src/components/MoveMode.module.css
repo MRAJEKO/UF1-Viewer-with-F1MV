@@ -1,0 +1,36 @@
+.container {
+  height: 100vh;
+  width: 100vw;
+  z-index: 100;
+  position: absolute;
+  background-color: var(--black-heavy-translucent);
+  border: 1vw solid white;
+  border-radius: 4vw;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  -webkit-app-region: drag;
+}
+
+.container p {
+  color: white;
+}
+
+.container .title {
+  font-size: 10vw;
+  text-align: center;
+  font-family: 'InterBold', sans-serif;
+}
+
+.container .description {
+  font-family: 'InterRegular', sans-serif;
+  margin-top: 5vw;
+  font-size: 5vw;
+  transform: skew(-10deg);
+  color: var(--light-gray);
+}
+
+.container .description .key {
+  font-family: 'InterBold', sans-serif;
+}

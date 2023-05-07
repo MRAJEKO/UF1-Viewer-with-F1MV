@@ -17,7 +17,7 @@ const Windows = () => {
       <LiveTimingWindow name="Live Timing" type="default" />
       <Window onPress={() => openWindow('flag_display')} name="Flag Display" />
       <Window onPress={() => openWindow('tracktime')} name="Delayed Track Time" />
-      <Window onPress={launchF1MV} name="Session Log" />
+      <Window onPress={() => openWindow('session_log')} name="Session Log" />
       <Window onPress={launchF1MV} name="Track Information" />
       <Window onPress={launchF1MV} name="Sector Statuses" />
       <Window onPress={launchF1MV} name="Single Race Control Message" />

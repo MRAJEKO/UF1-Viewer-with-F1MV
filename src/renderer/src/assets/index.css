@@ -19,3 +19,8 @@
 .move {
   -webkit-app-region: drag;
 }
+
+.develop,
+.develop * {
+  border: 1px dashed red;
+}

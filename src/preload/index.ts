@@ -45,7 +45,8 @@ contextBridge.exposeInMainWorld('mvApi', {
   discoverF1MVInstances: (host: string) => discoverF1MVInstances(host),
   LiveTimingClockAPIGraphQL: (config: Config, topics: ClockTopic[]) =>
     LiveTimingClockAPIGraphQL(config, topics),
-  customGraphQL: (config: Config, body: object, variables: object, operationName: string) => customGraphQL(config, body, variables, operationName)
+  customGraphQL: (config: Config, body: object, variables: object, operationName: string) =>
+    customGraphQL(config, body, variables, operationName)
 })
 
 contextBridge.exposeInMainWorld('Govee', {

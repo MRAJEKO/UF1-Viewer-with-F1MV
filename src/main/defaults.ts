@@ -323,7 +323,7 @@ const defaults = {
   layouts: {},
   colors: {
     general: {
-      default: '#0f0f0f',
+      default: '#1f1f1f',
       black: '#000000',
       white: '#ffffff',
       purple: '#b900b9',

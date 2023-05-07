@@ -8,6 +8,7 @@ import './assets/colors.css'
 import HomePage from './pages/Home'
 import FlagDisplay from './pages/FlagDisplay'
 import TrackTime from './pages/TrackTime'
+import SessionLog from './pages/SessionLog'
 
 const router = createBrowserRouter([
   {
@@ -21,6 +22,10 @@ const router = createBrowserRouter([
   {
     path: '/tracktime',
     element: <TrackTime />
+  },
+  {
+    path: '/session_log',
+    element: <SessionLog />
   }
 ])
 

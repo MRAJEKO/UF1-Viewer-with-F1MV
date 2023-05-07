@@ -9,14 +9,18 @@
   --darker-gray: #1f1f1f;
   --dark-gray: #0f0f0f;
   --black-translucent: #00000080;
+  --black-heavy-translucent: #000000b6;
   --white-transparent: #ffffff05;
   --connected: #5eff5e;
   --disconnected: #ff3e3e;
+
+  --white-button-disabled: #ffffff40;
+  --white-button: #ffffff;
+
+  --beta-button: #c76cff;
+
   --default-button: #ff3232;
   --default-button-disabled: #9f313162;
-  --beta-button: #c76cff;
-  --white-button: #ffffff;
-  --white-button-disabled: #ffffff40;
 
   --light-green: #00a800;
 }
