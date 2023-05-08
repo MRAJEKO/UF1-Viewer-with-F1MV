@@ -5,7 +5,7 @@ import { useCallback, useEffect, useState } from 'react'
 import styles from '@renderer/components/TrackTime/TrackTime.module.css'
 
 const TrackTime = () => {
-  const [liveTimingClockData, setValues] = useState<null | ILiveTimingClockData>(null)
+  const [liveTimingClockData, setLiveTimingClockData] = useState<null | ILiveTimingClockData>(null)
   const [GmtOffset, setGmtOffset] = useState<string>('00:00:00')
   const [now, setNow] = useState<number>(new Date().getTime())
 
@@ -25,7 +25,7 @@ const TrackTime = () => {
 
       setNow(new Date().getTime())
 
-      setValues(data)
+      setLiveTimingClockData(data)
     },
     [liveTimingClockData]
   )

@@ -9,7 +9,7 @@ export interface ILiveTimingClockData {
   liveTimingStartTime: string
 }
 
-const LiveTiming = (
+const LiveTimingClock = (
   topics: ClockTopic[],
   onDataReceived: (data: any) => void,
   updateFrequency: number
@@ -38,4 +38,4 @@ const LiveTiming = (
   }, [onDataReceived])
 }
 
-export default LiveTiming
+export default LiveTimingClock

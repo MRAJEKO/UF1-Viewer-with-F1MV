@@ -1,3 +1,34 @@
 .wrapper {
   height: 100vh;
 }
+
+.card {
+  width: 100%;
+  height: 45vw;
+  display: flex;
+  flex-direction: column;
+  border-radius: 7vw;
+  overflow: hidden;
+}
+
+.card-item-enter {
+  opacity: 0;
+  transform: translateY(-100%);
+}
+
+.card-item-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 500ms ease-in-out, transform 500ms ease-in-out;
+}
+
+.card-item-exit {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.card-item-exit-active {
+  opacity: 1;
+  transform: translateY(-100%);
+  transition: opacity 500ms ease-in-out, transform 500ms ease-in-out;
+}

@@ -16,7 +16,7 @@ export function connectionStatuses(): connectionStatusesProps {
   useEffect(() => {
     async function fetchStatus() {
       if (!localStorage.getItem('config'))
-        host = (await window.ipcRenderer.invoke('get-store'))?.config?.network?.host ?? 'localhost'
+        host = window.ipcRenderer.sendSync('get-store', 'config')?.network?.host ?? 'localhost'
 
       try {
         if (!host) return

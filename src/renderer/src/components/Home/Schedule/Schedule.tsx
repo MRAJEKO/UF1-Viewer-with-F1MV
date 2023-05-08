@@ -23,7 +23,6 @@ const Schedule = () => {
     fetch('http://ergast.com/api/f1/current/next.json')
       .then((res) => {
         res.json().then((data: any) => {
-          console.log(data)
           if (!data) return
 
           const nextEvent = data.MRData?.RaceTable?.Races[0]
@@ -64,7 +63,7 @@ const Schedule = () => {
           fetch(`https://restcountries.com/v3.1/name/${country.toLowerCase()}`)
             .then((res) => {
               res.json().then((data: any) => {
-                if (!data) return
+                if (!data || !Array.isArray(data)) return
 
                 setFlag(
                   data.find(
@@ -86,7 +85,13 @@ const Schedule = () => {
   }, [])
 
   return (
-    <div className={styles.container} style={{ height: `${flag ? '80px' : 0}` }}>
+    <div
+      className={styles.container}
+      style={{
+        height: `${flag && nextSessionStartTime ? '80px' : 0}`,
+        border: `${flag && nextSessionStartTime ? '' : 'none'}`
+      }}
+    >
       {nextEventInfo && nextSessionName && (
         <Info flag={flag} nextSessionName={nextSessionName} nextEventInfo={nextEventInfo} />
       )}

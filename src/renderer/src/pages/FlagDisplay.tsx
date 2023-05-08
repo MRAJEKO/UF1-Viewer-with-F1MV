@@ -5,7 +5,7 @@ import SessionStatus from '@renderer/components/FlagDisplay/SessionStatusPanel'
 import styles from '@renderer/components/FlagDisplay/Panels.module.css'
 import FastestLap from '@renderer/components/FlagDisplay/FastestLapPanel'
 import GoveeIntegration from '@renderer/components/FlagDisplay/GoveePanel'
-import { colors } from '@renderer/modules/Colors'
+import colors from '@renderer/modules/Colors'
 import { goveeEnabled } from '@renderer/modules/Settings'
 
 const FlagDisplay = () => {

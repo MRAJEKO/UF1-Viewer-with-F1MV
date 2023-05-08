@@ -330,7 +330,8 @@ const defaults = {
       green: '#00AF00',
       red: '#d10000',
       yellow: '#ffe600',
-      blue: '#2196f3'
+      blue: '#2196f3',
+      orange: '#ff9800'
     },
     leds: {
       default: [255, 255, 255],

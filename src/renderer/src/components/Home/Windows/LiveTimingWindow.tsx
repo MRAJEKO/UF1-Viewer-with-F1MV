@@ -26,13 +26,15 @@ const LiveTimingWindow = ({ name, type }: LiveTimingWindowProps) => {
     if (isLiveSession) {
       if (!multiViewerConnectedRef.current) await launchF1MV()
 
-      const interval = setInterval(async () => {
+      const interval = setInterval(() => {
         console.log(multiViewerConnectedRef.current)
         if (multiViewerConnectedRef.current) {
-          const liveTimingLink: string = (await window.ipcRenderer.invoke('get-store'))
-            .internal_settings.multiviewer.livetiming.link
+          const liveTimingLink: string = window.ipcRenderer.sendSync(
+            'get-store',
+            'internal_settings'
+          )?.multiviewer?.livetiming?.link
 
-          window.shell.openExternal(liveTimingLink)
+          if (liveTimingLink) window.shell.openExternal(liveTimingLink)
 
           clearInterval(interval)
         }

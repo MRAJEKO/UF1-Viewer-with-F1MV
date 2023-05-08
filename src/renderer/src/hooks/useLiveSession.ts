@@ -31,9 +31,9 @@ const useLiveSession = () => {
   const [loop, setLoop] = useState<number>(15000)
 
   useEffect(() => {
-    window.ipcRenderer.invoke('get-store').then((store) => {
-      setLiveSessionLink(store?.internal_settings?.session?.getLiveSession ?? null)
-    })
+    setLiveSessionLink(
+      window.ipcRenderer.sendSync('get-store', 'internal_settings')?.session?.getLiveSession ?? null
+    )
   }, [])
 
   useEffect(() => {

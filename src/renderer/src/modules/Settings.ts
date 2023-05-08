@@ -1,4 +1,5 @@
-export let goveeEnabled: boolean = false
+export const goveeEnabled: boolean =
+  window.ipcRenderer.sendSync('get-store', 'config')?.flag_display?.settings?.govee.value ?? false
 
 interface ISetting {
   title: string
@@ -22,12 +23,5 @@ interface ISessionLog {
   }
 }
 
-export let sessionLog: ISessionLog | null = null
-
-window.ipcRenderer
-  .invoke('get-store')
-  .then((data) => {
-    goveeEnabled = data?.config?.flag_display?.settings?.govee.value ?? false
-    sessionLog = data?.config?.session_log ?? null
-  })
-  .catch(console.error)
+export const sessionLog: ISessionLog | null =
+  window.ipcRenderer.sendSync('get-store', 'config')?.session_log ?? null

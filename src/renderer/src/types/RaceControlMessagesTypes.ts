@@ -6,6 +6,7 @@ export type TRaceControlMessageSubCategory =
   | 'SessionStartDelayed'
   | 'SessionDurationChanged'
   | 'LapTimeDeleted'
+  | 'LapTimeReinstated'
   | 'LappedCarsMayOvertake'
   | 'LappedCarsMayNotOvertake'
   | 'NormalGripConditions'
@@ -14,6 +15,7 @@ export type TRaceControlMessageSubCategory =
   | 'MissedApex'
   | 'CarStopped'
   | 'SafetyCar'
+  | 'MedicalCar'
   | 'VirtualSafetyCar'
   | 'IncidentNoted'
   | 'IncidentUnderInvestigation'
@@ -30,19 +32,38 @@ export type TRaceControlMessageSubCategory =
   | 'PitEntry'
   | 'SessionResume'
   | 'Correction'
+  | 'RecoveryVehicle'
 
-export type TRaceControlMessageFlag = 'YELLOW' | 'CLEAR' | 'RED' | 'BLUE' | 'BLACK' | 'CHEQUERED'
+export type TRaceControlMessageFlag =
+  | 'YELLOW'
+  | 'DOUBLE YELLOW'
+  | 'GREEN'
+  | 'CHECKERED'
+  | 'RED'
+  | 'BLUE'
+  | 'BLACK AND WHITE'
+  | string
+
+export type TRaceControlMessageScope = 'Track' | 'Sector' | 'Driver'
+
+export type TRaceControlMessageStatus =
+  | 'DEPLOYED'
+  | 'ENDING'
+  | 'DISABLED'
+  | 'ENABLED'
+  | 'IN THIS LAP'
+  | 'THROUGH THE PIT LANE'
 
 export interface IRaceControlMessage {
   Utc: string
   Category: TRaceControlMessageCategory
   SubCategory?: TRaceControlMessageSubCategory
   Message: string
-  Flag?: string
-  Scope?: string
+  Flag?: TRaceControlMessageFlag
+  Scope?: TRaceControlMessageScope
   Lap?: number
   Sector: number
-  Status?: string
+  Status?: TRaceControlMessageStatus
   Mode?: string
   RacingNumber?: string
 }

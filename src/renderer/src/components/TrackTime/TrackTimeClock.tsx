@@ -1,5 +1,6 @@
 import { ILiveTimingClockData } from '@renderer/hooks/useLiveTimingClock'
-import { milisecondsToTime, timeToMiliseconds } from '@renderer/utils/convertTime'
+import { milisecondsToTime } from '@renderer/utils/convertTime'
+import { calculateTrackTime } from '@renderer/utils/trackTime'
 
 interface Props {
   now: number
@@ -8,15 +9,9 @@ interface Props {
 }
 
 const TrackTimeClock = ({ now, liveTimingClockData, GmtOffset }: Props) => {
-  if (!liveTimingClockData) return <p>NO DATA</p>
+  const localTime = calculateTrackTime(now, liveTimingClockData, GmtOffset)
 
-  const systemTime = parseInt(liveTimingClockData.systemTime)
-  const trackTime = parseInt(liveTimingClockData.trackTime)
-  const paused = liveTimingClockData.paused
-
-  const localTime = paused
-    ? trackTime + timeToMiliseconds(GmtOffset)
-    : now - (systemTime - trackTime) + timeToMiliseconds(GmtOffset)
+  if (!localTime) return <div>00:00:00</div>
 
   const displayTime = milisecondsToTime(localTime)
 

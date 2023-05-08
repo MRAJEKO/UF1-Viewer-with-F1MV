@@ -10,13 +10,6 @@ export interface LedColors {
   [key: string]: [number, number, number]
 }
 
-export let ledColors: LedColors = {}
-export let colors: Colors = {}
+export const ledColors: LedColors = window.ipcRenderer.sendSync('get-store', 'colors')?.leds ?? {}
 
-window.ipcRenderer
-  .invoke('get-store')
-  .then((data) => {
-    ledColors = data?.colors?.leds ?? {}
-    colors = data?.colors?.general ?? {}
-  })
-  .catch(console.error)
+export default window.ipcRenderer.sendSync('get-store', 'colors')?.general ?? ({} as Colors)

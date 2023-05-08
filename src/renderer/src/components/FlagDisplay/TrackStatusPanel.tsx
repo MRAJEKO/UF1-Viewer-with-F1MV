@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import styles from './Panels.module.css'
-import { colors } from '@renderer/modules/Colors'
+import colors from '@renderer/modules/Colors'
 import React from 'react'
 
 interface TrackStatusProps {

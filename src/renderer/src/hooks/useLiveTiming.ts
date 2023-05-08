@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { Topic } from 'npm_f1mv_api'
-import { ILiveTimingData } from './../types/LiveTimingData'
+import { ILiveTimingData } from '../types/LiveTimingDataTypes'
 
 const LiveTimingAPIGraphQL = window.mvApi.LiveTimingAPIGraphQL
 

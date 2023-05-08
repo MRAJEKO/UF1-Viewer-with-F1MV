@@ -1,4 +1,7 @@
-import { IRaceControlMessages } from './RaceControlMessages'
+import { ILapCount } from './LapCountTypes'
+import { IRaceControlMessages } from './RaceControlMessagesTypes'
+import { ISessionInfo } from './SessionInfoTypes'
+import { ITrackStatus } from './TrackStatusTypes'
 
 export interface ILiveTimingData {
   /** The status of the live timing archive, used for replay live timing */
@@ -26,7 +29,7 @@ export interface ILiveTimingData {
   /** Heartbeats from the live timing server */
   Heartbeat?: Object
   /** Lap count, for sessions with a schedule number of laps */
-  LapCount?: Object
+  LapCount?: ILapCount
   /** Time-series data per lap for each driver's position during the session */
   LapSeries?: Object
   /** Current or recent pit-stop timing data */
@@ -38,7 +41,7 @@ export interface ILiveTimingData {
   /** Simple session data, containing session status and start times for multi-part sessions (like Qualifying) */
   SessionData?: Object
   /** Session information, including session type, circuit, official names and the scheduled start time */
-  SessionInfo?: Object
+  SessionInfo?: ISessionInfo
   /** The current session status (for which a time-series is available in the `SessionData` topic) */
   SessionStatus?: Object
   /** Team radio message captures */
@@ -52,7 +55,7 @@ export interface ILiveTimingData {
   /** Basic information about the top-three drivers in this session */
   TopThree?: Object
   /** The track status, which changes when yellow or red flags are out */
-  TrackStatus?: Object
+  TrackStatus?: ITrackStatus
   /** Current weather data */
   WeatherData?: Object
   /** Historic weather data, for the current session */

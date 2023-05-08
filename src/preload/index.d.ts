@@ -9,6 +9,7 @@ declare global {
       send: (channel: string, data: any) => void
       on: (channel: string, func: any) => void
       invoke: (channel: string, data?: any) => Promise<any>
+      sendSync: (channel: string, key: any) => any
     }
     shell: {
       openExternal: (url: string) => void

@@ -33,7 +33,8 @@ contextBridge.exposeInMainWorld('ipcRenderer', {
   on: (channel: string, func: any) => {
     ipcRenderer.on(channel, (_event, ...args) => func(...args))
   },
-  invoke: (channel: string, data?: any) => ipcRenderer.invoke(channel, data)
+  invoke: (channel: string, data?: any) => ipcRenderer.invoke(channel, data),
+  sendSync: (channel: string, key: any) => ipcRenderer.sendSync(channel, key)
 })
 
 contextBridge.exposeInMainWorld('shell', {

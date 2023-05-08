@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import styles from './Panels.module.css'
 import React from 'react'
-import { colors } from '@renderer/modules/Colors'
+import colors from '@renderer/modules/Colors'
 
 interface FastestLapProps {
   fastestLap: string | null

@@ -347,7 +347,9 @@ app.on('before-quit', () => {
   session.defaultSession.clearCache()
 })
 
-ipcMain.handle('get-store', () => store.store)
+ipcMain.on('get-store', (event, key) => {
+  event.returnValue = store.get(key)
+})
 
 ipcMain.handle('set-config', (_event, config) => {
   store.set('config', config)

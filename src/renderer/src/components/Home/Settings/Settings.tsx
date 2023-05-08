@@ -12,9 +12,8 @@ const Settings = ({ extended }: SettingsProps) => {
 
   useEffect(() => {
     if (settings) return
-    window.ipcRenderer.invoke('get-store').then((data) => {
-      setSettings(data.config)
-    })
+
+    setSettings(window.ipcRenderer.sendSync('get-store', 'config') ?? null)
   }, [])
 
   if (!settings) return <h1>Loading settings...</h1>
