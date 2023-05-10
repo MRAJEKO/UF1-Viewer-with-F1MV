@@ -1,12 +1,12 @@
 import { useEffect } from 'react'
 import { Topic } from 'npm_f1mv_api'
-import { ILiveTimingData } from '../types/LiveTimingDataTypes'
+import { ILiveTimingState } from '../types/LiveTimingStateTypes'
 
 const LiveTimingAPIGraphQL = window.mvApi.LiveTimingAPIGraphQL
 
 const LiveTiming = (
   topics: Topic[],
-  onDataReceived: (data: ILiveTimingData) => void,
+  onDataReceived: (data: ILiveTimingState) => void,
   updateFrequency: number
 ) => {
   useEffect(() => {
@@ -18,7 +18,7 @@ const LiveTiming = (
       const config = JSON.parse(configString)
 
       try {
-        const response: ILiveTimingData = await LiveTimingAPIGraphQL(config, topics)
+        const response: ILiveTimingState = await LiveTimingAPIGraphQL(config, topics)
 
         if (response) {
           onDataReceived(response)

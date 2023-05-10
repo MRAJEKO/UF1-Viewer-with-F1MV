@@ -1,9 +1,10 @@
 interface Props {
   time: string
   lap?: number
+  qualifyingPart?: number
 }
 
-const CardFooterSessionLog = ({ time, lap }: Props) => {
+const CardFooterSessionLog = ({ time, lap, qualifyingPart }: Props) => {
   return (
     <div
       style={{
@@ -19,7 +20,7 @@ const CardFooterSessionLog = ({ time, lap }: Props) => {
       }}
     >
       <p>{time}</p>
-      <p>Lap {lap}</p>
+      {(lap && <p>Lap {lap}</p>) || (qualifyingPart && <p>{qualifyingPart}</p>)}
     </div>
   )
 }

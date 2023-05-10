@@ -8,7 +8,7 @@ interface ISetting {
   value: boolean | string | number
 }
 
-interface ISessionLog {
+interface ISessionLogSettings {
   name: string
   settings: {
     always_on_top: ISetting
@@ -23,5 +23,5 @@ interface ISessionLog {
   }
 }
 
-export const sessionLog: ISessionLog | null =
+export const sessionLogSettings: ISessionLogSettings | null =
   window.ipcRenderer.sendSync('get-store', 'config')?.session_log ?? null

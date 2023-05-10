@@ -1,110 +1,160 @@
-import styles from '../components/SessionLog/SessionLog.module.css'
-import { sessionLog } from '../modules/Settings'
-import WindowHeader from '@renderer/components/WindowHeader'
-import MoveMode from '@renderer/components/MoveMode'
-import { useCallback, useEffect, useState } from 'react'
-import { IRaceControlMessage } from '@renderer/types/RaceControlMessagesTypes'
-import { ILiveTimingData } from '@renderer/types/LiveTimingDataTypes'
-import LiveTiming from '@renderer/hooks/useLiveTiming'
-import { ITrackStatus } from '@renderer/types/TrackStatusTypes'
-import SingleSessionLog from '@renderer/components/SessionLog/SingleCardSessionLog'
-import { TrackStatusColors } from '@renderer/constants/TrackStatusMappings'
+import { useCallback, useState } from 'react'
 import { CSSTransition, TransitionGroup } from 'react-transition-group'
+
+import { sessionLogSettings } from '../modules/Settings'
+
+import { IRaceControlMessage } from '@renderer/types/LiveTimingStateTypes'
+import { ILiveTimingState } from '@renderer/types/LiveTimingStateTypes'
+import { ITrackStatus } from '@renderer/types/LiveTimingStateTypes'
+import { ILapCount } from '@renderer/types/LiveTimingStateTypes'
+
+import { TrackStatusColors, TrackStatusText } from '@renderer/constants/TrackStatusMappings'
+
 import LiveTimingClock, { ILiveTimingClockData } from '@renderer/hooks/useLiveTimingClock'
+import LiveTiming from '@renderer/hooks/useLiveTiming'
+
+import { milisecondsToTime, timeToMiliseconds } from '@renderer/utils/convertTime'
+import { isWantedMessage } from '@renderer/utils/isWantedMessage'
 import { calculateTrackTime } from '@renderer/utils/trackTime'
-import { milisecondsToTime } from '@renderer/utils/convertTime'
-import { ILapCount } from '@renderer/types/LapCountTypes'
+
+import MoveMode from '@renderer/components/MoveMode'
+import WindowHeader from '@renderer/components/WindowHeader'
+import SingleCardSessionLog from '@renderer/components/SessionLog/SingleCardSessionLog'
+
+import styles from '../components/SessionLog/SessionLog.module.css'
 
 interface ISessionLog {
   time: number
+  key: string
   element: JSX.Element
 }
 
+const WANTED_CATEGORIES: IRaceControlMessage['SubCategory'][] = [
+  'LapTimeDeleted',
+  'TimePenalty',
+  'TrackSurfaceSlippery',
+  'PitEntry',
+  'PitExit',
+  'Drs',
+  'LowGripConditions',
+  'NormalGripConditions'
+]
+
 const SessionLog = () => {
-  const [raceControlMessages, setRaceControlMessages] = useState<IRaceControlMessage[] | null>(null)
+  const [raceControlMessages, setRaceControlMessages] = useState<IRaceControlMessage[]>([])
+
   const [trackStatus, setTrackStatus] = useState<ITrackStatus | null>(null)
-
-  const [liveTimingClockData, setLiveTimingClockData] = useState<ILiveTimingClockData | null>(null)
-
-  const [GmtOffset, setGmtOffset] = useState<string>('00:00:00')
 
   const [lapCount, setLapCount] = useState<ILapCount | null>(null)
 
+  const [liveTimingClockData, setLiveTimingClockData] = useState<ILiveTimingClockData | null>(null)
+
   const [logs, setLogs] = useState<ISessionLog[]>([])
 
-  const addLog = (log: JSX.Element) => {
-    const now = new Date().getTime()
-    const trackTime = liveTimingClockData
-      ? calculateTrackTime(now, liveTimingClockData, GmtOffset) ?? 0
-      : 0
-
-    setLogs([...logs, { time: trackTime, element: log }])
-  }
-
-  useEffect(() => {
-    if (liveTimingClockData?.trackTime) {
-      console.log(liveTimingClockData.trackTime)
-      console.log(logs)
-      setLogs([
-        ...logs.filter((log) => {
-          console.log(log.time)
-          log.time < parseInt(liveTimingClockData.trackTime)
-        })
-      ])
-    }
-  }, [liveTimingClockData?.trackTime])
-
   const handleDataReceived = useCallback(
-    (data: ILiveTimingData) => {
-      if (data?.SessionInfo?.GmtOffset && data?.SessionInfo?.GmtOffset !== GmtOffset)
-        setGmtOffset(data?.SessionInfo?.GmtOffset)
+    (data: ILiveTimingState) => {
+      if (!data) return
 
-      const dataRaceControlMessages = data?.RaceControlMessages?.Messages
+      let newLogs: ISessionLog[] = [...logs]
 
-      if (data?.LapCount && JSON.stringify(data?.LapCount) !== JSON.stringify(lapCount))
-        setLapCount(data?.LapCount)
+      const dataGmtOffset = data?.SessionInfo?.GmtOffset ?? '00:00:00'
 
-      if (
-        dataRaceControlMessages &&
-        JSON.stringify(dataRaceControlMessages) !== JSON.stringify(raceControlMessages)
-      ) {
-        const raceControlMessagesLength = raceControlMessages?.length
-        const dataRaceControlMessagesLength = dataRaceControlMessages?.length
+      const dataLapCount = data?.LapCount
+
+      const now = new Date().getTime()
+      const utcTime = liveTimingClockData ? calculateTrackTime(now, liveTimingClockData, null) : 0
+      const trackTime = liveTimingClockData
+        ? calculateTrackTime(now, liveTimingClockData, dataGmtOffset) ?? 0
+        : 0
+
+      if (!trackTime) return
+
+      if (dataLapCount && JSON.stringify(dataLapCount) !== JSON.stringify(lapCount))
+        setLapCount(dataLapCount)
+
+      const dataRaceControlMessages = data?.RaceControlMessages?.Messages.filter(
+        (raceControlMessage) => isWantedMessage(raceControlMessage, WANTED_CATEGORIES)
+      )
+
+      if (dataRaceControlMessages.length < raceControlMessages.length) {
         setRaceControlMessages(dataRaceControlMessages)
-        if (raceControlMessages)
-          dataRaceControlMessages.forEach((message) => {
-            // addLog(<p key={message.Utc}>{message.Message}</p>)
+        newLogs = [...newLogs.filter((log) => log.time <= utcTime)]
+      } else if (dataRaceControlMessages.length > raceControlMessages.length) {
+        const newRaceControlMessages = dataRaceControlMessages?.filter(
+          (message) =>
+            !raceControlMessages?.some(
+              (raceControlMessage) => JSON.stringify(raceControlMessage) === JSON.stringify(message)
+            )
+        )
+
+        setRaceControlMessages([...raceControlMessages, ...newRaceControlMessages])
+        newLogs = [
+          ...newLogs,
+          ...newRaceControlMessages.map((raceControlMessage: IRaceControlMessage) => {
+            const time = new Date(raceControlMessage.Utc + 'Z').getTime()
+
+            const sessionDataSeries = data?.SessionData?.Series
+
+            const lapSeriesIndex = sessionDataSeries
+              ? sessionDataSeries.findIndex((serie) => new Date(serie.Utc).getTime() > time) - 1
+              : -1
+
+            const lap = sessionDataSeries?.at(lapSeriesIndex)?.Lap
+
+            const qualifyingPart = sessionDataSeries?.at(lapSeriesIndex)?.QualifyingPart
+
+            const displayTime = milisecondsToTime(time + timeToMiliseconds(dataGmtOffset))
+
+            return {
+              time: time,
+              key: time + raceControlMessage.Message,
+              element: (
+                <SingleCardSessionLog
+                  title={raceControlMessage.Category}
+                  message={raceControlMessage.Message}
+                  color="#000000"
+                  time={displayTime}
+                  lap={lap}
+                  qualifyingPart={qualifyingPart}
+                />
+              )
+            }
           })
+        ]
       }
 
       const dataTrackStatus = data?.TrackStatus
 
       if (dataTrackStatus && JSON.stringify(dataTrackStatus) !== JSON.stringify(trackStatus)) {
         setTrackStatus(dataTrackStatus)
-        const now = new Date().getTime()
-        const trackTime = liveTimingClockData
-          ? calculateTrackTime(now, liveTimingClockData, GmtOffset) ?? 0
-          : 0
-
-        console.log(trackTime)
 
         if (trackStatus)
-          addLog(
-            <SingleSessionLog
-              title={'Track Status'}
-              color={TrackStatusColors[dataTrackStatus.Status]}
-              time={milisecondsToTime(trackTime)}
-              status={dataTrackStatus.Status}
-              lap={lapCount?.CurrentLap}
-            />
-          )
+          newLogs = [
+            ...newLogs,
+            {
+              time: utcTime,
+              key: utcTime + dataTrackStatus.Message,
+              element: (
+                <SingleCardSessionLog
+                  title={'Track Status'}
+                  color={TrackStatusColors[dataTrackStatus.Status]}
+                  time={milisecondsToTime(trackTime)}
+                  message={TrackStatusText[dataTrackStatus.Status]}
+                  lap={dataLapCount?.CurrentLap}
+                />
+              )
+            }
+          ]
       }
+
+      if (!logs.length || JSON.stringify(newLogs) !== JSON.stringify(logs))
+        setLogs([...newLogs.filter((log) => log.time <= trackTime)])
     },
-    [raceControlMessages, trackStatus, lapCount]
+    [raceControlMessages, lapCount, trackStatus, liveTimingClockData, logs]
   )
 
   LiveTiming(
-    ['RaceControlMessages', 'TrackStatus', 'SessionInfo', 'LapCount'],
+    ['RaceControlMessages', 'TrackStatus', 'SessionInfo', 'LapCount', 'SessionData'],
     handleDataReceived,
     500
   )
@@ -122,27 +172,27 @@ const SessionLog = () => {
     500
   )
 
-  console.log(raceControlMessages, trackStatus)
+  console.log(logs)
 
   return (
     <div className={styles.wrapper}>
       <MoveMode />
-      {sessionLog?.settings?.show_header?.value && <WindowHeader title="Session Log" />}
+      {sessionLogSettings?.settings?.show_header?.value && <WindowHeader title="Session Log" />}
       <TransitionGroup>
-        {logs.reverse().map((log) => (
-          <CSSTransition
-            key={log.time}
-            timeout={500}
-            classNames={{
-              enter: styles['card-item-enter'],
-              enterActive: styles['card-item-enter-active'],
-              exit: styles['card-item-exit'],
-              exitActive: styles['card-item-exit-active']
-            }}
-          >
-            {log.element}
-          </CSSTransition>
-        ))}
+        {logs
+          .sort((a, b) => b.time - a.time)
+          .map((log) => (
+            <CSSTransition
+              key={log.key}
+              timeout={600}
+              classNames={{
+                enter: styles['log-wrapper-item-enter'],
+                exitActive: styles['log-wrapper-item-exit-active']
+              }}
+            >
+              <div className={styles['log-wrapper']}>{log.element}</div>
+            </CSSTransition>
+          ))}
       </TransitionGroup>
     </div>
   )

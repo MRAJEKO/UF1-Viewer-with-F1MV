@@ -2,33 +2,28 @@
   height: 100vh;
 }
 
-.card {
-  width: 100%;
+.log-wrapper {
+  overflow: hidden;
+  transition: all 0.5s ease-in-out;
   height: 45vw;
+  margin-bottom: 5vw;
+}
+
+.card {
+  height: 45vw;
+  width: 100%;
   display: flex;
   flex-direction: column;
   border-radius: 7vw;
   overflow: hidden;
 }
 
-.card-item-enter {
-  opacity: 0;
-  transform: translateY(-100%);
-}
+.log-wrapper-item-enter {
+  height: 0 !important;
+  margin-bottom: 0 !important;
+} 
 
-.card-item-enter-active {
-  opacity: 1;
-  transform: translateY(0);
-  transition: opacity 500ms ease-in-out, transform 500ms ease-in-out;
-}
-
-.card-item-exit {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-.card-item-exit-active {
-  opacity: 1;
-  transform: translateY(-100%);
-  transition: opacity 500ms ease-in-out, transform 500ms ease-in-out;
+.log-wrapper-item-exit-active {
+  height: 0 !important;
+  margin-bottom: 0 !important;
 }
