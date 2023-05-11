@@ -331,7 +331,8 @@ const defaults = {
       red: '#d10000',
       yellow: '#ffe600',
       blue: '#2196f3',
-      orange: '#ff9800'
+      orange: '#ff9800',
+      highlighted: '#eaff00'
     },
     leds: {
       default: [255, 255, 255],
@@ -341,7 +342,8 @@ const defaults = {
       red: [209, 0, 0],
       purple: [185, 0, 185],
       black: [0, 0, 0]
-    }
+    },
+    sessionLogHexModifier: '91'
   },
   team_icons: {
     Mercedes: '../icons/teams/mercedes.png',

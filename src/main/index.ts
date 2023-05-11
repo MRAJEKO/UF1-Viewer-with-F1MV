@@ -321,7 +321,7 @@ const store = new Store({
       store.set('internal_settings', defaults.internal_settings)
 
       const oldLeds: any = store.get('led_colors')
-      store.set('colors', { general: { ...defaults.colors.general }, leds: oldLeds })
+      store.set('colors', { ...defaults.colors.general, leds: oldLeds })
 
       store.delete('led_colors')
 

@@ -1,12 +1,15 @@
+import Colors from '@renderer/modules/Colors'
+
 interface Props {
   title: string
+  highlighted?: boolean
 }
 
-const CardTitleSessionLog = ({ title }: Props) => {
+const CardTitleSessionLog = ({ title, highlighted }: Props) => {
   return (
     <p
       style={{
-        backgroundColor: 'white',
+        backgroundColor: highlighted ? Colors.highlighted : 'var(--white)',
         fontFamily: 'InterBold',
         fontSize: '5vw',
         textAlign: 'center',

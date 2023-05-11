@@ -2,22 +2,25 @@ import styles from './SessionLog.module.css'
 
 import CardTitleSessionLog from './CardTitleSessionLog'
 import CardFooterSessionLog from './CardFooterSessionLog'
+import { ILiveTimingState } from '@renderer/types/LiveTimingStateTypes'
 
 interface Props {
   title: string
   color: string
   time: string
   message: string
-  lap?: number
-  qualifyingPart?: number
+  highlighted?: boolean
+  data: ILiveTimingState
 }
-const SingleCardSessionLog = ({ title, color, time, message, lap, qualifyingPart }: Props) => {
+const SingleCardSessionLog = ({ title, color, time, message, highlighted, data }: Props) => {
+  console.log(message)
+
   return (
     <div className={styles.card}>
-      <CardTitleSessionLog title={title} />
+      <CardTitleSessionLog title={title} highlighted={highlighted} />
       <div
         style={{
-          backgroundColor: color + 'AA',
+          backgroundColor: color,
           color: 'white',
           fontFamily: 'InterBold',
           textShadow: '.5vw .5vw .5vw black',
@@ -29,7 +32,7 @@ const SingleCardSessionLog = ({ title, color, time, message, lap, qualifyingPart
       >
         {message}
       </div>
-      <CardFooterSessionLog time={time} lap={lap} qualifyingPart={qualifyingPart} />
+      <CardFooterSessionLog time={time} data={data} />
     </div>
   )
 }

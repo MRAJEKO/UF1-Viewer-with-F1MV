@@ -285,10 +285,6 @@ export interface ISessionInfo {
   Path: string
 }
 
-export interface IArchiveStatus {
-  Status: string
-}
-
 export interface IMeeting {
   Key: number
   Name: string

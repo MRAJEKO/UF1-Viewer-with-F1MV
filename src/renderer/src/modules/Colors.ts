@@ -12,4 +12,7 @@ export interface LedColors {
 
 export const ledColors: LedColors = window.ipcRenderer.sendSync('get-store', 'colors')?.leds ?? {}
 
+export const sessionLogHexModifier: string =
+  window.ipcRenderer.sendSync('get-store', 'colors')?.sessionLogHexModifier ?? ''
+
 export default window.ipcRenderer.sendSync('get-store', 'colors')?.general ?? ({} as Colors)
