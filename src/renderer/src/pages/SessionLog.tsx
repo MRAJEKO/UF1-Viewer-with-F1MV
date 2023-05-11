@@ -5,31 +5,19 @@ import { sessionLogSettings } from '../modules/Settings'
 
 import { IRaceControlMessage, ISessionSerie } from '@renderer/types/LiveTimingStateTypes'
 import { ILiveTimingState } from '@renderer/types/LiveTimingStateTypes'
-import { ITrackStatus } from '@renderer/types/LiveTimingStateTypes'
 import { ILapCount } from '@renderer/types/LiveTimingStateTypes'
-
-import {
-  StatusSeriesColorMappings,
-  StatusSeriesStatusMappings,
-  StatusSeriesTitleMappings,
-  TrackStatusColors,
-  TrackStatusText
-} from '@renderer/constants/StatusSeriesMappings'
 
 import LiveTimingClock, { ILiveTimingClockData } from '@renderer/hooks/useLiveTimingClock'
 import LiveTiming from '@renderer/hooks/useLiveTiming'
 
-import { milisecondsToTime } from '@renderer/utils/convertTime'
 import { isWantedMessage } from '@renderer/utils/isWantedMessage'
 import { calculateTrackTime } from '@renderer/utils/trackTime'
 
 import MoveMode from '@renderer/components/MoveMode'
 import WindowHeader from '@renderer/components/WindowHeader'
-import SingleCardSessionLog from '@renderer/components/SessionLog/SingleCardSessionLog'
 
 import styles from '../components/SessionLog/SessionLog.module.css'
 import GenerateRaceControlMessageLog from '@renderer/components/SessionLog/GenerateRaceControlMessageLog'
-import { sessionLogHexModifier } from '@renderer/modules/Colors'
 import { updateLogs } from '@renderer/utils/updateLogs'
 import GenerateStatusSerieSessionLog from '@renderer/components/SessionLog/GenerateStatusSerieSessionLog'
 
