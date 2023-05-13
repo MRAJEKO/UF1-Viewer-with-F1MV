@@ -3,22 +3,27 @@ import {
   StatusSeriesColorMappings,
   StatusSeriesStatusMappings
 } from '@renderer/constants/StatusSeriesMappings'
-import { sessionLogHexModifier } from '@renderer/modules/Colors'
-import { ILiveTimingState, ISessionSerie } from '@renderer/types/LiveTimingStateTypes'
+import Colors, { sessionLogHexModifier } from '@renderer/modules/Colors'
+import { ISessionData, ISessionInfo, ISessionSerie } from '@renderer/types/LiveTimingStateTypes'
 import SingleCardSessionLog from './SingleCardSessionLog'
 
-const GenerateStatusSerieSessionLog = (data: ILiveTimingState, sessionSerie: ISessionSerie) => {
+interface IData {
+  SessionInfo?: ISessionInfo
+  SessionData?: ISessionData
+}
+
+const GenerateStatusSerieSessionLog = (data: IData, statusSerie: ISessionSerie) => {
   const time = new Date(
-    sessionSerie.Utc.endsWith('Z') ? sessionSerie.Utc : sessionSerie.Utc + 'Z'
+    statusSerie.Utc.endsWith('Z') ? statusSerie.Utc : statusSerie.Utc + 'Z'
   ).getTime()
 
-  const key = Object.keys(sessionSerie).filter((key) => key !== 'Utc')[0]
+  const key = Object.keys(statusSerie).filter((key) => key !== 'Utc')[0]
 
   if (!key) return null
 
   const type = StatusSeriesTitleMappings[key]
 
-  const status = sessionSerie[key]
+  const status = statusSerie[key]
 
   if (!status) return null
 
@@ -28,8 +33,8 @@ const GenerateStatusSerieSessionLog = (data: ILiveTimingState, sessionSerie: ISe
     element: (
       <SingleCardSessionLog
         title={type}
-        color={StatusSeriesColorMappings[key][status] + sessionLogHexModifier}
-        time={sessionSerie.Utc}
+        color={(StatusSeriesColorMappings[key][status] ?? Colors.white) + sessionLogHexModifier}
+        time={statusSerie.Utc}
         message={StatusSeriesStatusMappings[key] ? StatusSeriesStatusMappings[key][status] : status}
         data={data}
       />

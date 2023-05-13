@@ -7,8 +7,8 @@ export const calculateTrackTime = (
   GmtOffset: string | null
 ) => {
   const systemTime = parseInt(liveTimingClockData?.systemTime)
-  const trackTime = parseInt(liveTimingClockData.trackTime)
-  const paused = liveTimingClockData.paused
+  const trackTime = parseInt(liveTimingClockData?.trackTime)
+  const paused = liveTimingClockData?.paused
 
   if (!GmtOffset) return paused ? trackTime : now - (systemTime - trackTime)
 

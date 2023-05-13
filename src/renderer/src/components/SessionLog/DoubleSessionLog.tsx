@@ -3,27 +3,30 @@ import styles from './SessionLog.module.css'
 import CardTitleSessionLog from './CardTitleSessionLog'
 import CardFooterSessionLog from './CardFooterSessionLog'
 import Colors from '@renderer/modules/Colors'
-import { ILiveTimingState } from '@renderer/types/LiveTimingStateTypes'
+import { ISessionData, ISessionInfo } from '@renderer/types/LiveTimingStateTypes'
 
 interface Props {
   title: string
   color1: string
   color2: string
-  time: string
-  item: string
-  message: string
-  subMessage: string | null
+  time: string | number
+  left: string
+  right: string
+  subInfo?: string | null
   highlighted?: boolean
-  data: ILiveTimingState
+  data: {
+    SessionInfo?: ISessionInfo
+    SessionData?: ISessionData
+  }
 }
-const DoubleSubTextSessionLog = ({
+const DoubleSessionLog = ({
   title,
   color1,
   color2,
   time,
-  item,
-  message,
-  subMessage,
+  left,
+  right,
+  subInfo,
   highlighted,
   data
 }: Props) => {
@@ -38,7 +41,7 @@ const DoubleSubTextSessionLog = ({
             borderColor: highlighted ? Colors.highlighted : 'var(--white)'
           }}
         >
-          {item}
+          {left}
         </div>
         <div
           className={styles['double-card-part']}
@@ -47,8 +50,8 @@ const DoubleSubTextSessionLog = ({
             borderColor: highlighted ? Colors.highlighted : 'var(--white)'
           }}
         >
-          <p>{message}</p>
-          {subMessage && <p style={{ fontSize: '5vw', opacity: 0.7 }}>{subMessage}</p>}
+          <p>{right}</p>
+          {subInfo && <p style={{ fontSize: '5vw', opacity: 0.7 }}>{subInfo}</p>}
         </div>
       </div>
       <CardFooterSessionLog time={time} data={data} />
@@ -56,4 +59,4 @@ const DoubleSubTextSessionLog = ({
   )
 }
 
-export default DoubleSubTextSessionLog
+export default DoubleSessionLog

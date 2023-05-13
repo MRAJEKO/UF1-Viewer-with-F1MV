@@ -1,27 +1,39 @@
-import { ILiveTimingState } from '@renderer/types/LiveTimingStateTypes'
+import { ISessionData, ISessionInfo } from '@renderer/types/LiveTimingStateTypes'
 import { milisecondsToTime, timeToMiliseconds } from '@renderer/utils/convertTime'
 
 interface Props {
-  time: string
-  data: ILiveTimingState
+  time: string | number | null
+  data: {
+    SessionInfo?: ISessionInfo
+    SessionData?: ISessionData
+  }
 }
 
 const CardFooterSessionLog = ({ time, data }: Props) => {
-  const timeMs = new Date(time.endsWith('Z') ? time : time + 'Z').getTime()
+  const timeMs = time
+    ? typeof time === 'number'
+      ? time
+      : new Date(time.endsWith('Z') ? time : time + 'Z').getTime()
+    : null
 
   const dataGmtOffset = data?.SessionInfo?.GmtOffset ?? '00:00:00'
 
   const sessionDataSeries = data?.SessionData?.Series
 
-  const seriesIndex = sessionDataSeries
-    ? sessionDataSeries.findIndex((serie) => new Date(serie.Utc).getTime() > timeMs)
-    : -1
+  const seriesIndex = timeMs
+    ? sessionDataSeries
+      ? sessionDataSeries.findIndex((serie) => new Date(serie.Utc).getTime() > timeMs)
+      : -1
+    : null
 
-  const lap = sessionDataSeries?.at(seriesIndex === -1 ? -1 : seriesIndex - 1)?.Lap
+  const { Lap, QualifyingPart } = seriesIndex
+    ? sessionDataSeries?.at(seriesIndex === -1 ? -1 : seriesIndex - 1) ?? {
+        Lap: null,
+        QualifyingPart: null
+      }
+    : { Lap: null, QualifyingPart: null }
 
-  const qualifyingPart = sessionDataSeries?.at(seriesIndex)?.QualifyingPart
-
-  const displayTime = milisecondsToTime(timeMs + timeToMiliseconds(dataGmtOffset))
+  const displayTime = timeMs ? milisecondsToTime(timeMs + timeToMiliseconds(dataGmtOffset)) : null
 
   return (
     <div
@@ -37,9 +49,9 @@ const CardFooterSessionLog = ({ time, data }: Props) => {
         borderTop: '0.5vw solid var(--white)'
       }}
     >
-      <p>{displayTime}</p>
-      {(lap && seriesIndex > 0 && <p>Lap {lap}</p>) ||
-        (qualifyingPart && seriesIndex > 0 && <p>Q{qualifyingPart}</p>)}
+      {time && <p>{displayTime}</p>}
+      {(Lap && seriesIndex !== 0 && <p>Lap {Lap}</p>) ||
+        (QualifyingPart && seriesIndex !== 0 && <p>Q{QualifyingPart}</p>)}
     </div>
   )
 }

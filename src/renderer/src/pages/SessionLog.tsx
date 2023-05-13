@@ -3,12 +3,20 @@ import { CSSTransition, TransitionGroup } from 'react-transition-group'
 
 import { sessionLogSettings } from '../modules/Settings'
 
-import { IRaceControlMessage, ISessionSerie } from '@renderer/types/LiveTimingStateTypes'
-import { ILiveTimingState } from '@renderer/types/LiveTimingStateTypes'
+import {
+  IDriverList,
+  IRaceControlMessage,
+  IRaceControlMessages,
+  ISessionData,
+  ISessionInfo,
+  ISessionSerie,
+  IStatusSerie,
+  ITimingData,
+  ITrackStatus
+} from '@renderer/types/LiveTimingStateTypes'
 import { ILapCount } from '@renderer/types/LiveTimingStateTypes'
 
-import LiveTimingClock, { ILiveTimingClockData } from '@renderer/hooks/useLiveTimingClock'
-import LiveTiming from '@renderer/hooks/useLiveTiming'
+import { ILiveTimingClockData } from '@renderer/hooks/useLiveTimingClock'
 
 import { isWantedMessage } from '@renderer/utils/isWantedMessage'
 import { calculateTrackTime } from '@renderer/utils/trackTime'
@@ -20,11 +28,28 @@ import styles from '../components/SessionLog/SessionLog.module.css'
 import GenerateRaceControlMessageLog from '@renderer/components/SessionLog/GenerateRaceControlMessageLog'
 import { updateLogs } from '@renderer/utils/updateLogs'
 import GenerateStatusSerieSessionLog from '@renderer/components/SessionLog/GenerateStatusSerieSessionLog'
+import LiveTimingStateClock from '@renderer/hooks/useLiveTimingStateClock'
+import GeneratePitlaneSessionLog, {
+  IDriverInPit
+} from '@renderer/components/SessionLog/GeneratePitlaneSessionLog'
+import DoubleSessionLog from '@renderer/components/SessionLog/DoubleSessionLog'
+import Colors, { sessionLogHexModifier } from '@renderer/modules/Colors'
+import GenerateSessionSerieSessionLog from '@renderer/components/SessionLog/GenerateSessionSerieSessionlog'
 
 interface ISessionLog {
   time: number
   key: string
   element: JSX.Element
+}
+
+interface IStateData {
+  RaceControlMessages?: IRaceControlMessages
+  TrackStatus?: ITrackStatus
+  SessionInfo?: ISessionInfo
+  LapCount?: ILapCount
+  SessionData?: ISessionData
+  TimingData?: ITimingData
+  DriverList?: IDriverList
 }
 
 const WANTED_CATEGORIES: (IRaceControlMessage['SubCategory'] | IRaceControlMessage['Category'])[] =
@@ -42,9 +67,15 @@ const WANTED_CATEGORIES: (IRaceControlMessage['SubCategory'] | IRaceControlMessa
   ]
 
 const SessionLog = () => {
+  const [sessionInfo, setSessionInfo] = useState<ISessionInfo>({} as ISessionInfo)
+
   const [raceControlMessages, setRaceControlMessages] = useState<IRaceControlMessage[]>([])
 
-  const [sessionStatusSeries, setSessionStatusSeries] = useState<ISessionSerie[]>([])
+  const [sessionSeries, setSessionSeries] = useState<ISessionSerie[]>([])
+
+  const [sessionStatusSeries, setSessionStatusSeries] = useState<IStatusSerie[]>([])
+
+  const [driversInPits, setDriversInPits] = useState<IDriverInPit[] | null>(null)
 
   const [lapCount, setLapCount] = useState<ILapCount | null>(null)
 
@@ -52,47 +83,66 @@ const SessionLog = () => {
 
   const [logs, setLogs] = useState<ISessionLog[]>([])
 
+  const [retiredDrivers, setRetiredDrivers] = useState<string[]>([])
+
   const handleDataReceived = useCallback(
-    (data: ILiveTimingState) => {
-      if (!data) return
+    (stateData: IStateData, clockData: ILiveTimingClockData) => {
+      if (!stateData || !clockData) return
+
+      const dataSessionInfo = stateData?.SessionInfo
+
+      if (dataSessionInfo && JSON.stringify(dataSessionInfo) !== JSON.stringify(sessionInfo)) {
+        setSessionInfo(dataSessionInfo)
+        setRaceControlMessages([])
+        setSessionSeries([])
+        setSessionStatusSeries([])
+        setDriversInPits(null)
+        setLapCount(null)
+        setRetiredDrivers([])
+        setLogs([])
+
+        return
+      }
+
+      if (JSON.stringify(clockData) !== JSON.stringify(liveTimingClockData))
+        setLiveTimingClockData(clockData)
 
       let newLogs: ISessionLog[] = [...logs]
 
-      const dataGmtOffset = data?.SessionInfo?.GmtOffset ?? '00:00:00'
-
-      const dataLapCount = data?.LapCount
+      const dataGmtOffset = stateData?.SessionInfo?.GmtOffset ?? '00:00:00'
 
       const now = new Date().getTime()
-      const utcTime = liveTimingClockData ? calculateTrackTime(now, liveTimingClockData, null) : 0
-      const trackTime = liveTimingClockData
-        ? calculateTrackTime(now, liveTimingClockData, dataGmtOffset) ?? 0
-        : 0
+      const utcTime = clockData ? calculateTrackTime(now, clockData, null) : 0
+      const trackTime = clockData ? calculateTrackTime(now, clockData, dataGmtOffset) ?? 0 : 0
 
       if (!trackTime) return
+
+      const dataLapCount = stateData?.LapCount
 
       if (dataLapCount && JSON.stringify(dataLapCount) !== JSON.stringify(lapCount))
         setLapCount(dataLapCount)
 
-      const dataRaceControlMessages = data?.RaceControlMessages?.Messages.filter(
+      const dataRaceControlMessages = stateData?.RaceControlMessages?.Messages?.filter(
         (raceControlMessage) => isWantedMessage(raceControlMessage, WANTED_CATEGORIES)
       )
 
-      if (dataRaceControlMessages.length !== raceControlMessages.length) {
+      if (
+        dataRaceControlMessages &&
+        dataRaceControlMessages.length !== raceControlMessages.length
+      ) {
         const { newData, modifiedLogs } = updateLogs(
           newLogs,
           dataRaceControlMessages,
           raceControlMessages,
           utcTime,
-          (raceControlMessage) => GenerateRaceControlMessageLog(data, raceControlMessage)
+          (raceControlMessage) => GenerateRaceControlMessageLog(stateData, raceControlMessage)
         )
-
-        console.log(modifiedLogs)
 
         setRaceControlMessages(newData)
         newLogs = modifiedLogs
       }
 
-      const dataSessionStatusSeries: ISessionSerie[] = data?.SessionData?.StatusSeries || []
+      const dataSessionStatusSeries: ISessionSerie[] = stateData?.SessionData?.StatusSeries || []
 
       if (dataSessionStatusSeries.length !== sessionStatusSeries.length) {
         const { newData, modifiedLogs } = updateLogs(
@@ -100,42 +150,124 @@ const SessionLog = () => {
           dataSessionStatusSeries,
           sessionStatusSeries,
           utcTime,
-          (sessionSerie) => GenerateStatusSerieSessionLog(data, sessionSerie)
+          (statusSerie) => GenerateStatusSerieSessionLog(stateData, statusSerie)
         )
-
-        console.log('newData', newData)
-        console.log('modifiedLogs', modifiedLogs)
 
         setSessionStatusSeries(newData)
         newLogs = modifiedLogs
       }
 
+      const dataSessionSeries: ISessionSerie[] = stateData?.SessionData?.Series || []
+
+      if (dataSessionSeries.length !== sessionSeries.length) {
+        const { newData, modifiedLogs } = updateLogs(
+          newLogs,
+          dataSessionSeries,
+          sessionSeries,
+          utcTime,
+          (sessionSerie) => GenerateSessionSerieSessionLog(stateData, sessionSerie)
+        )
+
+        setSessionSeries(newData)
+        newLogs = modifiedLogs
+      }
+
+      const dataDriversInPits: IDriverInPit[] = Object.values(
+        stateData.TimingData?.Lines ?? []
+      )?.map((driver) => {
+        return {
+          driverNumber: driver.RacingNumber,
+          inPit: driver.InPit
+        }
+      })
+
+      if (!driversInPits) {
+        setDriversInPits(dataDriversInPits)
+      } else if (
+        stateData.DriverList &&
+        JSON.stringify(dataDriversInPits) !== JSON.stringify(driversInPits)
+      ) {
+        setDriversInPits(dataDriversInPits)
+        newLogs = [
+          ...newLogs,
+          ...GeneratePitlaneSessionLog(stateData, dataDriversInPits, driversInPits, utcTime)
+        ]
+      }
+
+      const dataRetiredDrivers: string[] = Object.keys(stateData.TimingData?.Lines ?? {}).filter(
+        (driver) =>
+          stateData.TimingData?.Lines[driver].Retired || stateData.TimingData?.Lines[driver].Stopped
+      )
+
+      if (dataRetiredDrivers.length > retiredDrivers.length) {
+        setRetiredDrivers(dataRetiredDrivers)
+        newLogs = [
+          ...newLogs,
+          ...dataRetiredDrivers
+            .filter((driver) => !retiredDrivers.includes(driver))
+            .map((driver) => {
+              const driverInfo = stateData.DriverList?.[driver]
+
+              const driverTimingData = stateData.TimingData?.Lines?.[driver]
+
+              const teamColour = '#' + driverInfo?.TeamColour ?? Colors.black
+
+              const driverName =
+                driverInfo?.FirstName && driverInfo?.LastName
+                  ? `${driverInfo.FirstName} ${driverInfo.LastName}`
+                  : driverInfo?.Tla ?? 'Unknown'
+
+              return {
+                time: utcTime,
+                key: driver + 'retired',
+                element: (
+                  <DoubleSessionLog
+                    title="Car Status"
+                    color1={teamColour + sessionLogHexModifier}
+                    color2={Colors.red + sessionLogHexModifier}
+                    time={utcTime}
+                    left={driverName}
+                    right={driverTimingData?.Retired ? 'Retired' : 'Stopped'}
+                    data={stateData}
+                  />
+                )
+              }
+            })
+        ]
+      } else if (dataRetiredDrivers.length < retiredDrivers.length) {
+        setRetiredDrivers(dataRetiredDrivers)
+
+        newLogs = [
+          ...newLogs.filter(
+            (log) =>
+              !(
+                retiredDrivers.includes(log.key.split('retired')[0]) &&
+                !dataRetiredDrivers.includes(log.key.split('retired')[0])
+              )
+          )
+        ]
+      }
+
       if (!logs.length || JSON.stringify(newLogs) !== JSON.stringify(logs))
-        setLogs([...newLogs.filter((log) => (!log ? false : log.time <= trackTime))])
+        setLogs([...newLogs.filter((log) => (!log ? false : log.time <= utcTime))])
     },
-    [raceControlMessages, sessionStatusSeries, lapCount, liveTimingClockData, logs]
+    [raceControlMessages, sessionStatusSeries, driversInPits, lapCount, liveTimingClockData, logs]
   )
 
-  LiveTiming(
-    ['RaceControlMessages', 'TrackStatus', 'SessionInfo', 'LapCount', 'SessionData'],
-    handleDataReceived,
-    500
-  )
-
-  const handleClockDataRevieved = useCallback(
-    (data: ILiveTimingClockData) => {
-      if (JSON.stringify(data) !== JSON.stringify(liveTimingClockData)) setLiveTimingClockData(data)
-    },
-    [liveTimingClockData]
-  )
-
-  LiveTimingClock(
+  LiveTimingStateClock(
+    [
+      'RaceControlMessages',
+      'TrackStatus',
+      'SessionInfo',
+      'LapCount',
+      'SessionData',
+      'TimingData',
+      'DriverList'
+    ],
     ['paused', 'liveTimingStartTime', 'systemTime', 'trackTime'],
-    handleClockDataRevieved,
-    500
+    handleDataReceived,
+    250
   )
-
-  console.log(logs)
 
   return (
     <div className={styles.wrapper}>

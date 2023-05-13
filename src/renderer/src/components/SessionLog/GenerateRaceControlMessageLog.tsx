@@ -1,14 +1,18 @@
 import {
   IDriverList,
-  ILiveTimingState,
-  IRaceControlMessage
+  IRaceControlMessage,
+  ISessionData,
+  ISessionInfo
 } from '@renderer/types/LiveTimingStateTypes'
-import DoubleSubTextSessionLog from './DoubleSubTextSessionLog'
+import DoubleSessionLog from './DoubleSessionLog'
 import Colors, { sessionLogHexModifier } from '@renderer/modules/Colors'
 
 const baseImageUrl = 'src/renderer/src/assets/icons'
 
-const getDriver = (driverList: IDriverList, message: IRaceControlMessage['Message']) => {
+const getDriver = (
+  driverList: IDriverList | undefined,
+  message: IRaceControlMessage['Message']
+) => {
   if (!driverList) return undefined
   const driver = [
     Object.keys(driverList).find((driver) =>
@@ -20,10 +24,13 @@ const getDriver = (driverList: IDriverList, message: IRaceControlMessage['Messag
   return undefined
 }
 
-const GenerateRaceControlMessageLog = (
-  data: ILiveTimingState,
-  raceControlMessage: IRaceControlMessage
-) => {
+interface IData {
+  DriverList?: IDriverList
+  SessionInfo?: ISessionInfo
+  SessionData?: ISessionData
+}
+
+const GenerateRaceControlMessageLog = (data: IData, raceControlMessage: IRaceControlMessage) => {
   const time = new Date(
     raceControlMessage.Utc.endsWith('Z') ? raceControlMessage.Utc : raceControlMessage.Utc + 'Z'
   ).getTime()
@@ -54,7 +61,7 @@ const GenerateRaceControlMessageLog = (
         time: time,
         key: time + raceControlMessage.Message,
         element: (
-          <DoubleSubTextSessionLog
+          <DoubleSessionLog
             title="DRS"
             color1={Colors.green + sessionLogHexModifier}
             color2={
@@ -62,11 +69,9 @@ const GenerateRaceControlMessageLog = (
               sessionLogHexModifier
             }
             time={raceControlMessage.Utc}
-            item="DRS"
-            message={raceControlMessage.Flag}
-            subMessage={
-              message.indexOf('ZONE') > -1 ? message.slice(message.indexOf('ZONE')) : null
-            }
+            left="DRS"
+            right={raceControlMessage.Flag}
+            subInfo={message.indexOf('ZONE') > -1 ? message.slice(message.indexOf('ZONE')) : null}
             data={data}
           />
         )

@@ -2,19 +2,22 @@ import styles from './SessionLog.module.css'
 
 import CardTitleSessionLog from './CardTitleSessionLog'
 import CardFooterSessionLog from './CardFooterSessionLog'
-import { ILiveTimingState } from '@renderer/types/LiveTimingStateTypes'
+import { ISessionData, ISessionInfo } from '@renderer/types/LiveTimingStateTypes'
+
+interface IData {
+  SessionInfo?: ISessionInfo
+  SessionData?: ISessionData
+}
 
 interface Props {
   title: string
   color: string
-  time: string
+  time: string | null
   message: string
   highlighted?: boolean
-  data: ILiveTimingState
+  data: IData
 }
 const SingleCardSessionLog = ({ title, color, time, message, highlighted, data }: Props) => {
-  console.log(message)
-
   return (
     <div className={styles.card}>
       <CardTitleSessionLog title={title} highlighted={highlighted} />

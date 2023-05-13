@@ -21,7 +21,7 @@ export const TrackStatusText = {
 
 export const StatusSeriesTitleMappings = {
   TrackStatus: 'Track Status',
-  SessionStatus: 'Flag Status'
+  SessionStatus: 'Session Status'
 }
 
 export const StatusSeriesStatusMappings = {
@@ -45,6 +45,7 @@ export const StatusSeriesColorMappings = {
     VSCEnding: TrackStatusColors['7']
   },
   SessionStatus: {
+    Inactive: colors.white,
     Started: colors.green,
     Finished: colors.white,
     Finalised: colors.white,

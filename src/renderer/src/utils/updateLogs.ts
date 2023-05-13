@@ -2,11 +2,9 @@ export const updateLogs = (newLogs, dataInfo, currentInfo, utcTime, mapFunction)
   let newData: any = []
   let modifiedLogs: any = []
 
-  console.log(dataInfo.length, currentInfo.length)
-
   if (dataInfo.length < currentInfo.length) {
     newData = dataInfo
-    modifiedLogs = [...newLogs.filter((log) => log.time <= utcTime)]
+    modifiedLogs = [...newLogs.filter((log) => (log?.time ?? 0) <= utcTime)]
   } else if (dataInfo.length > currentInfo.length) {
     const newDataInfo = dataInfo?.filter(
       (message) =>
