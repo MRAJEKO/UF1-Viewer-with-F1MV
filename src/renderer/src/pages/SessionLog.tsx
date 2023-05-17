@@ -4,6 +4,7 @@ import { CSSTransition, TransitionGroup } from 'react-transition-group'
 import { sessionLogSettings } from '../modules/Settings'
 
 import {
+  ICarData,
   IDriverList,
   IRaceControlMessage,
   IRaceControlMessages,
@@ -30,11 +31,14 @@ import { updateLogs } from '@renderer/utils/updateLogs'
 import GenerateStatusSerieSessionLog from '@renderer/components/SessionLog/GenerateStatusSerieSessionLog'
 import LiveTimingStateClock from '@renderer/hooks/useLiveTimingStateClock'
 import GeneratePitlaneSessionLog, {
-  IDriverInPit
+  IDriversPitStatuses,
+  IDriverPitStatuses
 } from '@renderer/components/SessionLog/GeneratePitlaneSessionLog'
 import DoubleSessionLog from '@renderer/components/SessionLog/DoubleSessionLog'
 import Colors, { sessionLogHexModifier } from '@renderer/modules/Colors'
 import GenerateSessionSerieSessionLog from '@renderer/components/SessionLog/GenerateSessionSerieSessionlog'
+import { isDoingPracticeStart } from '@renderer/utils/isDoingPracticeStart'
+import { getDriverInfo } from '@renderer/utils/getDriverInfo'
 
 interface ISessionLog {
   time: number
@@ -50,6 +54,7 @@ interface IStateData {
   SessionData?: ISessionData
   TimingData?: ITimingData
   DriverList?: IDriverList
+  CarData?: ICarData
 }
 
 const WANTED_CATEGORIES: (IRaceControlMessage['SubCategory'] | IRaceControlMessage['Category'])[] =
@@ -71,11 +76,13 @@ const SessionLog = () => {
 
   const [raceControlMessages, setRaceControlMessages] = useState<IRaceControlMessage[]>([])
 
+  const [practiceStartDrivers, setPracticeStartDrivers] = useState<string[]>([])
+
   const [sessionSeries, setSessionSeries] = useState<ISessionSerie[]>([])
 
   const [sessionStatusSeries, setSessionStatusSeries] = useState<IStatusSerie[]>([])
 
-  const [driversInPits, setDriversInPits] = useState<IDriverInPit[] | null>(null)
+  const [driversPitStatuses, setDriversPitStatuses] = useState<IDriversPitStatuses | null>(null)
 
   const [lapCount, setLapCount] = useState<ILapCount | null>(null)
 
@@ -94,9 +101,10 @@ const SessionLog = () => {
       if (dataSessionInfo && JSON.stringify(dataSessionInfo) !== JSON.stringify(sessionInfo)) {
         setSessionInfo(dataSessionInfo)
         setRaceControlMessages([])
+        setPracticeStartDrivers([])
         setSessionSeries([])
         setSessionStatusSeries([])
-        setDriversInPits(null)
+        setDriversPitStatuses(null)
         setLapCount(null)
         setRetiredDrivers([])
         setLogs([])
@@ -172,26 +180,41 @@ const SessionLog = () => {
         newLogs = modifiedLogs
       }
 
-      const dataDriversInPits: IDriverInPit[] = Object.values(
-        stateData.TimingData?.Lines ?? []
-      )?.map((driver) => {
-        return {
-          driverNumber: driver.RacingNumber,
-          inPit: driver.InPit
-        }
-      })
+      const dataDriversInPits: IDriversPitStatuses = Object.values(
+        stateData?.TimingData?.Lines ?? {}
+      )
+        .map((driver) => {
+          const driverNumber = driver.RacingNumber
 
-      if (!driversInPits) {
-        setDriversInPits(dataDriversInPits)
+          const driverPitStatuses = driversPitStatuses?.[driverNumber]
+
+          const filteredData = driverPitStatuses?.filter(
+            (driversPitStatus) => driversPitStatus.time <= utcTime
+          )
+
+          const lastPitStatus = filteredData?.[filteredData.length - 1]
+
+          if (lastPitStatus?.inPit !== driver.InPit) {
+            return {
+              [driverNumber]: [...(filteredData ?? []), { time: utcTime, inPit: driver.InPit }]
+            }
+          }
+
+          return { [driverNumber]: filteredData }
+        })
+        .filter((item): item is { [key: string]: IDriverPitStatuses[] } => item !== null)
+        .reduce((acc, curr) => ({ ...acc, ...curr }), {})
+
+      if (!driversPitStatuses) {
+        setDriversPitStatuses(dataDriversInPits)
       } else if (
         stateData.DriverList &&
-        JSON.stringify(dataDriversInPits) !== JSON.stringify(driversInPits)
+        JSON.stringify(dataDriversInPits) !== JSON.stringify(driversPitStatuses)
       ) {
-        setDriversInPits(dataDriversInPits)
-        newLogs = [
-          ...newLogs,
-          ...GeneratePitlaneSessionLog(stateData, dataDriversInPits, driversInPits, utcTime)
-        ]
+        console.log('dataDriversInPits', dataDriversInPits)
+        setDriversPitStatuses(dataDriversInPits)
+
+        newLogs = [...newLogs, ...GeneratePitlaneSessionLog(stateData, dataDriversInPits, utcTime)]
       }
 
       const dataRetiredDrivers: string[] = Object.keys(stateData.TimingData?.Lines ?? {}).filter(
@@ -210,7 +233,11 @@ const SessionLog = () => {
 
               const driverTimingData = stateData.TimingData?.Lines?.[driver]
 
-              const teamColour = '#' + driverInfo?.TeamColour ?? Colors.black
+              console.log(driverInfo?.TeamColour)
+
+              const teamColour = driverInfo?.TeamColour
+                ? '#' + driverInfo?.TeamColour
+                : Colors.black
 
               const driverName =
                 driverInfo?.FirstName && driverInfo?.LastName
@@ -248,10 +275,54 @@ const SessionLog = () => {
         ]
       }
 
+      if (stateData?.SessionInfo?.Type === 'Practice') {
+        const dataPracticeStartDrivers = Object.keys(stateData.TimingData?.Lines ?? {}).filter(
+          (driver) => isDoingPracticeStart(driver, stateData.CarData, stateData.TimingData)
+        )
+
+        if (dataPracticeStartDrivers.length > practiceStartDrivers.length) {
+          setPracticeStartDrivers(dataPracticeStartDrivers)
+          newLogs = [
+            ...newLogs,
+            ...dataPracticeStartDrivers
+              .filter((driver) => !practiceStartDrivers.includes(driver))
+              .map((driver) => {
+                const { teamColour, driverName } = getDriverInfo(driver, stateData.DriverList)
+
+                return {
+                  time: utcTime,
+                  key: driver + 'practiceStart',
+                  element: (
+                    <DoubleSessionLog
+                      title="Pitlane"
+                      color1={teamColour + sessionLogHexModifier}
+                      color2={Colors.green + sessionLogHexModifier}
+                      time={utcTime}
+                      left={driverName}
+                      right={'PRACTICE'}
+                      subInfo={'START'}
+                      data={stateData}
+                    />
+                  )
+                }
+              })
+          ]
+        } else if (dataPracticeStartDrivers.length < practiceStartDrivers.length)
+          setPracticeStartDrivers(dataPracticeStartDrivers)
+      }
+
       if (!logs.length || JSON.stringify(newLogs) !== JSON.stringify(logs))
         setLogs([...newLogs.filter((log) => (!log ? false : log.time <= utcTime))])
     },
-    [raceControlMessages, sessionStatusSeries, driversInPits, lapCount, liveTimingClockData, logs]
+    [
+      raceControlMessages,
+      sessionStatusSeries,
+      driversPitStatuses,
+      lapCount,
+      liveTimingClockData,
+      logs,
+      practiceStartDrivers
+    ]
   )
 
   LiveTimingStateClock(
@@ -262,7 +333,8 @@ const SessionLog = () => {
       'LapCount',
       'SessionData',
       'TimingData',
-      'DriverList'
+      'DriverList',
+      'CarData'
     ],
     ['paused', 'liveTimingStartTime', 'systemTime', 'trackTime'],
     handleDataReceived,

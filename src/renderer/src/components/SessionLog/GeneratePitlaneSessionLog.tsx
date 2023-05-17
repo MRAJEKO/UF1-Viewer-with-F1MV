@@ -14,30 +14,39 @@ interface IData {
   SessionData?: ISessionData
 }
 
-export interface IDriverInPit {
-  driverNumber: string
+export interface IDriversPitStatuses {
+  [key: string]: IDriverPitStatuses[]
+}
+
+export interface IDriverPitStatuses {
+  time: number
   inPit: boolean
 }
 
 const GeneratePitlaneSessionLog = (
   data: IData,
-  dataDriversInPits: IDriverInPit[],
-  driversInPits: IDriverInPit[],
+  dataDriversInPits: IDriversPitStatuses,
   utcTime: number
 ) => {
   if (!data.DriverList || !data.TimingData) return []
-  return dataDriversInPits
-    .filter(
-      (dataDriver) =>
-        dataDriver.inPit !==
-        driversInPits.find((driver) => driver.driverNumber === dataDriver.driverNumber)?.inPit
-    )
+
+  return Object.keys(dataDriversInPits)
+    .filter((dataDriver) => {
+      const dataLastDriverInPits = dataDriversInPits[dataDriver]?.slice(-1)[0]
+
+      const driverTimingdata = data.TimingData?.Lines?.[dataDriver]
+
+      return (
+        dataLastDriverInPits?.inPit === driverTimingdata?.InPit &&
+        dataLastDriverInPits?.time === utcTime
+      )
+    })
     .map((driver) => {
-      const driverNumber = driver.driverNumber
+      const driverNumber = driver
 
       const driverInfo = data.DriverList?.[driverNumber]
 
-      const teamColour = '#' + driverInfo?.TeamColour ?? Colors.black
+      const teamColour = driverInfo?.TeamColour ? '#' + driverInfo?.TeamColour : Colors.black
 
       const driverName =
         driverInfo?.FirstName && driverInfo?.LastName

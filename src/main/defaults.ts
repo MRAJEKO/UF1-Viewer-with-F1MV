@@ -331,6 +331,7 @@ const defaults = {
       red: '#d10000',
       yellow: '#ffe600',
       blue: '#2196f3',
+      darkblue: '#0d47a1',
       orange: '#ff9800',
       highlighted: '#eaff00'
     },

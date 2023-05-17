@@ -77,6 +77,48 @@ const GenerateRaceControlMessageLog = (data: IData, raceControlMessage: IRaceCon
         )
       }
     }
+
+    case 'PitEntry': {
+      return {
+        time: time,
+        key: time + raceControlMessage.Message,
+        element: (
+          <DoubleSessionLog
+            title="Pitlane"
+            color1={Colors.darkblue + sessionLogHexModifier}
+            color2={
+              (raceControlMessage.Flag === 'CLOSED' ? Colors.red : Colors.green) +
+              sessionLogHexModifier
+            }
+            time={raceControlMessage.Utc}
+            left="Pit Entry"
+            right={raceControlMessage.Flag}
+            data={data}
+          />
+        )
+      }
+    }
+
+    case 'PitExit': {
+      return {
+        time: time,
+        key: time + raceControlMessage.Message,
+        element: (
+          <DoubleSessionLog
+            title="Pitlane"
+            color1={Colors.darkblue + sessionLogHexModifier}
+            color2={
+              (raceControlMessage.Flag === 'CLOSED' ? Colors.red : Colors.green) +
+              sessionLogHexModifier
+            }
+            time={raceControlMessage.Utc}
+            left="Pit Exit"
+            right={raceControlMessage.Flag}
+            data={data}
+          />
+        )
+      }
+    }
   }
 
   return null
