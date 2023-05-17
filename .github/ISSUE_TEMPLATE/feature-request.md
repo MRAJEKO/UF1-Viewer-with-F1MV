@@ -1,7 +1,7 @@
 ---
 name: Feature Request
 about: A feature you would like to see integrated
-title: "[FEATURE]"
+title: ""
 labels: Feature Request
 assignees: ''
 
