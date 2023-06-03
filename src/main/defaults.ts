@@ -504,6 +504,18 @@ const defaults = {
         aspectRatio: null,
         icon: 'icons/windows/currentlaps.png'
       },
+      teamradios: {
+        path: 'teamradios',
+        width: 250,
+        height: 800,
+        frame: false,
+        hideMenuBar: true,
+        transparent: true,
+        hasShadow: false,
+        alwaysOnTop: null,
+        aspectRatio: null,
+        icon: 'icons/windows/teamradios.png'
+      },
       battlemode: {
         path: 'battlemode',
         width: 1300,

@@ -25,6 +25,7 @@ const Windows = () => {
       <Window onPress={launchF1MV} name="Track Rotation Compass" />
       <Window onPress={launchF1MV} name="Tire Statistics" />
       <Window onPress={launchF1MV} name="Current Push Laps" />
+      <Window onPress={() => openWindow('teamradios')} name="Team Radio's" />
       <Window onPress={launchF1MV} name="Battle Mode" />
       <Window onPress={launchF1MV} name="Weather Information" />
       <NewWindowSection name="BETA" />

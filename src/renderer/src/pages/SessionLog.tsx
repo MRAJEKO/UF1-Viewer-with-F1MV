@@ -29,7 +29,7 @@ import styles from '../components/SessionLog/SessionLog.module.css'
 import GenerateRaceControlMessageLog from '@renderer/components/SessionLog/GenerateRaceControlMessageLog'
 import { updateLogs } from '@renderer/utils/updateLogs'
 import GenerateStatusSerieSessionLog from '@renderer/components/SessionLog/GenerateStatusSerieSessionLog'
-import LiveTimingStateClock from '@renderer/hooks/useLiveTimingStateClock'
+import useLiveTimingStateClock from '@renderer/hooks/useLiveTimingStateClock'
 import GeneratePitlaneSessionLog, {
   IDriversPitStatuses,
   IDriverPitStatuses
@@ -325,7 +325,7 @@ const SessionLog = () => {
     ]
   )
 
-  LiveTimingStateClock(
+  useLiveTimingStateClock(
     [
       'RaceControlMessages',
       'TrackStatus',

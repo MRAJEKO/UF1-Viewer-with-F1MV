@@ -10,6 +10,7 @@ import FlagDisplay from './pages/FlagDisplay'
 import TrackTime from './pages/TrackTime'
 import SessionLog from './pages/SessionLog'
 import TrackInfo from './pages/TrackInfo'
+import TeamRadios from "./pages/TeamRadios"
 
 const router = createBrowserRouter([
   {
@@ -31,7 +32,11 @@ const router = createBrowserRouter([
   {
     path: '/trackinfo',
     element: <TrackInfo />
-  }
+  },
+  {
+    path: '/teamradios',
+    element: <TeamRadios />
+  },
 ])
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(

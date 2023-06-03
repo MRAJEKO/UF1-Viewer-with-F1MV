@@ -6,7 +6,7 @@ const LiveTimingAPIGraphQL = window.mvApi.LiveTimingAPIGraphQL
 
 const LiveTiming = (
   topics: Topic[],
-  onDataReceived: (data: ILiveTimingState) => void,
+  onDataReceived: (data: any) => void,
   updateFrequency: number
 ) => {
   useEffect(() => {

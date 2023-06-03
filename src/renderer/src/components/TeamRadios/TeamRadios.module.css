@@ -1,0 +1,47 @@
+.container {
+  background-color: var(--black-translucent);
+  color: white;
+  width: 100vw;
+  height: 100vh;
+  border-radius: 10vw;
+  /* -webkit-app-region: drag; */
+}
+
+.animation.running {
+  animation-play-state: running !important;
+  animation-name: progress;
+}
+
+.animation {
+  animation-direction: normal;
+  height: 100%;
+  position: absolute;
+  animation-name: unset;
+  background-color: red;
+  animation-timing-function: linear;
+  top: 0;
+  left: 0;
+}
+
+.bar {
+  padding: 50px;
+  background: blue;
+  margin-bottom: 10px;
+  position: relative;
+}
+
+.bar p {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+@keyframes progress {
+  0% {
+    width: 0%;
+  }
+  100% {
+    width: 100%;
+  }
+}

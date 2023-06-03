@@ -1,4 +1,6 @@
 export const timeToMiliseconds = (time) => {
+  if (!time) return 0
+
   const [seconds, minutes, hours] = time
     .split(':')
     .reverse()
