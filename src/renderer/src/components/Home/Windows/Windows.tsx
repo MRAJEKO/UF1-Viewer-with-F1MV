@@ -18,7 +18,7 @@ const Windows = () => {
       <Window onPress={() => openWindow('flag_display')} name="Flag Display" />
       <Window onPress={() => openWindow('tracktime')} name="Delayed Track Time" />
       <Window onPress={() => openWindow('session_log')} name="Session Log" />
-      <Window onPress={launchF1MV} name="Track Information" />
+      <Window onPress={() => openWindow('trackinfo')} name="Track Information" />
       <Window onPress={launchF1MV} name="Sector Statuses" />
       <Window onPress={launchF1MV} name="Single Race Control Message" />
       <Window onPress={launchF1MV} name="Crash Detection" />

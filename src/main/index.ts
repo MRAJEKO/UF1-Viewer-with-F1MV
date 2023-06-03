@@ -355,13 +355,23 @@ ipcMain.handle('set-config', (_event, config) => {
   store.set('config', config)
 })
 
+const getSize = (windowProperties: windowProperties) => {
+  const config = store.get('config')
+  switch (windowProperties.path) {
+    case 'trackinfo':
+      const horizontal: boolean = config.trackinfo.settings.orientation.value === 'horizontal'
+      return { width: horizontal ? 900 : 250, height: horizontal ? 100 : 800 }
+  }
+
+  return { width: windowProperties.width, height: windowProperties.height }
+}
+
 ipcMain.handle('open-window', (_event, window) => {
   const windowProperties: windowProperties = store.store.internal_settings.windows[window]
 
   const newWindow = new BrowserWindow({
     autoHideMenuBar: windowProperties.hideMenuBar,
-    width: windowProperties.width,
-    height: windowProperties.height,
+    ...getSize(windowProperties),
     frame: windowProperties.frame,
     transparent: windowProperties.transparent,
     hasShadow: windowProperties.hasShadow,

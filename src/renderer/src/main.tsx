@@ -9,6 +9,7 @@ import HomePage from './pages/Home'
 import FlagDisplay from './pages/FlagDisplay'
 import TrackTime from './pages/TrackTime'
 import SessionLog from './pages/SessionLog'
+import TrackInfo from './pages/TrackInfo'
 
 const router = createBrowserRouter([
   {
@@ -26,6 +27,10 @@ const router = createBrowserRouter([
   {
     path: '/session_log',
     element: <SessionLog />
+  },
+  {
+    path: '/trackinfo',
+    element: <TrackInfo />
   }
 ])
 
