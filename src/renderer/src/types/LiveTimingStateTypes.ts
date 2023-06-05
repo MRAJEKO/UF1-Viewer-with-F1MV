@@ -162,6 +162,7 @@ export interface IDriver {
   Reference?: string
   CountryCode: string
   NameFormat?: 'LastNameIsPrimary' | string
+  HeadshotUrl?: string
 }
 
 export interface IExtrapolatedClock {

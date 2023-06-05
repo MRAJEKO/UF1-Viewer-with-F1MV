@@ -40,8 +40,12 @@ const TeamRadio = ({ sessionPath, driverInfo, utc, path, gmtOffset = 0 }: IProps
   }
 
   return (
-    <div onClick={handlePress} className={styles.bar}>
-      <AnimationBar duration={duration} isPlaying={isPlaying} />
+    <div
+      onClick={handlePress}
+      className={`${styles.bar} ${isPlaying ? styles.expand : ''}`}
+      style={{ background: `#${driverInfo.TeamColour}50` ?? '#000000' }}
+    >
+      <AnimationBar driverInfo={driverInfo} duration={duration} isPlaying={isPlaying} />
       <RadioInfo driverInfo={driverInfo} utc={utc} gmtOffset={gmtOffset} duration={duration} />
     </div>
   )

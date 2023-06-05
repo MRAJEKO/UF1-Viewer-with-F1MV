@@ -9,6 +9,7 @@ import {
 } from '@renderer/types/LiveTimingStateTypes'
 import { timeToMiliseconds } from '@renderer/utils/convertTime'
 import { useState } from 'react'
+import { TransitionGroup, CSSTransition } from 'react-transition-group'
 
 interface IStateData {
   SessionInfo: ISessionInfo
@@ -32,7 +33,7 @@ const TeamRadios = () => {
     if (JSON.stringify(stateData.DriverList) !== JSON.stringify(driverList))
       setDriverList(stateData.DriverList)
 
-    if (teamRadios.length !== dataTeamRadios.length) setTeamRadios(dataTeamRadios)
+    if (teamRadios.length !== dataTeamRadios.length) setTeamRadios(dataTeamRadios.reverse())
   }
 
   useLiveTiming(['TeamRadio', 'DriverList', 'SessionInfo'], handleDataReceived, 500)
@@ -41,16 +42,28 @@ const TeamRadios = () => {
 
   return (
     <div className={styles.container}>
-      {teamRadios.reverse().map((radio) => (
-        <TeamRadio
-          key={radio.Path}
-          sessionPath={sessionInfo?.Path}
-          path={radio.Path}
-          driverInfo={driverList[radio.RacingNumber]}
-          utc={radio.Utc}
-          gmtOffset={timeToMiliseconds(sessionInfo?.GmtOffset)}
-        />
-      ))}
+      <TransitionGroup>
+        {teamRadios.map((radio) => (
+          <CSSTransition
+            key={radio.Path}
+            timeout={500}
+            classNames={{
+              enter: styles['radio-wrapper-enter'],
+              exitActive: styles['radio-wrapper-exit-active']
+            }}
+          >
+            <div className={styles['bar-wrapper']}>
+              <TeamRadio
+                sessionPath={sessionInfo?.Path}
+                path={radio.Path}
+                driverInfo={driverList[radio.RacingNumber]}
+                utc={radio.Utc}
+                gmtOffset={timeToMiliseconds(sessionInfo?.GmtOffset)}
+              />
+            </div>
+          </CSSTransition>
+        ))}
+      </TransitionGroup>
     </div>
   )
 }

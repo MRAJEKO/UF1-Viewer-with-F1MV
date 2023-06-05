@@ -1,5 +1,4 @@
 .container {
-  background-color: var(--black-translucent);
   color: white;
   width: 100vw;
   height: 100vh;
@@ -7,6 +6,128 @@
   /* -webkit-app-region: drag; */
 }
 
+.container:has(.expand) .bar-wrapper {
+  height: 0;
+  margin-bottom: 0 !important;
+}
+
+/* Entry animation */
+
+.radio-wrapper-enter {
+  height: 0px !important;
+  margin-bottom: 0 !important;
+}
+
+.radio-wrapper-exit-active {
+  height: 0 !important;
+  margin-bottom: 0 !important;
+}
+
+.expand {
+  height: 100vh !important;
+}
+
+.bar-wrapper {
+  height: 35vw;
+  width: 100%;
+  overflow: hidden;
+  margin-bottom: 10px;
+  transition: all 0.5s ease;
+  top: auto;
+  font-family: 'InterBold', sans-serif;
+  background-color: var(--black-translucent);
+  border-radius: 5vw;
+}
+
+.bar-wrapper:has(.bar.expand) {
+  transition: all 0.5s ease;
+  height: 100vh;
+  /* position: fixed; */
+  margin-bottom: 0;
+  z-index: 2;
+}
+
+.bar {
+  position: relative;
+  transition: all 0.5s ease;
+  height: 100%;
+}
+
+.radio-info {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 85%;
+  height: 23vw;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 5vw;
+  transition: all 0.5s ease;
+}
+
+.info .name {
+  text-shadow: 0.5vw 0.5vw 0.5vw black;
+  display: flex;
+  gap: 1.5vw;
+  justify-content: start;
+}
+
+.headshot .name {
+  opacity: 0;
+  transition: all 0.5s ease;
+  font-size: 8vw;
+  place-self: start;
+  margin-top: 3vw;
+  margin-left: 3vw;
+  text-shadow: 0.5vw 0.5vw 0.5vw black;
+}
+
+.headshot .name p:nth-child(1) {
+  font-size: 6vw;
+  font-family: 'InterBold', sans-serif;
+  opacity: 0.6;
+}
+
+.bar .headshot {
+  position: relative;
+  width: 25%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  transition: all 0.5s ease;
+  align-self: flex-start;
+}
+
+.radio-info .info {
+  display: flex;
+  width: 70%;
+  flex-direction: column;
+  gap: 2vw;
+  font-size: 5.5vw;
+  overflow: hidden;
+  transition: all 0.5s ease;
+  white-space: nowrap;
+}
+
+.bar .headshot img {
+  width: 100%;
+}
+
+.line {
+  height: 0.5vw;
+  border-radius: 2vw;
+  width: 100%;
+}
+
+.times {
+  font-size: 4.5vw;
+  opacity: 0.5;
+}
+
+/* Animation */
 .animation.running {
   animation-play-state: running !important;
   animation-name: progress;
@@ -17,24 +138,25 @@
   height: 100%;
   position: absolute;
   animation-name: unset;
-  background-color: red;
   animation-timing-function: linear;
   top: 0;
   left: 0;
 }
 
-.bar {
-  padding: 50px;
-  background: blue;
-  margin-bottom: 10px;
-  position: relative;
+.bar.expand .radio-info {
+  height: 95%;
 }
 
-.bar p {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+.bar.expand .radio-info .info {
+  width: 0;
+}
+
+.bar.expand .headshot {
+  width: 100%;
+}
+
+.bar.expand .headshot .name {
+  opacity: 1;
 }
 
 @keyframes progress {

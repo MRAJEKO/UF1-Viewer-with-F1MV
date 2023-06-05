@@ -1,4 +1,5 @@
 import { IDriver } from '@renderer/types/LiveTimingStateTypes'
+import styles from './TeamRadios.module.css'
 import { milisecondsToTime } from '@renderer/utils/convertTime'
 
 interface IProps {
@@ -8,13 +9,55 @@ interface IProps {
   duration?: number
 }
 
+// {(Math.round(duration || 0) % 60).toString().padStart(2, '0')}
+// {Math.floor(Math.round(duration || 0) / 60)}:
+// {milisecondsToTime(new Date(utc).getTime() + gmtOffset)}
+
 const RadioInfo = ({ driverInfo, utc, gmtOffset, duration }: IProps) => {
-  return (
-    <p>
-      {driverInfo.FullName} {milisecondsToTime(new Date(utc).getTime() + gmtOffset)}{' '}
-      {Math.floor(Math.round(duration || 0) / 60)}:
-      {(Math.round(duration || 0) % 60).toString().padStart(2, '0')}
+  const teamColor = driverInfo?.TeamColour ? `#${driverInfo?.TeamColour}` : '#ffffff'
+  const { FirstName, LastName, Tla } = driverInfo
+
+  const headshot = driverInfo.HeadshotUrl?.replace('1col', '12col')
+
+  const name = (
+    <p
+      className={styles.name}
+      style={{
+        flexDirection: driverInfo?.NameFormat === 'LastNameIsPrimary' ? 'row-reverse' : 'row'
+      }}
+    >
+      <p>{FirstName ?? ''}</p>
+      <p style={{ color: teamColor }}>{LastName?.toUpperCase()}</p>
     </p>
+  )
+
+  const durationText = `${Math.floor(Math.round(duration || 0) / 60)}:${(
+    Math.round(duration || 0) % 60
+  )
+    .toString()
+    .padStart(2, '0')}`
+
+  console.log(headshot)
+
+  return (
+    <div className={styles['radio-info']}>
+      <div className={styles.headshot}>
+        <img src={headshot} alt={`${FirstName} ${LastName}`} />
+        <div style={{ background: teamColor }} className={styles.line}></div>
+        {name}
+      </div>
+      <div className={styles.info}>
+        {name}
+        <div className={styles.times}>
+          <p>
+            {milisecondsToTime(new Date(utc).getTime() ?? 0 + gmtOffset) ?? ''}
+            {' | '}
+            {durationText}
+          </p>
+          <p></p>
+        </div>
+      </div>
+    </div>
   )
 }
 
