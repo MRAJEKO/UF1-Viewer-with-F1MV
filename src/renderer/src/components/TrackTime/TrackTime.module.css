@@ -9,4 +9,5 @@
   font-size: 18vw;
   border-radius: 5vw;
   -webkit-app-region: drag;
+  font-variant-numeric: tabular-nums;
 }
