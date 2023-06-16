@@ -1,0 +1,10 @@
+.container {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+}
+
+.container select {
+  width: 100% !important;
+}

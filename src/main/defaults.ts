@@ -1,3 +1,5 @@
+import keybinds from './keybinds'
+
 const defaults = {
   config: {
     general: {
@@ -316,6 +318,48 @@ const defaults = {
             'Comma separated list of drivers to keep on display always. Example: VER,LEC,HAM.',
           type: 'text',
           value: ''
+        }
+      }
+    },
+    teamradios: {
+      name: "Team Radio's",
+      settings: {
+        always_on_top: {
+          title: 'Always on top',
+          description: 'Keep this window always on top.',
+          type: 'switch',
+          value: true
+        },
+        autoplay: {
+          title: 'Autoplay',
+          description: "Automatically play new team radio's when they come through.",
+          type: 'switch',
+          value: true
+        },
+        hide_footer: {
+          title: 'Hide Footer',
+          description: 'Hide the footer of the window.',
+          type: 'switch',
+          value: false
+        },
+        minimize_animations: {
+          title: 'Minimize Animations',
+          description: 'Minimizing animations when playing onboard radios.',
+          type: 'switch',
+          value: false
+        },
+        mute_streams: {
+          title: 'Mute Streams',
+          description: 'Mute the streams when playing onboard radios.',
+          type: 'switch',
+          value: false
+        },
+        pause_keybind: {
+          title: 'Pause keybind',
+          description: 'The keybind to pause the radio.',
+          type: 'multiselect',
+          value: [null, null, null],
+          options: keybinds
         }
       }
     }

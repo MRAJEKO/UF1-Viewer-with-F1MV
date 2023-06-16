@@ -3,11 +3,16 @@ import styles from './Select.module.css'
 interface SelectProps {
   id: string
   value: string
-  options: {
-    value: string | number | boolean
-    title: string
-  }[]
-  updateSetting: (value: string | boolean | number) => void
+  options:
+    | {
+        value: any
+        title: string
+      }[]
+    | {
+        value: any
+        title: string
+      }[][]
+  updateSetting: (value: any) => void
 }
 
 const Select = ({ id, value, options, updateSetting }: SelectProps) => {
@@ -20,7 +25,7 @@ const Select = ({ id, value, options, updateSetting }: SelectProps) => {
       onChange={(event) => updateSetting(event.target.value)}
     >
       {options.map((option) => (
-        <option key={option.value.toString()} value={option.value.toString()}>
+        <option key={option?.value?.toString() ?? ''} value={option?.value?.toString() ?? ''}>
           {option.title}
         </option>
       ))}

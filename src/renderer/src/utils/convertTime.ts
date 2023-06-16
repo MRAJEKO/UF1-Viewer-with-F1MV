@@ -35,3 +35,13 @@ export const milisecondsToDaysTime = (ms) => {
 
   return `${days}:${hours}:${minutes}:${seconds}`
 }
+
+export const timezoneToMiliseconds = (timezone) => {
+  if (!timezone.endsWith('Z')) timezone += 'Z'
+  const [hours, minutes, seconds] = timezone
+    .split('T')[1]
+    .split(':')
+    .map((number) => parseInt(number))
+
+  return hours * 3600000 + minutes * 60000 + seconds * 1000
+}

@@ -9,10 +9,6 @@ interface IProps {
   duration?: number
 }
 
-// {(Math.round(duration || 0) % 60).toString().padStart(2, '0')}
-// {Math.floor(Math.round(duration || 0) / 60)}:
-// {milisecondsToTime(new Date(utc).getTime() + gmtOffset)}
-
 const RadioInfo = ({ driverInfo, utc, gmtOffset, duration }: IProps) => {
   const teamColor = driverInfo?.TeamColour ? `#${driverInfo?.TeamColour}` : '#ffffff'
   const { FirstName, LastName, Tla } = driverInfo
@@ -20,15 +16,15 @@ const RadioInfo = ({ driverInfo, utc, gmtOffset, duration }: IProps) => {
   const headshot = driverInfo.HeadshotUrl?.replace('1col', '12col')
 
   const name = (
-    <p
+    <div
       className={styles.name}
       style={{
         flexDirection: driverInfo?.NameFormat === 'LastNameIsPrimary' ? 'row-reverse' : 'row'
       }}
     >
       <p>{FirstName ?? ''}</p>
-      <p style={{ color: teamColor }}>{LastName?.toUpperCase()}</p>
-    </p>
+      <p style={{ color: teamColor }}>{LastName?.toUpperCase() ?? Tla}</p>
+    </div>
   )
 
   const durationText = `${Math.floor(Math.round(duration || 0) / 60)}:${(
@@ -36,8 +32,6 @@ const RadioInfo = ({ driverInfo, utc, gmtOffset, duration }: IProps) => {
   )
     .toString()
     .padStart(2, '0')}`
-
-  console.log(headshot)
 
   return (
     <div className={styles['radio-info']}>
@@ -54,7 +48,6 @@ const RadioInfo = ({ driverInfo, utc, gmtOffset, duration }: IProps) => {
             {' | '}
             {durationText}
           </p>
-          <p></p>
         </div>
       </div>
     </div>

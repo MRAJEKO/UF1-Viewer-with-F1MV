@@ -2,17 +2,23 @@ import styles from './Settings.module.css'
 import Switch from './inputs/Switch'
 import Input from './inputs/Input'
 import Select from './inputs/Select'
+import MultiSelect from './inputs/MultiSelect'
 
 interface SettingProps {
   id: string
   title: string
   description: string
   type: string
-  value: string | number | boolean
-  options?: {
-    value: string | number | boolean
-    title: string
-  }[]
+  value: any
+  options?:
+    | {
+        value: any
+        title: string
+      }[]
+    | {
+        value: any
+        title: string
+      }[][]
   updateSetting: (setting: string, value: string | boolean | number) => void
 }
 
@@ -52,6 +58,14 @@ const Setting = ({ id, title, description, type, value, options, updateSetting }
             updateSetting={(value) => updateSetting(id, value)}
             id={id}
             value={value.toString()}
+            options={options ?? []}
+          />
+        )}
+        {type === 'multiselect' && (
+          <MultiSelect
+            updateSetting={(value) => updateSetting(id, value)}
+            id={id}
+            value={value}
             options={options ?? []}
           />
         )}

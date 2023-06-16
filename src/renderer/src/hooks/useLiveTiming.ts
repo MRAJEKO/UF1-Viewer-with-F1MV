@@ -6,10 +6,12 @@ const LiveTimingAPIGraphQL = window.mvApi.LiveTimingAPIGraphQL
 
 const LiveTiming = (
   topics: Topic[],
-  onDataReceived: (data: any) => void,
+  onDataReceived: (data: any, firstPatch: boolean) => void,
   updateFrequency: number
 ) => {
   useEffect(() => {
+    let count = 0
+
     const fetchData = async () => {
       const configString = localStorage.getItem('config')
 
@@ -21,8 +23,10 @@ const LiveTiming = (
         const response: ILiveTimingState = await LiveTimingAPIGraphQL(config, topics)
 
         if (response) {
-          onDataReceived(response)
+          onDataReceived(response, count === 0)
         }
+
+        count++
       } catch (error) {
         console.log(error)
       }

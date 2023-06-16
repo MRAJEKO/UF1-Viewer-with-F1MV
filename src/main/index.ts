@@ -1,4 +1,4 @@
-import { app, shell, BrowserWindow, ipcMain, session } from 'electron'
+import { app, shell, BrowserWindow, ipcMain, session, globalShortcut } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import Store from 'electron-store'
@@ -342,6 +342,8 @@ const store = new Store({
       )
 
       store.set('internal_settings.windows.tracktime.aspectRatio', 3.5)
+
+      store.set('config.teamradios', defaults.config.teamradios)
     }
   },
   defaults: defaults
@@ -411,3 +413,15 @@ ipcMain.handle('open-solid-window', (_event, color) => {
 })
 
 ipcMain.handle('clear-cache', () => session.defaultSession.clearCache())
+
+ipcMain.on('initialize-keybind', (event, keybind) => {
+  console.log('Initialize keybind', keybind)
+  globalShortcut.register(keybind, () => {
+    event.sender.send('keybind-pressed')
+  })
+})
+
+ipcMain.on('remove-keybind', (_event, keybind) => {
+  console.log('Remove keybind', keybind)
+  globalShortcut.unregister(keybind)
+})

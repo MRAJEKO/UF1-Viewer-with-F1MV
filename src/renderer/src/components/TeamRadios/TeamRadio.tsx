@@ -10,11 +10,27 @@ interface IProps {
   utc: string
   path: string
   gmtOffset?: number
+  play: boolean
+  onAudioStop: () => void
+  onAudioStart: () => void
+  autoplay?: boolean
+  animations: boolean
 }
 
 const baseUrl = 'https://livetiming.formula1.com/static/'
 
-const TeamRadio = ({ sessionPath, driverInfo, utc, path, gmtOffset = 0 }: IProps) => {
+const TeamRadio = ({
+  sessionPath,
+  driverInfo,
+  utc,
+  path,
+  gmtOffset = 0,
+  play,
+  onAudioStop,
+  onAudioStart,
+  autoplay = false,
+  animations
+}: IProps) => {
   const [duration, setDuration] = useState<number>(0)
   const [isPlaying, setIsPlaying] = useState<boolean>(false)
   const audioRef = useRef<HTMLAudioElement | null>(null)
@@ -25,27 +41,47 @@ const TeamRadio = ({ sessionPath, driverInfo, utc, path, gmtOffset = 0 }: IProps
     audioRef.current = audio
   }, [])
 
+  const playAudio = () => {
+    audioRef?.current?.load()
+    audioRef?.current?.play()
+    setIsPlaying(true)
+    audioRef?.current?.addEventListener('ended', () => {
+      setIsPlaying(false)
+      onAudioStop()
+    })
+  }
+
+  useEffect(() => {
+    if (autoplay && play && !isPlaying) playAudio()
+  }, [autoplay, play])
+
   if (!audioRef.current) return null
 
   const handlePress = () => {
-    if (!isPlaying) {
-      audioRef?.current?.load()
-      audioRef?.current?.play()
-      setIsPlaying(true)
-      audioRef?.current?.addEventListener('ended', () => setIsPlaying(false))
-    } else {
-      audioRef?.current?.pause()
-      setIsPlaying(false)
+    if (play) {
+      if (!isPlaying) {
+        playAudio()
+        onAudioStart()
+      } else {
+        audioRef?.current?.pause()
+        setIsPlaying(false)
+        onAudioStop()
+      }
     }
   }
+
+  if (isPlaying && !play) audioRef?.current?.pause()
+  else if (isPlaying && play) audioRef?.current?.play()
 
   return (
     <div
       onClick={handlePress}
-      className={`${styles.bar} ${isPlaying ? styles.expand : ''}`}
-      style={{ background: `#${driverInfo.TeamColour}50` ?? '#000000' }}
+      className={`${styles.bar} ${isPlaying && animations ? styles.expand : ''}`}
+      style={{
+        background: `#${driverInfo.TeamColour}50` ?? '#000000'
+      }}
     >
-      <AnimationBar driverInfo={driverInfo} duration={duration} isPlaying={isPlaying} />
+      <AnimationBar play={play} driverInfo={driverInfo} duration={duration} isPlaying={isPlaying} />
       <RadioInfo driverInfo={driverInfo} utc={utc} gmtOffset={gmtOffset} duration={duration} />
     </div>
   )

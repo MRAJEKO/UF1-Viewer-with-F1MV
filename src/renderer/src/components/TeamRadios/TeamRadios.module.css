@@ -2,8 +2,10 @@
   color: white;
   width: 100vw;
   height: 100vh;
-  border-radius: 10vw;
+  border-radius: 5vw;
   /* -webkit-app-region: drag; */
+  overflow: scroll;
+  padding-bottom: 20vw;
 }
 
 .container:has(.expand) .bar-wrapper {
@@ -24,7 +26,7 @@
 }
 
 .expand {
-  height: 100vh !important;
+  height: 100% !important;
 }
 
 .bar-wrapper {
@@ -37,6 +39,8 @@
   font-family: 'InterBold', sans-serif;
   background-color: var(--black-translucent);
   border-radius: 5vw;
+  user-select: none;
+  cursor: pointer;
 }
 
 .bar-wrapper:has(.bar.expand) {
@@ -127,13 +131,47 @@
   opacity: 0.5;
 }
 
+.footer {
+  position: fixed;
+  width: 100vw;
+  height: 20vw;
+  bottom: 0;
+  border-radius: 0 0 5vw 5vw;
+  background-color: var(--dark-gray);
+  color: var(--light-gray);
+  font-family: 'InterBold', sans-serif;
+  border-top: var(--light-gray) 0.5vw solid;
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+  gap: 3vw;
+  padding: 0 3vw;
+}
+
+.status-button {
+  all: unset;
+  border-radius: 10vw;
+  background-color: var(--gray-translucent);
+  padding: 3vw;
+  font-size: 5vw;
+  width: 100%;
+  text-align: center;
+  user-select: none;
+  cursor: pointer;
+}
+
+.animation.paused {
+  animation-play-state: paused !important;
+}
+
 /* Animation */
 .animation.running {
-  animation-play-state: running !important;
-  animation-name: progress;
+  animation-play-state: running;
+  animation-name: progress !important;
 }
 
 .animation {
+  animation-play-state: paused;
   animation-direction: normal;
   height: 100%;
   position: absolute;
@@ -143,8 +181,13 @@
   left: 0;
 }
 
+.container:has(.bar.expand) {
+  padding: 0;
+}
+
 .bar.expand .radio-info {
   height: 95%;
+  gap: 0;
 }
 
 .bar.expand .radio-info .info {
