@@ -1,5 +1,6 @@
 import { ISessionData, ISessionInfo } from '@renderer/types/LiveTimingStateTypes'
 import { milisecondsToTime, timeToMiliseconds } from '@renderer/utils/convertTime'
+import styles from './SessionLog.module.scss'
 
 interface Props {
   time: string | number | null
@@ -36,19 +37,7 @@ const CardFooterSessionLog = ({ time, data }: Props) => {
   const displayTime = timeMs ? milisecondsToTime(timeMs + timeToMiliseconds(dataGmtOffset)) : null
 
   return (
-    <div
-      style={{
-        backgroundColor: 'var(--black-translucent)',
-        color: 'white',
-        display: 'grid',
-        gridTemplateColumns: '1fr 1fr',
-        placeItems: 'center',
-        padding: '3vw 0',
-        fontSize: '5vw',
-        fontFamily: 'InterMedium',
-        borderTop: '0.5vw solid var(--white)'
-      }}
-    >
+    <div className={styles['card-footer']}>
       {time && <p>{displayTime}</p>}
       {(Lap && seriesIndex !== 0 && <p>Lap {Lap}</p>) ||
         (QualifyingPart && seriesIndex !== 0 && <p>Q{QualifyingPart}</p>)}

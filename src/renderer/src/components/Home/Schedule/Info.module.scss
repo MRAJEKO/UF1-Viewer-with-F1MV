@@ -1,5 +1,7 @@
+@use '@renderer/assets/colors.scss' as Colors;
+
 .wrapper {
-  color: var(--white);
+  color: Colors.$white;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -36,5 +38,5 @@
 .event-name {
   font-family: 'InterMedium', sans-serif;
   font-size: 14px;
-  color: var(--light-gray);
+  color: Colors.$light-gray;
 }

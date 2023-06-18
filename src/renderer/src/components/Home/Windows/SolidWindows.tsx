@@ -1,5 +1,5 @@
-import styles from './SolidWindows.module.css'
-import windowStyles from './Windows.module.css'
+import styles from './SolidWindows.module.scss'
+import windowStyles from './Windows.module.scss'
 
 import SolidWindow from './SolidWindow'
 

@@ -1,3 +1,5 @@
+@use '@renderer/assets/colors.scss' as Colors;
+
 .container {
   display: flex;
   width: 300px;
@@ -11,21 +13,21 @@
   display: flex;
   flex-direction: column;
   justify-content: space-evenly;
-  background-color: var(--darker-gray);
+  background-color: Colors.$darker-gray;
   border-radius: 5px;
   text-align: center;
   padding: 5px 0;
 }
 
 .counter {
-  color: var(--white);
+  color: Colors.$white;
   font-family: 'InterBold', sans-serif;
   font-size: 25px;
   font-variant-numeric: tabular-nums;
 }
 
 .counter-name {
-  color: var(--light-gray);
+  color: Colors.$light-gray;
   font-family: 'InterMedium', sans-serif;
   font-size: 10px;
 }

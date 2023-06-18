@@ -1,6 +1,6 @@
 import { IDriver } from '@renderer/types/LiveTimingStateTypes'
 import { useEffect, useRef, useState } from 'react'
-import styles from './TeamRadios.module.css'
+import styles from './TeamRadios.module.scss'
 import AnimationBar from './AnimationBar'
 import RadioInfo from './RadioInfo'
 

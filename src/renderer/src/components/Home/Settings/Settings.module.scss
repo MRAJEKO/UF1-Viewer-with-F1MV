@@ -1,3 +1,5 @@
+@use '@renderer/assets/colors.scss' as Colors;
+
 .container {
   width: 100%;
   display: flex;
@@ -17,14 +19,14 @@ section.settings {
   width: 100vw;
   max-height: 0;
   overflow: hidden;
-  background-color: var(--black-translucent) !important;
+  background-color: Colors.$black-translucent !important;
 }
 
 .session-part {
-  background-color: var(--gray-translucent);
+  background-color: Colors.$gray-translucent;
   width: 90%;
   border-radius: 20px;
-  border: 2px solid var(--light-gray);
+  border: 2px solid Colors.$light-gray;
   padding: 10px 15px;
 }
 
@@ -54,7 +56,7 @@ section.settings {
 .setting-header p {
   font-family: 'InterMedium';
   font-size: 12px;
-  color: var(--lighter-gray);
+  color: Colors.$lighter-gray;
   margin: 0;
 }
 

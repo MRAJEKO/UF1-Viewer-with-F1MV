@@ -1,5 +1,5 @@
 import { IDriver } from '@renderer/types/LiveTimingStateTypes'
-import styles from './TeamRadios.module.css'
+import styles from './TeamRadios.module.scss'
 
 interface IProps {
   play: boolean

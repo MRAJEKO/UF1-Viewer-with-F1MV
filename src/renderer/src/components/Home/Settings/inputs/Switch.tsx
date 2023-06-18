@@ -1,4 +1,4 @@
-import styles from './Switch.module.css'
+import styles from './Switch.module.scss'
 
 interface SwitchProps {
   id: string

@@ -1,4 +1,4 @@
-import styles from './Timer.module.css'
+import styles from './Timer.module.scss'
 
 interface Props {
   timer: string | null

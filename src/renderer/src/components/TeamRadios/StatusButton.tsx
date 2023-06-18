@@ -1,4 +1,4 @@
-import styles from './TeamRadios.module.css'
+import styles from './TeamRadios.module.scss'
 
 interface IProps {
   name: string

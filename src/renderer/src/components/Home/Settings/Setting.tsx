@@ -1,4 +1,4 @@
-import styles from './Settings.module.css'
+import styles from './Settings.module.scss'
 import Switch from './inputs/Switch'
 import Input from './inputs/Input'
 import Select from './inputs/Select'

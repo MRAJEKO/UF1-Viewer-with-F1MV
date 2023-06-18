@@ -1,5 +1,5 @@
 import { useRef, useEffect } from 'react'
-import styles from './Windows.module.css'
+import styles from './Windows.module.scss'
 import { connectionStatuses } from '../../../hooks/useConnectionStatuses'
 import { launchF1MV } from '../../../utils/launchF1MV'
 import useLiveSession from '../../../hooks/useLiveSession'

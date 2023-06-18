@@ -1,4 +1,4 @@
-import styles from './SessionLog.module.css'
+import styles from './SessionLog.module.scss'
 
 import CardTitleSessionLog from './CardTitleSessionLog'
 import CardFooterSessionLog from './CardFooterSessionLog'

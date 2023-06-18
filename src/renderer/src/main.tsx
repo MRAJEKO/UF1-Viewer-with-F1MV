@@ -1,16 +1,16 @@
 import ReactDOM from 'react-dom/client'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 
-import './assets/index.css'
-import './assets/fonts.css'
-import './assets/colors.css'
+import './assets/index.scss'
+import './assets/fonts.scss'
+import './assets/colors.scss'
 
 import HomePage from './pages/Home'
 import FlagDisplay from './pages/FlagDisplay'
 import TrackTime from './pages/TrackTime'
 import SessionLog from './pages/SessionLog'
 import TrackInfo from './pages/TrackInfo'
-import TeamRadios from "./pages/TeamRadios"
+import TeamRadios from './pages/TeamRadios'
 
 const router = createBrowserRouter([
   {
@@ -36,7 +36,7 @@ const router = createBrowserRouter([
   {
     path: '/teamradios',
     element: <TeamRadios />
-  },
+  }
 ])
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(

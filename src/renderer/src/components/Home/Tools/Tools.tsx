@@ -1,11 +1,11 @@
 import { useState } from 'react'
 
 import { connectionStatuses } from '../../../hooks/useConnectionStatuses'
-import styles from './Tools.module.css'
+import styles from './Tools.module.scss'
 import layoutsIcon from '../../../assets/icons/layout.png'
 import restoreIcon from '../../../assets/icons/restore.png'
 import settingsIcon from '../../../assets/icons/settings.png'
-import windowsStyles from '../Windows/Windows.module.css'
+import windowsStyles from '../Windows/Windows.module.scss'
 
 interface ToolsProps {
   openLayouts: () => void

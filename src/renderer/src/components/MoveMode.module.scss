@@ -1,10 +1,12 @@
+@use '@renderer/assets/colors.scss' as Colors;
+
 .container {
   height: 100vh;
   width: 100vw;
   z-index: 100;
   position: fixed;
-  background-color: var(--black-heavy-translucent);
-  border: 1vw solid white;
+  background-color: Colors.$black-heavy-translucent;
+  border: 1vw solid Colors.$white;
   border-radius: 4vw;
   display: flex;
   flex-direction: column;
@@ -14,7 +16,7 @@
 }
 
 .container p {
-  color: white;
+  color: Colors.$white;
 }
 
 .container .title {
@@ -28,7 +30,7 @@
   margin-top: 5vw;
   font-size: 5vw;
   transform: skew(-10deg);
-  color: var(--light-gray);
+  color: Colors.$light-gray;
 }
 
 .container .description .key {

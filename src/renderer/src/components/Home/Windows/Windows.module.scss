@@ -1,8 +1,10 @@
+@use '@renderer/assets/colors.scss' as Colors;
+
 .new-window-section {
   display: flex;
   width: 60%;
   justify-content: space-evenly;
-  color: var(--lighter-gray) !important;
+  color: Colors.$lighter-gray !important;
   font-size: 12px;
   align-items: center;
   white-space: nowrap;
@@ -16,13 +18,13 @@ h1 {
   font-size: 30px;
   padding: 30px;
   padding-bottom: 22.5px;
-  color: white;
+  color: Colors.$white;
   font-family: 'InterBold';
   text-align: center;
 }
 
 .line {
-  background-color: gray;
+  background-color: Colors.$lighter-gray;
   height: 2px;
   width: 100%;
   margin: 10px;
@@ -35,7 +37,7 @@ h1 {
   align-items: center;
   height: calc(100% - 80px);
   overflow: auto;
-  background-color: var(--dark-gray);
+  background-color: Colors.$dark-gray;
   transition: all 0.7s ease;
 }
 
@@ -61,32 +63,32 @@ h1 {
 }
 
 .default-button {
-  border: 2px solid var(--default-button) !important;
-  color: var(--default-button) !important;
+  border: 2px solid Colors.$default-button !important;
+  color: Colors.$default-button !important;
 }
 
 .default-button.disabled {
   background-color: transparent;
-  border: 2px solid var(--default-button-disabled) !important;
-  color: var(--default-button-disabled) !important;
+  border: 2px solid Colors.$default-button-disabled !important;
+  color: Colors.$default-button-disabled !important;
   transform: translate(0, 0) !important;
   cursor: default;
 }
 
 .beta-button {
-  border: 2px solid var(--beta-button) !important;
-  color: var(--beta-button) !important;
+  border: 2px solid Colors.$beta-button !important;
+  color: Colors.$beta-button !important;
 }
 
 .white-button {
-  border: 2px solid var(--white-button) !important;
-  color: var(--white-button) !important;
+  border: 2px solid Colors.$white-button !important;
+  color: Colors.$white-button !important;
 }
 
 .white-button.disabled {
   background-color: transparent;
-  border: 2px solid var(--white-button-disabled) !important;
-  color: var(--white-button-disabled) !important;
+  border: 2px solid Colors.$white-button-disabled !important;
+  color: Colors.$white-button-disabled !important;
   transform: translate(0, 0) !important;
   cursor: default;
 }

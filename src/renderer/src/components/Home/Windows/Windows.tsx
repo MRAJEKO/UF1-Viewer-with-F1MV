@@ -3,7 +3,7 @@ import NewWindowSection from './NewWindowSection'
 import SolidWindows from './SolidWindows'
 import LiveTimingWindow from './LiveTimingWindow'
 import { launchF1MV } from '../../../utils/launchF1MV'
-import styles from './Windows.module.css'
+import styles from './Windows.module.scss'
 
 const Windows = () => {
   function openWindow(name: string) {

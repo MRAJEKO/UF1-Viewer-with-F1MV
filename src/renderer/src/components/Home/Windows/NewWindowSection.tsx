@@ -1,4 +1,4 @@
-import styles from './Windows.module.css'
+import styles from './Windows.module.scss'
 
 interface Props {
   name: string

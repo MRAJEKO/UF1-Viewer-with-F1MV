@@ -1,5 +1,5 @@
 import Setting from './Setting'
-import styles from './Settings.module.css'
+import styles from './Settings.module.scss'
 
 interface SettingOptionsProps {
   value: string | number | boolean

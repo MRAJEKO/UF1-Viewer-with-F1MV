@@ -1,6 +1,6 @@
 import MoveMode from '@renderer/components/MoveMode'
 import TeamRadio from '@renderer/components/TeamRadios/TeamRadio'
-import styles from '@renderer/components/TeamRadios/TeamRadios.module.css'
+import styles from '@renderer/components/TeamRadios/TeamRadios.module.scss'
 import useLiveTiming from '@renderer/hooks/useLiveTiming'
 import {
   IDriverList,

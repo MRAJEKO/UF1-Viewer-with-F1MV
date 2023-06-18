@@ -1,7 +1,9 @@
+@use '@renderer/assets/colors.scss' as Colors;
+
 .container {
   width: 100vw;
   height: 100vh;
-  background-color: var(--black-translucent);
+  background-color: Colors.$black-translucent;
   color: white;
   font-family: 'InterBold', sans-serif;
   display: grid;

@@ -1,3 +1,5 @@
+@use '@renderer/assets/colors.scss' as Colors;
+
 .tools-wrapper {
   display: flex;
   width: 90%;
@@ -7,11 +9,11 @@
 }
 
 .connected {
-  color: var(--connected);
+  color: Colors.$connected;
 }
 
 .disconnected {
-  color: var(--disconnected);
+  color: Colors.$disconnected;
 }
 
 .tools {

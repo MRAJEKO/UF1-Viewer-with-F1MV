@@ -1,4 +1,4 @@
-import styles from './WindowHeader.module.css'
+import styles from './WindowHeader.module.scss'
 
 interface Props {
   title: string

@@ -1,11 +1,13 @@
+@use '@renderer/assets/colors.scss' as Colors;
+
 .input {
   all: unset;
-  background-color: var(--light-gray-translucent);
+  background-color: Colors.$light-gray-translucent;
   border-radius: 5px;
   padding: 5px;
   font-family: 'InterMedium';
   font-size: 14px;
-  color: var(--white);
+  color: Colors.$white;
   border: 2px solid transparent;
   transition: all 0.3s ease;
 }
@@ -17,7 +19,7 @@ input::-webkit-inner-spin-button {
 }
 
 .input:focus {
-  border-color: var(--light-gray);
+  border-color: Colors.$light-gray;
 }
 
 .number {

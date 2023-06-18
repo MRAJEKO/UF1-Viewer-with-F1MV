@@ -1,4 +1,4 @@
-import styles from './Select.module.css'
+import styles from './Select.module.scss'
 
 interface SelectProps {
   id: string

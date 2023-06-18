@@ -5,7 +5,7 @@ import Tools from '../components/Home/Tools/Tools'
 import { connectionStatuses } from '../hooks/useConnectionStatuses'
 import Settings from '../components/Home/Settings/Settings'
 import Schedule from '@renderer/components/Home/Schedule/Schedule'
-import styles from '@renderer/components/Home/Home.module.css'
+import styles from '@renderer/components/Home/Home.module.scss'
 
 const HomePage = () => {
   const [connectionsExtended, setConnectionsExtended] = useState(true)

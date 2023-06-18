@@ -1,6 +1,6 @@
 import { ledColors } from '@renderer/modules/Colors'
 import { useEffect, useState } from 'react'
-import styles from './Panels.module.css'
+import styles from './Panels.module.scss'
 
 interface GoveeProps {
   colors: Array<string | null>

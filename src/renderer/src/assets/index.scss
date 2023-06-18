@@ -1,3 +1,5 @@
+@use '@renderer/assets/colors.scss' as Colors;
+
 * {
   margin: 0;
   padding: 0;
@@ -10,7 +12,7 @@
 
 .background {
   width: 100vw;
-  background-color: var(--dark-gray);
+  background-color: Colors.$dark-gray;
   position: relative;
   flex: 1;
   overflow: hidden;

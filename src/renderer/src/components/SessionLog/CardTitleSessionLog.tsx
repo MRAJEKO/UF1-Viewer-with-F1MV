@@ -1,4 +1,5 @@
 import Colors from '@renderer/modules/Colors'
+import styles from './SessionLog.module.scss'
 
 interface Props {
   title: string
@@ -8,8 +9,9 @@ interface Props {
 const CardTitleSessionLog = ({ title, highlighted }: Props) => {
   return (
     <p
+      className={styles['card-title']}
       style={{
-        backgroundColor: highlighted ? Colors.highlighted : 'var(--white)',
+        backgroundColor: highlighted ? Colors.highlighted : '',
         fontFamily: 'InterBold',
         fontSize: '5vw',
         textAlign: 'center',

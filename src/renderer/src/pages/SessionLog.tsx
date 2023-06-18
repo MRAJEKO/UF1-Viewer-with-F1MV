@@ -25,7 +25,7 @@ import { calculateTrackTime } from '@renderer/utils/trackTime'
 import MoveMode from '@renderer/components/MoveMode'
 import WindowHeader from '@renderer/components/WindowHeader'
 
-import styles from '../components/SessionLog/SessionLog.module.css'
+import styles from '../components/SessionLog/SessionLog.module.scss'
 import GenerateRaceControlMessageLog from '@renderer/components/SessionLog/GenerateRaceControlMessageLog'
 import { updateLogs } from '@renderer/utils/updateLogs'
 import GenerateStatusSerieSessionLog from '@renderer/components/SessionLog/GenerateStatusSerieSessionLog'

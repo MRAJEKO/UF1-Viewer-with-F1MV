@@ -1,11 +1,11 @@
-import styles from './Connections.module.css'
+import styles from './Connections.module.scss'
 import NewWindowSection from '../Windows/NewWindowSection'
 import Window from '../Windows/Window'
 import { launchF1MV } from '../../../utils/launchF1MV'
 import LiveTimingWindow from '../Windows/LiveTimingWindow'
 import Connection from './Connection'
 import useLiveSession from '../../../hooks/useLiveSession'
-import windowsStyles from '../Windows/Windows.module.css'
+import windowsStyles from '../Windows/Windows.module.scss'
 
 interface ConnectionsProps {
   extended?: boolean

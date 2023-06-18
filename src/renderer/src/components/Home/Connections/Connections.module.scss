@@ -1,3 +1,5 @@
+@use '@renderer/assets/colors.scss' as Colors;
+
 .container {
   width: 100%;
   min-height: 100%;
@@ -28,7 +30,7 @@ section.connections {
 }
 
 .livetiming-info {
-  color: var(--light-gray);
+  color: Colors.$light-gray;
   opacity: 0.5;
   font-family: 'InterBold';
   font-size: 14px;
@@ -37,7 +39,7 @@ section.connections {
 .continue {
   all: unset;
   font-family: 'InterBold';
-  color: var(--light-gray);
+  color: Colors.$light-gray;
   font-size: 15px;
   cursor: pointer;
   position: absolute;
@@ -70,22 +72,22 @@ section.connections button {
   display: flex;
   gap: 10px;
   font-family: 'InterBold';
-  color: var(--white);
+  color: Colors.$white;
   font-size: 17px;
 }
 
 .connected {
-  border-color: var(--connected) !important;
+  border-color: Colors.$connected !important;
 }
 
 span.connected {
-  color: var(--connected) !important;
+  color: Colors.$connected !important;
 }
 
 .disconnected {
-  border-color: var(--disconnected) !important;
+  border-color: Colors.$disconnected !important;
 }
 
 span.disconnected {
-  color: var(--disconnected) !important;
+  color: Colors.$disconnected !important;
 }

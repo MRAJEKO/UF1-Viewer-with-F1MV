@@ -1,0 +1,210 @@
+@use '@renderer/assets/colors.scss' as Colors;
+
+.container {
+  color: white;
+  width: 100vw;
+  height: 100vh;
+  border-radius: 5vw;
+  overflow: scroll;
+  padding-bottom: 20vw;
+
+  .bar-wrapper {
+    height: 35vw;
+    width: 100%;
+    overflow: hidden;
+    margin-bottom: 10px;
+    transition: all 0.5s ease;
+    top: auto;
+    font-family: 'InterBold', sans-serif;
+    background-color: Colors.$black-translucent;
+    border-radius: 5vw;
+    user-select: none;
+    cursor: pointer;
+
+    .bar {
+      position: relative;
+      transition: all 0.5s ease;
+      height: 100%;
+
+      .animation {
+        animation-play-state: paused;
+        animation-direction: normal;
+        height: 100%;
+        position: absolute;
+        animation-name: unset;
+        animation-timing-function: linear;
+        top: 0;
+        left: 0;
+
+        &.running {
+          animation-play-state: running;
+          animation-name: progress !important;
+        }
+
+        &.paused {
+          animation-play-state: paused !important;
+        }
+      }
+
+      .radio-info {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 85%;
+        height: 23vw;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 5vw;
+        transition: all 0.5s ease;
+
+        .headshot {
+          position: relative;
+          width: 25%;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+          transition: all 0.5s ease;
+          align-self: flex-start;
+
+          .name {
+            opacity: 0;
+            transition: all 0.5s ease;
+            font-size: 8vw;
+            place-self: start;
+            margin-top: 3vw;
+            margin-left: 3vw;
+            text-shadow: 0.5vw 0.5vw 0.5vw black;
+          }
+
+          .line {
+            height: 0.5vw;
+            border-radius: 2vw;
+            width: 100%;
+          }
+
+          img {
+            width: 100%;
+          }
+
+          p:nth-child(1) {
+            font-size: 6vw;
+            font-family: 'InterBold', sans-serif;
+            opacity: 0.6;
+          }
+        }
+
+        .info {
+          display: flex;
+          width: 70%;
+          flex-direction: column;
+          gap: 2vw;
+          font-size: 5.5vw;
+          overflow: hidden;
+          transition: all 0.5s ease;
+          white-space: nowrap;
+
+          .name {
+            text-shadow: 0.5vw 0.5vw 0.5vw black;
+            display: flex;
+            gap: 1.5vw;
+            justify-content: start;
+          }
+        }
+      }
+
+      &.expand {
+        height: 100% !important;
+
+        .headshot {
+          width: 100%;
+
+          .name {
+            opacity: 1;
+          }
+        }
+
+        .radio-info {
+          height: 95% !important;
+          gap: 0;
+
+          .info {
+            width: 0;
+          }
+        }
+      }
+    }
+
+    &:has(.bar.expand) {
+      transition: all 0.5s ease;
+      height: 100vh !important;
+      margin-bottom: 0;
+      z-index: 2;
+    }
+  }
+
+  &:has(.bar.expand) {
+    padding: 0;
+
+    .bar-wrapper {
+      height: 0;
+      margin-bottom: 0 !important;
+    }
+  }
+}
+
+/* Entry animation */
+.radio-wrapper-enter {
+  height: 0px !important;
+  margin-bottom: 0 !important;
+}
+
+.radio-wrapper-exit-active {
+  height: 0 !important;
+  margin-bottom: 0 !important;
+}
+
+.times {
+  font-size: 4.5vw;
+  opacity: 0.5;
+}
+
+.footer {
+  position: fixed;
+  width: 100vw;
+  height: 20vw;
+  bottom: 0;
+  border-radius: 0 0 5vw 5vw;
+  background-color: Colors.$dark-gray;
+  color: Colors.$light-gray;
+  font-family: 'InterBold', sans-serif;
+  border-top: Colors.$light-gray 0.5vw solid;
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+  gap: 3vw;
+  padding: 0 3vw;
+}
+
+.status-button {
+  all: unset;
+  border-radius: 10vw;
+  background-color: Colors.$gray-translucent;
+  padding: 3vw;
+  font-size: 5vw;
+  width: 100%;
+  text-align: center;
+  user-select: none;
+  cursor: pointer;
+}
+
+@keyframes progress {
+  0% {
+    width: 0%;
+  }
+  100% {
+    width: 100%;
+  }
+}

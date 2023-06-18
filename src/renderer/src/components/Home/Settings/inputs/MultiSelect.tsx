@@ -1,5 +1,5 @@
 import Select from './Select'
-import styles from './MultiSelect.module.css'
+import styles from './MultiSelect.module.scss'
 
 interface IProps {
   id: string

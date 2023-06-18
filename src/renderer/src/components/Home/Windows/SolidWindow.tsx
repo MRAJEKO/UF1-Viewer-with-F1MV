@@ -1,4 +1,4 @@
-import styles from './SolidWindows.module.css'
+import styles from './SolidWindows.module.scss'
 
 interface SolidWindowProps {
   onPress: () => void

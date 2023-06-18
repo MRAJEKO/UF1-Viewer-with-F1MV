@@ -1,9 +1,11 @@
+@use '@renderer/assets/colors.scss' as Colors;
+
 .container {
   transition: all 0.5s ease;
   display: flex;
   justify-content: space-between;
-  background: var(--dark-gray);
+  background: Colors.$dark-gray;
   align-items: center;
   padding: 0 10px;
-  border-bottom: 1px solid var(--light-gray);
+  border-bottom: 1px solid Colors.$light-gray;
 }

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import SettingPart from './SettingPart'
-import styles from './Settings.module.css'
-import windowsStyles from '../Windows/Windows.module.css'
+import styles from './Settings.module.scss'
+import windowsStyles from '../Windows/Windows.module.scss'
 
 interface SettingsProps {
   extended?: boolean

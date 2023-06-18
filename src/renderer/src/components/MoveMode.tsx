@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import styles from './MoveMode.module.css'
+import styles from './MoveMode.module.scss'
 
 const MoveMode = () => {
   const [show, setShow] = useState(!(window as any).disableMoveMode)

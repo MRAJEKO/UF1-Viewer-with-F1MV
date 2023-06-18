@@ -2,7 +2,7 @@ import TrackTimeClock from '@renderer/components/TrackTime/TrackTimeClock'
 import LiveTiming from '@renderer/hooks/useLiveTiming'
 import LiveTimingClock, { ILiveTimingClockData } from '@renderer/hooks/useLiveTimingClock'
 import { useCallback, useEffect, useState } from 'react'
-import styles from '@renderer/components/TrackTime/TrackTime.module.css'
+import styles from '@renderer/components/TrackTime/TrackTime.module.scss'
 
 const TrackTime = () => {
   const [liveTimingClockData, setLiveTimingClockData] = useState<null | ILiveTimingClockData>(null)

@@ -1,7 +1,9 @@
+@use '@renderer/assets/colors.scss' as Colors;
+
 .select {
   border: none;
-  background-color: var(--light-gray-translucent);
-  color: white;
+  background-color: Colors.$light-gray-translucent;
+  color: Colors.$white;
   font-family: 'InterMedium';
   font-size: 14px;
   padding: 5px 5px;
@@ -12,9 +14,9 @@
 
 .select:focus {
   outline: none;
-  border-color: var(--light-gray);
+  border-color: Colors.$light-gray;
 }
 
 .select option {
-  color: black;
+  color: Colors.$black;
 }

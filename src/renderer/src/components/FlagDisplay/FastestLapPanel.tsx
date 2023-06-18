@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import styles from './Panels.module.css'
+import styles from './Panels.module.scss'
 import React from 'react'
 import colors from '@renderer/modules/Colors'
 

@@ -1,3 +1,5 @@
+@use '@renderer/assets/colors.scss' as Colors;
+
 .container {
   width: 100vw;
   height: 100vh;
@@ -27,7 +29,7 @@
 }
 
 .goveePanel {
-  background-color: var(--black-translucent);
+  background-color: Colors.$black-translucent;
   border-radius: 20px;
   height: 150px;
   width: 150px;
@@ -41,13 +43,13 @@
 .goveePanel .title {
   font-family: 'InterBold';
   font-size: 22px;
-  color: var(--white);
+  color: Colors.$white;
 }
 
 .goveePanel .count {
-  color: var(--light-green);
+  color: Colors.$light-green;
   font-family: 'InterBold';
-  border: 3px solid var(--light-green);
+  border: 3px solid Colors.$light-green;
   padding: 13px 18px;
   border-radius: 15px;
   font-size: 25px;

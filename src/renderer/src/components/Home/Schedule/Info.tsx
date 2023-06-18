@@ -1,4 +1,4 @@
-import styles from './Info.module.css'
+import styles from './Info.module.scss'
 
 interface Props {
   flag: string | null

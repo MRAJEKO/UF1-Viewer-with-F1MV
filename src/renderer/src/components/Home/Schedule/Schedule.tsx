@@ -2,7 +2,7 @@ import { milisecondsToDaysTime } from '@renderer/utils/convertTime'
 import { useEffect, useState } from 'react'
 import Timer from './Timer'
 import Info from './Info'
-import styles from './Schedule.module.css'
+import styles from './Schedule.module.scss'
 
 const Schedule = () => {
   const [flag, setFlag] = useState<string | null>(null)

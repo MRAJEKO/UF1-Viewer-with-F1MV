@@ -1,3 +1,5 @@
+@use '@renderer/assets/colors.scss' as Colors;
+
 .wrapper {
   height: 100vh;
 }
@@ -29,12 +31,12 @@
 }
 
 .double-card {
-  color: white;
+  color: Colors.$white;
   height: 100%;
   display: grid;
   place-items: center;
   grid-template-columns: 1fr 1fr;
-  text-shadow: 0.5vw 0.5vw 0.5vw black;
+  text-shadow: 0.5vw 0.5vw 0.5vw Colors.$black;
   font-family: 'InterBold', sans-serif;
   font-size: 7vw;
 }
@@ -56,4 +58,20 @@
   align-items: center;
   text-align: center;
   padding: 0 2vw;
+}
+
+.card-title {
+  background-color: Colors.$white;
+}
+
+.card-footer {
+  background-color: Colors.$black-translucent;
+  color: white;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  place-items: center;
+  padding: 3vw 0;
+  font-size: 5vw;
+  font-family: 'InterMedium';
+  border-top: 0.5vw solid Colors.$white;
 }
