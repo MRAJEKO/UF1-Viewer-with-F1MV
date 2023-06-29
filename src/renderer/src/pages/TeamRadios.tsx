@@ -46,8 +46,6 @@ const TeamRadios = () => {
     window.ipcRenderer.sendSync('get-store', 'config')?.teamradios?.settings?.minimize_animations
       ?.value ?? false
 
-  console.log(buttonStatuses)
-
   const handleDataReceived = (stateData: IStateData, firstPatch: boolean) => {
     const dataTeamRadios = stateData?.TeamRadio?.Captures || []
 
@@ -78,6 +76,15 @@ const TeamRadios = () => {
     }
   }
 
+  const handleAudioStop = () => {
+    setAutoPlaying(false)
+    console.log('audio stopped')
+    console.log(buttonStatuses.autoplay)
+    if (buttonStatuses.autoplay) {
+      setQueue((prevQueue) => prevQueue.slice(1))
+    }
+  }
+
   useLiveTiming(['TeamRadio', 'DriverList', 'SessionInfo'], handleDataReceived, 500)
 
   useEffect(() => {
@@ -94,17 +101,6 @@ const TeamRadios = () => {
     })
   }, [buttonStatuses])
 
-  console.log(teamRadios)
-
-  const handleAudioStop = () => {
-    setAutoPlaying(false)
-    console.log('audio stopped')
-    console.log(buttonStatuses.autoplay)
-    if (buttonStatuses.autoplay) {
-      setQueue((prevQueue) => prevQueue.slice(1))
-    }
-  }
-
   useEffect(() => {
     if (!buttonStatuses.autoplay && queue.length > 0) setQueue([])
 
@@ -114,7 +110,10 @@ const TeamRadios = () => {
     }
   }, [buttonStatuses.autoplay, buttonStatuses.play])
 
-  console.log(queue)
+  useEffect(() => {
+    if (audioPlaying && buttonStatuses.play) {
+    }
+  }, [audioPlaying, buttonStatuses.play])
 
   return (
     <>

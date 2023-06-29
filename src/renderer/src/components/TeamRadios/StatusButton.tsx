@@ -9,8 +9,7 @@ interface IProps {
 const StatusButton = ({ name, enabled, setEnabled }: IProps) => {
   return (
     <div
-      className={styles['status-button']}
-      style={{ color: enabled ? 'var(--connected)' : 'var(--disconnected)' }}
+      className={`${styles['status-button']} ${enabled ? styles.connected : styles.disconnected}`}
       onClick={() => {
         console.log(enabled)
         setEnabled(!enabled)

@@ -208,3 +208,11 @@
     width: 100%;
   }
 }
+
+.connected {
+  color: Colors.$connected;
+}
+
+.disconnected {
+  color: Colors.$disconnected;
+}
