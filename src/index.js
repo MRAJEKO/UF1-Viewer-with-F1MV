@@ -295,15 +295,15 @@ const store = new Store({
     },
     "1.4.8": (store) => {
       store.set(
-        "config.internal_settings.session.getLiveSession",
+        "internal_settings.session.getLiveSession",
         "https://api.jstt.me/api/v2/f1tv/live-session?joost.systems"
       );
       store.set(
-        "config.internal_settings.analytics.getUniqueID",
+        "internal_settings.analytics.getUniqueID",
         "https://api.jstt.me/api/v2/uf1/analytics/active-users/getUniqueID"
       );
       store.set(
-        "config.internal_settings.analytics.sendActiveUsers",
+        "internal_settings.analytics.sendActiveUsers",
         "https://api.jstt.me/api/v2/uf1/analytics/active-users/post"
       );
     },
