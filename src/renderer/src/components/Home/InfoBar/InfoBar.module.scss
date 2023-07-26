@@ -1,0 +1,11 @@
+@use '@renderer/assets/colors.scss' as Colors;
+
+.info {
+  width: 100%;
+  text-align: center;
+  color: Colors.$light-gray;
+  font-family: 'InterBold';
+  padding: 15px;
+  border-top: 1px solid Colors.$lighter-gray;
+  background-color: Colors.$gray-translucent;
+}

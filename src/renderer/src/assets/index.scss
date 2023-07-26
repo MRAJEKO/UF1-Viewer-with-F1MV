@@ -10,14 +10,6 @@
   display: none;
 }
 
-.background {
-  width: 100vw;
-  background-color: Colors.$dark-gray;
-  position: relative;
-  flex: 1;
-  overflow: hidden;
-}
-
 .move {
   -webkit-app-region: drag;
 }

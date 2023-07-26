@@ -8,12 +8,13 @@ import settingsIcon from '../../../assets/icons/settings.png'
 import windowsStyles from '../Windows/Windows.module.scss'
 
 interface ToolsProps {
+  shown: boolean
   openLayouts: () => void
   restoreAll: () => void
   settings: () => void
 }
 
-const Tools = ({ openLayouts, restoreAll, settings }: ToolsProps) => {
+const Tools = ({ shown, openLayouts, restoreAll, settings }: ToolsProps) => {
   const [showRestore, setShowRestore] = useState(false)
   const [showLayouts, setShowLayouts] = useState(true)
   const [showSettings, setShowSettings] = useState(false)
@@ -24,6 +25,7 @@ const Tools = ({ openLayouts, restoreAll, settings }: ToolsProps) => {
     <section
       id="tools"
       className={`${styles.tools} ${styles['background-tools']} ${windowsStyles['homepage-section']}`}
+      style={{ height: shown ? '' : '0px', bottom: shown ? '' : '0px' }}
     >
       <div className={styles['tools-wrapper']}>
         <div className={`${styles['icon']} ${styles['dynamic-button']}`}>

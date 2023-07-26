@@ -33,9 +33,9 @@ h1 {
 .homepage-section {
   display: flex;
   width: 100vw;
+  height: 100%;
   flex-direction: column;
   align-items: center;
-  height: calc(100% - 80px);
   overflow: auto;
   background-color: Colors.$dark-gray;
   transition: all 0.7s ease;
