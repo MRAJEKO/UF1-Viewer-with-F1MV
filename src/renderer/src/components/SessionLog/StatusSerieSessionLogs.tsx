@@ -4,7 +4,14 @@ import {
   StatusSeriesStatusMappings
 } from '@renderer/constants/StatusSeriesMappings'
 import Colors, { sessionLogHexModifier } from '@renderer/modules/Colors'
-import { ISessionData, ISessionInfo, ISessionSerie } from '@renderer/types/LiveTimingStateTypes'
+import { ISessionLog } from '@renderer/pages/SessionLog'
+import {
+  ISessionInfo,
+  ISessionData,
+  ISessionSerie,
+  IStatusSerie
+} from '@renderer/types/LiveTimingStateTypes'
+import { updateLogs } from '@renderer/utils/updateLogs'
 import SingleCardSessionLog from './SingleCardSessionLog'
 
 interface IData {
@@ -12,7 +19,32 @@ interface IData {
   SessionData?: ISessionData
 }
 
-const GenerateStatusSerieSessionLog = (data: IData, statusSerie: ISessionSerie) => {
+const StatusSerieSessionLogs = (
+  newLogs: ISessionLog[],
+  data: IData,
+  sessionStatusSeries: ISessionSerie[] | null,
+  setSessionStatusSeries: React.Dispatch<React.SetStateAction<ISessionSerie[]>>,
+  trackTimeUtc: number
+) => {
+  const { SessionData } = data
+
+  if (SessionData?.StatusSeries?.length !== sessionStatusSeries?.length) {
+    const { newData, modifiedLogs } = updateLogs(
+      newLogs,
+      SessionData?.StatusSeries || [],
+      sessionStatusSeries || [],
+      trackTimeUtc,
+      (statusSerie: IStatusSerie) => GenerateLog(data, statusSerie)
+    )
+
+    setSessionStatusSeries(newData)
+    return modifiedLogs
+  }
+
+  return newLogs
+}
+
+const GenerateLog = (data: IData, statusSerie: ISessionSerie) => {
   const time = new Date(
     statusSerie.Utc.endsWith('Z') ? statusSerie.Utc : statusSerie.Utc + 'Z'
   ).getTime()
@@ -42,4 +74,4 @@ const GenerateStatusSerieSessionLog = (data: IData, statusSerie: ISessionSerie) 
   }
 }
 
-export default GenerateStatusSerieSessionLog
+export default StatusSerieSessionLogs

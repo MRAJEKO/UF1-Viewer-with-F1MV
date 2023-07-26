@@ -1,11 +1,15 @@
 import {
   IDriverList,
   IRaceControlMessage,
+  IRaceControlMessages,
   ISessionData,
   ISessionInfo
 } from '@renderer/types/LiveTimingStateTypes'
 import DoubleSessionLog from './DoubleSessionLog'
 import Colors, { sessionLogHexModifier } from '@renderer/modules/Colors'
+import { ISessionLog } from '@renderer/pages/SessionLog'
+import { isWantedMessage } from '@renderer/utils/isWantedMessage'
+import { updateLogs } from '@renderer/utils/updateLogs'
 
 const baseImageUrl = 'src/renderer/src/assets/icons'
 
@@ -25,12 +29,27 @@ const getDriver = (
 }
 
 interface IData {
+  RaceControlMessages?: IRaceControlMessages
   DriverList?: IDriverList
   SessionInfo?: ISessionInfo
   SessionData?: ISessionData
 }
 
-const GenerateRaceControlMessageLog = (data: IData, raceControlMessage: IRaceControlMessage) => {
+const WANTED_CATEGORIES: (IRaceControlMessage['SubCategory'] | IRaceControlMessage['Category'])[] =
+  [
+    'Flag',
+    'Other',
+    'LapTimeDeleted',
+    'TimePenalty',
+    'TrackSurfaceSlippery',
+    'PitEntry',
+    'PitExit',
+    'Drs',
+    'LowGripConditions',
+    'NormalGripConditions'
+  ]
+
+const GenerateLog = (data: IData, raceControlMessage: IRaceControlMessage) => {
   const time = new Date(
     raceControlMessage.Utc.endsWith('Z') ? raceControlMessage.Utc : raceControlMessage.Utc + 'Z'
   ).getTime()
@@ -124,4 +143,38 @@ const GenerateRaceControlMessageLog = (data: IData, raceControlMessage: IRaceCon
   return null
 }
 
-export default GenerateRaceControlMessageLog
+const RaceControlMessageLogs = (
+  newLogs: ISessionLog[],
+  data: IData,
+  raceControlMessages: IRaceControlMessage[] | null,
+  setRaceControlMessages: React.Dispatch<React.SetStateAction<IRaceControlMessage[]>>,
+  trackTimeUtc: number
+) => {
+  const { RaceControlMessages: dataRaceControlMessages } = data
+
+  const wantedRaceControlMessages = dataRaceControlMessages?.Messages?.filter(
+    (raceControlMessage) => isWantedMessage(raceControlMessage, WANTED_CATEGORIES)
+  )
+
+  if (
+    wantedRaceControlMessages &&
+    raceControlMessages &&
+    wantedRaceControlMessages.length !== raceControlMessages?.length
+  ) {
+    const { newData, modifiedLogs } = updateLogs(
+      newLogs,
+      wantedRaceControlMessages,
+      raceControlMessages,
+      trackTimeUtc,
+      (raceControlMessage: IRaceControlMessage) => GenerateLog(data, raceControlMessage)
+    )
+
+    setRaceControlMessages(newData)
+
+    return modifiedLogs
+  }
+
+  return newLogs
+}
+
+export default RaceControlMessageLogs
