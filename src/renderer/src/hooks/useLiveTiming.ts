@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { Topic } from 'npm_f1mv_api'
 import { ILiveTimingState } from '../types/LiveTimingStateTypes'
 
@@ -9,6 +9,8 @@ const LiveTiming = (
   onDataReceived: (data: any, firstPatch: boolean) => void,
   updateFrequency: number
 ) => {
+  const [liveTimingState, setLiveTimingState] = useState<ILiveTimingState | null>(null)
+
   useEffect(() => {
     let count = 0
 
@@ -22,8 +24,9 @@ const LiveTiming = (
       try {
         const response: ILiveTimingState = await LiveTimingAPIGraphQL(config, topics)
 
-        if (response) {
+        if (response && JSON.stringify(response) !== JSON.stringify(liveTimingState)) {
           onDataReceived(response, count === 0)
+          setLiveTimingState(response)
         }
 
         count++
@@ -34,7 +37,7 @@ const LiveTiming = (
 
     const intervalId = setInterval(fetchData, updateFrequency)
     return () => clearInterval(intervalId)
-  }, [onDataReceived])
+  }, [liveTimingState, onDataReceived])
 }
 
 export default LiveTiming

@@ -1,0 +1,12 @@
+export const speed1 = 50
+export const speed2 = 100
+export const speed3 = 250
+export const speed4 = 500
+export const speed5 = 1000
+export const speed6 = 2000
+export const speed7 = 2500
+export const speed8 = 5000
+export const speed9 = 7500
+export const speed10 = 10000
+export const speed11 = 15000
+export const speed12 = 60000

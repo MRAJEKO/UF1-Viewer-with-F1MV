@@ -1,31 +1,31 @@
 export type DateString = string
 
 export interface ILiveTimingState {
-  ArchiveStatus: IArchiveStatus
-  AudioStreams: IStreams
-  CarData: ICarData
+  ArchiveStatus: IArchiveStatus | undefined
+  AudioStreams: IStreams | undefined
+  CarData: ICarData | undefined
   ChampionshipPrediction: IChampionshipPrediction | undefined
-  ContentStreams: IStreams
-  DriverList: IDriverList
+  ContentStreams: IStreams | undefined
+  DriverList: IDriverList | undefined
   ExtrapolatedClock: IExtrapolatedClock
-  Heartbeat: IHeartbeat
+  Heartbeat: IHeartbeat | undefined
   LapCount: ILapCount | undefined
   LapSeries: ILapSeries | undefined
   LapTimeSeries: any
   PitLaneTimeCollection: IPitLaneTimeCollection | undefined
-  Position: IPosition
-  RaceControlMessages: IRaceControlMessages
-  SessionData: ISessionData
-  SessionInfo: ISessionInfo
-  SessionStatus: ISessionStatus
+  Position: IPosition | undefined
+  RaceControlMessages: IRaceControlMessages | undefined
+  SessionData: ISessionData | undefined
+  SessionInfo: ISessionInfo | undefined
+  SessionStatus: ISessionStatus | undefined
   TeamRadio: ITeamRadio | undefined
-  TimingAppData: ITimingAppData
-  TimingData: ITimingData
-  TimingStats: ITimingStats
-  TopThree: ITopThree
-  TrackStatus: ITrackStatus
-  WeatherData: IWeatherData
-  WeatherDataSeries: IWeatherDataSeries
+  TimingAppData: ITimingAppData | undefined
+  TimingData: ITimingData | undefined
+  TimingStats: ITimingStats | undefined
+  TopThree: ITopThree | undefined
+  TrackStatus: ITrackStatus | undefined
+  WeatherData: IWeatherData | undefined
+  WeatherDataSeries: IWeatherDataSeries | undefined
 }
 
 export interface ILapTimeSeries {
@@ -102,8 +102,16 @@ export interface ILapCount {
 }
 
 export interface ISessionStatus {
-  Status: 'Inactive' | 'Started' | 'Finished' | 'Finalised' | 'Ends' | 'Aborted'
+  Status: ISessionStatusStatus
 }
+
+export type ISessionStatusStatus =
+  | 'Inactive'
+  | 'Started'
+  | 'Finished'
+  | 'Finalised'
+  | 'Ends'
+  | 'Aborted'
 
 export interface IArchiveStatus {
   Status: string
@@ -266,7 +274,7 @@ export interface ISessionSerie {
 export interface IStatusSerie {
   Utc: DateString
   TrackStatus?: 'AllClear' | 'VSCDeployed' | 'VSCEnding' | 'Yellow' | 'Red' | 'SCDeployed'
-  SessionStatus?: 'Started' | 'Finished' | 'Finalised' | 'Ends' | 'Aborted' | 'Inactive'
+  SessionStatus?: ISessionStatusStatus
 }
 
 export interface IStreamingStatus {
@@ -341,7 +349,10 @@ export interface IStint {
 }
 
 export interface ITimingData {
+  NoEntries?: [number]
   SessionPart?: number
+  CutOffTime?: string
+  CutOffPercentage?: string
   Lines: { [key: string]: ITimingDataLine }
   Withheld: boolean
 }
@@ -380,6 +391,7 @@ export interface ITimingDataLine {
 export interface IBestLapTime {
   Value: string
   Lap?: number
+  Position: number
 }
 
 export interface IIntervalToPositionAhead {
@@ -483,9 +495,11 @@ export interface ITopThreeLine {
 // {"Status":"6","Message":"VSCDeployed"}
 // {"Status":"7","Message":"VSCEnding"}
 export interface ITrackStatus {
-  Status: '1' | '2' | '4' | '5' | '6' | '7' | string
-  Message: 'AllClear' | 'Yellow' | 'SCDeployed' | 'Red' | 'VSCDeployed' | 'VSCEnding' | string
+  Status: ITrackStatusStatus
+  Message: 'AllClear' | 'Yellow' | 'SCDeployed' | 'Red' | 'VSCDeployed' | 'VSCEnding'
 }
+
+export type ITrackStatusStatus = '1' | '2' | '4' | '5' | '6' | '7'
 
 export interface IWeatherData {
   AirTemp: string

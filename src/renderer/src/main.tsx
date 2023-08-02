@@ -11,6 +11,7 @@ import TrackTime from './pages/TrackTime'
 import SessionLog from './pages/SessionLog'
 import TrackInfo from './pages/TrackInfo'
 import TeamRadios from './pages/TeamRadios'
+import SessionTimer from './pages/SessionTimer'
 
 const router = createBrowserRouter([
   {
@@ -24,6 +25,10 @@ const router = createBrowserRouter([
   {
     path: '/tracktime',
     element: <TrackTime />
+  },
+  {
+    path: 'sessiontimer',
+    element: <SessionTimer />
   },
   {
     path: '/session_log',

@@ -65,6 +65,17 @@ const defaults = {
         }
       }
     },
+    sessiontimer: {
+      name: 'Session Timer',
+      settings: {
+        always_on_top: {
+          title: 'Always on top',
+          description: 'Keep this window always on top.',
+          type: 'switch',
+          value: false
+        }
+      }
+    },
     session_log: {
       name: 'Session Log',
       settings: {
@@ -370,6 +381,8 @@ const defaults = {
       default: '#1f1f1f',
       black: '#000000',
       white: '#ffffff',
+      gray: '#808080',
+      darkgray: '#404040',
       purple: '#b900b9',
       green: '#00AF00',
       red: '#d10000',
@@ -452,6 +465,18 @@ const defaults = {
         aspectRatio: null,
         icon: 'icons/windows/tracktime.png'
       },
+      sessiontimer: {
+        path: 'sessiontimer',
+        width: 350,
+        height: 100,
+        frame: false,
+        hideMenuBar: true,
+        transparent: true,
+        hasShadow: false,
+        alwaysOnTop: 3.5,
+        aspectRatio: null,
+        icon: 'icons/windows/sessiontimer.png'
+      },
       session_log: {
         path: 'session_log',
         width: 250,
@@ -460,19 +485,17 @@ const defaults = {
         hideMenuBar: true,
         transparent: true,
         hasShadow: false,
-        alwaysOnTop: null,
         aspectRatio: null,
         icon: 'icons/windows/sessionlog.png'
       },
       trackinfo: {
         path: 'trackinfo',
-        width: null,
-        height: null,
+        width: [900, 250],
+        height: [100, 250],
         frame: false,
         hideMenuBar: true,
         transparent: true,
         hasShadow: false,
-        alwaysOnTop: null,
         aspectRatio: null,
         icon: 'icons/windows/trackinfo.png'
       },
@@ -484,7 +507,6 @@ const defaults = {
         hideMenuBar: true,
         transparent: true,
         hasShadow: false,
-        alwaysOnTop: null,
         aspectRatio: null,
         icon: 'icons/windows/statuses.png'
       },
@@ -508,7 +530,6 @@ const defaults = {
         hideMenuBar: true,
         transparent: true,
         hasShadow: false,
-        alwaysOnTop: null,
         aspectRatio: null,
         icon: 'icons/windows/crashdetection.png'
       },
@@ -520,7 +541,6 @@ const defaults = {
         hideMenuBar: true,
         transparent: true,
         hasShadow: false,
-        alwaysOnTop: null,
         aspectRatio: 1,
         icon: 'icons/windows/compass.png'
       },
@@ -532,7 +552,6 @@ const defaults = {
         hideMenuBar: true,
         transparent: true,
         hasShadow: false,
-        alwaysOnTop: null,
         aspectRatio: null,
         icon: 'icons/windows/tirestats.png'
       },
@@ -544,7 +563,6 @@ const defaults = {
         hideMenuBar: true,
         transparent: true,
         hasShadow: false,
-        alwaysOnTop: null,
         aspectRatio: null,
         icon: 'icons/windows/currentlaps.png'
       },
@@ -556,7 +574,6 @@ const defaults = {
         hideMenuBar: true,
         transparent: true,
         hasShadow: false,
-        alwaysOnTop: null,
         aspectRatio: null,
         icon: 'icons/windows/teamradios.png'
       },
@@ -568,7 +585,6 @@ const defaults = {
         hideMenuBar: true,
         transparent: true,
         hasShadow: false,
-        alwaysOnTop: null,
         aspectRatio: null,
         icon: 'icons/windows/battlemode.png'
       },
@@ -580,7 +596,6 @@ const defaults = {
         hideMenuBar: true,
         transparent: true,
         hasShadow: false,
-        alwaysOnTop: null,
         aspectRatio: null,
         icon: 'icons/windows/weather.png'
       },
@@ -592,7 +607,6 @@ const defaults = {
         hideMenuBar: true,
         transparent: true,
         hasShadow: false,
-        alwaysOnTop: true,
         aspectRatio: null,
         icon: 'icons/windows/autoswitcher.png'
       }
@@ -609,8 +623,8 @@ const defaults = {
       }
     },
     analytics: {
-      getUniqueID: 'https://api.joost.systems/api/v2/uf1/analytics/active-users/getUniqueID',
-      sendActiveUsers: 'https://api.joost.systems/api/v2/uf1/analytics/active-users/post'
+      getUniqueID: 'https://api.jstt.me/api/v2/uf1/analytics/active-users/getUniqueID',
+      sendActiveUsers: 'https://api.jstt.me/api/v2/uf1/analytics/active-users/post'
     }
   }
 }

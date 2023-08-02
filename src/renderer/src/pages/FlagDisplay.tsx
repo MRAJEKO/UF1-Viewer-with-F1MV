@@ -1,4 +1,4 @@
-import LiveTiming from '../hooks/useLiveTiming'
+import useLiveTiming from '../hooks/useLiveTiming'
 import { useCallback, useEffect, useState } from 'react'
 import TrackStatus from '@renderer/components/FlagDisplay/TrackStatusPanel'
 import SessionStatus from '@renderer/components/FlagDisplay/SessionStatusPanel'
@@ -7,6 +7,15 @@ import FastestLap from '@renderer/components/FlagDisplay/FastestLapPanel'
 import GoveeIntegration from '@renderer/components/FlagDisplay/GoveePanel'
 import colors from '@renderer/modules/Colors'
 import { goveeEnabled } from '@renderer/modules/Settings'
+import { speed3 } from '@renderer/constants/refreshIntervals'
+import { ISessionStatus, ITimingStats, ITrackStatus } from '@renderer/types/LiveTimingStateTypes'
+import { calculateFastestLap } from '@renderer/utils/calculateFastestLap'
+
+interface IData {
+  TrackStatus?: ITrackStatus
+  SessionStatus?: ISessionStatus
+  TimingStats?: ITimingStats
+}
 
 const FlagDisplay = () => {
   const [trackStatus, setTrackStatus] = useState<null | number>(null)
@@ -36,25 +45,25 @@ const FlagDisplay = () => {
   }, [])
 
   const handleDataReceived = useCallback(
-    (data: any) => {
-      if (data) {
-        if (parseInt(data?.TrackStatus?.Status ?? 0) !== trackStatus)
-          setTrackStatus(parseInt(data?.TrackStatus?.Status ?? 0))
+    (data: IData) => {
+      const { TrackStatus, SessionStatus, TimingStats } = data
 
-        const newFastestLap = Object.values(data?.TimingStats?.Lines ?? {})
-          .map((driverTimingStats: any) => driverTimingStats.PersonalBestLapTime)
-          .filter((personalBestLapTime: any) => personalBestLapTime.Position == 1)[0]?.Value
+      if (data) {
+        if (parseInt(TrackStatus?.Status ?? '0') !== trackStatus)
+          setTrackStatus(parseInt(TrackStatus?.Status ?? '0'))
+
+        const newFastestLap = calculateFastestLap(TimingStats)
 
         if (newFastestLap && newFastestLap !== fastestLap) setFastestLap(newFastestLap)
 
         data?.SessionStatus?.Status !== sessionStatus &&
-          setSessionStatus(data?.SessionStatus?.Status)
+          setSessionStatus(SessionStatus?.Status ?? null)
       }
     },
     [trackStatus, fastestLap, sessionStatus]
   )
 
-  LiveTiming(['TrackStatus', 'SessionStatus', 'TimingStats'], handleDataReceived, 250)
+  useLiveTiming(['TrackStatus', 'SessionStatus', 'TimingStats'], handleDataReceived, speed3)
 
   return (
     <div className={styles.container} style={{ backgroundColor: colors?.['default'] ?? 'black' }}>

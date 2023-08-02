@@ -133,6 +133,7 @@ const store = new Store({
           }
         },
         tracktime: defaults.config.tracktime,
+        sessiontimer: defaults.config.tracktime,
         session_log: {
           name: 'Session Log',
           settings: {
@@ -363,10 +364,14 @@ ipcMain.handle('set-config', (_event, config) => {
 
 const getSize = (windowProperties: windowProperties) => {
   const config = store.get('config')
+  const internalSettings = store.get('internal_settings')
   switch (windowProperties.path) {
     case 'trackinfo':
-      const horizontal: boolean = config.trackinfo.settings.orientation.value === 'horizontal'
-      return { width: horizontal ? 900 : 250, height: horizontal ? 100 : 800 }
+      const index: number = config.trackinfo.settings.orientation.value === 'horizontal' ? 0 : 1
+      return {
+        width: internalSettings.windows.trackinfo.width[index],
+        height: internalSettings.windows.trackinfo.height[index]
+      }
   }
 
   return { width: windowProperties.width, height: windowProperties.height }

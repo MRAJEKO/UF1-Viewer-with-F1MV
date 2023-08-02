@@ -1,16 +1,23 @@
+import { ILiveTimingState } from '@renderer/types/LiveTimingStateTypes'
 import { useEffect } from 'react'
 import { ClockTopic, LiveTimingClockAPIGraphQL, Topic } from 'npm_f1mv_api'
-import { ILiveTimingState } from '../types/LiveTimingStateTypes'
+import { ILiveTimingClockData } from './useLiveTimingClock'
 
 const LiveTimingAPIGraphQL = window.mvApi.LiveTimingAPIGraphQL
 
-const LiveTimingStateClock = (
+const useLiveTimingStateClock = (
   topics: Topic[],
   clockTopics: ClockTopic[],
-  onDataReceived: (stateData: any, clockData: any) => void,
+  onDataReceived: (
+    stateData: ILiveTimingState,
+    clockData: ILiveTimingClockData,
+    firstPatch: boolean
+  ) => void,
   updateFrequency: number
 ) => {
   useEffect(() => {
+    let count = 0
+
     const fetchData = async () => {
       const configString = localStorage.getItem('config')
 
@@ -24,8 +31,10 @@ const LiveTimingStateClock = (
         const clockResponse = await LiveTimingClockAPIGraphQL(config, clockTopics)
 
         if (response) {
-          onDataReceived(response, clockResponse)
+          onDataReceived(response, clockResponse, count === 0)
         }
+
+        count++
       } catch (error) {
         console.log(error)
       }
@@ -36,4 +45,4 @@ const LiveTimingStateClock = (
   }, [onDataReceived])
 }
 
-export default LiveTimingStateClock
+export default useLiveTimingStateClock

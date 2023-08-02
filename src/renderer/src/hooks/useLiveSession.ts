@@ -1,3 +1,4 @@
+import { speed11, speed12 } from '@renderer/constants/refreshIntervals'
 import { useState, useEffect } from 'react'
 
 export interface liveSession {
@@ -28,7 +29,7 @@ export interface liveSessionInfo {
 const useLiveSession = () => {
   const [liveSessionLink, setLiveSessionLink] = useState<string>('')
   const [liveSessionInfo, setLiveSessionInfo] = useState<liveSessionInfo>({} as liveSessionInfo)
-  const [loop, setLoop] = useState<number>(15000)
+  const [loop, setLoop] = useState<number>(speed11)
 
   useEffect(() => {
     setLiveSessionLink(
@@ -66,7 +67,7 @@ const useLiveSession = () => {
       liveSession.sessionInfo?.Series === 'FORMULA 1' && liveSession.streamInfo?.liveTimingAvailable
   )
 
-  if (isLiveSession) setLoop(60000)
+  if (isLiveSession) setLoop(speed12)
 
   const prioritySession = liveSessionInfo?.liveSessions
     ?.filter((liveSession: liveSession) => liveSession.sessionInfo.Series === 'FORMULA 1')

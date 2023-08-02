@@ -3,9 +3,11 @@ import { timeToMiliseconds } from './convertTime'
 
 export const calculateTrackTime = (
   now: number,
-  liveTimingClockData: ILiveTimingClockData,
+  liveTimingClockData: ILiveTimingClockData | null,
   GmtOffset: string | null
 ) => {
+  if (!liveTimingClockData) return 0
+
   const systemTime = parseInt(liveTimingClockData?.systemTime)
   const trackTime = parseInt(liveTimingClockData?.trackTime)
   const paused = liveTimingClockData?.paused

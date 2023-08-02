@@ -1,7 +1,7 @@
 import MoveMode from '@renderer/components/MoveMode'
 import TeamRadio from '@renderer/components/TeamRadios/TeamRadio'
 import styles from '@renderer/components/TeamRadios/TeamRadios.module.scss'
-import useLiveTiming from '@renderer/hooks/useLiveTiming'
+import LiveTiming from '@renderer/hooks/useLiveTiming'
 import {
   IDriverList,
   ISessionInfo,
@@ -12,11 +12,12 @@ import { timeToMiliseconds, timezoneToMiliseconds } from '@renderer/utils/conver
 import { useEffect, useState } from 'react'
 import { TransitionGroup, CSSTransition } from 'react-transition-group'
 import StatusButton from '../components/TeamRadios/StatusButton'
+import { speed4 } from '@renderer/constants/refreshIntervals'
 
 interface IStateData {
-  SessionInfo: ISessionInfo
-  TeamRadio: ITeamRadio
-  DriverList: IDriverList
+  SessionInfo?: ISessionInfo
+  TeamRadio?: ITeamRadio
+  DriverList?: IDriverList
 }
 
 interface IButtonStatuses {
@@ -47,13 +48,13 @@ const TeamRadios = () => {
       ?.value ?? false
 
   const handleDataReceived = (stateData: IStateData, firstPatch: boolean) => {
-    const dataTeamRadios = stateData?.TeamRadio?.Captures || []
+    const dataTeamRadios = stateData.TeamRadio?.Captures || []
 
-    if (JSON.stringify(sessionInfo) !== JSON.stringify(stateData?.SessionInfo))
-      setSessionInfo(stateData?.SessionInfo)
+    if (JSON.stringify(sessionInfo) !== JSON.stringify(stateData.SessionInfo))
+      setSessionInfo(stateData?.SessionInfo || null)
 
     if (JSON.stringify(stateData.DriverList) !== JSON.stringify(driverList))
-      setDriverList(stateData.DriverList)
+      setDriverList(stateData.DriverList || {})
 
     if (teamRadios.length !== dataTeamRadios.length) {
       const newTeamRadios = dataTeamRadios.filter(
@@ -85,7 +86,7 @@ const TeamRadios = () => {
     }
   }
 
-  useLiveTiming(['TeamRadio', 'DriverList', 'SessionInfo'], handleDataReceived, 500)
+  LiveTiming(['TeamRadio', 'DriverList', 'SessionInfo'], handleDataReceived, speed4)
 
   useEffect(() => {
     window.ipcRenderer.send('initialize-keybind', 'CommandOrControl+Shift+T')

@@ -1,3 +1,14 @@
+export const f1TimeToMiliseconds = (time) => {
+  if (!time) return 0
+
+  const [seconds, minutes] = time
+    .split(':')
+    .reverse()
+    .map((number) => parseInt(number))
+
+  return (minutes * 60 + seconds) * 1000
+}
+
 export const timeToMiliseconds = (time) => {
   if (!time) return 0
 
@@ -17,10 +28,6 @@ export const milisecondsToTime = (ms) => {
   const hours = date.getUTCHours().toString().padStart(2, '0')
   const minutes = date.getUTCMinutes().toString().padStart(2, '0')
   const seconds = date.getUTCSeconds().toString().padStart(2, '0')
-
-  if (parseInt(hours) === 0) {
-    return `${minutes}:${seconds}`
-  }
 
   return `${hours}:${minutes}:${seconds}`
 }
