@@ -25,7 +25,10 @@ const Tools = ({ shown, openLayouts, restoreAll, settings }: ToolsProps) => {
     <section
       id="tools"
       className={`${styles.tools} ${styles['background-tools']} ${windowsStyles['homepage-section']}`}
-      style={{ height: shown ? '' : '0px', bottom: shown ? '' : '0px' }}
+      style={{
+        height: shown ? '' : '0px',
+        border: shown ? '' : 'none'
+      }}
     >
       <div className={styles['tools-wrapper']}>
         <div className={`${styles['icon']} ${styles['dynamic-button']}`}>
