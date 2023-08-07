@@ -17,7 +17,6 @@
   .group {
     display: flex;
     flex-direction: column;
-    // justify-content: space-evenly;
     width: 100%;
     gap: 5vh;
     height: 100%;
@@ -39,9 +38,9 @@
     }
 
     p {
-      // color: white;
       font-family: 'InterBold', sans-serif;
       font-size: 15vh;
+      white-space: nowrap;
     }
   }
 }

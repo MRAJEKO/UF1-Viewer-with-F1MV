@@ -1,0 +1,63 @@
+@use '@renderer/assets/colors.scss' as Colors;
+
+.container {
+  width: 100vw;
+  height: 100vh;
+  padding: 5vw;
+  border-radius: 10vw;
+  gap: 3vh;
+  background-color: Colors.$black-translucent;
+  display: flex;
+  flex-direction: column;
+  -webkit-app-region: drag;
+  font-family: 'InterBold';
+
+  * {
+    transition: all 0.5s ease-in-out;
+  }
+
+  .header {
+    width: 100%;
+    height: 25vw;
+    display: grid;
+    place-items: center;
+    border-radius: 7vw;
+
+    p {
+      font-size: 10vw;
+    }
+  }
+
+  .sectors {
+    display: flex;
+    flex-direction: column;
+    gap: 2vw;
+    justify-content: space-between;
+    height: 100%;
+    padding-bottom: 2vw;
+
+    .sector {
+      display: grid;
+      grid-template-columns: 2fr 3fr;
+      width: 100%;
+      align-items: center;
+      gap: 5vw;
+
+      .number {
+        font-size: 6vw;
+        color: Colors.$white;
+      }
+
+      .status {
+        height: 100%;
+        border-radius: 3vw;
+        padding: 2vw 0;
+
+        p {
+          text-align: center;
+          font-size: 5vw;
+        }
+      }
+    }
+  }
+}

@@ -24,7 +24,7 @@ const useSessionTimer = () => {
       if (JSON.stringify(ExtrapolatedClock) !== JSON.stringify(extraPolatedClock))
         setExtraPolatedClock(ExtrapolatedClock)
 
-      setNow(new Date().getTime())
+      if (ExtrapolatedClock.Extrapolating) setNow(new Date().getTime())
 
       if (JSON.stringify(clockData) !== JSON.stringify(liveTimingClockData))
         setLiveTimingClockData(clockData)

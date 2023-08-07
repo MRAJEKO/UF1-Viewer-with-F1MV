@@ -118,7 +118,29 @@ const TrackInfoProgress = ({ sessionTimeMs, data }: ITrackInfoSessionProps) => {
       )
     }
     default:
-      return null
+      const { StartDate, EndDate } = SessionInfo || {}
+
+      const sessionDuration =
+        StartDate && EndDate
+          ? new Date(EndDate).getTime() - new Date(StartDate).getTime()
+          : undefined
+
+      if (!sessionDuration) return null
+
+      const progressPercentage = sessionTimeMs
+        ? Math.floor(100 - (sessionTimeMs / sessionDuration) * 100)
+        : '?'
+
+      return (
+        <TrackInfoGroup>
+          <TrackInfoTitle title={'PROGRESS'} />
+          <TrackInfoBar
+            textColor={finished || sessionInactive ? Colors.black : null}
+            color={finished || sessionInactive ? Colors.gray : Colors.green}
+            text={finished ? 'CONCLUDED' : `${progressPercentage}% / 100%`}
+          />
+        </TrackInfoGroup>
+      )
   }
 }
 

@@ -6,13 +6,21 @@ import { ILiveTimingState } from '@renderer/types/LiveTimingStateTypes'
 import { useState } from 'react'
 import styles from '@renderer/components/TrackInfo/TrackInfo.module.scss'
 import useSessionTimer from '@renderer/hooks/useSessionTimer'
+import TrackInfoPitlane from '@renderer/components/TrackInfo/TrackInfoPitlane'
+import TrackInfoDrs from '@renderer/components/TrackInfo/TrackInfoDrs'
+import TrackInfoHeadPadding from '@renderer/components/TrackInfo/TrackInfoHeadPadding'
+import TrackInfoGrip from '@renderer/components/TrackInfo/TrackInfoGrip'
 
 const TrackInfo = () => {
   const [stateData, setStateData] = useState<ILiveTimingState>({} as ILiveTimingState)
 
   const { sessionTime, extraPolating, sessionTimeMs } = useSessionTimer()
 
-  const handleDataReceived = (data: ILiveTimingState) => setStateData(data)
+  const handleDataReceived = (data: ILiveTimingState) => {
+    console.log(data)
+    if (JSON.stringify(data) === JSON.stringify(stateData)) return console.log('same data')
+    setStateData(data)
+  }
 
   LiveTiming(
     [
@@ -41,6 +49,10 @@ const TrackInfo = () => {
         sessionTimeMs={sessionTimeMs}
         data={{ TimingData, SessionInfo, TimingStats, LapCount, SessionStatus }}
       />
+      <TrackInfoGrip data={{ RaceControlMessages }} />
+      <TrackInfoHeadPadding data={{ RaceControlMessages }} />
+      <TrackInfoDrs data={{ RaceControlMessages }} />
+      <TrackInfoPitlane data={{ SessionStatus, RaceControlMessages }} />
     </div>
   )
 }

@@ -12,6 +12,7 @@ import SessionLog from './pages/SessionLog'
 import TrackInfo from './pages/TrackInfo'
 import TeamRadios from './pages/TeamRadios'
 import SessionTimer from './pages/SessionTimer'
+import SectorStatuses from './pages/SectorStatuses'
 
 const router = createBrowserRouter([
   {
@@ -37,6 +38,10 @@ const router = createBrowserRouter([
   {
     path: '/trackinfo',
     element: <TrackInfo />
+  },
+  {
+    path: '/sector_statuses',
+    element: <SectorStatuses />
   },
   {
     path: '/teamradios',

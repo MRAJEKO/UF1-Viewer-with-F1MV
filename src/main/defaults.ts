@@ -384,9 +384,11 @@ const defaults = {
       gray: '#808080',
       darkgray: '#404040',
       purple: '#b900b9',
+      pink: '#ff6de9',
       green: '#00AF00',
       red: '#d10000',
       yellow: '#ffe600',
+      lightblue: '#35c9fb',
       blue: '#2196f3',
       darkblue: '#0d47a1',
       orange: '#ff9800',
@@ -499,8 +501,8 @@ const defaults = {
         aspectRatio: null,
         icon: 'icons/windows/trackinfo.png'
       },
-      statuses: {
-        path: 'statuses',
+      sector_statuses: {
+        path: 'sector_statuses',
         width: 250,
         height: 800,
         frame: false,
@@ -508,7 +510,7 @@ const defaults = {
         transparent: true,
         hasShadow: false,
         aspectRatio: null,
-        icon: 'icons/windows/statuses.png'
+        icon: 'icons/windows/sectorstatuses.png'
       },
       singlercm: {
         path: 'singlercm',

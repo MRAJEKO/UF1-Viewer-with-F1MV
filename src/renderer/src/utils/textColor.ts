@@ -1,6 +1,9 @@
-export const getTextColor = (backgroundColor: string) => {
+export const contrastColor = (backgroundColor: string) => {
   const rgb = hexToRgb(backgroundColor)
+
   const brightness = calculateBrightness(rgb)
+
+  if (isNaN(brightness)) return undefined
 
   return brightness > 128 ? '#000000' : '#FFFFFF'
 }

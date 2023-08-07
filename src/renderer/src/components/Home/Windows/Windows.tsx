@@ -24,7 +24,7 @@ const Windows = ({ settingsExtended }: IWindowsProps) => {
       <Window onPress={() => openWindow('sessiontimer')} name="Session Timer" />
       <Window onPress={() => openWindow('session_log')} name="Session Log*" />
       <Window onPress={() => openWindow('trackinfo')} name="Track Information*" />
-      <Window onPress={launchF1MV} name="Sector Statuses**" />
+      <Window onPress={() => openWindow('sector_statuses')} name="Sector Statuses*" />
       <Window onPress={launchF1MV} name="Single Race Control Message**" />
       <Window onPress={launchF1MV} name="Crash Detection**" />
       <Window onPress={launchF1MV} name="Track Rotation Compass**" />

@@ -7,7 +7,9 @@ import {
   Config,
   Topic,
   ClockTopic,
-  customGraphQL
+  customGraphQL,
+  getCircuitInfo,
+  Year
 } from 'npm_f1mv_api'
 
 import Govee from 'govee-lan-control'
@@ -44,6 +46,7 @@ contextBridge.exposeInMainWorld('shell', {
 contextBridge.exposeInMainWorld('mvApi', {
   LiveTimingAPIGraphQL: (config: Config, topics: Topic[]) => LiveTimingAPIGraphQL(config, topics),
   discoverF1MVInstances: (host: string) => discoverF1MVInstances(host),
+  getCircuitInfo: (circuitId: number, year: Year) => getCircuitInfo(circuitId, year),
   LiveTimingClockAPIGraphQL: (config: Config, topics: ClockTopic[]) =>
     LiveTimingClockAPIGraphQL(config, topics),
   customGraphQL: (config: Config, body: object, variables: object, operationName: string) =>

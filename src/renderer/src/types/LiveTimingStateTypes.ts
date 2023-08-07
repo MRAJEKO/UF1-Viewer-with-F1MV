@@ -209,49 +209,9 @@ export interface IRaceControlMessages {
 
 export interface IRaceControlMessage {
   Utc: DateString
-  Category: 'Flag' | 'Other' | 'Drs' | 'CarEvent' | 'SafetyCar'
-  SubCategory?:
-    | 'Drs'
-    | 'Flag'
-    | 'SessionStartDelayed'
-    | 'SessionDurationChanged'
-    | 'LapTimeDeleted'
-    | 'LapTimeReinstated'
-    | 'LappedCarsMayOvertake'
-    | 'LappedCarsMayNotOvertake'
-    | 'NormalGripConditions'
-    | 'OffTrackAndContinued'
-    | 'SpunAndContinued'
-    | 'MissedApex'
-    | 'CarStopped'
-    | 'SafetyCar'
-    | 'MedicalCar'
-    | 'VirtualSafetyCar'
-    | 'IncidentNoted'
-    | 'IncidentUnderInvestigation'
-    | 'IncidentInvestigationAfterSession'
-    | 'IncidentNoFurtherAction'
-    | 'IncidentNoFurtherInvestigation'
-    | 'TimePenalty'
-    | 'StopGoPenalty'
-    | 'TrackTestCompleted'
-    | 'TrackSurfaceSlippery'
-    | 'LowGripConditions'
-    | 'Weather'
-    | 'PitExit'
-    | 'PitEntry'
-    | 'SessionResume'
-    | 'Correction'
-    | 'RecoveryVehicle'
-  Flag:
-    | 'YELLOW'
-    | 'DOUBLE YELLOW'
-    | 'GREEN'
-    | 'CHECKERED'
-    | 'RED'
-    | 'BLUE'
-    | 'BLACK AND WHITE'
-    | string
+  Category: TRaceControlMessageCategory
+  SubCategory?: TRaceControlMessageSubCategory
+  Flag: TRaceControlMessageFlag
   Status?: 'DEPLOYED' | 'ENDING' | 'DISABLED' | 'ENABLED' | 'IN THIS LAP' | 'THROUGH THE PIT LANE'
   Scope: 'Track' | 'Sector' | 'Driver'
   Mode?: 'SAFETY CAR' | 'VIRTUAL SAFETY CAR'
@@ -259,6 +219,53 @@ export interface IRaceControlMessage {
   Lap?: number
   Sector?: number
 }
+
+export type TRaceControlMessageCategory = 'Flag' | 'Other' | 'Drs' | 'CarEvent' | 'SafetyCar'
+
+export type TRaceControlMessageSubCategory =
+  | 'Drs'
+  | 'Flag'
+  | 'SessionStartDelayed'
+  | 'SessionDurationChanged'
+  | 'LapTimeDeleted'
+  | 'LapTimeReinstated'
+  | 'LappedCarsMayOvertake'
+  | 'LappedCarsMayNotOvertake'
+  | 'OffTrackAndContinued'
+  | 'SpunAndContinued'
+  | 'MissedApex'
+  | 'CarStopped'
+  | 'SafetyCar'
+  | 'MedicalCar'
+  | 'VirtualSafetyCar'
+  | 'IncidentNoted'
+  | 'IncidentUnderInvestigation'
+  | 'IncidentInvestigationAfterSession'
+  | 'IncidentNoFurtherAction'
+  | 'IncidentNoFurtherInvestigation'
+  | 'TimePenalty'
+  | 'StopGoPenalty'
+  | 'TrackTestCompleted'
+  | 'TrackSurfaceSlippery'
+  | 'LowGripConditions'
+  | 'NormalGripConditions'
+  | 'Weather'
+  | 'PitEntry'
+  | 'PitExit'
+  | 'SessionResume'
+  | 'Correction'
+  | 'RecoveryVehicle'
+
+export type TRaceControlMessageFlag =
+  | 'YELLOW'
+  | 'DOUBLE YELLOW'
+  | 'CLEAR'
+  | 'CHECKERED'
+  | 'RED'
+  | 'BLUE'
+  | 'BLACK AND WHITE'
+  | 'OPEN'
+  | 'CLOSED'
 
 export interface ISessionData {
   Series: ISessionSerie[] | undefined

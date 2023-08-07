@@ -30,14 +30,13 @@ const TrackInfoSession = ({ sessionTime, extraPolating, data }: ITrackInfoSessio
   const { SessionStatus, RaceControlMessages } = data
 
   useEffect(() => {
-    if (SessionStatus) setSessionStatus(SessionStatus.Status)
+    if (SessionStatus && SessionStatus.Status !== sessionStatus)
+      setSessionStatus(SessionStatus.Status)
 
     if (checkStartDelayed(RaceControlMessages) !== startDelayed) setStartDelayed(!startDelayed)
   }, [SessionStatus, RaceControlMessages])
 
   const sessionStatusMappings = getSessionStatus(sessionStatus, startDelayed)
-
-  console.log('test')
 
   return (
     <TrackInfoGroup>

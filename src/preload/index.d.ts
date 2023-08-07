@@ -1,6 +1,13 @@
 import { ElectronAPI } from '@electron-toolkit/preload'
 import { Config, Topic, ClockTopic } from 'npm_f1mv_api'
 
+interface IPoint {
+  angle: number
+  length: number
+  number: number
+  trackPosition: { x: number; y: number }
+}
+
 declare global {
   interface Window {
     electron: ElectronAPI
@@ -17,6 +24,18 @@ declare global {
     mvApi: {
       LiveTimingAPIGraphQL: (config: Config, topics: Topic[]) => Promise<any>
       discoverF1MVInstances: (host: string) => Promise<any>
+      getCircuitInfo: (
+        circuitId: number,
+        year: Year
+      ) => Promise<{
+        corners: IPoint[]
+        marshalLights: IPoint[]
+        marshalSectors: IPoint[]
+        rotation: number
+        x: number[]
+        y: number[]
+        year: Year
+      }>
       LiveTimingClockAPIGraphQL: (config: Config, topics: ClockTopic[]) => Promise<any>
       customGraphQL: (
         config: Config,

@@ -1,4 +1,4 @@
-import { getTextColor } from '@renderer/utils/textColor'
+import { contrastColor } from '@renderer/utils/textColor'
 import styles from './TrackInfo.module.scss'
 
 interface ITrackInfoBarProps {
@@ -10,7 +10,7 @@ interface ITrackInfoBarProps {
 const TrackInfoBar = ({ textColor, color, text }: ITrackInfoBarProps) => {
   return (
     <div className={styles.bar} style={{ background: color ?? '#ffffff' }}>
-      <p style={{ color: textColor ?? getTextColor(color ?? '#ffffff') }}>{text}</p>
+      <p style={{ color: textColor ?? contrastColor(color ?? '#ffffff') }}>{text}</p>
     </div>
   )
 }
