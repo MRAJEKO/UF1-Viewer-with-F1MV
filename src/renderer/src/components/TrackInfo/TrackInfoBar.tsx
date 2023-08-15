@@ -8,9 +8,11 @@ interface ITrackInfoBarProps {
 }
 
 const TrackInfoBar = ({ textColor, color, text }: ITrackInfoBarProps) => {
+  console.log(textColor ?? contrastColor(color ?? '#ffffff'))
+
   return (
     <div className={styles.bar} style={{ background: color ?? '#ffffff' }}>
-      <p style={{ color: textColor ?? contrastColor(color ?? '#ffffff') }}>{text}</p>
+      <p style={{ color: textColor ?? contrastColor(color ?? '#ffffff') }}>{text ?? 'UNKNOWN'}</p>
     </div>
   )
 }

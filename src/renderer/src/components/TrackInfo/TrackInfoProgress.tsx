@@ -125,11 +125,10 @@ const TrackInfoProgress = ({ sessionTimeMs, data }: ITrackInfoSessionProps) => {
           ? new Date(EndDate).getTime() - new Date(StartDate).getTime()
           : undefined
 
-      if (!sessionDuration) return null
-
-      const progressPercentage = sessionTimeMs
-        ? Math.floor(100 - (sessionTimeMs / sessionDuration) * 100)
-        : '?'
+      const progressPercentage =
+        sessionDuration && sessionTimeMs
+          ? Math.floor(100 - (sessionTimeMs / sessionDuration) * 100)
+          : '?'
 
       return (
         <TrackInfoGroup>

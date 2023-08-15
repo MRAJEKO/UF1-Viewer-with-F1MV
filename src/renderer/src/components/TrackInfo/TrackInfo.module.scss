@@ -1,5 +1,33 @@
 @use '@renderer/assets/colors.scss' as Colors;
 
+.vertical {
+  .container {
+    padding: 5vw;
+    border-radius: 10vw;
+    gap: 7vw;
+    flex-direction: column;
+    justify-content: space-between;
+
+    .group {
+      gap: 4vw;
+      height: auto;
+
+      .bar {
+        height: 15vw;
+        border-radius: 100vw;
+      }
+
+      .title {
+        font-size: 10vw !important;
+      }
+
+      p {
+        font-size: 8vw;
+      }
+    }
+  }
+}
+
 .container {
   width: 100vw;
   height: 100vh;
@@ -31,7 +59,7 @@
 
     .title {
       font-family: 'InterBold', sans-serif;
-      color: white;
+      color: Colors.$white;
       text-align: center;
       font-size: 18vh !important;
       padding: 0;

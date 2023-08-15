@@ -45,8 +45,6 @@ const TrackInfoPitlane = ({ data }: ITrackInfoPitlaneProps) => {
     }
   }, [data])
 
-  if (!sessionStatus || !raceControlMessages) return null
-
   return (
     <TrackInfoGroup>
       <TrackInfoTitle title={'PITLANE'} />

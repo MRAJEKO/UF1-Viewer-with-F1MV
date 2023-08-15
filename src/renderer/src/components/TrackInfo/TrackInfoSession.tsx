@@ -23,7 +23,7 @@ interface ITrackInfoSessionProps {
 }
 
 const TrackInfoSession = ({ sessionTime, extraPolating, data }: ITrackInfoSessionProps) => {
-  const [sessionStatus, setSessionStatus] = useState<ISessionStatusStatus>('Aborted')
+  const [sessionStatus, setSessionStatus] = useState<ISessionStatusStatus>('Inactive')
 
   const [startDelayed, setStartDelayed] = useState<boolean>(false)
 
