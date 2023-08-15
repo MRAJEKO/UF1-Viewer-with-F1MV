@@ -365,11 +365,12 @@ const defaults = {
           type: 'switch',
           value: false
         },
-        mute_streams: {
-          title: 'Mute Streams',
-          description: 'Mute the streams when playing onboard radios.',
-          type: 'switch',
-          value: false
+        volume_change_percentage: {
+          title: 'Volume Change Percentage',
+          description:
+            "How much the streams should reduce volume relative to their current volume. 0 won't reduce the sound at all and 100 would mute the stream.",
+          type: 'slider',
+          value: 0
         },
         pause_keybind: {
           title: 'Pause keybind',

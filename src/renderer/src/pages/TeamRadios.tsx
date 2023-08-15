@@ -8,11 +8,13 @@ import {
   ITeamRadio,
   ITeamRadioCapture
 } from '@renderer/types/LiveTimingStateTypes'
-import { timeToMiliseconds, timezoneToMiliseconds } from '@renderer/utils/convertTime'
+import { timeToMiliseconds } from '@renderer/utils/convertTime'
 import { useEffect, useState } from 'react'
 import { TransitionGroup, CSSTransition } from 'react-transition-group'
 import StatusButton from '../components/TeamRadios/StatusButton'
 import { speed4 } from '@renderer/constants/refreshIntervals'
+import { teamRadioSettings } from '@renderer/modules/Settings'
+import { reduceAllPlayersVolume, restoreAllPlayersVolume } from '@renderer/utils/controlPlayers'
 
 interface IStateData {
   SessionInfo?: ISessionInfo
@@ -33,21 +35,26 @@ const TeamRadios = () => {
   const [teamRadios, setTeamRadios] = useState<ITeamRadioCapture[]>([])
 
   const [buttonStatuses, setButtonStatuses] = useState<IButtonStatuses>({
-    autoplay:
-      window.ipcRenderer.sendSync('get-store', 'config')?.teamradios?.settings?.autoplay.value ??
-      false,
+    autoplay: teamRadioSettings?.settings?.autoplay?.value ?? false,
     play: true
   })
 
-  const [audioPlaying, setAutoPlaying] = useState<boolean>(false)
+  console.log(teamRadioSettings)
+
+  const [audioPlaying, setAudioPlaying] = useState<boolean>(false)
 
   const [queue, setQueue] = useState<ITeamRadioCapture[]>([])
 
-  const minimizeAnimations =
-    window.ipcRenderer.sendSync('get-store', 'config')?.teamradios?.settings?.minimize_animations
-      ?.value ?? false
+  const minimizeAnimations = teamRadioSettings?.settings?.minimize_animations?.value ?? false
+
+  const volumeChangePercentage = teamRadioSettings?.settings?.volume_change_percentage?.value ?? 0
+
+  const keybind =
+    teamRadioSettings?.settings?.pause_keybind?.value?.filter((key) => key).join('+') ?? null
 
   const handleDataReceived = (stateData: IStateData, firstPatch: boolean) => {
+    console.log(stateData)
+
     const dataTeamRadios = stateData.TeamRadio?.Captures || []
 
     if (JSON.stringify(sessionInfo) !== JSON.stringify(stateData.SessionInfo))
@@ -62,25 +69,15 @@ const TeamRadios = () => {
       )
 
       if (newTeamRadios.length > 0 && !firstPatch) {
-        setQueue(
-          [...queue, ...newTeamRadios].sort(
-            (a, b) => timezoneToMiliseconds(a.Utc) - timezoneToMiliseconds(b.Utc)
-          )
-        )
+        setQueue([...queue, ...[...newTeamRadios]])
       }
 
-      setTeamRadios([
-        ...dataTeamRadios.sort(
-          (a, b) => timezoneToMiliseconds(b.Utc) - timezoneToMiliseconds(a.Utc)
-        )
-      ])
+      setTeamRadios([...dataTeamRadios].reverse())
     }
   }
 
   const handleAudioStop = () => {
-    setAutoPlaying(false)
-    console.log('audio stopped')
-    console.log(buttonStatuses.autoplay)
+    setAudioPlaying(false)
     if (buttonStatuses.autoplay) {
       setQueue((prevQueue) => prevQueue.slice(1))
     }
@@ -89,11 +86,15 @@ const TeamRadios = () => {
   LiveTiming(['TeamRadio', 'DriverList', 'SessionInfo'], handleDataReceived, speed4)
 
   useEffect(() => {
-    window.ipcRenderer.send('initialize-keybind', 'CommandOrControl+Shift+T')
+    console.log(teamRadioSettings?.settings?.pause_keybind?.value)
+    console.log(keybind)
+    if (keybind) {
+      window.ipcRenderer.send('initialize-keybind', keybind)
 
-    window.addEventListener('beforeunload', () => {
-      window.ipcRenderer.send('remove-keybind', 'CommandOrControl+Shift+T')
-    })
+      window.addEventListener('beforeunload', () => {
+        window.ipcRenderer.send('remove-keybind', keybind)
+      })
+    }
   }, [])
 
   useEffect(() => {
@@ -106,15 +107,15 @@ const TeamRadios = () => {
     if (!buttonStatuses.autoplay && queue.length > 0) setQueue([])
 
     if (buttonStatuses.play && !audioPlaying && queue.length > 0) {
-      console.log('play')
-      setAutoPlaying(true)
+      setAudioPlaying(true)
     }
   }, [buttonStatuses.autoplay, buttonStatuses.play])
 
   useEffect(() => {
-    if (audioPlaying && buttonStatuses.play) {
+    if (volumeChangePercentage) {
+      queue.length ? reduceAllPlayersVolume(volumeChangePercentage) : restoreAllPlayersVolume()
     }
-  }, [audioPlaying, buttonStatuses.play])
+  }, [queue.length === 0])
 
   return (
     <>
@@ -139,7 +140,7 @@ const TeamRadios = () => {
                   gmtOffset={timeToMiliseconds(sessionInfo?.GmtOffset)}
                   play={buttonStatuses.play}
                   onAudioStop={handleAudioStop}
-                  onAudioStart={() => setAutoPlaying(true)}
+                  onAudioStart={() => setAudioPlaying(true)}
                   autoplay={
                     !audioPlaying &&
                     buttonStatuses.autoplay &&

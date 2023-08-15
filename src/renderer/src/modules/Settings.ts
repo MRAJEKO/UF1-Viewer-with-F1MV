@@ -1,16 +1,37 @@
 export const goveeEnabled: boolean =
   window.ipcRenderer.sendSync('get-store', 'config')?.flag_display?.settings?.govee.value ?? false
 
+interface IOption {
+  value: string | null
+  title: string
+}
+
 interface ISetting {
   title: string
   description: string
   type: string
-  value: boolean | string | number
+  value: boolean | string | number | [number | null, number | null, number | null]
+  options?: [IOption[], IOption[], IOption[]]
 }
 
 interface ISettingNumber extends ISetting {
   type: 'number'
   value: number
+}
+
+// interface ISettingString extends ISetting {
+//   type: 'string'
+//   value: string
+// }
+
+interface ISettingBoolean extends ISetting {
+  type: 'boolean'
+  value: boolean
+}
+
+interface INumberArray extends ISetting {
+  type: 'multiselect'
+  value: [number | null, number | null, number | null]
 }
 
 interface ISessionLogSettings {
@@ -45,6 +66,18 @@ interface ISinglercmSettings {
   }
 }
 
+interface ITeamRadioSettings {
+  name: string
+  settings: {
+    always_on_top: ISettingBoolean
+    autoplay: ISettingBoolean
+    hide_footer: ISettingBoolean
+    minimize_animations: ISettingBoolean
+    volume_change_percentage: ISettingNumber
+    pause_keybind: INumberArray
+  }
+}
+
 export const sessionLogSettings: ISessionLogSettings | null =
   window.ipcRenderer.sendSync('get-store', 'config')?.session_log ?? null
 
@@ -53,3 +86,6 @@ export const trackInfoSettings: ITrackInfoSettings | null =
 
 export const singlercmSettings: ISinglercmSettings | null =
   window.ipcRenderer.sendSync('get-store', 'config')?.singlercm ?? null
+
+export const teamRadioSettings: ITeamRadioSettings | null =
+  window.ipcRenderer.sendSync('get-store', 'config')?.teamradios ?? null
