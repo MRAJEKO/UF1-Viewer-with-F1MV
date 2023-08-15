@@ -10,6 +10,7 @@ import TrackInfoPitlane from '@renderer/components/TrackInfo/TrackInfoPitlane'
 import TrackInfoDrs from '@renderer/components/TrackInfo/TrackInfoDrs'
 import TrackInfoHeadPadding from '@renderer/components/TrackInfo/TrackInfoHeadPadding'
 import TrackInfoGrip from '@renderer/components/TrackInfo/TrackInfoGrip'
+import { trackInfoSettings } from '@renderer/modules/Settings'
 
 const TrackInfo = () => {
   const [stateData, setStateData] = useState<ILiveTimingState>({} as ILiveTimingState)
@@ -21,6 +22,10 @@ const TrackInfo = () => {
     if (JSON.stringify(data) === JSON.stringify(stateData)) return console.log('same data')
     setStateData(data)
   }
+
+  const vertical = trackInfoSettings?.settings?.orientation?.value === 'vertical'
+
+  console.log(trackInfoSettings)
 
   LiveTiming(
     [
@@ -39,20 +44,22 @@ const TrackInfo = () => {
     stateData
 
   return (
-    <div className={styles.container}>
-      <TrackInfoSession
-        sessionTime={sessionTime}
-        extraPolating={extraPolating}
-        data={{ SessionStatus, RaceControlMessages }}
-      />
-      <TrackInfoProgress
-        sessionTimeMs={sessionTimeMs}
-        data={{ TimingData, SessionInfo, TimingStats, LapCount, SessionStatus }}
-      />
-      <TrackInfoGrip data={{ RaceControlMessages }} />
-      <TrackInfoHeadPadding data={{ RaceControlMessages }} />
-      <TrackInfoDrs data={{ RaceControlMessages }} />
-      <TrackInfoPitlane data={{ SessionStatus, RaceControlMessages }} />
+    <div className={vertical ? styles.vertical : ''}>
+      <div className={styles.container}>
+        <TrackInfoSession
+          sessionTime={sessionTime}
+          extraPolating={extraPolating}
+          data={{ SessionStatus, RaceControlMessages }}
+        />
+        <TrackInfoProgress
+          sessionTimeMs={sessionTimeMs}
+          data={{ TimingData, SessionInfo, TimingStats, LapCount, SessionStatus }}
+        />
+        <TrackInfoGrip data={{ RaceControlMessages }} />
+        <TrackInfoHeadPadding data={{ RaceControlMessages }} />
+        <TrackInfoDrs data={{ RaceControlMessages }} />
+        <TrackInfoPitlane data={{ SessionStatus, RaceControlMessages }} />
+      </div>
     </div>
   )
 }

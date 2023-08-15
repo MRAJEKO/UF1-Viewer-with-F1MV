@@ -182,6 +182,12 @@ const defaults = {
           type: 'switch',
           value: true
         },
+        keep_on_display: {
+          title: 'Keep on display',
+          description: 'Keep the message on display until a new message is send.',
+          type: 'switch',
+          value: false
+        },
         display_duration: {
           title: 'Display duration',
           description: 'The duration in milliseconds to show the message.',
@@ -493,7 +499,7 @@ const defaults = {
       trackinfo: {
         path: 'trackinfo',
         width: [900, 250],
-        height: [100, 250],
+        height: [100, 750],
         frame: false,
         hideMenuBar: true,
         transparent: true,
@@ -521,7 +527,7 @@ const defaults = {
         transparent: true,
         hasShadow: false,
         alwaysOnTop: true,
-        aspectRatio: null,
+        aspectRatio: 10,
         icon: 'icons/windows/singlercm.png'
       },
       crashdetection: {

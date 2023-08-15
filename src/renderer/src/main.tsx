@@ -13,6 +13,7 @@ import TrackInfo from './pages/TrackInfo'
 import TeamRadios from './pages/TeamRadios'
 import SessionTimer from './pages/SessionTimer'
 import SectorStatuses from './pages/SectorStatuses'
+import SingleRCM from './pages/SingleRCM'
 
 const router = createBrowserRouter([
   {
@@ -46,6 +47,10 @@ const router = createBrowserRouter([
   {
     path: '/teamradios',
     element: <TeamRadios />
+  },
+  {
+    path: '/singlercm',
+    element: <SingleRCM />
   }
 ])
 

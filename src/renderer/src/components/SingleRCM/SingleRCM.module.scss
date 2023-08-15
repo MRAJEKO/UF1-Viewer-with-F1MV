@@ -1,0 +1,84 @@
+@use '@renderer/assets/colors.scss' as Colors;
+
+.container {
+  display: grid;
+  place-items: center;
+  user-select: none;
+
+  .message {
+    background-color: Colors.$black-translucent;
+    height: 100vh;
+    width: 100vw;
+    display: flex;
+    align-items: center;
+    border-radius: 30vh;
+    padding: 0 2vw;
+    overflow: hidden;
+
+    .fia {
+      height: 40%;
+      img {
+        height: 100%;
+      }
+    }
+
+    .text {
+      margin-left: 3vw;
+      padding-left: 3vw;
+      border-left: 0.1vw solid Colors.$lighter-gray;
+      display: flex;
+      align-items: center;
+      text-align: center;
+      height: 60%;
+
+      p {
+        font-family: 'InterBold';
+        color: white;
+        font-size: 1.7vw;
+        width: 72vw;
+      }
+    }
+  }
+}
+
+@keyframes display {
+  0% {
+    transform: translateY(-100%);
+    width: 10vw;
+  }
+  40% {
+    transform: translateY(0);
+    width: 10vw;
+  }
+  70% {
+    transform: translateY(0);
+    width: 10vw;
+  }
+  100% {
+    transform: translateY(0);
+    width: 100vw;
+  }
+}
+
+@keyframes hide {
+  0% {
+    transform: translateY(0);
+    width: 100vw;
+  }
+  30% {
+    transform: translateY(0);
+    width: 10vw;
+  }
+  60% {
+    transform: translateY(0);
+    width: 10vw;
+  }
+  100% {
+    transform: translateY(-100%);
+    width: 10vw;
+  }
+}
+
+.hide-initially {
+  transform: translateY(-100%);
+}

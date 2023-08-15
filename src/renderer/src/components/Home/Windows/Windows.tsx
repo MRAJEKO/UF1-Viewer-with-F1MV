@@ -23,9 +23,9 @@ const Windows = ({ settingsExtended }: IWindowsProps) => {
       <Window onPress={() => openWindow('tracktime')} name="Delayed Track Time" />
       <Window onPress={() => openWindow('sessiontimer')} name="Session Timer" />
       <Window onPress={() => openWindow('session_log')} name="Session Log*" />
-      <Window onPress={() => openWindow('trackinfo')} name="Track Information*" />
-      <Window onPress={() => openWindow('sector_statuses')} name="Sector Statuses*" />
-      <Window onPress={launchF1MV} name="Single Race Control Message**" />
+      <Window onPress={() => openWindow('trackinfo')} name="Track Information" />
+      <Window onPress={() => openWindow('sector_statuses')} name="Sector Statuses" />
+      <Window onPress={() => openWindow('singlercm')} name="Single Race Control Message*" />
       <Window onPress={launchF1MV} name="Crash Detection**" />
       <Window onPress={launchF1MV} name="Track Rotation Compass**" />
       <Window onPress={launchF1MV} name="Tire Statistics**" />

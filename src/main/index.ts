@@ -215,6 +215,7 @@ const store = new Store({
           name: 'Single Race Control Message',
           settings: {
             always_on_top: defaults.config.singlercm.settings.always_on_top,
+            keep_on_display: defaults.config.singlercm.settings.keep_on_display,
             display_duration: {
               title: 'Display duration',
               description: 'The duration in milliseconds to show the message.',

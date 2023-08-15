@@ -8,7 +8,7 @@ import {
 import DoubleSessionLog from './DoubleSessionLog'
 import Colors, { sessionLogHexModifier } from '@renderer/modules/Colors'
 import { ISessionLog } from '@renderer/pages/SessionLog'
-import { isWantedMessage } from '@renderer/utils/isWantedMessage'
+import { isWantedCategory } from '@renderer/utils/isWantedMessage'
 import { updateLogs } from '@renderer/utils/updateLogs'
 
 const baseImageUrl = 'src/renderer/src/assets/icons'
@@ -153,7 +153,7 @@ const RaceControlMessageLogs = (
   const { RaceControlMessages: dataRaceControlMessages } = data
 
   const wantedRaceControlMessages = dataRaceControlMessages?.Messages?.filter(
-    (raceControlMessage) => isWantedMessage(raceControlMessage, WANTED_CATEGORIES)
+    (raceControlMessage) => isWantedCategory(raceControlMessage, WANTED_CATEGORIES)
   )
 
   if (
