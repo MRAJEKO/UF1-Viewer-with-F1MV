@@ -3,6 +3,7 @@ import Switch from './inputs/Switch'
 import Input from './inputs/Input'
 import Select from './inputs/Select'
 import MultiSelect from './inputs/MultiSelect'
+import Slider from './inputs/Slider'
 
 interface SettingProps {
   id: string
@@ -60,6 +61,9 @@ const Setting = ({ id, title, description, type, value, options, updateSetting }
             value={value.toString()}
             options={options ?? []}
           />
+        )}
+        {type === 'slider' && (
+          <Slider updateSetting={(value) => updateSetting(id, value)} id={id} value={value} />
         )}
         {type === 'multiselect' && (
           <MultiSelect

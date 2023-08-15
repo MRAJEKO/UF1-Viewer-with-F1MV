@@ -63,3 +63,20 @@ section.settings {
 .extended {
   max-height: 100vh !important;
 }
+
+.clear-localstorage {
+  background-color: Colors.$dark-gray;
+  border-radius: 50px;
+  padding: 10px 20px;
+  color: Colors.$default-button;
+  font-family: 'InterBold';
+  font-size: 20px;
+  cursor: pointer;
+  border: 2px solid Colors.$default-button;
+  transition: 0.35s;
+
+  &:hover {
+    background-color: Colors.$default-button;
+    color: Colors.$dark-gray;
+  }
+}

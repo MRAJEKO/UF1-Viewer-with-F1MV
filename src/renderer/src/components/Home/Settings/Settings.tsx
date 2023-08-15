@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react'
 import SettingPart from './SettingPart'
 import styles from './Settings.module.scss'
 import windowsStyles from '../Windows/Windows.module.scss'
+import Credits from './Credits'
+import ClearLocalstorage from './ClearLocalstorage'
 
 interface SettingsProps {
   extended?: boolean
@@ -52,6 +54,8 @@ const Settings = ({ extended }: SettingsProps) => {
             />
           )
         })}
+        <ClearLocalstorage />
+        <Credits />
       </div>
     </section>
   )

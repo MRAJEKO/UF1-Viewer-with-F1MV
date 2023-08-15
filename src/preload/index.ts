@@ -9,7 +9,10 @@ import {
   ClockTopic,
   customGraphQL,
   getCircuitInfo,
-  Year
+  Year,
+  getAllPlayers,
+  setMutedPlayer,
+  setVolumePlayer
 } from 'npm_f1mv_api'
 
 import Govee from 'govee-lan-control'
@@ -50,7 +53,12 @@ contextBridge.exposeInMainWorld('mvApi', {
   LiveTimingClockAPIGraphQL: (config: Config, topics: ClockTopic[]) =>
     LiveTimingClockAPIGraphQL(config, topics),
   customGraphQL: (config: Config, body: object, variables: object, operationName: string) =>
-    customGraphQL(config, body, variables, operationName)
+    customGraphQL(config, body, variables, operationName),
+  getAllPlayers: (config: Config) => getAllPlayers(config),
+  setMutedPlayer: (config: Config, mutedPlayer: string, state: boolean) =>
+    setMutedPlayer(config, mutedPlayer, state),
+  setVolumePlayer: (config: Config, volumePlayer: string, volume: number) =>
+    setVolumePlayer(config, volumePlayer, volume)
 })
 
 contextBridge.exposeInMainWorld('Govee', {

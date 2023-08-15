@@ -43,6 +43,9 @@ declare global {
         variables: object,
         operationName: string
       ) => Promise<any>
+      getAllPlayers: (config: Config) => Promise<any>
+      setMutedPlayer: (config: Config, mutedPlayer: string, state: boolean) => Promise<any>
+      setVolumePlayer: (config: Config, volumePlayer: string, volume: number) => Promise<any>
     }
     Govee: {
       newDevice: () => Promise<any>

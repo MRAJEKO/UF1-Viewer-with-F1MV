@@ -1,0 +1,11 @@
+@use '@renderer/assets/colors.scss' as Colors;
+
+.container {
+  display: flex;
+  gap: 5px;
+
+  p {
+    font-family: 'InterMedium';
+    color: Colors.$white;
+  }
+}

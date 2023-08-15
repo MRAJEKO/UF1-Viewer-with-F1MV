@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react'
 
+const { LiveTimingClockAPIGraphQL, discoverF1MVInstances } = window.mvApi
+
 let host: string = 'localhost'
 
 export interface connectionStatusesProps {
@@ -21,7 +23,7 @@ export function connectionStatuses(): connectionStatusesProps {
       try {
         if (!host) return
 
-        const port = (await window.mvApi.discoverF1MVInstances(host)).port
+        const port = (await discoverF1MVInstances(host)).port
 
         const config = {
           host: host,
@@ -30,9 +32,8 @@ export function connectionStatuses(): connectionStatusesProps {
 
         localStorage.setItem('config', JSON.stringify(config))
 
-        const liveTiming = (
-          await window.mvApi.LiveTimingClockAPIGraphQL(config, ['liveTimingStartTime'])
-        )?.liveTimingStartTime
+        const liveTiming = (await LiveTimingClockAPIGraphQL(config, ['liveTimingStartTime']))
+          ?.liveTimingStartTime
           ? true
           : false
 

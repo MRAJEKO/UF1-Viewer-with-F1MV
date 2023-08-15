@@ -1,9 +1,9 @@
 import { ILiveTimingState } from '@renderer/types/LiveTimingStateTypes'
 import { useEffect } from 'react'
-import { ClockTopic, LiveTimingClockAPIGraphQL, Topic } from 'npm_f1mv_api'
+import { ClockTopic, Topic } from 'npm_f1mv_api'
 import { ILiveTimingClockData } from './useLiveTimingClock'
 
-const LiveTimingAPIGraphQL = window.mvApi.LiveTimingAPIGraphQL
+const { LiveTimingAPIGraphQL, LiveTimingClockAPIGraphQL } = window.mvApi
 
 const useLiveTimingStateClock = (
   topics: Topic[],
