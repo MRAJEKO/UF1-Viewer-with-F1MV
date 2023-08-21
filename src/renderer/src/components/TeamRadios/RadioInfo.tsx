@@ -1,6 +1,7 @@
 import { IDriver } from '@renderer/types/LiveTimingStateTypes'
 import styles from './TeamRadios.module.scss'
 import { milisecondsToTime } from '@renderer/utils/convertTime'
+import { driverHeadshotFallback } from '@renderer/constants/images'
 
 interface IProps {
   driverInfo: IDriver
@@ -13,7 +14,7 @@ const RadioInfo = ({ driverInfo, utc, gmtOffset, duration }: IProps) => {
   const teamColor = driverInfo?.TeamColour ? `#${driverInfo?.TeamColour}` : '#ffffff'
   const { FirstName, LastName, Tla } = driverInfo
 
-  const headshot = driverInfo.HeadshotUrl?.replace('1col', '12col')
+  const headshot = driverInfo.HeadshotUrl?.replace('1col', '12col') ?? driverHeadshotFallback
 
   const name = (
     <div
@@ -44,7 +45,7 @@ const RadioInfo = ({ driverInfo, utc, gmtOffset, duration }: IProps) => {
         {name}
         <div className={styles.times}>
           <p>
-            {milisecondsToTime(new Date(utc).getTime() ?? 0 + gmtOffset) ?? ''}
+            {milisecondsToTime((new Date(utc).getTime() ?? 0) + gmtOffset) ?? ''}
             {' | '}
             {durationText}
           </p>
