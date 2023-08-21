@@ -92,3 +92,8 @@ h1 {
   transform: translate(0, 0) !important;
   cursor: default;
 }
+
+.dev-button {
+  border: 2px solid Colors.$dev-button !important;
+  color: Colors.$dev-button !important;
+}
