@@ -1,0 +1,91 @@
+@use '@renderer/assets/colors.scss' as Colors;
+
+$hide-color: Colors.$red;
+
+.container {
+  height: 100vh;
+  width: 100vw;
+  background-color: Colors.$black-translucent;
+  border-radius: 10vw;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10vw 10vw 25vw;
+
+  * {
+    text-align: center;
+    user-select: none;
+  }
+
+  .onboards,
+  .main-window {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3vw;
+
+    .title {
+      color: Colors.$white;
+      font-size: 6vw;
+    }
+
+    .number {
+      padding: 2vw 4vw;
+      border: 0.5vw solid Colors.$light-green;
+      border-radius: 3vw;
+      color: Colors.$light-green;
+      font-size: 8vw;
+    }
+  }
+
+  .buttons {
+    display: flex;
+    width: 100%;
+    justify-content: center;
+
+    .hide {
+      padding: 2vw 15vw;
+      border-radius: 30vw;
+      border: 0.5vw solid $hide-color;
+      transition: all 0.3s ease-in-out;
+
+      p {
+        color: Colors.$red;
+        transition: all 0.3s ease-in-out;
+        user-select: none;
+      }
+
+      &:hover {
+        border-color: transparent !important;
+        cursor: pointer;
+        background-color: $hide-color;
+
+        p {
+          color: Colors.$black !important;
+        }
+      }
+    }
+
+    p {
+      font-size: 4vw;
+    }
+  }
+
+  .disclaimer {
+    position: absolute;
+    color: Colors.$gray;
+    font-size: 3.5vw;
+    font-family: 'InterRegular', sans-serif;
+    text-align: center;
+    margin-top: 5vw;
+    bottom: 5vw;
+    width: 85%;
+    font-style: italic;
+
+    .highlight {
+      font-family: 'InterBold', sans-serif;
+      color: Colors.$lighter-gray;
+    }
+  }
+}
