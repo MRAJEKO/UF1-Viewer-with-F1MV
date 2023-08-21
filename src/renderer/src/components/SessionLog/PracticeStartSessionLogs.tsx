@@ -8,7 +8,7 @@ import {
   ISessionData
 } from '@renderer/types/LiveTimingStateTypes'
 import { getDriverInfo } from '@renderer/utils/getDriverInfo'
-import { isDoingPracticeStart } from '@renderer/utils/isDoingPracticeStart'
+import { isDoingPracticeStart } from '@renderer/utils/getCarInfo'
 import DoubleSessionLog from './DoubleSessionLog'
 
 interface IData {

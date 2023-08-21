@@ -4,6 +4,7 @@ import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import Store from 'electron-store'
 import { windowProperties } from './types'
 import defaults from './defaults'
+import { autoUpdater } from 'electron-updater'
 
 const logo = 'src/renderer/src/assets/icons/windows/logo.png'
 
@@ -400,9 +401,9 @@ ipcMain.handle('open-window', (_event, window) => {
   if (store.get(`config.${window}.settings.always_on_top.value`)) newWindow.setAlwaysOnTop(true)
 
   if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
-    newWindow.loadURL(join(process.env['ELECTRON_RENDERER_URL'], `/${windowProperties.path}`))
+    newWindow.loadURL(process.env['ELECTRON_RENDERER_URL'] + `#/${windowProperties.path}`)
   } else {
-    newWindow.loadFile(join(__dirname, `../renderer/index.html/${windowProperties.path}}`))
+    newWindow.loadFile(join(__dirname, `../renderer/index.html#/${windowProperties.path}`))
   }
 })
 
@@ -430,4 +431,16 @@ ipcMain.on('initialize-keybind', (event, keybind) => {
 ipcMain.on('remove-keybind', (_event, keybind) => {
   console.log('Remove keybind', keybind)
   globalShortcut.unregister(keybind)
+})
+
+ipcMain.handle('checkForUpdates', () => {
+  return autoUpdater.checkForUpdates()
+})
+
+ipcMain.handle('downloadUpdate', () => {
+  return autoUpdater.downloadUpdate()
+})
+
+ipcMain.handle('quitAndInstall', () => {
+  return autoUpdater.quitAndInstall()
 })

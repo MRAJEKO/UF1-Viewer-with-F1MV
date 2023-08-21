@@ -1,7 +1,8 @@
-appId: com.electron.app
-productName: uf1-viewer-with-f1mv
+productName: "Ultimate-F1Viewer-With-F1MV"
+appId: "com.mrajeko.uf1"
 directories:
   buildResources: build
+  output: dist
 files:
   - '!**/.vscode/*'
   - '!src/*'
@@ -39,5 +40,7 @@ appImage:
   artifactName: ${name}-${version}.${ext}
 npmRebuild: false
 publish:
-  provider: generic
-  url: https://example.com/auto-updates
+  provider: github
+  repo: UF1-Viewer-with-F1MV
+  owner: MRAJEKO
+  updaterCacheDirName: UF1-Viewer-with-F1MV-update-cache

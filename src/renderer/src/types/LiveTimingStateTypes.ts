@@ -266,6 +266,9 @@ export type TRaceControlMessageFlag =
   | 'BLACK AND WHITE'
   | 'OPEN'
   | 'CLOSED'
+  | 'BLACK AND ORANGE'
+  | 'ENABLED'
+  | 'DISABLED'
 
 export interface ISessionData {
   Series: ISessionSerie[] | undefined

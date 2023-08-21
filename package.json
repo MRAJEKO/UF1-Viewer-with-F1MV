@@ -23,6 +23,8 @@
   "dependencies": {
     "@electron-toolkit/preload": "^1.0.3",
     "@electron-toolkit/utils": "^1.0.2",
+    "@nivo/bullet": "^0.83.0",
+    "@nivo/line": "^0.83.0",
     "electron-store": "^8.1.0",
     "electron-updater": "^5.3.0",
     "govee-lan-control": "^3.0.0",

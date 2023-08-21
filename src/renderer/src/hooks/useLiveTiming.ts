@@ -7,7 +7,8 @@ const LiveTimingAPIGraphQL = window.mvApi.LiveTimingAPIGraphQL
 const LiveTiming = (
   topics: Topic[],
   onDataReceived: (data: any, firstPatch: boolean) => void,
-  updateFrequency: number
+  updateFrequency: number,
+  forceUpdate?: boolean
 ) => {
   const [liveTimingState, setLiveTimingState] = useState<ILiveTimingState | null>(null)
 
@@ -24,7 +25,10 @@ const LiveTiming = (
       try {
         const response: ILiveTimingState = await LiveTimingAPIGraphQL(config, topics)
 
-        if (response && JSON.stringify(response) !== JSON.stringify(liveTimingState)) {
+        if (
+          forceUpdate ||
+          (response && JSON.stringify(response) !== JSON.stringify(liveTimingState))
+        ) {
           onDataReceived(response, count === 0)
           setLiveTimingState(response)
         }

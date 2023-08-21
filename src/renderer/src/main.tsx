@@ -1,5 +1,5 @@
 import ReactDOM from 'react-dom/client'
-import { createBrowserRouter, RouterProvider } from 'react-router-dom'
+import { createHashRouter, RouterProvider } from 'react-router-dom'
 
 import './assets/index.scss'
 import './assets/fonts.scss'
@@ -14,8 +14,10 @@ import TeamRadios from './pages/TeamRadios'
 import SessionTimer from './pages/SessionTimer'
 import SectorStatuses from './pages/SectorStatuses'
 import SingleRCM from './pages/SingleRCM'
+import Weather from './pages/Weather'
+import AutoSwitcher from './pages/AutoSwitcher'
 
-const router = createBrowserRouter([
+const router = createHashRouter([
   {
     path: '/',
     element: <HomePage />
@@ -51,6 +53,14 @@ const router = createBrowserRouter([
   {
     path: '/singlercm',
     element: <SingleRCM />
+  },
+  {
+    path: '/weather',
+    element: <Weather />
+  },
+  {
+    path: '/autoswitcher',
+    element: <AutoSwitcher />
   }
 ])
 

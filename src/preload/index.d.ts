@@ -15,11 +15,19 @@ declare global {
     ipcRenderer: {
       send: (channel: string, data: any) => void
       on: (channel: string, func: any) => void
+      off: (channel: string, func: any) => void
       invoke: (channel: string, data?: any) => Promise<any>
       sendSync: (channel: string, key: any) => any
     }
     shell: {
       openExternal: (url: string) => void
+    }
+    electronUpdater: {
+      checkForUpdates: () => void
+      downloadUpdate: () => void
+      quitAndInstall: () => void
+      // on: (channel: keyof AppUpdaterEvents, func: any) => void
+      // off: (channel: keyof AppUpdaterEvents, func: any) => void
     }
     mvApi: {
       LiveTimingAPIGraphQL: (config: Config, topics: Topic[]) => Promise<any>
@@ -46,6 +54,23 @@ declare global {
       getAllPlayers: (config: Config) => Promise<any>
       setMutedPlayer: (config: Config, mutedPlayer: string, state: boolean) => Promise<any>
       setVolumePlayer: (config: Config, volumePlayer: string, volume: number) => Promise<any>
+      setSpeedometerVisibility: (config: Config, id: number, visibility: boolean) => Promise<any>
+      getPlayerBounds: (config: Config, id: number) => Promise<any>
+      createPlayer: (
+        config: Config,
+        driverNumber: number,
+        contentId: string | number,
+        bounds: any,
+        fullscreen: boolean
+      ) => Promise<any>
+      syncPlayers: (config: Config, mainWindow: number) => Promise<any>
+      setAlwaysOnTop: (
+        config: Config,
+        id: number,
+        alwaysOnTop: boolean,
+        level: AlwaysOnTopLevel
+      ) => Promise<any>
+      removePlayer: (config: Config, id: number) => Promise<any>
     }
     Govee: {
       newDevice: () => Promise<any>

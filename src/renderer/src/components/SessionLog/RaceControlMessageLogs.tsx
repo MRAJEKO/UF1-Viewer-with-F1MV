@@ -11,22 +11,22 @@ import { ISessionLog } from '@renderer/pages/SessionLog'
 import { isWantedCategory } from '@renderer/utils/isWantedMessage'
 import { updateLogs } from '@renderer/utils/updateLogs'
 
-const baseImageUrl = 'src/renderer/src/assets/icons'
+// const baseImageUrl = 'src/renderer/src/assets/icons'
 
-const getDriver = (
-  driverList: IDriverList | undefined,
-  message: IRaceControlMessage['Message']
-) => {
-  if (!driverList) return undefined
-  const driver = [
-    Object.keys(driverList).find((driver) =>
-      message.includes(`${driverList[driver].Tla} ${driver}`)
-    )
-  ][0]
+// const getDriver = (
+//   driverList: IDriverList | undefined,
+//   message: IRaceControlMessage['Message']
+// ) => {
+//   if (!driverList) return undefined
+//   const driver = [
+//     Object.keys(driverList).find((driver) =>
+//       message.includes(`${driverList[driver].Tla} ${driver}`)
+//     )
+//   ][0]
 
-  if (driver) return driverList?.[driver]
-  return undefined
-}
+//   if (driver) return driverList?.[driver]
+//   return undefined
+// }
 
 interface IData {
   RaceControlMessages?: IRaceControlMessages
@@ -58,22 +58,22 @@ const GenerateLog = (data: IData, raceControlMessage: IRaceControlMessage) => {
 
   const message = raceControlMessage.Message
 
-  const driver = getDriver(data.DriverList, message)
+  // const driver = getDriver(data.DriverList, message)
 
   switch (category) {
-    case 'Flag': {
-      let image = ''
+    // case 'Flag': {
+    //   let image = ''
 
-      switch (raceControlMessage.Flag) {
-        case 'BLACK AND WHITE':
-          image = baseImageUrl + '/flags/blackandwhite.png'
-          if (driver) {
-          }
-        case 'BLACK AND ORANGE':
-          image = baseImageUrl + '/flags/blackandorange.png'
-      }
-      break
-    }
+    //   switch (raceControlMessage.Flag) {
+    //     case 'BLACK AND WHITE':
+    //       image = baseImageUrl + '/flags/blackandwhite.png'
+    //       if (driver) {
+    //       }
+    //     case 'BLACK AND ORANGE':
+    //       image = baseImageUrl + '/flags/blackandorange.png'
+    //   }
+    //   break
+    // }
 
     case 'Drs': {
       return {
