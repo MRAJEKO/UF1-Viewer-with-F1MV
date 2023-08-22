@@ -16,6 +16,7 @@ import SectorStatuses from './pages/SectorStatuses'
 import SingleRCM from './pages/SingleRCM'
 import Weather from './pages/Weather'
 import AutoSwitcher from './pages/AutoSwitcher'
+import CrashDetection from './pages/CrashDetection'
 
 const router = createHashRouter([
   {
@@ -23,43 +24,47 @@ const router = createHashRouter([
     element: <HomePage />
   },
   {
-    path: '/flag_display',
+    path: '/flag_display/*',
     element: <FlagDisplay />
   },
   {
-    path: '/tracktime',
+    path: '/tracktime/*',
     element: <TrackTime />
   },
   {
-    path: 'sessiontimer',
+    path: 'sessiontimer/*',
     element: <SessionTimer />
   },
   {
-    path: '/session_log',
+    path: '/session_log/*',
     element: <SessionLog />
   },
   {
-    path: '/trackinfo',
+    path: '/trackinfo/*',
     element: <TrackInfo />
   },
   {
-    path: '/sector_statuses',
+    path: '/sector_statuses/*',
     element: <SectorStatuses />
   },
   {
-    path: '/teamradios',
+    path: '/teamradios/*',
     element: <TeamRadios />
   },
   {
-    path: '/singlercm',
+    path: '/singlercm/*',
     element: <SingleRCM />
   },
   {
-    path: '/weather',
+    path: '/crashdetection/*',
+    element: <CrashDetection />
+  },
+  {
+    path: '/weather/*',
     element: <Weather />
   },
   {
-    path: '/autoswitcher',
+    path: '/autoswitcher/*',
     element: <AutoSwitcher />
   }
 ])

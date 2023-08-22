@@ -6,7 +6,7 @@ interface IMoveModeProps {
 }
 
 const MoveMode = ({ horizontal }: IMoveModeProps) => {
-  const [show, setShow] = useState(!(window as any).disableMoveMode)
+  const [show, setShow] = useState(window.location.href.includes('moveMode=true'))
 
   useEffect(() => {
     window.addEventListener('keydown', (e) => {

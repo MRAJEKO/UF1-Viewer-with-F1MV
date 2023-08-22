@@ -401,9 +401,13 @@ ipcMain.handle('open-window', (_event, window) => {
   if (store.get(`config.${window}.settings.always_on_top.value`)) newWindow.setAlwaysOnTop(true)
 
   if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
-    newWindow.loadURL(process.env['ELECTRON_RENDERER_URL'] + `#/${windowProperties.path}`)
+    newWindow.loadURL(
+      process.env['ELECTRON_RENDERER_URL'] + `#/${windowProperties.path}/moveMode=true`
+    )
   } else {
-    newWindow.loadFile(join(__dirname, `../renderer/index.html#/${windowProperties.path}`))
+    newWindow.loadFile(
+      join(__dirname, `../renderer/index.html#/${windowProperties.path}/moveMode=true`)
+    )
   }
 })
 
