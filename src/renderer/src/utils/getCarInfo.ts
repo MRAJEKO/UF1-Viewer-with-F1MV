@@ -59,8 +59,6 @@ export const weirdCarBehaviour = (
 ) => {
   const driverCarData = getCarData(racingNumber, carData)
 
-  console.log(driverCarData)
-
   if (driverCarData === 'error') return false
 
   const driverTimingData = timingData.Lines[racingNumber]

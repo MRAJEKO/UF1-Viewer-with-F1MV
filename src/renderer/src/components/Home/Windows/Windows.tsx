@@ -26,18 +26,18 @@ const Windows = ({ settingsExtended }: IWindowsProps) => {
       <Window onPress={() => openWindow('trackinfo')} name="Track Information" />
       <Window onPress={() => openWindow('sector_statuses')} name="Sector Statuses" />
       <Window onPress={() => openWindow('singlercm')} name="Single Race Control Message" />
-      <Window onPress={launchF1MV} name="Crash Detection**" type="dev" />
-      <Window onPress={launchF1MV} name="Track Rotation Compass**" type="dev" />
-      <Window onPress={launchF1MV} name="Tire Statistics**" type="dev" />
-      <Window onPress={launchF1MV} name="Current Push Laps**" type="dev" />
+      <Window onPress={() => openWindow('crashdetection')} name="Crash Detection" />
+      {/* <Window onPress={launchF1MV} name="Track Rotation Compass**" type="dev" /> */}
+      {/* <Window onPress={launchF1MV} name="Tire Statistics**" type="dev" /> */}
+      <Window onPress={launchF1MV} name="Current Push Laps*" type="dev" />
       <Window onPress={() => openWindow('teamradios')} name="Team Radio's" />
       <Window onPress={launchF1MV} name="Battle Mode**" type="dev" />
       <Window onPress={() => openWindow('weather')} name="Weather Information" />
       <NewWindowSection name="BETA" />
       <Window
         onPress={() => openWindow('autoswitcher')}
-        name="Auto Onboard Camera Switcher*"
-        type="dev"
+        name="Auto Onboard Camera Switcher"
+        type="beta"
       />
       <NewWindowSection name="SOLID COLORED WINDOWS" />
       <SolidWindows />

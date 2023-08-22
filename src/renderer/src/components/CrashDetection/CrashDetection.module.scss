@@ -1,0 +1,88 @@
+@use '@renderer/assets/colors.scss' as Colors;
+
+$animation-duration: 3s;
+
+.drivers {
+  flex-direction: column;
+  display: flex;
+  transition: all 0.5s ease-in-out;
+}
+
+.driver {
+  height: 20vw;
+  background-color: Colors.$black-translucent;
+  padding: 0 5vw;
+  display: flex;
+  align-items: center;
+  border-radius: 5vw;
+  border: 0.5vw solid transparent;
+  transition: all 0.5s ease-in-out;
+  font-size: 6vw;
+  user-select: none;
+  margin-bottom: 3vw;
+  overflow: hidden;
+}
+
+.animation-enter {
+  opacity: 0;
+  height: 0;
+  margin-bottom: 0;
+}
+
+.animation-enter-active {
+  opacity: 1;
+  animation: forwards $animation-duration blink;
+  height: 15vw;
+  margin-bottom: 3vw;
+}
+
+.animation-exit {
+  opacity: 1;
+  height: 15vw;
+  margin-bottom: 3vw;
+}
+
+.animation-exit-active {
+  opacity: 0;
+  height: 0;
+  margin-bottom: 0;
+}
+
+@keyframes remove-animation {
+}
+
+@keyframes blink {
+  0% {
+    border-color: transparent;
+  }
+  10% {
+    border-color: Colors.$red;
+  }
+  20% {
+    border-color: transparent;
+  }
+  30% {
+    border-color: Colors.$red;
+  }
+  40% {
+    border-color: transparent;
+  }
+  50% {
+    border-color: Colors.$red;
+  }
+  60% {
+    border-color: transparent;
+  }
+  70% {
+    border-color: Colors.$red;
+  }
+  80% {
+    border-color: transparent;
+  }
+  90% {
+    border-color: Colors.$red;
+  }
+  100% {
+    border-color: transparent;
+  }
+}

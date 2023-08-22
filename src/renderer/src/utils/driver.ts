@@ -1,4 +1,6 @@
 import {
+  ICarData,
+  ILapCount,
   ISessionInfo,
   ISessionStatusStatus,
   ITimingData,
@@ -6,6 +8,8 @@ import {
   ITrackStatusStatus
 } from '@renderer/types/LiveTimingStateTypes'
 import { parseLapOrSectorTime } from './convertTime'
+import { overwriteCrashedStatus } from '@renderer/components/AutoSwitcher/driverPriority'
+import { weirdCarBehaviour } from './getCarInfo'
 
 export const isDriverOnPushLap = (
   driverNumber: string,
@@ -90,4 +94,27 @@ export const isDriverOnPushLap = (
 
   // Return the final pushing state
   return isPushing
+}
+
+export const driverHasCrashed = (
+  driverNumber: string,
+  timingData?: ITimingData,
+  carData?: ICarData,
+  sessionType?: ISessionInfo['Type'],
+  sessionStatus?: ISessionStatusStatus,
+  trackStatus?: ITrackStatusStatus,
+  lapCount?: ILapCount
+) => {
+  if (!timingData || !carData || !sessionType || !sessionStatus || !trackStatus || !lapCount)
+    return false
+
+  if (
+    !weirdCarBehaviour(driverNumber, timingData, carData, sessionType, sessionStatus, trackStatus)
+  )
+    return false
+
+  if (overwriteCrashedStatus(driverNumber, timingData, sessionType, sessionStatus, lapCount))
+    return false
+
+  return true
 }
