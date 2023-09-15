@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Circle of Doom</title>
+        <link rel="stylesheet" href="style.css" />
+        <link rel="stylesheet" href="../styles/window_info.css" />
+        <link rel="stylesheet" href="../fonts/fonts.css" />
+
+        <script src="times.js"></script>
+        <script src="index.js"></script>
+        <script src="../scripts/movemode.js" defer></script>
+    </head>
+    <body id="background" class="drag">
+        <div id="container" class="container">
+            
+            <div id="centerDriverInfo">
+                <div id="centerDriverName"></div>
+                <div id="centerDriverGapNames" class="centerInfo"><span id="centerDriverGapNamesAhead"></span>&emsp;<span id="centerDriverGapNamesBehind"></span></div>
+                <div id="centerDriverGapTimes" class="centerInfo"><span id="centerDriverGapTimesAhead"></span>&nbsp;&emsp;&nbsp;<span id="centerDriverGapTimesBehind"></span></div>
+
+                <div id="centerDriverPitOutGreen"></div>
+                <div id="centerDriverPitOutVSC"></div>
+            </div>
+            <svg class="cod-svg">
+                <circle id="ring" class="cod-ring" fill="transparent" />
+                <path id="green-pit-out-arc" fill="transparent" />
+                <path id="vsc-pit-out-arc" fill="transparent" />
+            </svg>
+
+        </div>
+    </body>
+</html>

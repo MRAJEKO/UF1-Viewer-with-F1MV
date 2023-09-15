@@ -156,6 +156,12 @@ async function flagDisplay() {
     await ipcRenderer.invoke("window", ...Object.values(internalSettings.windows.flag_display));
 }
 
+async function circleOfDoom() {
+    const internalSettings = (await ipcRenderer.invoke("get_store")).internal_settings;
+
+    await ipcRenderer.invoke("window", ...Object.values(internalSettings.windows.circle_of_doom));
+}
+
 async function trackTime() {
     const internalSettings = (await ipcRenderer.invoke("get_store")).internal_settings;
 

@@ -1,0 +1,120 @@
+* {
+    margin: 0;
+    padding: 0;
+    color: white;
+}
+
+body {
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
+}
+
+.drag {
+    -webkit-app-region: drag;
+}
+
+#container {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    background-color: transparent;
+}
+
+.cod-svg {
+    height: 100vh;
+    width: 100vw;
+}
+
+.cod-ring {
+    r: 40vmin;
+    cx: 50vw;
+    cy: 50vh;
+    stroke: black;
+    stroke-width: 5vmin;
+}
+
+#green-pit-out-arc {
+    stroke: #00FF0066;
+    stroke-width: 5vmin;
+}
+
+#vsc-pit-out-arc {
+    stroke: #FFFF0066;
+    stroke-width: 5vmin;
+}
+
+.rectangle {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 7vmin;
+    height: 1.5vmin;
+    transform-origin: center;
+    transform: translate(-50%, -50%);
+}
+
+#centerDriverInfo {
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 3vmin;
+    user-select: none;
+    font-family: "OF1Regular", Arial, Helvetica, sans-serif;
+}
+
+#centerDriverGapNames {
+    font-size: 2.5vmin;
+}
+
+#centerDriverName {
+    text-align: center;
+    font-size: 8vmin;
+}
+
+#centerDriverPitOutGreen {
+    text-align: center;
+    margin-top: 5vmin;
+    font-size: 4vmin;
+}
+
+#centerDriverPitOutVSC {
+    text-align: center;
+    font-size: 4vmin;
+}
+
+.driver-label {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 11vmin;
+    height: 4vmin;
+    background-color: transparent;
+    transform-origin: center;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    display: inline;
+    font-family: "OF1Bold", Arial, Helvetica, sans-serif;
+    font-size: 3vmin;
+    user-select: none;
+}
+
+.centerInfo {
+    display: flex;
+}
+
+.centerInfo span {
+    width: 25vmin;
+    font-size: 3.5vmin;
+    flex: 1;
+}
+
+.centerInfo span:first-of-type {
+    text-align: right;
+    padding-right: 5px;
+}
+
+.centerInfo span:last-of-type {
+    padding-left: 5px;
+}

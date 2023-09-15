@@ -109,8 +109,30 @@ function getDriversTrackOrder(timingData) {
     return driverOrder;
 }
 
+function getRacingDriversPositionOrder(timingData) {
+
+    var nodeConsole = require('console');
+    var myConsole = new nodeConsole.Console(process.stdout, process.stderr);
+
+    let driverOrder = new Array(timingData.length).fill("");
+
+    for (const driverNumber in timingData) {
+        if (timingData[driverNumber].Stopped) { // "Stopped" seems to be more reliable than "Retired"
+            continue;
+        }
+        driverOrder[parseInt(timingData[driverNumber].Position) - 1] = driverNumber;
+    }
+    
+    driverOrder = driverOrder.filter(function(x) {
+        return x !== ""; // remove stopped cars from the middle
+    });
+
+    return driverOrder;
+}
+
 module.exports = {
     isDriverOnPushLap,
     getDriverPosition,
     getDriversTrackOrder,
+    getRacingDriversPositionOrder,
 };

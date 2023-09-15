@@ -129,6 +129,54 @@
                     </div>
                     <p>Port will be set automatically</p>
                 </section>
+                
+                <section class="settings-section" id="circle_of_doom">
+                    <h2>Circle of Doom</h2>
+                    <div class="setting">
+                        <div class="setting_info">
+                            <p>Always use default</p>
+                            <p class="info">Whether the default values below should ALWAYS be used, even if there is a track specific value in the times.js.</p>
+                        </div>
+                        <div class="option">
+                            <label class="switch">
+                                <input id="always_use_default" type="checkbox" />
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="setting">
+                        <div class="setting_info">
+                            <p>Default Time Loss (green)</p>
+                            <p class="info">
+                                Time lost if driver pits under green flag in seconds.
+                            </p>
+                        </div>
+                        <div class="option">
+                            <input
+                                name="default_pit_time_loss_green"
+                                type="text"
+                                maxlength="5"
+                                id="default_pit_time_loss_green"
+                                class="typ" />
+                        </div>
+                    </div>
+                    <div class="setting">
+                        <div class="setting_info">
+                            <p>Default Time Loss (VSC)</p>
+                            <p class="info">
+                                Time lost if driver pits under VSC in seconds.
+                            </p>
+                        </div>
+                        <div class="option">
+                            <input
+                                name="default_pit_time_loss_vsc"
+                                type="text"
+                                maxlength="5"
+                                id="default_pit_time_loss_vsc"
+                                class="typ" />
+                        </div>
+                    </div>
+                </section>
                 <section class="settings-section" id="flag_display">
                     <h2>Flag Display</h2>
                     <div class="setting">
@@ -478,6 +526,7 @@
                 <button class="window default" onclick="launchMVF1()">MultiViewer</button>
                 <button class="livetiming window default disabled" onclick="livetiming()">Live Timing</button>
                 <button class="window default" onclick="flagDisplay()">Flag Display</button>
+                <button class="window default" onclick="circleOfDoom()">Circle of Doom</button>
                 <button class="window default" onclick="trackTime()">Delayed Track Time</button>
                 <button class="window default" onclick="sessionLog()">Session Log</button>
                 <button class="window default" onclick="trackInfo()">Track Information</button>
