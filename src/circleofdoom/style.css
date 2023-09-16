@@ -26,6 +26,16 @@ body {
     width: 100vw;
 }
 
+#cod-info {
+    text-align: center;
+    width: 100vw;
+    height: 100vh;
+    
+    font-size: 15px !important;
+    margin: 2vh 0;
+    font-family: "SFRegular";
+}
+
 .cod-ring {
     r: 40vmin;
     cx: 50vw;
@@ -35,12 +45,12 @@ body {
 }
 
 #green-pit-out-arc {
-    stroke: #00FF0066;
+    stroke: rgb(0, 175, 0) !important;
     stroke-width: 5vmin;
 }
 
 #vsc-pit-out-arc {
-    stroke: #FFFF0066;
+    stroke: rgb(255, 230, 0) !important;
     stroke-width: 5vmin;
 }
 

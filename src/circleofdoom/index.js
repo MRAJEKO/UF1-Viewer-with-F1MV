@@ -1,4 +1,5 @@
-const debug = false;
+var nodeConsole = require('console');
+var myConsole = new nodeConsole.Console(process.stdout, process.stderr);
 
 // The duration of the sector times being show when completing a sector
 // (All times are in MS)
@@ -7,23 +8,19 @@ const loopspeed = 100;
 const f1mvApi = require("npm_f1mv_api");
 
 const { ipcRenderer } = require("electron");
-
-// TODO eher das, get track order, und dann req Position?
-const { getDriversTrackOrder, getRacingDriversPositionOrder } = require("../functions/driver.js");
-
-// const { getColorFromStatusCodeOrName } = require("../functions/colors.js"); TODO maybe usefil
-
+const { getRacingDriversPositionOrder } = require("../functions/driver.js");
 
 // Cached data, getting updated every cycle
-let expectedLapTimeMs = 90000; // 90s, but dynamic TODO
-let driverLoopPos = NaN; // cached last positions inc ase of resize draw call
-let centerDriverId = NaN; // '1'; // TODO NAN
-let rectangles = {};
-let driverTrackOrder = NaN;
-let timeLostGreen = NaN;
-let timeLostVSC = NaN;
-let gapLeaderMs = {};
-let centerInfo = {};
+let expectedLapTimeMs = 90000; // init to 90, but will be dynamically approximated
+let driverLoopPos = NaN; // cached last positions on loop
+let centerDriverId = NaN; // currently selected driver
+let rectangles = {}; // references to rectangles drawn
+let driverTrackOrder = NaN; // cached driver track order
+let timeLostGreen = NaN; // time lost under green flag conditions
+let timeLostVSC = NaN; // time lost under (V)SC conditions
+let gapLeaderMs = {}; // cached gap to leader per driver, computed to solve lapped cars
+let centerInfo = {}; // info struct containing relevant info for displaying center data
+let missingTimingsWhilePitting = []; // Which drivers currently have invalid timings due to pitting?
 
 // From settings
 let pit_time_loss_default_green = NaN;
@@ -36,16 +33,10 @@ async function getConfigurations() {
     host = configFile.network.host;
     port = (await f1mvApi.discoverF1MVInstances(host)).port;
 
-    const configHighlightedDrivers = configFile.general?.highlighted_drivers?.split(",");
-
-    highlightedDrivers = configHighlightedDrivers[0] ? configHighlightedDrivers : [];
-
     pit_time_loss_always_default = configFile.circle_of_doom?.always_use_default;
-
     pit_time_loss_default_green = parseFloat(configFile.circle_of_doom?.default_pit_time_loss_green);
     pit_time_loss_default_vsc = parseFloat(configFile.circle_of_doom?.default_pit_time_loss_vsc);
-    // TODO button always use default
-
+    
 }
 
 // ---- UTIL FUNCTIONS -----
@@ -77,6 +68,7 @@ function polarToCartesian(centerX, centerY, radius, angleInDegrees) {
     };
 }
 
+// describing arc for SVG
 function describeArc(x, y, radius, startAngle, endAngle) {
 
     var start = polarToCartesian(x, y, radius, endAngle);
@@ -108,118 +100,6 @@ function vmin(percent) {
 
 function vmax(percent) {
     return Math.max(vh(percent), vw(percent));
-}
-
-
-// Need an estimated lap time to approximate position of leader on track.
-// We do not use mini sectors since there is no timing for them. Would become too complicated.
-function updateLapTimeEstimate() {
-    var nodeConsole = require('console');
-    var myConsole = new nodeConsole.Console(process.stdout, process.stderr);
-    // Simple heuristic: Take the fastest last lap of the top 5 to avoid in/out laps.
-    let lapTimes = []
-    for (let i = 0; i < Math.min(driverTrackOrder.length, 5); i++) {
-
-        let lapTimeMs = parseLapTime(timingData[driverTrackOrder[i]].LastLapTime.Value);
-        lapTimes.push(lapTimeMs);
-    }
-    let bestLapTime = Math.min.apply(Math, lapTimes);
-    expectedLapTimeMs = bestLapTime;
-    myConsole.log("Updated expected lap time to (ms): " + expectedLapTimeMs);
-
-}
-
-function getLeaderPosOnCircle(driverNr) {
-    var nodeConsole = require('console');
-    var myConsole = new nodeConsole.Console(process.stdout, process.stderr);
-
-    // get local time info
-    const trackTime = clockData.trackTime;
-    const systemTime = clockData.systemTime;
-    const now = Date.now();
-    const localTime = parseInt(clockData.paused ? trackTime : now - (systemTime - trackTime));
-
-    // get "age" of current lap (where is leader?)
-    let currentLap = sessionData.Series.slice(-1)[0];
-    let currentLapStartDateTime = new Date(currentLap.Utc);
-    let currentLapStartDateTimeMs = currentLapStartDateTime.getTime();
-    let lapTimeAgeMs = localTime - currentLapStartDateTimeMs; // Age of lap, current lap time of leader
-
-    return gapToAngleDegrees(lapTimeAgeMs);
-}
-
-// Need compute function for lapped drivers. Their gap will be 1 LAP, we infer it then from intervals.
-function updateGapsToLeader() {
-    var nodeConsole = require('console');
-    var myConsole = new nodeConsole.Console(process.stdout, process.stderr);
-
-    // who is leading?
-    const leaderCar = driverTrackOrder[0];
-
-    gapLeaderMs[leaderCar] = 0.0;
-    let aheadDriverGapToLeader = 0.0;
-
-    for (let i = 1; i < driverTrackOrder.length; i++) {
-        let driverNumber = driverTrackOrder[i];
-
-        const driverTimingData = timingData[driverNumber];
-
-        // catch lapped drivers, otherwise the laps are getting parsed
-        let currentDriverGapToLeaderMs = driverTimingData.GapToLeader.endsWith("L") ? NaN : 1000.0 * parseFloat(driverTimingData.GapToLeader);
-        let currentDriverGapAheadMs = driverTimingData.IntervalToPositionAhead.Value.endsWith("L") ? NaN : 1000.0 * parseFloat(driverTimingData.IntervalToPositionAhead.Value);
-
-        if (!isNaN(currentDriverGapToLeaderMs)) {
-            // not lapped
-            gapLeaderMs[driverNumber] = currentDriverGapToLeaderMs;
-            aheadDriverGapToLeader = gapLeaderMs[driverNumber];
-        } else if (!isNaN(currentDriverGapAheadMs)) {
-            // atleast driver ahead is not >1L ahead, can infer
-            gapLeaderMs[driverNumber] = aheadDriverGapToLeader + currentDriverGapAheadMs;
-            aheadDriverGapToLeader = gapLeaderMs[driverNumber];
-
-        } else {
-            // even car ahead is +1 LAP, no way from static API getting gap... just say 2 minutes, dunno
-            // Pit Out Window doesnt matter anyways then, wont lose a spot when pitting.
-            gapLeaderMs[driverNumber] = aheadDriverGapToLeader + 1000.0 * 120;
-            aheadDriverGapToLeader = gapLeaderMs[driverNumber];
-
-        }
-    }
-}
-
-
-// update struct where angles on loop for each driver are saved.
-function updateDriverPositionsOnLoopStruct() {
-    var nodeConsole = require('console');
-    var myConsole = new nodeConsole.Console(process.stdout, process.stderr);
-
-    // Empty it. 
-    driverLoopPos = [];
-
-    // Leader seperated, is always first in list.
-    let leaderDriverNumber = driverTrackOrder[0];
-    let leaderCirclePosDegrees = getLeaderPosOnCircle(leaderDriverNumber);
-    driverLoopPos.push({
-        driver: leaderDriverNumber,
-        gapToLeader: gapLeaderMs[leaderDriverNumber],
-        degrees: leaderCirclePosDegrees,
-    });
-
-    for (const [driverNumber, driverGap] of Object.entries(gapLeaderMs)) {
-
-        if (driverNumber == leaderDriverNumber)
-            continue;
-
-        // for all, get from gap to leader the angle behind
-        let degreesBehindLeader = gapToAngleDegrees(driverGap); // can be >1 if lapped
-        let driverCirclePosDegrees = mod(leaderCirclePosDegrees - degreesBehindLeader, 360.0);
-
-        driverLoopPos.push({
-            driver: driverNumber,
-            gapToLeader: driverGap,
-            degrees: driverCirclePosDegrees,
-        });
-    }
 }
 
 // All the api requests
@@ -260,10 +140,124 @@ async function apiRequests() {
     clockData = liveTimingClock;
 }
 
-function collectSelectedDriverInfo() {
-    var nodeConsole = require('console');
-    var myConsole = new nodeConsole.Console(process.stdout, process.stderr);
+// Need an estimated lap time to approximate position of leader on track.
+// We do not use mini sectors since there is no timing for them. Would become too complicated.
+function updateLapTimeEstimate() {
+    // Simple heuristic: Take the fastest last lap of the top 5 to avoid in/out laps.
+    let lapTimes = []
+    for (let i = 0; i < Math.min(driverTrackOrder.length, 5); i++) {
 
+        let lapTimeMs = parseLapTime(timingData[driverTrackOrder[i]].LastLapTime.Value);
+        lapTimes.push(lapTimeMs);
+    }
+    let bestLapTime = Math.min.apply(Math, lapTimes);
+    expectedLapTimeMs = bestLapTime;
+
+}
+
+// only works reliably with leader because we infer time when a lap first began according to sessionData
+function getLeaderPosOnCircle(driverNr) {
+
+    // get local time info
+    const trackTime = clockData.trackTime;
+    const systemTime = clockData.systemTime;
+    const now = Date.now();
+    const localTime = parseInt(clockData.paused ? trackTime : now - (systemTime - trackTime));
+
+    // get "age" of current lap (where is leader?)
+    let currentLap = sessionData.Series.slice(-1)[0];
+    let currentLapStartDateTime = new Date(currentLap.Utc);
+    let currentLapStartDateTimeMs = currentLapStartDateTime.getTime();
+    let lapTimeAgeMs = localTime - currentLapStartDateTimeMs - gapLeaderMs[driverNr]; // Age of lap, current lap time of leader
+
+    return gapToAngleDegrees(lapTimeAgeMs);
+}
+
+// Need compute function to resolve lapped drivers. Their gap will be 1 LAP, we infer gap in seconds from intervals then.
+function updateGapsToLeader() {
+    // who is leading?
+    const leaderCar = driverTrackOrder[0];
+    missingTimingsWhilePitting = [];
+
+    gapLeaderMs[leaderCar] = 0.0;
+    let aheadDriverGapToLeader = 0.0;
+    if (timingData[leaderCar].InPit || timingData[leaderCar].PitOut) {
+        // no timing available if driver is in pit
+        // just freeze last valid gap
+        missingTimingsWhilePitting.push(leaderCar);
+    }
+
+    for (let i = 1; i < driverTrackOrder.length; i++) {
+        let driverNumber = driverTrackOrder[i];
+
+        const driverTimingData = timingData[driverNumber];
+
+        // catch lapped drivers, otherwise the laps are getting parsed
+        let currentDriverGapToLeaderMs = driverTimingData.GapToLeader.endsWith("L") ? NaN : 1000.0 * parseFloat(driverTimingData.GapToLeader);
+        let currentDriverGapAheadMs = driverTimingData.IntervalToPositionAhead.Value.endsWith("L") ? NaN : 1000.0 * parseFloat(driverTimingData.IntervalToPositionAhead.Value);
+
+        if (!isNaN(currentDriverGapToLeaderMs)) {
+            // not lapped
+            gapLeaderMs[driverNumber] = currentDriverGapToLeaderMs;
+            aheadDriverGapToLeader = gapLeaderMs[driverNumber];
+        } else if (!isNaN(currentDriverGapAheadMs)) {
+            // atleast driver ahead is not >1L ahead, can infer
+            gapLeaderMs[driverNumber] = aheadDriverGapToLeader + currentDriverGapAheadMs;
+            aheadDriverGapToLeader = gapLeaderMs[driverNumber];
+
+        } else if (driverTimingData.InPit || driverTimingData.PitOut) {
+            // no timing available if driver is in pit
+            // just freeze last valid gap
+            gapLeaderMs[driverNumber] = gapLeaderMs[driverNumber];
+            missingTimingsWhilePitting.push(driverNumber);
+
+        } else {
+            // even car ahead is +1 LAP, no way from static API getting gap... just say 2 minutes, dunno
+            // Pit Out Window doesnt matter anyways then, wont lose a spot when pitting.
+            gapLeaderMs[driverNumber] = aheadDriverGapToLeader + 1000.0 * 120;
+            aheadDriverGapToLeader = gapLeaderMs[driverNumber];
+
+        }
+    }
+    
+}
+
+
+// update struct where angles on loop for each driver are saved.
+function updateDriverPositionsOnLoopStruct() {
+    // Empty it. 
+    driverLoopPos = [];
+
+    // Leader seperated, is always first in list.
+    let leaderDriverNumber = driverTrackOrder[0];
+    
+    let leaderCirclePosDegrees = getLeaderPosOnCircle(leaderDriverNumber);
+    driverLoopPos.push({
+        driver: leaderDriverNumber,
+        gapToLeader: gapLeaderMs[leaderDriverNumber],
+        degrees: leaderCirclePosDegrees,
+    });
+
+    for (const [driverNumber, driverGap] of Object.entries(gapLeaderMs)) {
+
+        if (driverNumber == leaderDriverNumber)
+            continue;
+
+        // GAP is behind leader, not behind first car with valid timing!!
+
+        // for all, get from gap to leader the angle behind
+        let degreesBehindLeader = gapToAngleDegrees(driverGap); // can be >1 if lapped
+        let driverCirclePosDegrees = mod(leaderCirclePosDegrees - degreesBehindLeader, 360.0);
+
+        driverLoopPos.push({
+            driver: driverNumber,
+            gapToLeader: driverGap,
+            degrees: driverCirclePosDegrees,
+        });
+    }
+}
+
+function collectSelectedDriverInfo() {
     centerInfo = {}; // Empty it
     if (isNaN(centerDriverId)) {
         // no driver selected, keep empty
@@ -275,20 +269,21 @@ function collectSelectedDriverInfo() {
     centerInfo['driverPosition'] = parseInt(timingData[centerDriverId].Position); // 1 ...
 
     // racing driver ahead position and number and gap
-    centerInfo['driverAheadPosition'] = centerInfo['driverPosition'] - 1; // 1 ... TODO NAN?
+    centerInfo['driverAheadPosition'] = centerInfo['driverPosition'] - 1; // 1 ...
     centerInfo['driverAheadNumber'] = centerInfo['driverAheadPosition'] ? driverTrackOrder[centerInfo['driverAheadPosition'] - 1] : NaN; // 1st? ahead NaN
     centerInfo['driverAheadGap'] = isNaN(centerInfo['driverAheadNumber']) ? "" : timingData[centerDriverId].IntervalToPositionAhead.Value;
 
     // racing driver behind position and number and gap
-    centerInfo['driverBehindPosition'] = centerInfo['driverPosition'] + 1; // 1 ... TODO NAN?
+    centerInfo['driverBehindPosition'] = centerInfo['driverPosition'] + 1; // 1 ... 
     centerInfo['driverBehindNumber'] = (centerInfo['driverBehindPosition'] <= driverTrackOrder.length) ? driverTrackOrder[centerInfo['driverBehindPosition'] - 1] : NaN;
     centerInfo['driverBehindGap'] = isNaN(centerInfo['driverBehindNumber']) ? "" : timingData[centerInfo['driverBehindNumber']].IntervalToPositionAhead.Value;
 
     // Pit Out Ranges
     let gapToLeaderMs = gapLeaderMs[centerDriverId];
     centerInfo['isVSCconditions'] = (parseInt(trackStatus) >= 4); // SC or VSC === TRUE
+    centerInfo['isInPit'] = timingData[centerDriverId].InPit;
+    centerInfo['isInPitOut'] = timingData[centerDriverId].PitOut;
 
-    // let timeLossGapS = isVscConditions ? timeLostVSC : timeLostGreen;
     let pitExitBehindLeaderGreenMinMs = gapToLeaderMs + timeLostGreen * 1000.0 - 1000; // best case: loses 2s less than exp.
     let pitExitBehindLeaderGreenMaxMs = gapToLeaderMs + timeLostGreen * 1000.0 + 3000; // best case: loses 4s more than exp.
     let pitExitBehindLeaderVscMinMs = gapToLeaderMs + timeLostVSC * 1000.0 - 1000; // best case: loses 2s less than exp.
@@ -311,11 +306,11 @@ function collectSelectedDriverInfo() {
         }
         if (!pitExitPosGreenBack && gapLeaderMs[driverTrackOrder[pos]] > pitExitBehindLeaderGreenMaxMs) {
             pitExitPosGreenBack = pos;
-            break; // will be the last one happening
+            break; // will be the last thing happening
         }
     }
 
-    // if still not set, last
+    // if still not set -> would be last
     pitExitPosGreenFront = pitExitPosGreenFront ? pitExitPosGreenFront : driverTrackOrder.length;
     pitExitPosGreenBack = pitExitPosGreenBack ? pitExitPosGreenBack : driverTrackOrder.length;
     pitExitPosVscFront = pitExitPosVscFront ? pitExitPosVscFront : driverTrackOrder.length;
@@ -331,10 +326,6 @@ function collectSelectedDriverInfo() {
 }
 
 function updateCenterInfoDisplay() {
-    var nodeConsole = require('console');
-    var myConsole = new nodeConsole.Console(process.stdout, process.stderr);
-    myConsole.log("updateCenter " + centerInfo['driverNumber']);
-
     var cdn = document.getElementById("centerDriverName");
 
     var cdgA = document.getElementById("centerDriverGapNamesAhead");
@@ -353,6 +344,14 @@ function updateCenterInfoDisplay() {
 
     // fill HTML stuff
     cdn.innerHTML = centerInfo['driverShortName'];
+    if (centerInfo['isInPit']) {
+        cdn.innerHTML += " (PIT)";
+        cdn.style.color = "#FF0000";
+    } else {
+        cdn.style.color = "white";
+    }
+    // centerInfo['isInPitOut'] seems to be longer 'True' than actual pit out display
+
     cdgA.innerHTML = (isNaN(centerInfo['driverAheadNumber']) ? "" : (driverList[centerInfo['driverAheadNumber']].Tla + " " + centerInfo['driverAheadPosition'] + " <"));
     cdgB.innerHTML = (isNaN(centerInfo['driverBehindNumber']) ? "" : ("> " + centerInfo['driverBehindPosition'] + " " + driverList[centerInfo['driverBehindNumber']].Tla));
 
@@ -385,9 +384,6 @@ function rectangleClicked(driver) {
 
 // Function to create and position rectangles
 function createRectangles() {
-    var nodeConsole = require('console');
-    var myConsole = new nodeConsole.Console(process.stdout, process.stderr);
-
     const ring = document.querySelector('.cod-ring');
     const ringRadius = parseFloat(getComputedStyle(ring).getPropertyValue('r'));
 
@@ -412,6 +408,9 @@ function createRectangles() {
     container.appendChild(rectangles["SF"]);
 
     driverLoopPos.forEach(function (loopPos) {
+        if (missingTimingsWhilePitting.includes(loopPos.driver)) {
+            return;
+        }
 
         // loopPos.driver loopPos.gapToLeader/1000.0 loopPos.degrees
         const teamColor = driverList[loopPos.driver].TeamColour;
@@ -437,7 +436,6 @@ function createRectangles() {
         }
 
         // Add a click event listener to each rectangle
-        // rectangle.addEventListener('click', rectangleClicked);
         rectangles[loopPos.driver].onmousedown = () => rectangleClicked(loopPos.driver);
         container.appendChild(rectangles[loopPos.driver]);
 
@@ -447,7 +445,6 @@ function createRectangles() {
         const xLabel = polarToCartesian(0, 0, 0.75 * ringRadius, loopPos.degrees).x;
         const yLabel = polarToCartesian(0, 0, 0.8 * ringRadius, loopPos.degrees).y;
 
-        // rectangles[loopPos.driver].className = 'button rectangle';
         driverLabel.id = 'cod-label-' + loopPos.driver;
         driverLabel.className = 'driver-label';
         driverLabel.style.transform = `translate(-50%, -50%) translate(${xLabel}px, ${yLabel}px)`; //   
@@ -474,27 +471,35 @@ function createRectangles() {
     arcVSC.setAttribute("d", describeArc(vw(50), vh(50), vmin(40), vscStartAngle, vscEndAngle));
 
 }
-// TODO CSS colors green yellow official?
 
 async function mainLoop() {
 
-    var nodeConsole = require('console');
-    var myConsole = new nodeConsole.Console(process.stdout, process.stderr);
-    myConsole.log("TICK");
+    if (sessionInfo.Type !== "Race") {
+        // Not possible outside races.
+        document.getElementById(
+            "cod-info"
+        ).innerHTML = `<h1>No race detected</h1><p>Circle of Doom is only supported during races. During other sessions, consult the driver tracker.</p>`;
+        
+        return;
+    }
+    // myConsole.log("TICK");
 
     await apiRequests();
+    // update get current driver order
     driverTrackOrder = getRacingDriversPositionOrder(timingData);
+    // update lap time estimate
     updateLapTimeEstimate();
+    // update gaps for all drivers to leader
     updateGapsToLeader();
-
+    // update loop position data
     updateDriverPositionsOnLoopStruct();
+    // collect data for center display
+    collectSelectedDriverInfo();
 
-    collectSelectedDriverInfo(); // collect info to display in center
-    // myConsole.log(centerInfo);
-
-    createRectangles(); // create rectangles and pit out segment
-    updateCenterInfoDisplay(); // update center info display
-
+    // create rectangles and segments
+    createRectangles();
+    // create center display
+    updateCenterInfoDisplay();
 
 }
 
@@ -502,15 +507,13 @@ async function mainLoop() {
 // Run all function and create a loop to refresh
 async function run() {
 
-    var nodeConsole = require('console');
-    var myConsole = new nodeConsole.Console(process.stdout, process.stderr);
-
     await getConfigurations();
     await apiRequests();
 
     // Check for time loss info from times.js
     const circuitId = sessionInfo.Meeting.Circuit.Key;
-    // data there and not NaN?
+
+    // data there and not NaN? also check settings file.
     if (!pit_time_loss_always_default && (circuitId in boxLostTimesGreenVSC) && !isNaN(boxLostTimesGreenVSC[circuitId][0])) {
 
         timeLostGreen = parseFloat(boxLostTimesGreenVSC[circuitId][0]);
@@ -530,6 +533,15 @@ async function run() {
         timeLostVSC = pit_time_loss_default_vsc;
     }
 
+    if (isNaN(timeLostGreen)) {
+        myConsole.log("Settings fallback not parsable, setting GREEN loss to 21s.");
+        timeLostGreen = 21.0;
+    }
+    if (isNaN(timeLostVSC)) {
+        myConsole.log("Settings fallback not parsable, setting VSC loss to 15s.");
+        timeLostVSC = 15.0;
+    }
+
     mainLoop();
     setInterval(mainLoop, loopspeed);
 
@@ -539,5 +551,3 @@ async function run() {
 }
 
 run();
-
-// TODO "Wait for cache to be filled... or wait a lap..." or so 
