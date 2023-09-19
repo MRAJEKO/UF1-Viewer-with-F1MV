@@ -76,22 +76,30 @@ body {
 
 #centerDriverGapNames {
     font-size: 2.5vmin;
+    color: inherit;
 }
 
 #centerDriverName {
     text-align: center;
     font-size: 8vmin;
+    color: inherit;
+}
+#centerDriverGapTimes {
+    font-size: 2.5vmin;
+    color: inherit;
 }
 
 #centerDriverPitOutGreen {
     text-align: center;
     margin-top: 5vmin;
     font-size: 4vmin;
+    color: inherit;
 }
 
 #centerDriverPitOutVSC {
     text-align: center;
     font-size: 4vmin;
+    color: inherit;
 }
 
 .driver-label {
@@ -118,14 +126,17 @@ body {
     width: 25vmin;
     font-size: 3.5vmin;
     flex: 1;
+    color: inherit;
 }
 
 .centerInfo span:first-of-type {
     text-align: right;
     padding-right: 5px;
+    color: inherit;
 }
 
 .centerInfo span:last-of-type {
     text-align: left;
     padding-left: 5px;
+    color: inherit;
 }

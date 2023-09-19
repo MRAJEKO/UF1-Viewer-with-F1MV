@@ -461,7 +461,7 @@ function updateCenterInfoDisplay() {
         cdn.innerHTML += " (PIT)";
         cdn.style.color = "#FF0000";
     } else {
-        cdn.style.color = "white";
+        cdn.style.color = center_text_color;
     }
     // centerInfo['isInPitOut'] seems to be longer 'True' than actual pit out display
 
@@ -614,7 +614,6 @@ async function mainLoop() {
     }
     // myConsole.log("TICK");
 
-    myConsole.log(sessionStatus);
     if (sessionStatus === "Finalised" || sessionStatus === "Ends") 
         return; // Race over.
 
@@ -687,9 +686,8 @@ async function run() {
     }
 
     // Update visuals depending on settings
-    
-    myConsole.log(circle_color);
-    myConsole.log(center_text_color);
+    document.getElementById("ring").style.stroke = circle_color;
+    document.getElementById("centerDriverInfo").style.color = center_text_color;
 
     mainLoop();
     setInterval(mainLoop, loopspeed);

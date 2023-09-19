@@ -35,6 +35,8 @@ const defaults = {
       always_use_default: false,
       default_pit_time_loss_green: "21.0",
       default_pit_time_loss_vsc: "13.0",
+      cod_circle_color: "BLACK",
+      cod_center_text_color: "WHITE"
     },
     weather: { datapoints: "30", use_trackmap_rotation: true },
     autoswitcher: { main_window_name: "INTERNATIONAL", speedometer: true, fixed_drivers: "" },
