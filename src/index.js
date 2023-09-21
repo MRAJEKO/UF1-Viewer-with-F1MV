@@ -211,7 +211,7 @@ const defaults = {
       },
       circle_of_doom: {
         path: "circleofdoom/index.html",
-        width: 300,
+        width: 500,
         height: 500,
         frame: false,
         hideMenuBar: true,

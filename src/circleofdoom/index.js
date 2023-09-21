@@ -1,8 +1,7 @@
 var nodeConsole = require('console');
 var myConsole = new nodeConsole.Console(process.stdout, process.stderr);
 
-// The duration of the sector times being show when completing a sector
-// (All times are in MS)
+// Refresh interval
 const loopspeed = 100;
 
 const f1mvApi = require("npm_f1mv_api");
@@ -20,7 +19,6 @@ let timeLostGreen = NaN; // time lost under green flag conditions
 let timeLostVSC = NaN; // time lost under (V)SC conditions
 let gapLeaderMs = {}; // cached gap to leader per driver, computed to solve lapped cars
 let centerInfo = NaN; // info struct containing relevant info for displaying center data
-let missingTimingsWhilePitting = []; // Which drivers currently have invalid timings due to pitting?
 
 // From settings
 let pit_time_loss_default_green = NaN;
@@ -149,9 +147,6 @@ async function apiRequests() {
         "TopThree",
         "SessionStatus",
         "SessionData",
-
-        // "PitLaneTimeCollection",
-
     ]);
 
     driverList = liveTimingState.DriverList;
@@ -170,7 +165,8 @@ async function apiRequests() {
 }
 
 // Need an estimated lap time to approximate position of leader on track.
-// We do not use mini sectors since there is no timing for them. Would become too complicated.
+// We do not use mini sectors since there is no timing for them. That would become too complicated.
+// We use sectors here to adapt estimated lap time more quickly to VSC/weather etc.
 function updateLapTimeEstimate() {
     // Simple heuristic: Take the fastest last lap of the top 5 to avoid in/out laps.
     let numLapTimes = Math.min(driverTrackOrder.length, 5);
@@ -244,7 +240,6 @@ function getLeaderPosOnCircle(driverNr) {
 function updateGapsToLeader() {
     // who is leading?
     const leaderCar = driverTrackOrder[0];
-    missingTimingsWhilePitting = [];
 
     // delete keys from leader struct if they are no longer in the race
     for (const key in gapLeaderMs) {
@@ -255,11 +250,6 @@ function updateGapsToLeader() {
 
     gapLeaderMs[leaderCar] = 0.0;
     let aheadDriverGapToLeader = 0.0;
-    if (timingData[leaderCar].InPit) { // TODO still need this?
-        // no timing available if driver is in pit
-        // just freeze last valid gap
-        missingTimingsWhilePitting.push(leaderCar);
-    }
 
     for (let i = 1; i < driverTrackOrder.length; i++) {
         let driverNumber = driverTrackOrder[i];
@@ -284,7 +274,6 @@ function updateGapsToLeader() {
             // just freeze last valid gap
             gapLeaderMs[driverNumber] = gapLeaderMs[driverNumber];
             aheadDriverGapToLeader = gapLeaderMs[driverNumber];
-            missingTimingsWhilePitting.push(driverNumber);
 
         } else if (driverTimingData.GapToLeader == "") {
             // Empty filed, means no racing going on (yet), put on SF line
@@ -386,10 +375,10 @@ function collectSelectedDriverInfo() {
     centerInfo['isInPit'] = timingData[centerDriverId].InPit;
     centerInfo['isInPitOut'] = timingData[centerDriverId].PitOut;
 
-    let pitExitBehindLeaderGreenMinMs = gapToLeaderMs + timeLostGreen * 1000.0 - 1000; // best case: loses 2s less than exp.
-    let pitExitBehindLeaderGreenMaxMs = gapToLeaderMs + timeLostGreen * 1000.0 + 3000; // best case: loses 4s more than exp.
-    let pitExitBehindLeaderVscMinMs = gapToLeaderMs + timeLostVSC * 1000.0 - 1000; // best case: loses 2s less than exp.
-    let pitExitBehindLeaderVscMaxMs = gapToLeaderMs + timeLostVSC * 1000.0 + 3000; // best case: loses 4s more than exp.
+    let pitExitBehindLeaderGreenMinMs = gapToLeaderMs + timeLostGreen * 1000.0 - 1000; // best case: loses 1s less than exp.
+    let pitExitBehindLeaderGreenMaxMs = gapToLeaderMs + timeLostGreen * 1000.0 + 3000; // worst case: loses 3s more than exp.
+    let pitExitBehindLeaderVscMinMs = gapToLeaderMs + timeLostVSC * 1000.0 - 1000; // best case: loses 1s less than exp.
+    let pitExitBehindLeaderVscMaxMs = gapToLeaderMs + timeLostVSC * 1000.0 + 3000; // worst case: loses 3s more than exp.
 
     let pitExitPosGreenFront = 0;
     let pitExitPosGreenBack = 0;
@@ -479,7 +468,6 @@ function updateCenterInfoDisplay() {
         ? centerInfo['predictedPitOutPosRangeVSC'][0]
         : centerInfo['predictedPitOutPosRangeVSC'].join('-');
 
-    // TODO adaptive sizes depending on green/VSC
     cdpGreen.innerHTML = "Out: " + pitOutPosRange;
     cdpVSC.innerHTML = "VSC: " + pitOutPosRangeVSC;
 
@@ -527,11 +515,7 @@ function createRectangles() {
     container.appendChild(rectangles["SF"]);
 
     driverLoopPos.forEach(function (loopPos) {
-        /*
-        if (missingTimingsWhilePitting.includes(loopPos.driver)) {
-            return;
-        }*/
-
+        
         // loopPos.driver loopPos.gapToLeader/1000.0 loopPos.degrees
         const teamColor = driverList[loopPos.driver].TeamColour;
         rectangles[loopPos.driver] = document.createElement('div');
