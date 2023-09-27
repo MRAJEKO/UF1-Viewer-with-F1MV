@@ -376,9 +376,9 @@ function collectSelectedDriverInfo() {
     centerInfo['isInPitOut'] = timingData[centerDriverId].PitOut;
 
     let pitExitBehindLeaderGreenMinMs = gapToLeaderMs + timeLostGreen * 1000.0 - 1000; // best case: loses 1s less than exp.
-    let pitExitBehindLeaderGreenMaxMs = gapToLeaderMs + timeLostGreen * 1000.0 + 3000; // worst case: loses 3s more than exp.
+    let pitExitBehindLeaderGreenMaxMs = gapToLeaderMs + timeLostGreen * 1000.0 + 2000; // worst case: loses 2s more than exp.
     let pitExitBehindLeaderVscMinMs = gapToLeaderMs + timeLostVSC * 1000.0 - 1000; // best case: loses 1s less than exp.
-    let pitExitBehindLeaderVscMaxMs = gapToLeaderMs + timeLostVSC * 1000.0 + 3000; // worst case: loses 3s more than exp.
+    let pitExitBehindLeaderVscMaxMs = gapToLeaderMs + timeLostVSC * 1000.0 + 2000; // worst case: loses 2s more than exp.
 
     let pitExitPosGreenFront = 0;
     let pitExitPosGreenBack = 0;

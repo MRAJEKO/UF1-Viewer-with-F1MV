@@ -325,6 +325,16 @@ const store = new Store({
         "internal_settings.analytics.sendActiveUsers",
         "https://api.jstt.me/api/v2/uf1/analytics/active-users/post"
       );
+
+    },
+    "1.4.9": (store) => {
+      store.set("config.circle_of_doom.always_use_default", false);
+      store.set("config.circle_of_doom.default_pit_time_loss_green", "21.0");
+      store.set("config.circle_of_doom.default_pit_time_loss_vsc", "13.0");
+      store.set("config.circle_of_doom.cod_circle_color", "BLACK");
+      store.set("config.circle_of_doom.cod_center_text_color", "WHITE");
+      
+      store.set("internal_settings.windows.circle_of_doom", defaults.internal_settings.windows.circle_of_doom);
     },
   },
 
