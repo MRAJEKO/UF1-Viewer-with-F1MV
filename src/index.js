@@ -31,6 +31,13 @@ const defaults = {
       sector_display_duration: "4000",
       end_display_duration: "4000",
     },
+    circle_of_doom: {
+      always_use_default: false,
+      default_pit_time_loss_green: "21.0",
+      default_pit_time_loss_vsc: "13.0",
+      cod_circle_color: "BLACK",
+      cod_center_text_color: "WHITE"
+    },
     weather: { datapoints: "30", use_trackmap_rotation: true },
     autoswitcher: { main_window_name: "INTERNATIONAL", speedometer: true, fixed_drivers: "" },
   },
@@ -202,6 +209,18 @@ const defaults = {
         aspectRatio: null,
         icon: "icons/windows/currentlaps.png",
       },
+      circle_of_doom: {
+        path: "circleofdoom/index.html",
+        width: 500,
+        height: 500,
+        frame: false,
+        hideMenuBar: true,
+        transparent: true,
+        hasShadow: false,
+        alwaysOnTop: null,
+        aspectRatio: null,
+        icon: "icons/windows/currentlaps.png",
+      },
       battlemode: {
         path: "battlemode/index.html",
         width: 1300,
@@ -306,6 +325,16 @@ const store = new Store({
         "internal_settings.analytics.sendActiveUsers",
         "https://api.jstt.me/api/v2/uf1/analytics/active-users/post"
       );
+
+    },
+    "1.4.9": (store) => {
+      store.set("config.circle_of_doom.always_use_default", false);
+      store.set("config.circle_of_doom.default_pit_time_loss_green", "21.0");
+      store.set("config.circle_of_doom.default_pit_time_loss_vsc", "13.0");
+      store.set("config.circle_of_doom.cod_circle_color", "BLACK");
+      store.set("config.circle_of_doom.cod_center_text_color", "WHITE");
+      
+      store.set("internal_settings.windows.circle_of_doom", defaults.internal_settings.windows.circle_of_doom);
     },
   },
 
