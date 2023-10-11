@@ -251,6 +251,16 @@ function updateGapsToLeader() {
     gapLeaderMs[leaderCar] = 0.0;
     let aheadDriverGapToLeader = 0.0;
 
+    let isAnyDriverInPit = false;
+    for (let i = 0; i < driverTrackOrder.length; i++) {
+        let driverNumber = driverTrackOrder[i];
+        let driverIsInPit = timingData[driverNumber].InPit || (timingData[driverNumber].PitOut && timingData[driverNumber].IntervalToPositionAhead.Value == "");
+        if (driverIsInPit) {
+            isAnyDriverInPit = true;
+            break;
+        }
+    }
+
     for (let i = 1; i < driverTrackOrder.length; i++) {
         let driverNumber = driverTrackOrder[i];
 
@@ -259,8 +269,15 @@ function updateGapsToLeader() {
         // catch lapped drivers, otherwise the laps are getting parsed
         let currentDriverGapToLeaderMs = driverTimingData.GapToLeader.endsWith("L") ? NaN : 1000.0 * parseFloat(driverTimingData.GapToLeader);
         let currentDriverGapAheadMs = driverTimingData.IntervalToPositionAhead.Value.endsWith("L") ? NaN : 1000.0 * parseFloat(driverTimingData.IntervalToPositionAhead.Value);
-
-        if (!isNaN(currentDriverGapToLeaderMs)) {
+        
+        if ((!isNaN(currentDriverGapToLeaderMs)) && currentDriverGapToLeaderMs < aheadDriverGapToLeader) {
+            // Driver ahead has bigger gap to leader than self... happens on some pit exit scenarios. Dont update gap
+            gapLeaderMs[driverNumber] = currentDriverGapToLeaderMs;
+        } else if (!isNaN(currentDriverGapAheadMs) && !isAnyDriverInPit) {
+            gapLeaderMs[driverNumber] = aheadDriverGapToLeader + currentDriverGapAheadMs;
+            aheadDriverGapToLeader = gapLeaderMs[driverNumber];
+        }
+        else if (!isNaN(currentDriverGapToLeaderMs)) {
             // not lapped
             gapLeaderMs[driverNumber] = currentDriverGapToLeaderMs;
             aheadDriverGapToLeader = gapLeaderMs[driverNumber];

@@ -20,8 +20,8 @@ const boxLostTimesGreenVSC = {
     '55': [18, 12], // Zandvoort 2022
     '39': [24, 17], // Monza 2022
     '61': [28.5, 15], // Singapore 2023
-    '46': [22.5, 10], // Suzuka 2022
-    '150': [24.1, 18.4], // Losail, Qatar 2021
+    '47': [22.5, 10], // Suzuka 2022
+    '150': [26.5, 15.5], // Losail, Qatar 2021
     '9': [20, 14], // Austin 2022
     '65': [22, 15], // Mexico 2022
     '14': [21, 11], // Interlagos 2022
