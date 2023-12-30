@@ -152,7 +152,10 @@ const useAutoSwitcher = () => {
           for (const driver in TimingData?.Lines) {
             const driverTimingData = TimingData?.Lines?.[driver]
 
-            if (parseInt(driverTimingData.Position) === position && !prioList.includes(driver))
+            if (
+              parseInt(driverTimingData?.Position ?? '0') === position &&
+              !prioList.includes(driver)
+            )
               prioList.push(driver)
           }
         }

@@ -1,6 +1,7 @@
 import {
   ICarData,
   ILapCount,
+  ISector,
   ISessionInfo,
   ISessionStatusStatus,
   ITimingData,
@@ -10,6 +11,18 @@ import {
 import { parseLapOrSectorTime } from './convertTime'
 import { overwriteCrashedStatus } from '@renderer/components/AutoSwitcher/driverPriority'
 import { weirdCarBehaviour } from './getCarInfo'
+
+export const firstSectorCompleted = (sectors: ISector[]) => {
+  const lastSector = sectors.slice(-1)[0]
+
+  return sectors[0].Segments
+    ? (sectors[0].Segments.slice(-1)[0].Status !== 0 && lastSector.Value === '') ||
+        (lastSector.Segments?.slice(-1)[0].Status === 0 &&
+          lastSector.Value !== '' &&
+          sectors[1].Segments?.[0].Status !== 0 &&
+          sectors[0].Segments.slice(-1)[0].Status !== 0)
+    : sectors[0].Value !== '' && lastSector.Value === ''
+}
 
 export const isDriverOnPushLap = (
   driverNumber: string,
@@ -26,8 +39,8 @@ export const isDriverOnPushLap = (
   )
     return false
 
-  const driverTimingData = timingData?.Lines[driverNumber]
-  const driverBestTimes = bestTimes?.[driverNumber]
+  const driverTimingData = timingData?.Lines?.[driverNumber]
+  const driverBestTimes = bestTimes?.Lines?.[driverNumber]
 
   if (!driverTimingData || !driverBestTimes) return false
 
@@ -40,14 +53,13 @@ export const isDriverOnPushLap = (
   if (driverTimingData.InPit) return false
 
   // If the first mini sector time is status 2064, meaning he is on a out lap, return false
-  if (driverTimingData.Sectors[0].Segments?.[0].Status === 2064) return false
+  if (driverTimingData.Sectors[0].Segments?.[0].Status === 2064 || driverTimingData.PitOut)
+    return false
 
   // Get the threshold to which the sector time should be compared to the best personal sector time.
   const pushDeltaThreshold = sessionType === 'Race' ? 0.2 : sessionType === 'Qualifying' ? 1 : 3
 
   const sectors = driverTimingData.Sectors
-
-  const lastSector = sectors.slice(-1)[0]
 
   if (
     sectors.slice(-1)[0].Value !== '' &&
@@ -55,13 +67,7 @@ export const isDriverOnPushLap = (
   )
     return false
 
-  const completedFirstSector = sectors[0].Segments
-    ? (sectors[0].Segments.slice(-1)[0].Status !== 0 && lastSector.Value === '') ||
-      (lastSector.Segments.slice(-1)[0].Status === 0 &&
-        lastSector.Value !== '' &&
-        sectors[1].Segments[0].Status !== 0 &&
-        sectors[0].Segments.slice(-1)[0].Status !== 0)
-    : sectors[0].Value !== '' && lastSector.Value === ''
+  const completedFirstSector = firstSectorCompleted(sectors)
 
   let isPushing = false
   for (let sectorIndex = 0; sectorIndex < driverTimingData.Sectors.length; sectorIndex++) {

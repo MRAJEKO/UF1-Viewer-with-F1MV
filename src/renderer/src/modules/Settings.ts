@@ -40,6 +40,15 @@ interface ISettingSelect extends ISetting {
   options: IOption[]
 }
 
+interface IGeneralSettings {
+  name: string
+  settings: {
+    discord_rpc: ISettingSwitch
+    await_session: ISettingSwitch
+    highlighted_drivers: ISettingText
+  }
+}
+
 interface ISessionLogSettings {
   name: string
   settings: {
@@ -103,12 +112,13 @@ interface IAutoSwitcherSettings {
   }
 }
 
-interface IGeneralSettings {
+interface IPushLapsSettings {
   name: string
   settings: {
-    discord_rpc: ISettingSwitch
-    await_session: ISettingSwitch
-    highlighted_drivers: ISettingText
+    always_on_top: ISettingSwitch
+    show_header: ISettingSwitch
+    sector_display_duration: ISettingNumber
+    end_display_duration: ISettingNumber
   }
 }
 
@@ -132,3 +142,6 @@ export const weatherSettings: IWeatherSettings | null =
 
 export const autoSwitcherSettings: IAutoSwitcherSettings | null =
   window.ipcRenderer.sendSync('get-store', 'config')?.autoswitcher ?? null
+
+export const pushLapsSettings: IPushLapsSettings | null =
+  window.ipcRenderer.sendSync('get-store', 'config')?.current_laps ?? null

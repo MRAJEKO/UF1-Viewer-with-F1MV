@@ -35,7 +35,7 @@ export const overwriteCrashedStatus = (
   if (
     SessionType === 'Race' &&
     (lastSectorSegments.slice(-3).some((segment) => segment.Status !== 0) ||
-      driverTimingData.Sectors[0].Segments[1].Status === 0) &&
+      driverTimingData.Sectors[0].Segments?.[1].Status === 0) &&
     LapCount?.CurrentLap === 1 &&
     !driverTimingData.PitOut
   ) {

@@ -412,32 +412,6 @@ const defaults = {
     },
     sessionLogHexModifier: '91'
   },
-  team_icons: {
-    Mercedes: '../icons/teams/mercedes.png',
-
-    'Red Bull Racing': '../icons/teams/red-bull.png',
-
-    McLaren: '../icons/teams/mclaren-white.png',
-
-    'Force India': '../icons/teams/force-india.png',
-    'Racing Point': '../icons/teams/racing-point.png',
-    'Aston Martin': '../icons/teams/aston-martin.png',
-
-    Williams: '../icons/teams/williams-white.png',
-
-    'Toro Rosso': '../icons/teams/toro-rosso.png',
-    AlphaTauri: '../icons/teams/alpha-tauri.png',
-
-    Renault: '../icons/teams/renault.png',
-    Alpine: '../icons/teams/alpine.png',
-
-    Ferrari: '../icons/teams/ferrari.png',
-    'Haas F1 Team': '../icons/teams/haas-red.png',
-
-    Sauber: '../icons/teams/alfa-romeo.png',
-    'Alfa Romeo Racing': '../icons/teams/alfa-romeo.png',
-    'Alfa Romeo': '../icons/teams/alfa-romeo.png'
-  },
   internal_settings: {
     windows: {
       main: {

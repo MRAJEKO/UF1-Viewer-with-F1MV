@@ -1,0 +1,109 @@
+@use '@renderer/assets/colors.scss' as Colors;
+
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 40vw;
+  background-color: Colors.$black-translucent;
+  margin-bottom: 5vw;
+  overflow: hidden;
+  transition: all 0.5s ease-in-out;
+
+  &.hide {
+    height: 0;
+    margin-bottom: 0;
+  }
+
+  .header {
+    display: flex;
+    align-items: center;
+    height: 12vw;
+    position: relative;
+
+    .position {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 20vw;
+      height: 100%;
+      font-size: 6vw;
+      background-color: Colors.$white;
+
+      p {
+        transform: skew(-10deg);
+        font-family: 'InterRegular';
+        color: Colors.$black;
+      }
+    }
+
+    .teamicon-name {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 12vw;
+      gap: 4vw;
+      width: 100%;
+      border-left: 0.2vw solid Colors.$black;
+      border-right: 0.2vw solid Colors.$black;
+      padding: 0 2vw 0 4vw;
+      font-size: 6vw;
+
+      .name {
+        transform: skew(-10deg);
+      }
+
+      .teamicon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        width: 12vw;
+
+        img {
+          height: 80%;
+        }
+      }
+    }
+
+    .tyre {
+      display: grid;
+      place-items: center;
+      font-size: 6vw;
+      width: 20vw;
+
+      p {
+        font-family: 'InterRegular';
+      }
+    }
+  }
+
+  .timing {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    height: 100%;
+    border-bottom: 0.5vw solid Colors.$gray;
+
+    .current {
+      border-right: 0.5vw solid Colors.$gray;
+      display: grid;
+      place-items: center;
+
+      p {
+        font-family: 'InterBlack';
+        transform: skew(-10deg) scaleY(0.9);
+        font-size: 9vw;
+        color: Colors.$white;
+        font-variant-numeric: tabular-nums;
+      }
+    }
+  }
+
+  .sectors {
+    height: 30vw;
+    display: flex;
+
+    * {
+      color: white;
+    }
+  }
+}

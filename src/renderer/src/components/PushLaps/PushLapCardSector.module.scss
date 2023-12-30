@@ -1,0 +1,44 @@
+@use '@renderer/assets/colors.scss' as Colors;
+
+.sector {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  padding: 0 1vw 1.6vw;
+
+  .top {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1vw;
+    padding: 2vw 0 1vw 0;
+
+    .time {
+      font-size: 5vw;
+      font-family: 'InterRegular';
+      transform: skew(-10deg);
+    }
+
+    .delta {
+      font-size: 3.5vw;
+      font-family: 'InterRegular';
+    }
+  }
+}
+
+.sector:nth-child(2) {
+  border-left: 0.5vw solid Colors.$gray;
+  border-right: 0.5vw solid Colors.$gray;
+}
+
+.segments {
+  display: flex;
+  align-items: center;
+  gap: 1vw;
+  height: 100%;
+
+  .segment {
+    width: 100%;
+    height: 0.5vw;
+  }
+}

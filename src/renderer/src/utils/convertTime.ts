@@ -75,3 +75,16 @@ export const parseLapOrSectorTime = (time: string) => {
 
   return minutes * 60 + seconds + milliseconds / 1000
 }
+
+export const milisecondsToF1 = (ms: number, fixedAmount: number) => {
+  const minutes = Math.floor(ms / 60000)
+
+  let milliseconds = ms % 60000
+
+  const seconds =
+    milliseconds / 1000 < 10 && minutes > 0
+      ? '0' + (milliseconds / 1000).toFixed(fixedAmount)
+      : (milliseconds / 1000).toFixed(fixedAmount)
+
+  return minutes > 0 ? minutes + ':' + seconds : seconds
+}

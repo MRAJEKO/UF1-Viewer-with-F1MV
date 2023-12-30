@@ -319,6 +319,8 @@ const store = new Store({
         }
       }
 
+      store.delete('team_icons')
+
       store.set('config', newConfig)
 
       store.set('internal_settings', defaults.internal_settings)
@@ -401,13 +403,9 @@ ipcMain.handle('open-window', (_event, window) => {
   if (store.get(`config.${window}.settings.always_on_top.value`)) newWindow.setAlwaysOnTop(true)
 
   if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
-    newWindow.loadURL(
-      process.env['ELECTRON_RENDERER_URL'] + `#/${windowProperties.path}/moveMode=true`
-    )
+    newWindow.loadURL(process.env['ELECTRON_RENDERER_URL'] + `#/${windowProperties.path}`)
   } else {
-    newWindow.loadFile(
-      join(__dirname, `../renderer/index.html#/${windowProperties.path}/moveMode=true`)
-    )
+    newWindow.loadFile(join(__dirname, `../renderer/index.html#/${windowProperties.path}`))
   }
 })
 

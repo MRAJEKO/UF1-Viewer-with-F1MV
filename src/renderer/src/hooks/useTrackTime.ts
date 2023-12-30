@@ -3,9 +3,9 @@ import { useState, useEffect, useCallback } from 'react'
 import useData from './useLiveTiming'
 import useLiveTimingClock, { ILiveTimingClockData } from './useLiveTimingClock'
 import { calculateTrackTime } from '@renderer/utils/trackTime'
-import { speed4, speed7 } from '@renderer/constants/refreshIntervals'
+import { speed4, speed5, speed7 } from '@renderer/constants/refreshIntervals'
 
-const useTrackTime = () => {
+const useTrackTime = (speed?: number) => {
   const [liveTimingClockData, setLiveTimingClockData] = useState<null | ILiveTimingClockData>(null)
   const [GmtOffset, setGmtOffset] = useState<string>('00:00:00')
   const [now, setNow] = useState<number>(new Date().getTime())
@@ -13,7 +13,7 @@ const useTrackTime = () => {
   useEffect(() => {
     const interval = setInterval(() => {
       if (!liveTimingClockData?.paused) setNow(new Date().getTime())
-    }, 1000)
+    }, speed ?? speed5)
 
     return () => clearInterval(interval)
   }, [liveTimingClockData])

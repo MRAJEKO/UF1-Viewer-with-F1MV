@@ -429,7 +429,7 @@ export interface ISector {
   Status: number
   OverallFastest: boolean
   PersonalFastest: boolean
-  Segments: ISegment[]
+  Segments?: ISegment[]
   PreviousValue?: string
 }
 
