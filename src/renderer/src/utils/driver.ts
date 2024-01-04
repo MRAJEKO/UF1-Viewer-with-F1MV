@@ -32,6 +32,7 @@ export const isDriverOnPushLap = (
   bestTimes?: ITimingStats,
   sessionType?: ISessionInfo['Type']
 ) => {
+  // If session inactive
   if (
     sessionStatus === 'Aborted' ||
     sessionStatus === 'Inactive' ||
@@ -44,6 +45,7 @@ export const isDriverOnPushLap = (
 
   if (!driverTimingData || !driverBestTimes) return false
 
+  // If race completed
   if (
     sessionType === 'Race' &&
     (driverTimingData.NumberOfLaps === undefined || driverTimingData.NumberOfLaps <= 1)
@@ -52,7 +54,7 @@ export const isDriverOnPushLap = (
 
   if (driverTimingData.InPit) return false
 
-  // If the first mini sector time is status 2064, meaning he is on a out lap, return false
+  // If on an outlap
   if (driverTimingData.Sectors[0].Segments?.[0].Status === 2064 || driverTimingData.PitOut)
     return false
 
@@ -77,15 +79,13 @@ export const isDriverOnPushLap = (
     const sectorTime = parseLapOrSectorTime(sector.Value)
     const bestSectorTime = parseLapOrSectorTime(bestSector.Value)
 
-    // Check if the first sector is completed by checking if the last segment of the first sector has a value meaning he has crossed the last point of that sector and the final sector time does not have a value. The last check is done because sometimes the segment already has a status but the times are not updated yet.
-
-    // If the first sector time is above the threshold it should imidiately break because it will not be a push lap
+    // If first sector is too slow compared to the threshold
     if (sectorTime - bestSectorTime > pushDeltaThreshold && completedFirstSector) {
       isPushing = false
       break
     }
 
-    // If the first sector time is lower then the threshold it should temporarily set pushing to true because the driver could have still backed out in a later stage
+    // If first sector time is faster then the threshold it should temporarily set pushing to true because the driver could have still backed out in a later stage
     if (sectorTime - bestSectorTime <= pushDeltaThreshold && completedFirstSector) {
       isPushing = true
       continue
@@ -123,4 +123,77 @@ export const driverHasCrashed = (
     return false
 
   return true
+}
+
+export const getTargetData = (
+  driverNumber: string,
+  timingData?: ITimingData,
+  sessionType?: ISessionInfo['Type'],
+  timingStats?: ITimingStats
+) => {
+  const driverTimingData = timingData?.Lines?.[driverNumber]
+
+  const position = parseInt(driverTimingData?.Position ?? '0')
+
+  const fallbackPosition = position == 1 ? 2 : 1
+
+  const targetPosition = (() => {
+    if (sessionType === 'Practice') return fallbackPosition
+
+    if (sessionType === 'Qualifying') {
+      const sessionPart = timingData?.SessionPart ?? 1
+
+      const currentEntries = timingData?.NoEntries?.[sessionPart] ?? null
+
+      const cutoff = currentEntries ? position > currentEntries : false
+
+      if (!cutoff || !currentEntries) return fallbackPosition
+
+      for (let driverPosition = currentEntries; driverPosition > 0; driverPosition--) {
+        const driverData = Object.values(timingData?.Lines ?? {}).find(
+          (data) => parseInt(data.Position) === driverPosition
+        )
+
+        if (driverData?.BestLapTime?.Value !== '') return driverPosition
+      }
+
+      return fallbackPosition
+    } else {
+      for (const driver in timingStats) {
+        const driverBestLapPosition = timingStats?.[driver].PersonalBestLapTime.Position
+
+        if (driverBestLapPosition === 1) {
+          return timingData?.Lines?.[driver]?.Position ?? fallbackPosition
+        }
+      }
+
+      return fallbackPosition
+    }
+  })()
+
+  const targetData = Object.values(timingData?.Lines ?? {})?.find(
+    (line) => line?.Position == targetPosition
+  )
+
+  return targetData
+}
+
+export const isDriverInDanger = (
+  driverNumber: string,
+  timingData?: ITimingData,
+  sessionType?: ISessionInfo['Type']
+) => {
+  if (sessionType !== 'Qualifying') return false
+
+  const driverTimingData = timingData?.Lines?.[driverNumber]
+
+  const position = parseInt(driverTimingData?.Position ?? '1')
+
+  const sessionPart = timingData?.SessionPart ?? 1
+
+  const currentEntries = timingData?.NoEntries?.[sessionPart] ?? null
+
+  const cutoff = currentEntries !== null ? position > currentEntries : false
+
+  return cutoff
 }

@@ -86,34 +86,45 @@ const PushLaps = () => {
       {}
     )
 
-    const newPushDrivers = getDriversTrackOrder(
-      Object.keys(TimingData?.Lines ?? {}).filter((driverNumber) =>
-        isDriverOnPushLap(
-          driverNumber,
-          SessionStatus?.Status,
-          TrackStatus?.Status,
-          TimingData,
-          TimingStats,
-          SessionInfo?.Type
-        )
-      ),
-      newDriversInfo,
-      TimingData
+    const newPushDrivers = Object.keys(TimingData?.Lines ?? {}).filter((driverNumber) =>
+      isDriverOnPushLap(
+        driverNumber,
+        SessionStatus?.Status,
+        TrackStatus?.Status,
+        TimingData,
+        TimingStats,
+        SessionInfo?.Type
+      )
     )
 
     if (JSON.stringify(pushDrivers) !== JSON.stringify(newPushDrivers)) {
       setPushDrivers(newPushDrivers)
-      setShownDrivers([
+
+      const newShownDrivers = [
         ...shownDrivers,
         ...newPushDrivers.filter((driverNumber) => !shownDrivers.includes(driverNumber))
-      ])
+      ]
+
+      const sortedDrivers = newShownDrivers.sort((d1, d2) => {
+        if (!newPushDrivers.includes(d1) || !newPushDrivers.includes(d2)) {
+          console.log(d1, d2)
+          return 0
+        }
+
+        const trackOrder = getDriversTrackOrder([d1, d2], newDriversInfo, TimingData)
+
+        return trackOrder.indexOf(d1) - trackOrder.indexOf(d2)
+      })
+
+      setShownDrivers(sortedDrivers)
     }
 
     const newChildData: ICardData = {
       timingData: TimingData,
       timingStats: TimingStats,
       timingAppData: TimingAppData,
-      driverList: DriverList
+      driverList: DriverList,
+      sessionType: SessionInfo?.Type
     }
 
     if (JSON.stringify(childData) !== JSON.stringify(newChildData)) setChildData(newChildData)

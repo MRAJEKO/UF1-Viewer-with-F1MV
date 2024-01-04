@@ -3,15 +3,16 @@
 .container {
   display: flex;
   flex-direction: column;
+  max-height: 0;
   height: 40vw;
   background-color: Colors.$black-translucent;
-  margin-bottom: 5vw;
   overflow: hidden;
+  margin-bottom: 0;
   transition: all 0.5s ease-in-out;
 
-  &.hide {
-    height: 0;
-    margin-bottom: 0;
+  &.shown {
+    max-height: 40vw;
+    margin-bottom: 5vw;
   }
 
   .header {

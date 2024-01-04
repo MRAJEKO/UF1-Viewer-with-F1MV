@@ -359,7 +359,7 @@ export interface IStint {
 }
 
 export interface ITimingData {
-  NoEntries?: [number]
+  NoEntries?: number[]
   SessionPart?: number
   CutOffTime?: string
   CutOffPercentage?: string

@@ -1,21 +1,22 @@
 import useTrackTime from '@renderer/hooks/useTrackTime'
 import {
   IDriverList,
+  ISessionInfo,
   ITimingAppData,
   ITimingData,
   ITimingStats
 } from '@renderer/types/LiveTimingStateTypes'
 
-import styles from './PushLapCard.module.scss'
-import { speed1 } from '@renderer/constants/refreshIntervals'
-import { useEffect, useState } from 'react'
 import { teamIcons } from '@renderer/assets/icons/teams/teamIcons'
+import { speed1 } from '@renderer/constants/refreshIntervals'
 import { compoundColorMapping, compoundLetterMapping } from '@renderer/constants/tyreMappings'
 import Colors from '@renderer/modules/Colors'
-import { contrastColor } from '@renderer/utils/textColor'
-import PushLapCardSector from './PushLapCardSector'
 import { milisecondsToF1 } from '@renderer/utils/convertTime'
-import { firstSectorCompleted } from '@renderer/utils/driver'
+import { firstSectorCompleted, getTargetData, isDriverInDanger } from '@renderer/utils/driver'
+import { contrastColor } from '@renderer/utils/textColor'
+import { useEffect, useState } from 'react'
+import styles from './PushLapCard.module.scss'
+import PushLapCardSector from './PushLapCardSector'
 import PushLapCardTarget from './PushLapCardTarget'
 
 export interface ICardData {
@@ -23,6 +24,7 @@ export interface ICardData {
   timingAppData?: ITimingAppData
   timingStats?: ITimingStats
   driverList?: IDriverList
+  sessionType?: ISessionInfo['Type']
 }
 
 interface IPushLapCardProps {
@@ -46,37 +48,23 @@ const PushLapCard = ({
 IPushLapCardProps) => {
   const { trackTimeUtc } = useTrackTime(speed1)
 
-  const [timingData, setTimingData] = useState<ITimingData | undefined>(data.timingData)
+  const [actualData, setActualData] = useState<ICardData | null>(null)
 
-  const [timingStats, setTimingStats] = useState<ITimingStats | undefined>(data.timingStats)
-
-  const [timingAppData, setTimingAppData] = useState<ITimingAppData | undefined>(data.timingAppData)
-
-  const [driverList, setDriverList] = useState<IDriverList | undefined>(data.driverList)
-
-  const [show, setShow] = useState<boolean>(pushing)
-
-  // console.log(teamIcons)
+  const [shouldUpdate, setShouldUpdate] = useState<boolean>(true)
 
   useEffect(() => {
-    setTimingData(data.timingData)
-  }, [data.timingData])
+    if (shouldUpdate) setActualData(data)
+    if (!pushing) setShouldUpdate(false)
+  }, [data, shouldUpdate, pushing])
+
+  const [show, setShow] = useState<boolean>(false)
 
   useEffect(() => {
-    setTimingStats(data.timingStats)
-  }, [data.timingStats])
-
-  useEffect(() => {
-    setTimingAppData(data.timingAppData)
-  }, [data.timingAppData])
-
-  useEffect(() => {
-    setDriverList(data.driverList)
-  }, [data.driverList])
-
-  useEffect(() => {
-    if (pushing) setShow(true)
-    else {
+    if (pushing) {
+      setTimeout(() => {
+        setShow(true)
+      }, 100)
+    } else {
       setTimeout(() => {
         setShow(false)
 
@@ -86,6 +74,8 @@ IPushLapCardProps) => {
       }, endOfLapAnimationDuration)
     }
   }, [pushing])
+
+  const { timingData, timingAppData, timingStats, driverList, sessionType } = actualData ?? {}
 
   const driverInfo = driverList?.[driverNumber]
 
@@ -105,7 +95,7 @@ IPushLapCardProps) => {
     ? lapStartTime
       ? milisecondsToF1(trackTimeUtc - lapStartTime, 1)
       : 'NO TIME'
-    : driverTimingData?.LastLapTime?.Value ?? ' NO TIME'
+    : driverTimingData?.LastLapTime?.Value || 'NO TIME'
 
   const timeColor = pushing
     ? lapStartTime
@@ -117,13 +107,17 @@ IPushLapCardProps) => {
     ? Colors.green
     : Colors.yellow
 
-  // const dangerZone = false
+  const dangerZone = isDriverInDanger(driverNumber, timingData, sessionType)
+
+  const targetData = getTargetData(driverNumber, timingData, sessionType, timingStats)
 
   return (
-    <div className={`${styles.container} ${show ? '' : styles.hide}`}>
+    <div className={`${styles.container} ${show ? styles.shown : ''}`}>
       <div className={styles.header}>
-        <div className={styles.position}>
-          <p>{timingData?.Lines?.[driverNumber]?.Position ?? '?'}</p>
+        <div style={{ backgroundColor: dangerZone ? Colors.red : '' }} className={styles.position}>
+          <p style={{ color: dangerZone ? Colors.white : '' }}>
+            {timingData?.Lines?.[driverNumber]?.Position ?? '?'}
+          </p>
         </div>
         <div style={{ backgroundColor: teamColour }} className={styles['teamicon-name']}>
           <div className={styles.name}>
@@ -144,15 +138,26 @@ IPushLapCardProps) => {
           <p style={{ color: timeColor }}>{time}</p>
         </div>
         <div className={styles.target}>
-          <PushLapCardTarget data={{ timingData, driverList, timingStats }} />
+          <PushLapCardTarget
+            targetData={targetData}
+            driverNumber={driverNumber}
+            data={{ timingData, driverList, timingStats, sessionType }}
+          />
         </div>
       </div>
       <div className={styles.sectors}>
         {timingData?.Lines?.[driverNumber]?.Sectors?.map((sector, index) => (
           <PushLapCardSector
-            firstSectorCompleted={firstSectorCompleted(timingData.Lines[driverNumber].Sectors)}
             key={index}
+            index={index}
+            isPushing={pushing}
+            firstSectorCompleted={firstSectorCompleted(timingData.Lines[driverNumber].Sectors)}
             sectorInfo={sector}
+            targetTimingStats={
+              targetData?.BestLapTime?.Value
+                ? timingStats?.Lines?.[targetData?.RacingNumber ?? '']
+                : undefined
+            }
           />
         )) ?? <p>NO SECTOR DATA</p>}
       </div>
