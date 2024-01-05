@@ -49,8 +49,7 @@ const PushLapCard = ({
   lapStartTime,
   setShownDrivers,
   endOfLapAnimationDuration
-}: // endOfSectorAnimationDuration
-IPushLapCardProps) => {
+}: IPushLapCardProps) => {
   const { trackTimeUtc } = useTrackTime(speed1)
 
   const [actualData, setActualData] = useState<ICardData | null>(null)
@@ -94,8 +93,6 @@ IPushLapCardProps) => {
 
   const teamColour = driverInfo?.TeamColour ? `#${driverInfo?.TeamColour}` : `Colors.white`
 
-  // console.log(trackTimeUtc)
-
   const isLapCompleted = lapCompleted(driverTimingData)
 
   const enteredPitlane = driverTimingData?.InPit
@@ -134,72 +131,77 @@ IPushLapCardProps) => {
   )
 
   return (
-    <div className={`${styles.container} ${show ? styles.shown : ''}`}>
-      <div className={styles.header}>
-        <div style={{ backgroundColor: dangerZone ? Colors.red : '' }} className={styles.position}>
-          <p style={{ color: dangerZone ? Colors.white : '' }}>
-            {timingData?.Lines?.[driverNumber]?.Position ?? '?'}
-          </p>
-        </div>
-        <div style={{ backgroundColor: teamColour }} className={styles['teamicon-name']}>
-          <div className={styles.name}>
-            <p style={{ color: contrastColor(teamColour) }}>
-              {driverInfo?.LastName?.toUpperCase() ?? driverInfo?.Tla ?? 'Unknown'}
+    <div className={`${styles.wrapper} ${show ? styles.shown : ''}`}>
+      <div className={`${styles.container}`}>
+        <div className={styles.header}>
+          <div
+            style={{ backgroundColor: dangerZone ? Colors.red : '' }}
+            className={styles.position}
+          >
+            <p style={{ color: dangerZone ? Colors.white : '' }}>
+              {timingData?.Lines?.[driverNumber]?.Position ?? '?'}
             </p>
           </div>
-          <div className={styles.teamicon}>
-            <img src={teamIcons[driverInfo?.TeamName ?? '']} alt="" />
+          <div style={{ backgroundColor: teamColour }} className={styles['teamicon-name']}>
+            <div className={styles.name}>
+              <p style={{ color: contrastColor(teamColour) }}>
+                {driverInfo?.LastName?.toUpperCase() ?? driverInfo?.Tla ?? 'Unknown'}
+              </p>
+            </div>
+            <div className={styles.teamicon}>
+              <img src={teamIcons[driverInfo?.TeamName ?? '']} alt="" />
+            </div>
+          </div>
+          <div className={styles.tyre}>
+            <p style={{ color: driverTyreColor }}>{driverTyre}</p>
           </div>
         </div>
-        <div className={styles.tyre}>
-          <p style={{ color: driverTyreColor }}>{driverTyre}</p>
+        <div className={styles.timing}>
+          <div className={styles.current}>
+            <p style={{ color: timeColor }}>{time}</p>
+          </div>
+          <div className={styles.target}>
+            <PushLapCardTarget
+              pushing={pushing}
+              firstSectorCompleted={
+                timingData?.Lines?.[driverNumber]?.Sectors
+                  ? firstSectorCompleted(timingData.Lines[driverNumber].Sectors)
+                  : false
+              }
+              targetData={
+                targetDriverNumber
+                  ? {
+                      timingData: timingData?.Lines?.[targetDriverNumber],
+                      timingStats: timingStats?.Lines?.[targetDriverNumber]
+                    }
+                  : {}
+              }
+              driverNumber={driverNumber}
+              data={{ timingData, driverList }}
+            />
+          </div>
         </div>
-      </div>
-      <div className={styles.timing}>
-        <div className={styles.current}>
-          <p style={{ color: timeColor }}>{time}</p>
-        </div>
-        <div className={styles.target}>
-          <PushLapCardTarget
-            pushing={pushing}
-            firstSectorCompleted={
-              timingData?.Lines?.[driverNumber]?.Sectors
-                ? firstSectorCompleted(timingData.Lines[driverNumber].Sectors)
-                : false
-            }
-            targetData={
-              targetDriverNumber
-                ? {
-                    timingData: timingData?.Lines?.[targetDriverNumber],
-                    timingStats: timingStats?.Lines?.[targetDriverNumber]
-                  }
-                : {}
-            }
-            driverNumber={driverNumber}
-            data={{ timingData, driverList }}
-          />
-        </div>
-      </div>
-      <div className={styles.sectors}>
-        {timingData?.Lines?.[driverNumber]?.Sectors?.map((sector, index) => (
-          <PushLapCardSector
-            lapCompleted={isLapCompleted}
-            key={index}
-            index={index}
-            isPushing={pushing}
-            firstSectorCompleted={firstSectorCompleted(timingData.Lines[driverNumber].Sectors)}
-            sectorInfo={sector}
-            targetTimingStats={
-              targetDriverNumber
-                ? timingData?.Lines?.[targetDriverNumber]?.BestLapTime?.Value
-                  ? timingStats?.Lines?.[
-                      timingData?.Lines?.[targetDriverNumber]?.RacingNumber ?? ''
-                    ]
+        <div className={styles.sectors}>
+          {timingData?.Lines?.[driverNumber]?.Sectors?.map((sector, index) => (
+            <PushLapCardSector
+              lapCompleted={isLapCompleted}
+              key={index}
+              index={index}
+              isPushing={pushing}
+              firstSectorCompleted={firstSectorCompleted(timingData.Lines[driverNumber].Sectors)}
+              sectorInfo={sector}
+              targetTimingStats={
+                targetDriverNumber
+                  ? timingData?.Lines?.[targetDriverNumber]?.BestLapTime?.Value
+                    ? timingStats?.Lines?.[
+                        timingData?.Lines?.[targetDriverNumber]?.RacingNumber ?? ''
+                      ]
+                    : undefined
                   : undefined
-                : undefined
-            }
-          />
-        )) ?? <p>NO SECTOR DATA</p>}
+              }
+            />
+          )) ?? <p>NO SECTOR DATA</p>}
+        </div>
       </div>
     </div>
   )

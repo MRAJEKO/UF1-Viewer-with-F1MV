@@ -1,110 +1,115 @@
 @use '@renderer/assets/colors.scss' as Colors;
 
-.container {
-  display: flex;
-  flex-direction: column;
+.wrapper {
   max-height: 0;
-  height: 40vw;
-  background-color: Colors.$black-translucent;
   overflow: hidden;
-  margin-bottom: 0;
   transition: all 0.5s ease-in-out;
+  margin-bottom: 0;
 
   &.shown {
     max-height: 40vw;
     margin-bottom: 5vw;
   }
 
-  .header {
+  .container {
     display: flex;
-    align-items: center;
-    height: 12vw;
-    position: relative;
+    flex-direction: column;
+    height: 40vw;
+    background-color: Colors.$black-translucent;
+    overflow: hidden;
+    margin-bottom: 0;
 
-    .position {
+    .header {
       display: flex;
       align-items: center;
-      justify-content: center;
-      width: 20vw;
-      height: 100%;
-      font-size: 6vw;
-      background-color: Colors.$white;
-
-      p {
-        transform: skew(-10deg);
-        font-family: 'InterRegular';
-        color: Colors.$black;
-      }
-    }
-
-    .teamicon-name {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
       height: 12vw;
-      gap: 4vw;
-      width: 100%;
-      border-left: 0.2vw solid Colors.$black;
-      border-right: 0.2vw solid Colors.$black;
-      padding: 0 2vw 0 4vw;
-      font-size: 6vw;
+      position: relative;
 
-      .name {
-        transform: skew(-10deg);
-      }
-
-      .teamicon {
+      .position {
         display: flex;
         align-items: center;
         justify-content: center;
+        width: 20vw;
         height: 100%;
-        width: 12vw;
+        font-size: 6vw;
+        background-color: Colors.$white;
 
-        img {
-          height: 80%;
+        p {
+          transform: skew(-10deg);
+          font-family: 'InterRegular';
+          color: Colors.$black;
+        }
+      }
+
+      .teamicon-name {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        height: 12vw;
+        gap: 4vw;
+        width: 100%;
+        border-left: 0.2vw solid Colors.$black;
+        border-right: 0.2vw solid Colors.$black;
+        padding: 0 2vw 0 4vw;
+        font-size: 6vw;
+
+        .name {
+          transform: skew(-10deg);
+        }
+
+        .teamicon {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          height: 100%;
+          width: 12vw;
+
+          img {
+            height: 80%;
+          }
+        }
+      }
+
+      .tyre {
+        display: grid;
+        place-items: center;
+        font-size: 6vw;
+        width: 20vw;
+
+        p {
+          font-family: 'InterRegular';
         }
       }
     }
 
-    .tyre {
+    .timing {
       display: grid;
-      place-items: center;
-      font-size: 6vw;
-      width: 20vw;
+      grid-template-columns: 1fr 1fr;
+      height: 100%;
+      border-bottom: 0.5vw solid Colors.$gray;
 
-      p {
-        font-family: 'InterRegular';
+      .current {
+        border-right: 0.5vw solid Colors.$gray;
+        display: grid;
+        place-items: center;
+
+        p {
+          font-family: 'InterBlack';
+          transform: skew(-10deg) scaleY(0.9);
+          font-size: 9vw;
+          color: Colors.$white;
+          font-variant-numeric: tabular-nums;
+        }
       }
     }
-  }
 
-  .timing {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    height: 100%;
-    border-bottom: 0.5vw solid Colors.$gray;
+    .sectors {
+      height: 30vw;
+      display: flex;
 
-    .current {
-      border-right: 0.5vw solid Colors.$gray;
-      display: grid;
-      place-items: center;
-
-      p {
-        font-family: 'InterBlack';
-        transform: skew(-10deg) scaleY(0.9);
-        font-size: 9vw;
-        color: Colors.$white;
-        font-variant-numeric: tabular-nums;
+      * {
+        color: white;
       }
-    }
-  }
-
-  .sectors {
-    height: 30vw;
-    display: flex;
-
-    * {
-      color: white;
     }
   }
 }
