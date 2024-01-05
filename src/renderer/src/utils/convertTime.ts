@@ -63,7 +63,7 @@ export const timestampToMiliseconds = (timezone) => {
 }
 
 // A lap or sector time can be send through and will return as a number in seconds
-export const parseLapOrSectorTime = (time: string) => {
+export const parseLapOrSectorTime = (time?: string) => {
   if (!time) return 0
 
   // Split the input into 3 variables by checking if there is a : or a . in the time. Then replace any starting 0's by nothing and convert them to numbers using parseInt.

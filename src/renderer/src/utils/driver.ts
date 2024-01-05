@@ -5,6 +5,7 @@ import {
   ISessionInfo,
   ISessionStatusStatus,
   ITimingData,
+  ITimingDataLine,
   ITimingStats,
   ITrackStatusStatus
 } from '@renderer/types/LiveTimingStateTypes'
@@ -175,7 +176,7 @@ export const getTargetData = (
     (line) => line?.Position == targetPosition
   )
 
-  return targetData
+  return targetData?.RacingNumber
 }
 
 export const isDriverInDanger = (
@@ -196,4 +197,20 @@ export const isDriverInDanger = (
   const cutoff = currentEntries !== null ? position > currentEntries : false
 
   return cutoff
+}
+
+export const lapCompleted = (driverTimingData?: ITimingDataLine) => {
+  if (!driverTimingData) return false
+
+  const minisectors = !!driverTimingData.Sectors[0].Segments
+
+  if (minisectors) {
+    const lastSector = driverTimingData.Sectors.slice(-1)[0]
+
+    if (lastSector?.Segments?.some((segment) => segment.Status === 2064)) return false
+
+    return lastSector.Segments?.slice(-1)[0].Status !== 0 && lastSector.Value !== ''
+  }
+
+  return driverTimingData.Sectors.slice(-1)[0].Value !== ''
 }

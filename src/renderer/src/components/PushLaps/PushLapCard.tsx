@@ -12,7 +12,12 @@ import { speed1 } from '@renderer/constants/refreshIntervals'
 import { compoundColorMapping, compoundLetterMapping } from '@renderer/constants/tyreMappings'
 import Colors from '@renderer/modules/Colors'
 import { milisecondsToF1 } from '@renderer/utils/convertTime'
-import { firstSectorCompleted, getTargetData, isDriverInDanger } from '@renderer/utils/driver'
+import {
+  firstSectorCompleted,
+  getTargetData as getTargetDriverNumber,
+  isDriverInDanger,
+  lapCompleted
+} from '@renderer/utils/driver'
 import { contrastColor } from '@renderer/utils/textColor'
 import { useEffect, useState } from 'react'
 import styles from './PushLapCard.module.scss'
@@ -91,16 +96,28 @@ IPushLapCardProps) => {
 
   // console.log(trackTimeUtc)
 
+  const isLapCompleted = lapCompleted(driverTimingData)
+
+  const enteredPitlane = driverTimingData?.InPit
+
   const time = pushing
     ? lapStartTime
       ? milisecondsToF1(trackTimeUtc - lapStartTime, 1)
       : 'NO TIME'
+    : enteredPitlane
+    ? 'IN PIT'
+    : driverTimingData?.Stopped
+    ? 'STOPPED'
+    : !isLapCompleted
+    ? 'BACKED'
     : driverTimingData?.LastLapTime?.Value || 'NO TIME'
 
   const timeColor = pushing
     ? lapStartTime
       ? Colors.white
       : Colors.darkgray
+    : !isLapCompleted || enteredPitlane || driverTimingData?.Stopped
+    ? Colors.red
     : driverTimingData?.LastLapTime?.OverallFastest
     ? Colors.purple
     : driverTimingData?.LastLapTime?.PersonalFastest
@@ -109,7 +126,12 @@ IPushLapCardProps) => {
 
   const dangerZone = isDriverInDanger(driverNumber, timingData, sessionType)
 
-  const targetData = getTargetData(driverNumber, timingData, sessionType, timingStats)
+  const targetDriverNumber = getTargetDriverNumber(
+    driverNumber,
+    timingData,
+    sessionType,
+    timingStats
+  )
 
   return (
     <div className={`${styles.container} ${show ? styles.shown : ''}`}>
@@ -139,23 +161,41 @@ IPushLapCardProps) => {
         </div>
         <div className={styles.target}>
           <PushLapCardTarget
-            targetData={targetData}
+            pushing={pushing}
+            firstSectorCompleted={
+              timingData?.Lines?.[driverNumber]?.Sectors
+                ? firstSectorCompleted(timingData.Lines[driverNumber].Sectors)
+                : false
+            }
+            targetData={
+              targetDriverNumber
+                ? {
+                    timingData: timingData?.Lines?.[targetDriverNumber],
+                    timingStats: timingStats?.Lines?.[targetDriverNumber]
+                  }
+                : {}
+            }
             driverNumber={driverNumber}
-            data={{ timingData, driverList, timingStats, sessionType }}
+            data={{ timingData, driverList }}
           />
         </div>
       </div>
       <div className={styles.sectors}>
         {timingData?.Lines?.[driverNumber]?.Sectors?.map((sector, index) => (
           <PushLapCardSector
+            lapCompleted={isLapCompleted}
             key={index}
             index={index}
             isPushing={pushing}
             firstSectorCompleted={firstSectorCompleted(timingData.Lines[driverNumber].Sectors)}
             sectorInfo={sector}
             targetTimingStats={
-              targetData?.BestLapTime?.Value
-                ? timingStats?.Lines?.[targetData?.RacingNumber ?? '']
+              targetDriverNumber
+                ? timingData?.Lines?.[targetDriverNumber]?.BestLapTime?.Value
+                  ? timingStats?.Lines?.[
+                      timingData?.Lines?.[targetDriverNumber]?.RacingNumber ?? ''
+                    ]
+                  : undefined
                 : undefined
             }
           />

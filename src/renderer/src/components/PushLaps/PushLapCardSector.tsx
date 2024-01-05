@@ -1,9 +1,10 @@
-import Colors from '@renderer/modules/Colors'
-import styles from './PushLapCardSector.module.scss'
-import { ISector, ITimingStatsLine } from '@renderer/types/LiveTimingStateTypes'
 import { segmentsStatusColorMappings } from '@renderer/constants/segmentStatusColorMappings'
+import Colors from '@renderer/modules/Colors'
+import { ISector, ITimingStatsLine } from '@renderer/types/LiveTimingStateTypes'
+import styles from './PushLapCardSector.module.scss'
 
 interface IPushLapCardSectorProps {
+  lapCompleted: boolean
   isPushing: boolean
   sectorInfo: ISector
   firstSectorCompleted: boolean
@@ -12,6 +13,7 @@ interface IPushLapCardSectorProps {
 }
 
 const PushLapCardSector = ({
+  lapCompleted,
   isPushing,
   sectorInfo,
   firstSectorCompleted,
@@ -38,7 +40,7 @@ const PushLapCardSector = ({
         <p
           style={{
             color:
-              (firstSectorCompleted || !isPushing) && Value !== ''
+              (firstSectorCompleted || (!isPushing && lapCompleted)) && Value !== ''
                 ? OverallFastest
                   ? Colors.purple
                   : PersonalFastest
@@ -48,10 +50,12 @@ const PushLapCardSector = ({
           }}
           className={styles.time}
         >
-          {(firstSectorCompleted || !isPushing) && Value !== '' ? Value ?? 'NO TIME' : 'NO TIME'}
+          {(firstSectorCompleted || (!isPushing && lapCompleted)) && Value !== ''
+            ? Value ?? 'NO TIME'
+            : 'NO TIME'}
         </p>
         <p style={{ color: isPositive ? Colors.yellow : Colors.green }} className={styles.delta}>
-          {(firstSectorCompleted || !isPushing) && Value !== ''
+          {(firstSectorCompleted || (!isPushing && lapCompleted)) && Value !== ''
             ? isPositive
               ? `+${delta}`
               : delta

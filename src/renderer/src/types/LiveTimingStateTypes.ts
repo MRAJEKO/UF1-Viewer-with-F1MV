@@ -434,8 +434,18 @@ export interface ISector {
 }
 
 export interface ISegment {
-  Status: number
+  Status: 2048 | 2049 | 2051 | 2052 | 2064 | 2068 | 0
 }
+
+/*
+2048 = yellow
+2049 = green
+2051 = purple
+2052 = red
+2064 = blue
+2068 = red
+0 = gray
+*/
 
 export interface ISpeeds {
   I1: ISpeed
