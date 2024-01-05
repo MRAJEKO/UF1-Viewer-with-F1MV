@@ -134,6 +134,8 @@ export const getTargetData = (
 ) => {
   const driverTimingData = timingData?.Lines?.[driverNumber]
 
+  const driverBestLapPosition = timingStats?.Lines?.[driverNumber]?.PersonalBestLapTime?.Position
+
   const position = parseInt(driverTimingData?.Position ?? '0')
 
   const fallbackPosition = position == 1 ? 2 : 1
@@ -152,24 +154,29 @@ export const getTargetData = (
 
       for (let driverPosition = currentEntries; driverPosition > 0; driverPosition--) {
         const driverData = Object.values(timingData?.Lines ?? {}).find(
-          (data) => parseInt(data.Position) === driverPosition
+          (data) => parseInt(data?.Position) === driverPosition
         )
 
         if (driverData?.BestLapTime?.Value !== '') return driverPosition
       }
 
       return fallbackPosition
-    } else {
-      for (const driver in timingStats) {
-        const driverBestLapPosition = timingStats?.[driver].PersonalBestLapTime.Position
-
-        if (driverBestLapPosition === 1) {
-          return timingData?.Lines?.[driver]?.Position ?? fallbackPosition
-        }
-      }
-
-      return fallbackPosition
     }
+
+    for (const driver in timingStats?.Lines) {
+      console.log(driver)
+      const loopDriverBestLapPosition = timingStats?.Lines?.[driver]?.PersonalBestLapTime?.Position
+
+      if (
+        driverBestLapPosition !== 1
+          ? loopDriverBestLapPosition === 1
+          : loopDriverBestLapPosition === 2
+      ) {
+        return timingData?.Lines?.[driver]?.Position ?? fallbackPosition
+      }
+    }
+
+    return fallbackPosition
   })()
 
   const targetData = Object.values(timingData?.Lines ?? {})?.find(

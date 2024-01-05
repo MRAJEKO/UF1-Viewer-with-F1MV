@@ -40,8 +40,16 @@ export const getDriversTrackOrder = (
 ) => {
   if (!timingData) return pushDrivers
   const driverOrder = pushDrivers.sort((a, b) => {
-    return drivers[a].lapStartTime && drivers[b].lapStartTime
-      ? (drivers[a].lapStartTime ?? 0) - (drivers[b].lapStartTime ?? 0)
+    const start1 = drivers[a].lapStartTime
+    const start2 = drivers[b].lapStartTime
+
+    const timingData1 = timingData.Lines?.[a]
+    const timingData2 = timingData.Lines?.[b]
+
+    return start1 && start2
+      ? start1 - start2 !== 0
+        ? start1 - start2
+        : parseInt(timingData1?.Position ?? '0') - parseInt(timingData2?.Position ?? '0')
       : getDriverPosition(b, timingData) - getDriverPosition(a, timingData)
   })
 
