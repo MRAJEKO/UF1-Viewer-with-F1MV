@@ -15,6 +15,8 @@ interface ITeamIcons {
   Sauber: string
   'Alfa Romeo Racing': string
   'Alfa Romeo': string
+  RB: string
+  'Kick Sauber': string
 }
 
 import mercedes from '@renderer/assets/icons/teams/mercedes.png'
@@ -31,6 +33,8 @@ import alpine from '@renderer/assets/icons/teams/alpine.png'
 import ferrari from '@renderer/assets/icons/teams/ferrari.png'
 import haas from '@renderer/assets/icons/teams/haas-red.png'
 import alfaRomeo from '@renderer/assets/icons/teams/alfa-romeo.png'
+import rb from '@renderer/assets/icons/teams/rb.png'
+import kickSauber from '@renderer/assets/icons/teams/kick-sauber.png'
 
 export const teamIcons: ITeamIcons = {
   Mercedes: mercedes,
@@ -48,5 +52,7 @@ export const teamIcons: ITeamIcons = {
   'Haas F1 Team': haas,
   Sauber: alfaRomeo,
   'Alfa Romeo Racing': alfaRomeo,
-  'Alfa Romeo': alfaRomeo
+  'Alfa Romeo': alfaRomeo,
+  RB: rb,
+  'Kick Sauber': kickSauber
 }
