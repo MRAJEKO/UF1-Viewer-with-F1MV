@@ -105,6 +105,8 @@ const PushLaps = () => {
         ...newPushDrivers.filter((driverNumber) => !shownDrivers.includes(driverNumber))
       ]
 
+      console.log(newShownDrivers)
+
       const sortedDrivers = newShownDrivers.sort((d1, d2) => {
         if (!newPushDrivers.includes(d1) || !newPushDrivers.includes(d2)) {
           console.log(d1, d2)
@@ -147,8 +149,6 @@ const PushLaps = () => {
     handleDataReceived,
     speed1
   )
-
-  // console.log(pushDrivers)
 
   return (
     <>

@@ -85,7 +85,7 @@ const PushLapCard = ({
 
   const driverTimingData = timingData?.Lines?.[driverNumber]
 
-  const driverCompound = timingAppData?.Lines?.[driverNumber]?.Stints?.slice(-1)[0].Compound
+  const driverCompound = timingAppData?.Lines?.[driverNumber]?.Stints?.slice(-1)[0]?.Compound
 
   const driverTyre = compoundLetterMapping[driverCompound || 'UNKNOWN']
 
