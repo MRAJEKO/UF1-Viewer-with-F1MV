@@ -18,6 +18,7 @@ import Weather from './pages/Weather'
 import AutoSwitcher from './pages/AutoSwitcher'
 import CrashDetection from './pages/CrashDetection'
 import PushLaps from './pages/PushLaps'
+import BattleMode from './pages/BattleMode'
 
 const router = createHashRouter([
   {
@@ -71,6 +72,10 @@ const router = createHashRouter([
   {
     path: '/autoswitcher',
     element: <AutoSwitcher />
+  },
+  {
+    path: '/battlemode',
+    element: <BattleMode />
   }
 ])
 

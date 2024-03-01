@@ -1,0 +1,61 @@
+@use '@renderer/assets/colors.scss' as Colors;
+
+.container {
+  display: grid;
+  padding: 1vh;
+  grid-template-columns: 200px 30px 100px 4fr 1fr 4fr 10fr 5fr;
+  gap: 2vh;
+  align-items: center;
+  position: relative;
+  color: Colors.$white;
+
+  .basic-info {
+    display: flex;
+    align-items: center;
+    gap: 5vh;
+
+    .position {
+      background-color: Colors.$white;
+      width: 16vh;
+      height: 15vh;
+      color: Colors.$black;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border-radius: 1vh;
+
+      p {
+        font-size: 10vh;
+      }
+    }
+
+    .color {
+      width: 3vh;
+      height: 14vh;
+      border-radius: 99999px;
+    }
+
+    p {
+      font-size: 10vh;
+    }
+  }
+
+  .tyre {
+    display: grid;
+    place-items: center;
+
+    img {
+      height: 13vh;
+    }
+  }
+
+  .gap {
+    display: grid;
+    place-items: center;
+
+    p {
+      font-size: 9vh;
+      font-family: 'InterRegular';
+    }
+  }
+}

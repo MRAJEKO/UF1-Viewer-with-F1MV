@@ -31,7 +31,7 @@ const Windows = ({ settingsExtended }: IWindowsProps) => {
       {/* <Window onPress={launchF1MV} name="Tire Statistics**" type="dev" /> */}
       <Window onPress={() => openWindow('current_laps')} name="Current Push Laps*" type="dev" />
       <Window onPress={() => openWindow('teamradios')} name="Team Radio's" />
-      <Window onPress={launchF1MV} name="Battle Mode**" type="dev" />
+      <Window onPress={() => openWindow('battlemode')} name="Battle Mode**" type="dev" />
       <Window onPress={() => openWindow('weather')} name="Weather Information" />
       <NewWindowSection name="BETA" />
       <Window
