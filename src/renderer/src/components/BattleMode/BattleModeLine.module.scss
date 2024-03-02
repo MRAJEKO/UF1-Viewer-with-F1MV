@@ -2,12 +2,14 @@
 
 .container {
   display: grid;
-  padding: 1vh;
-  grid-template-columns: 200px 30px 100px 4fr 1fr 4fr 10fr 5fr;
+  padding: 1vh 10vh;
+  grid-template-columns: 120vh 25vh 50vh 30vh 50vh;
   gap: 2vh;
   align-items: center;
   position: relative;
   color: Colors.$white;
+  width: 100%;
+  justify-content: space-between;
 
   .basic-info {
     display: flex;
@@ -56,6 +58,27 @@
     p {
       font-size: 9vh;
       font-family: 'InterRegular';
+    }
+  }
+
+  .drs {
+    display: grid;
+    place-items: center;
+
+    p {
+      border: 1vh solid transparent;
+      border-radius: 2vh;
+      padding: 1vh 2vh;
+      font-size: 8vh;
+    }
+  }
+
+  .lap {
+    display: grid;
+    place-items: center;
+
+    p {
+      font-size: 9vh;
     }
   }
 }

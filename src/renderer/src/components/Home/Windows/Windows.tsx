@@ -29,9 +29,9 @@ const Windows = ({ settingsExtended }: IWindowsProps) => {
       <Window onPress={() => openWindow('crashdetection')} name="Crash Detection" />
       {/* <Window onPress={launchF1MV} name="Track Rotation Compass**" type="dev" /> */}
       {/* <Window onPress={launchF1MV} name="Tire Statistics**" type="dev" /> */}
-      <Window onPress={() => openWindow('current_laps')} name="Current Push Laps*" type="dev" />
+      <Window onPress={() => openWindow('current_laps')} name="Current Push Laps" />
       <Window onPress={() => openWindow('teamradios')} name="Team Radio's" />
-      <Window onPress={() => openWindow('battlemode')} name="Battle Mode**" type="dev" />
+      <Window onPress={() => openWindow('battlemode')} name="Battle Mode" />
       <Window onPress={() => openWindow('weather')} name="Weather Information" />
       <NewWindowSection name="BETA" />
       <Window

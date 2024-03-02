@@ -7,7 +7,7 @@ import useLiveTiming from '@renderer/hooks/useLiveTiming'
 import {
   ICarData,
   IDriverList,
-  ILiveTimingState,
+  ISessionInfo,
   ITimingAppData,
   ITimingData
 } from '@renderer/types/LiveTimingStateTypes'
@@ -19,10 +19,11 @@ export interface ILiveTimingData {
   CarData: ICarData
   TimingData: ITimingData
   TimingAppData: ITimingAppData
+  SessionInfo: ISessionInfo
 }
 
 const BattleMode = () => {
-  const [selectedDrivers, setSelectedDrivers] = useState<string[]>(['1', '77', '4'])
+  const [selectedDrivers, setSelectedDrivers] = useState<string[]>([])
 
   const [LiveTimingData, setLiveTimingData] = useState<ILiveTimingData | null>(null)
 
@@ -33,7 +34,7 @@ const BattleMode = () => {
   }
 
   useLiveTiming(
-    ['DriverList', 'CarData', 'TimingData', 'TimingAppData'],
+    ['DriverList', 'CarData', 'TimingData', 'TimingAppData', 'SessionInfo'],
     handleDataReceived,
     speed4
   )
@@ -42,27 +43,60 @@ const BattleMode = () => {
     <>
       <MoveMode horizontal />
       <div className={styles.container}>
-        <div className={styles.headshots}>
-          {selectedDrivers.map((driver) => (
-            <img
-              key={driver}
-              src={
-                LiveTimingData?.DriverList?.[driver]?.HeadshotUrl?.replace('1col', '12col') ||
-                driverHeadshotFallback
-              }
-            />
+        <div className={styles.select}>
+          {Object.values(LiveTimingData?.DriverList || {}).map((driver) => (
+            <button
+              style={{
+                borderColor: `#${driver.TeamColour || 'fff'}`,
+                color: `#${driver.TeamColour || 'fff'}`,
+                opacity: selectedDrivers.includes(driver.RacingNumber) ? 1 : 0.2
+              }}
+              key={driver.RacingNumber}
+              onClick={() => {
+                if (selectedDrivers.includes(driver.RacingNumber)) {
+                  setSelectedDrivers(
+                    selectedDrivers.filter((RacingNumber) => RacingNumber !== driver.RacingNumber)
+                  )
+                } else {
+                  if (selectedDrivers.length < 3) {
+                    setSelectedDrivers([...selectedDrivers, driver.RacingNumber])
+                  }
+                }
+              }}
+            >
+              {driver.Tla}
+            </button>
           ))}
         </div>
-        <div className={styles.data}>
-          {sortDriversOnPosition(selectedDrivers, LiveTimingData).map((driver, index) => (
-            <BattleModeLine
-              driverAhead={selectedDrivers[index - 1]}
-              index={index}
-              driver={driver}
-              liveTimingData={LiveTimingData}
-            />
-          ))}
-        </div>
+        {selectedDrivers.length ? (
+          <>
+            <div className={styles.headshots}>
+              {selectedDrivers.map((driver) => (
+                <img
+                  key={driver}
+                  src={
+                    LiveTimingData?.DriverList?.[driver]?.HeadshotUrl?.replace('1col', '12col') ||
+                    driverHeadshotFallback
+                  }
+                />
+              ))}
+            </div>
+            <div className={styles.data}>
+              {sortDriversOnPosition(selectedDrivers, LiveTimingData).map((driver, index) => (
+                <BattleModeLine
+                  driverAhead={selectedDrivers[index - 1]}
+                  index={index}
+                  driver={driver}
+                  liveTimingData={LiveTimingData}
+                />
+              ))}
+            </div>
+          </>
+        ) : (
+          <div className={styles.fallback}>
+            <p>SELECT DRIVERS BY HOVERING</p>
+          </div>
+        )}
       </div>
     </>
   )

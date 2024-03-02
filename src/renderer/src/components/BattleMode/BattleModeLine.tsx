@@ -1,5 +1,7 @@
 import styles from '@renderer/components/BattleMode/BattleModeLine.module.scss'
+import Colors from '@renderer/modules/Colors'
 import { ILiveTimingData } from '@renderer/pages/BattleMode'
+import { parseLapOrSectorTime } from '@renderer/utils/convertTime'
 import { getTyreIcon } from '@renderer/utils/tyre'
 
 interface IProps {
@@ -10,7 +12,7 @@ interface IProps {
 }
 
 const BattleModeLine = ({ driverAhead, driver, liveTimingData, index }: IProps) => {
-  const { TimingData, DriverList, CarData, TimingAppData } = liveTimingData || {}
+  const { TimingData, DriverList, CarData, TimingAppData, SessionInfo } = liveTimingData || {}
 
   const driverAheadTimingData = driverAhead ? TimingData?.Lines?.[driverAhead] : null
   const driverAheadGapToLeader = driverAheadTimingData?.GapToLeader
@@ -19,10 +21,29 @@ const BattleModeLine = ({ driverAhead, driver, liveTimingData, index }: IProps) 
 
   const driverTimingAppData = TimingAppData?.Lines?.[driver]
 
+  const driverCarData = CarData?.Entries[0]?.Cars?.[driver]
+
   const ahead = (() => {
     const driverGapToLeader = driverTimingData?.GapToLeader
 
-    if (driverGapToLeader?.includes('LAP')) return 'INTERVAL'
+    if (SessionInfo?.Type === 'Qualifying') {
+      if (index === 0) return driverTimingData?.BestLapTime?.Value || ''
+
+      const driverAheadBestLapTime = parseLapOrSectorTime(driverAheadTimingData?.BestLapTime?.Value)
+      const driverBestLapTime = parseLapOrSectorTime(driverTimingData?.BestLapTime?.Value)
+
+      if (!driverAheadBestLapTime || !driverBestLapTime) return ''
+
+      const gap = driverBestLapTime - driverAheadBestLapTime
+
+      console.log(gap)
+
+      if (gap > 0) return `+${gap.toFixed(3)}`
+
+      return gap.toFixed(3)
+    }
+
+    if (index === 0) return 'INTERVAL'
 
     if (driverAheadGapToLeader?.includes('LAP')) return driverGapToLeader
 
@@ -38,6 +59,10 @@ const BattleModeLine = ({ driverAhead, driver, liveTimingData, index }: IProps) 
   const driverInfo = DriverList?.[driver]
 
   const position = driverTimingData?.Position
+
+  const drsStatus = driverCarData?.Channels[45]
+
+  const drsOn = drsStatus === 10 || drsStatus === 12 || drsStatus === 14
 
   return (
     <div className={styles.container}>
@@ -56,6 +81,20 @@ const BattleModeLine = ({ driverAhead, driver, liveTimingData, index }: IProps) 
       </div>
       <div className={styles.gap}>
         <p style={{ fontFamily: index === 0 ? 'InterBold' : '' }}>{ahead}</p>
+      </div>
+      <div className={styles.drs}>
+        <p
+          style={{
+            opacity: drsOn ? '100%' : '30%',
+            color: Colors.green,
+            borderColor: Colors.green
+          }}
+        >
+          DRS
+        </p>
+      </div>
+      <div className={styles.lap}>
+        <p>{driverTimingData?.LastLapTime?.Value}</p>
       </div>
     </div>
   )
